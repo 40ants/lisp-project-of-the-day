@@ -8,8 +8,10 @@ So, today's project is cl-mpg123!
 
 It's documentation (http://quickdocs.org/cl-mpg123/) says:
 
-| This is a binding to libmpg123 library allowing for convenient,
-| extensive, and fast decoding of MPEG1/2/3 (most prominently mp3) files.
+#+BEGIN_QUOTE
+This is a binding to libmpg123 library allowing for convenient,
+extensive, and fast decoding of MPEG1/2/3 (most prominently mp3) files.
+#+END_QUOTE
 
 Also, this library is able to extract id3 tags from the mp3 files. You
 can use it to build an mp3 catalog in Common Lisp!
