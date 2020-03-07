@@ -28,3 +28,4 @@ cl-mpg123:metadata method does not work on this file :(
 
 [[../media/0000/03-metadata.png]]
 
+Of cause, I've submitted the issue: https://github.com/Shirakumo/cl-mpg123/issues/2
