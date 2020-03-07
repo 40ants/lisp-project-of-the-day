@@ -39,9 +39,9 @@ Quicklisp distributions. You can have many of them:
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_RESULTS
+#+BEGIN_SRC
 (#<QL-DIST:DIST quicklisp 2019-08-13>)
-#+END_RESULTS
+#+END_SRC
 
 #+BEGIN_SRC lisp :load no :wrap
   (ql-dist:install-dist "http://dist.ultralisp.org/"
@@ -50,6 +50,6 @@ Quicklisp distributions. You can have many of them:
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_RESULTS
+#+BEGIN_EXPORT
 (#<QL-DIST:DIST quicklisp 2019-08-13> #<QL-DIST:DIST ultralisp 20200307123509>)
-#+END_RESULTS
+#+END_EXPORT
