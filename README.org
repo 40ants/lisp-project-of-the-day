@@ -1,6 +1,51 @@
-# lisp-project-of-the-day
+# -*- encoding:utf-8 Mode: POLY-ORG;  -*- ---
+#+Startup: noindent
 Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 * 2020
 ** March
 - 07 March – [[2020-03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
+
+* Code, used to choose a project
+
+First of all, we need to define a package for our code:
+
+#+BEGIN_SRC lisp
+(defpackage #:poftheday
+  (:use #:cl)
+  (:export
+   #:choose))
+(in-package poftheday)
+#+END_SRC
+
+Then a function to select random project among all projects, provided by
+Quicklisp. Quicklisp client call them "releases".
+
+#+BEGIN_SRC lisp
+(defun choose ()
+  (let* ((releases (ql::provided-releases t))
+         (idx (random (length releases)))
+         (release (nth idx releases)))
+    (values
+     (ql::project-name release)
+     (ql::system-files release))))
+#+END_SRC
+
+By the way, this function will choose all projects from all installed
+Quicklisp distributions. You can have many of them:
+
+#+BEGIN_SRC lisp :load no
+  (ql-dist:all-dists)
+#+END_SRC
+
+#+RESULTS:
+: (#<QL-DIST:DIST quicklisp 2019-08-13>)
+
+#+BEGIN_SRC lisp :load no
+  (ql-dist:install-dist "http://dist.ultralisp.org/"
+                      :prompt nil)
+  (ql-dist:all-dists)
+#+END_SRC
+
+#+RESULTS:
+: (#<QL-DIST:DIST quicklisp 2019-08-13> #<QL-DIST:DIST ultralisp 20200307123509>)
