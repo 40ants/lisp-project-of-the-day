@@ -35,14 +35,6 @@ By the way, this function will choose all projects from all installed
 Quicklisp distributions. You can have many of them:
 
 #+BEGIN_SRC lisp :load no :wrap
-  CL-USER> (ql-dist:all-dists)
-  (#<QL-DIST:DIST quicklisp 2019-08-13>)
-#+END_SRC
-
-#+BEGIN_SRC lisp
-#+END_SRC
-
-#+BEGIN_SRC lisp :load no :wrap
   CL-USER> (ql-dist:install-dist "http://dist.ultralisp.org/"
                                  :prompt nil)
   CL-USER> (ql-dist:all-dists)
