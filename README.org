@@ -1,5 +1,5 @@
 # lisp-project-of-the-day
-Here I'll post notes about Quicklisp projects. Also I publish them on Twitter account svetlyak40wt.
+Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 * 2020
 ** March
