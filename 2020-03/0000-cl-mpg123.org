@@ -1,0 +1,28 @@
+* Day Zero
+** A small helper
+Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my "Project of the Day" marathon!
+
+[[../media/0000/01-helper.jpg]]
+** cl-mpg123 is the library of the day!
+So, today's project is cl-mpg123!
+
+It's documentation (http://quickdocs.org/cl-mpg123/) says:
+
+| This is a binding to libmpg123 library allowing for convenient,
+| extensive, and fast decoding of MPEG1/2/3 (most prominently mp3) files.
+
+Also, this library is able to extract id3 tags from the mp3 files. You
+can use it to build an mp3 catalog in Common Lisp!
+
+
+Let's see it works!
+
+It almost was able to give me information about one of the mp3s I've
+found on the disk!
+
+[[../media/0000/02-describe.jpg]]
+
+cl-mpg123:metadata method does not work on this file :(
+
+[[../media/0000/03-metadata.jpg]]
+
