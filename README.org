@@ -38,7 +38,6 @@ Quicklisp distributions. You can have many of them:
   (ql-dist:all-dists)
 #+END_SRC
 
-#+RESULTS:
 #+BEGIN_SRC lisp
 (#<QL-DIST:DIST quicklisp 2019-08-13>)
 #+END_SRC
@@ -49,7 +48,6 @@ Quicklisp distributions. You can have many of them:
   (ql-dist:all-dists)
 #+END_SRC
 
-#+RESULTS:
 #+BEGIN_EXPORT lisp
 (#<QL-DIST:DIST quicklisp 2019-08-13> #<QL-DIST:DIST ultralisp 20200307123509>)
 #+END_EXPORT
