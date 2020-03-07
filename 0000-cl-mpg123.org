@@ -1,1 +1,6 @@
-* Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my "Project of the Day" marathon!
+* Day Zero
+** A small helper
+Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my "Project of the Day" marathon!
+
+
+
