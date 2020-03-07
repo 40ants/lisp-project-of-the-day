@@ -2,7 +2,7 @@
 ** A small helper
 Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my "Project of the Day" marathon!
 
-[[../media/0000/01-helper.jpg]]
+[[../media/0000/01-helper.png]]
 ** cl-mpg123 is the library of the day!
 So, today's project is cl-mpg123!
 
@@ -20,9 +20,9 @@ Let's see it works!
 It almost was able to give me information about one of the mp3s I've
 found on the disk!
 
-[[../../media/0000/02-describe.jpg]]
+[[../../media/0000/02-describe.png]]
 
 cl-mpg123:metadata method does not work on this file :(
 
-[[media/0000/03-metadata.jpg]]
+[[media/0000/03-metadata.png]]
 
