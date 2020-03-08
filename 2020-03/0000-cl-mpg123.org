@@ -3,7 +3,7 @@
 Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my "Project of the Day" marathon!
 
 [[../media/0000/01-helper.png]]
-** cl-mpg123 is the library of the day!
+** cl-mpg123 :audio:
 So, today's project is cl-mpg123!
 
 It's documentation (http://quickdocs.org/cl-mpg123/) says:
