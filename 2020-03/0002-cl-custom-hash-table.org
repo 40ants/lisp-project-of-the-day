@@ -1,4 +1,4 @@
-* cl-custom-hash-table
+* cl-custom-hash-table :datastructures:
 
 In Common Lisp standard, hash table can use only these test functions to check
 keys equality: eq, eql, equal and equalp
