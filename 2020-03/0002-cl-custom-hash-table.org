@@ -1,0 +1,128 @@
+* cl-custom-hash-table
+
+In Common Lisp standard, hash table can use only these test functions to check
+keys equality: eq, eql, equal and equalp
+(https://eli.thegreenplace.net/2004/08/08/equality-in-lisp), however
+sometimes you might want to privide a custom comparison and hash
+functions.
+
+Some implementations support this by providing an
+extension. Cl-custom-hash-table provides a portability layer for
+defining such custom hash functions.
+
+BTW, did you know there is a table of Common Lisp portability layers?
+
+https://shinmera.github.io/portability/
+
+Working on this post, I've created an issue to add cl-custom-hash-table
+into this list.
+
+Lets see, how does SBCL allow you to define custom hash functions using
+sb-ext:define-hash-table-test macro.
+
+For example, we want a hash table where we can use a first character of
+a string, given as a key.
+
+First, we need to define a comparison function:
+
+#+BEGIN_SRC lisp 
+
+POFTHEDAY> (defun first-char-equal (left right)
+             (char-equal (elt left 0)
+                         (elt right 0)))
+FIRST-CHAR-EQUAL
+
+POFTHEDAY> (first-char-equal "Foo" "foo")
+T
+POFTHEDAY> (first-char-equal "Foo" "Bar")
+NIL
+
+#+END_SRC
+
+Please, note, here I've sacrificed processing of corner cases when left and
+right are empty or not a strings in favour of readability.
+
+Also, we need to define a hash-function:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defun first-char-hash (text)
+             (sxhash (char-downcase (elt text 0))))
+FIRST-CHAR-HASH
+
+POFTHEDAY> (first-char-hash "foo")
+1193941380876393778 (61 bits, #x1091BB5C31C6DD32)
+
+POFTHEDAY> (first-char-hash "Foo")
+1193941380876393778 (61 bits, #x1091BB5C31C6DD32)
+
+#+END_SRC
+
+Now we can to register our custom hash function and to create a
+hash-table:
+
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (sb-ext:define-hash-table-test first-char-equal first-char-hash)
+FIRST-CHAR-EQUAL
+
+POFTHEDAY> (defparameter *h* (make-hash-table :test 'first-char-equal))
+*H*
+
+POFTHEDAY> (setf (gethash "Foo" *h*)
+                 :BAR)
+:BAR
+
+POFTHEDAY> (setf (gethash "fooga-dooga" *h*)
+                 :ANOTHER)
+:ANOTHER
+
+POFTHEDAY> (setf (gethash "second" *h*)
+                 :VALUE)
+:VALUE
+
+POFTHEDAY> (maphash (lambda (key value)
+                      (format t "~A -> ~A~%"
+                              key
+                              value))
+                    *h*)
+Foo -> ANOTHER
+second -> VALUE
+
+#+END_SRC
+
+As you can see, this works as expected.
+
+Now lets try to define the same hash table using cl-custom-hash-table:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (cl-custom-hash-table:define-custom-hash-table-constructor
+               make-first-char-hash
+             :test first-char-equal
+             :hash-function first-char-hash)
+MAKE-FIRST-CHAR-HASH  
+
+POFTHEDAY> (defparameter *h* (make-first-char-hash))
+*H*
+POFTHEDAY> (cl-custom-hash-table:with-custom-hash-table
+             (setf (gethash "Foo" *h*)
+                   :BAR)
+             (setf (gethash "fooga-dooga" *h*)
+                   :ANOTHER)
+             (setf (gethash "second" *h*)
+                   :VALUE)
+             (maphash (lambda (key value)
+                      (format t "~A -> ~A~%"
+                              key
+                              value))
+                    *h*))
+Foo -> ANOTHER
+second -> VALUE
+#+END_SRC
+
+As you can see, result is the same. However, we have to wrap our code
+into the cl-custom-hash-table:with-custom-hash-table macro call. We need
+this to ensure that correct functions will be used on Lisp
+implementation which don't support hash function's customization.
