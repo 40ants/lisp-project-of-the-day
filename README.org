@@ -5,7 +5,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 * 2020
 ** March
 - 07 March – [[2020-03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
-- 08 March – [[2020-03/0001-rate-monotonic.org][rate-monotonic]]
+- 08 March – [[2020-03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
 
 * Code, used to choose a project
 

@@ -1,12 +1,13 @@
 * rate-monotonic :threads:
-Today we'll look at rate-monotonic - a periodic thread scheduler
-inspired by RTEMS:
+Today's Common Lisp project of the Day is: rate-monotonic.
+
+It is a periodic thread scheduler inspired by RTEMS:
 
 http://quickdocs.org/rate-monotonic/
 
 The original documentation on Rate Monotonic Manager's API is not there
 anymore and page returns 404 error :( All we have is examples from
-rate-monotonic's readme file. However I found a new address of this page
+rate-monotonic's readme file. However, I found a new address of this page
 and created a pull request to fix the readme:
 
 https://github.com/npatrick04/rate-monotonic/pull/1
@@ -19,6 +20,7 @@ execute in a periodic fashion. Critically, it also gathers information
 about the execution of those periods and can provide important
 statistics to the user which can be used to analyze and tune the
 application.
+
 ...
 manager was designed to support application designers who utilize the
 Rate Monotonic Scheduling Algorithm (RMS) to ensure that their periodic
@@ -26,12 +28,13 @@ tasks will meet their deadlines, even under transient overload
 conditions. Although designed for hard real-time systems, the services
 provided by the rate monotonic manager may be used by any application
 which requires periodic tasks.
+
 #+END_QUOTE
 
-This library is useful when you have some function which should be
-called exactly in desired intervals.
+In other words, this library is useful when you have some function which
+should be called exactly in desired intervals.
 
-For example, we want to do some work every 100 milliseconds. Naive
+For example, we want to do some work every 100 milliseconds. The naive
 approach will be:
 
 #+BEGIN_SRC lisp
@@ -65,10 +68,10 @@ i: 10 time: 1.616
 
 #+END_SRC
 
-As you can see, all iteration took 1.6s, however we wanted each
-iteration run every 100ms, and in summary they should took a 1s.
+As you can see, all iterations took 1.6s, however, we wanted each
+iteration to run every 100ms, and in summary, they should take a 1s.
 
-Here how rate-monotonic can help here:
+Here is how rate-monotonic can help here:
 
 #+BEGIN_SRC lisp
 
@@ -106,3 +109,7 @@ i: 10 time: 1.009
 Now our execution has almost 1 second length. That is it. rm:period
 works like an adaptive sleep. It pauses thread taking into account a
 time elapsed from the previous call to rm:period.
+
+Great! In my current project, I have a few places where this library can
+be used.
+
