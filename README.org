@@ -7,7 +7,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 07 March – [[2020-03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[2020-03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
 - 09 March – [[2020-03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] ([[https://twitter.com/svetlyak40wt/status/1237070320206561282][twitter]])
-- 10 March - [[2020-03/0003-secure-random.org]] (not-published)
+- 10 March - [[2020-03/0003-secure-random.org][secure-random]] (not-published)
+- 11 March - http://quickdocs.org/physical-quantities/
 
 * Code, used to choose a project
 
@@ -43,3 +44,7 @@ Quicklisp distributions. You can have many of them:
   CL-USER> (ql-dist:all-dists)
   (#<QL-DIST:DIST quicklisp 2019-08-13> #<QL-DIST:DIST ultralisp 20200307123509>)
 #+END_SRC
+
+* Good candidates for review
+- a bunch of hu.dwim.* systems seems can be very interesting. We can
+  make "A Week of DWIM.HU"!
