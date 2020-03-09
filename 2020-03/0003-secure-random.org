@@ -1,0 +1,34 @@
+* secure-random :security:
+
+This library provides a secure pseudo-random number generator for Common
+Lisp.
+
+It uses OpenSSL underneath.
+
+It is similar to builtin random function, but can't be used as a drop-in
+replacement, because behaviour is slightly different for float numbers.
+
+Builtin CL's random function reckons float interval as contiguous. But
+secure-random returns discrete values, coercing integers to floats:
+
+#+BEGIN_SRC lisp
+;; Integers
+POFTHEDAY> (random 10)
+2 (2 bits, #x2, #o2, #b10)
+POFTHEDAY> (random 10)
+9 (4 bits, #x9, #o11, #b1001)
+POFTHEDAY> (secure-random:number 10)
+9 (4 bits, #x9, #o11, #b1001)
+POFTHEDAY> (secure-random:number 10)
+5 (3 bits, #x5, #o5, #b101)
+
+;; Floats
+POFTHEDAY> (random 10.0)
+2.9430425
+POFTHEDAY> (random 10.0)
+1.8096626 (180.96626%)
+POFTHEDAY> (secure-random:number 10.0)
+4.0
+POFTHEDAY> (secure-random:number 10.0)
+5.0
+#+END_SRC
