@@ -1,9 +1,9 @@
 * cl-custom-hash-table :datastructures:
 
-In Common Lisp standard, hash table can use only these test functions to check
-keys equality: eq, eql, equal and equalp
+In Common Lisp standard, a hash table can use only these test functions
+to check keys equality: eq, eql, equal and equalp
 (https://eli.thegreenplace.net/2004/08/08/equality-in-lisp), however
-sometimes you might want to privide a custom comparison and hash
+sometimes you might want to provide a custom comparison and hash
 functions.
 
 Some implementations support this by providing an
@@ -17,11 +17,11 @@ https://shinmera.github.io/portability/
 Working on this post, I've created an issue to add cl-custom-hash-table
 into this list.
 
-Lets see, how does SBCL allow you to define custom hash functions using
+Let's see, how does SBCL allow you to define custom hash functions using
 sb-ext:define-hash-table-test macro.
 
-For example, we want a hash table where we can use a first character of
-a string, given as a key.
+For example, we want a hash table where we can use the first character
+of a string, given as a key.
 
 First, we need to define a comparison function:
 
@@ -39,8 +39,8 @@ NIL
 
 #+END_SRC
 
-Please, note, here I've sacrificed processing of corner cases when left and
-right are empty or not a strings in favour of readability.
+Please, note, here I've sacrificed the processing of corner cases when
+left and right are empty or not a strings in favor of readability.
 
 Also, we need to define a hash-function:
 
@@ -94,7 +94,7 @@ second -> VALUE
 
 As you can see, this works as expected.
 
-Now lets try to define the same hash table using cl-custom-hash-table:
+Now let's try to define the same hash table using cl-custom-hash-table:
 
 #+BEGIN_SRC lisp
 
@@ -122,7 +122,7 @@ Foo -> ANOTHER
 second -> VALUE
 #+END_SRC
 
-As you can see, result is the same. However, we have to wrap our code
+As you can see, the result is the same. However, we have to wrap our code
 into the cl-custom-hash-table:with-custom-hash-table macro call. We need
 this to ensure that correct functions will be used on Lisp
-implementation which don't support hash function's customization.
+implementation which doesn't support the hash function's customization.

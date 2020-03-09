@@ -6,7 +6,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 ** March
 - 07 March – [[2020-03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[2020-03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
-- 09 March – [[2020-03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] (not published yet)
+- 09 March – [[2020-03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] ([[https://twitter.com/svetlyak40wt/status/1237070320206561282][twitter]])
+- 10 March - [[2020-03/0003-secure-random.org]] (not-published)
 
 * Code, used to choose a project
 
