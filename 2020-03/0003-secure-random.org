@@ -36,7 +36,7 @@ POFTHEDAY> (secure-random:number 10.0)
 By the way, did you know that standard randomizer should be initialized
 each time at program start to get really random results?
 
-Most implementation keeps a compiled in random state in it, and without
+The most implementation keeps a compiled in random state in it, and without
 additional initialization 'random' function will give you the same
 sequence of integers.
 
