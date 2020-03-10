@@ -32,3 +32,85 @@ POFTHEDAY> (secure-random:number 10.0)
 POFTHEDAY> (secure-random:number 10.0)
 5.0
 #+END_SRC
+
+By the way, did you know that standard randomizer should be initialized
+each time at program start to get really random results?
+
+Most implementation keeps a compiled in random state in it, and without
+additional initialization 'random' function will give you the same
+sequence of integers.
+
+Here is the illustration:
+
+#+BEGIN_SRC bash
+$ ros run -L sbcl-bin -e '(princ (random 100))'
+5
+$ ros run -L sbcl-bin -e '(princ (random 100))'
+5
+
+$ ros run -L ccl-bin -e '(princ (random 100))'
+75
+$ ros run -L ccl-bin -e '(princ (random 100))'
+75
+
+$ ros run -L clisp -e '(princ (random 100))'
+70
+$ ros run -L clisp -e '(princ (random 100))'
+70
+
+$ ros run -L ecl -e '(princ (random 100))'
+10
+$ ros run -L ecl -e '(princ (random 100))'
+79
+$ ros run -L ecl -e '(princ (random 100))'
+13
+$ ros run -L ecl -e '(princ (random 100))'
+42
+#+END_SRC
+
+As you can see, SBCL, CCL and CLISP have this problem, but ECL - doesn't.
+
+You can solve the problem by initialization of the random seed:
+
+#+BEGIN_SRC bash
+$ ros run -L sbcl-bin -e '(setf *random-state* (make-random-state t))' \
+                      -e '(princ (random 100))'
+68
+$ ros run -L sbcl-bin -e '(setf *random-state* (make-random-state t))' \
+                      -e '(princ (random 100))'
+99
+
+$ ros run -L ccl-bin -e '(setf *random-state* (make-random-state t))' \
+                     -e '(princ (random 100))'
+80
+$ ros run -L ccl-bin -e '(setf *random-state* (make-random-state t))' \
+                     -e '(princ (random 100))'
+53
+
+$ ros run -L clisp -e '(setf *random-state* (make-random-state t))' \
+                   -e '(princ (random 100))'
+68
+$ ros run -L clisp -e '(setf *random-state* (make-random-state t))' \
+                   -e '(princ (random 100))'
+9
+#+END_SRC
+
+Library 'secure-random' does not have this problem:
+
+#+BEGIN_SRC bash
+$ ros run -L sbcl-bin -e '(asdf:load-system :secure-random)' \
+                      -e '(princ (secure-random:number 100))'
+30
+$ ros run -L sbcl-bin -e '(asdf:load-system :secure-random)' \
+                      -e '(princ (secure-random:number 100))'
+16
+$ ros run -L sbcl-bin -e '(asdf:load-system :secure-random)' \
+                      -e '(princ (secure-random:number 100))'
+37
+$ ros run -L sbcl-bin -e '(asdf:load-system :secure-random)' \
+                      -e '(princ (secure-random:number 100))'
+4
+$ ros run -L sbcl-bin -e '(asdf:load-system :secure-random)' \
+                      -e '(princ (secure-random:number 100))'
+62
+#+END_SRC
