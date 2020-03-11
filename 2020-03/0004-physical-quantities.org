@@ -1,7 +1,7 @@
 * physical-quantities :math:
 
 This is a library for handling physical quantities. It supports physical
-units, values and uncertanties.
+units, values and uncertainties.
 
 It has good documentation. Here is an example from the README:
 
@@ -22,7 +22,7 @@ POFTHEDAY> (let (m c m)
 #+end_src
 
 As you can see, physical-quantities not only able to tag values with
-units but also is able to convert from one units to another:
+units but also is able to convert from one unit to another:
 
 #+begin_src lisp
 
@@ -35,6 +35,6 @@ POFTHEDAY> #q(* -> mm ^ 2)
 
 #+end_src
 
-You can find more examples in it's documentation:
+You can find more examples in its documentation:
 
 http://quickdocs.org/physical-quantities/
