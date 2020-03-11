@@ -1,0 +1,40 @@
+* physical-quantities :math:
+
+This is a library for handling physical quantities. It supports physical
+units, values and uncertanties.
+
+It has good documentation. Here is an example from the README:
+
+#+begin_src lisp
+
+POFTHEDAY> (let (m c m)
+             ;; Define the mass
+             (setf m #q(1.00 +/- 0.01 kg))
+             ;; The speed of light
+             (setf c #q(299792458 m / s))
+             ;; e = m * c^2
+             (setf e (q* m (qpow c 2)))
+             ;; Print e, converted to petajoule
+             (print #q(e -> PJ)))
+
+#<QUANTITY 89.87552 +/- 1.0 % petajoule {...}>
+
+#+end_src
+
+As you can see, physical-quantities not only able to tag values with
+units but also is able to convert from one units to another:
+
+#+begin_src lisp
+
+POFTHEDAY> (q* #q(2 +/- 0.1 m)
+               #q(3 +/- 0.1 m))
+#<QUANTITY 6 +/- 0.36055514 metre ^ 2 {10021734A3}>
+
+POFTHEDAY> #q(* -> mm ^ 2)
+#<QUANTITY 6000000 +/- 360555.16 millimetre ^ 2 {10023A6AF3}>
+
+#+end_src
+
+You can find more examples in it's documentation:
+
+http://quickdocs.org/physical-quantities/
