@@ -1,0 +1,98 @@
+* simple-inferiors
+
+This system is a wrapper around uiop's run-process. Documentation
+(http://quickdocs.org/simple-inferiors/) states it handles proper
+copying of stdout and stderr of the process simultaneously, both in a
+sequential and parallel fashion.
+
+I've read the code of the simple-inferiors and don't understand why does
+it significantly better than using plain uiop:run-process.
+
+Here is example of calls both of thes libraries:
+
+#+begin_src lisp
+
+POFTHEDAY> (simple-inferiors:run "ls" () :output t)
+2020-03
+LICENSE
+README.org
+media
+poftheday.asd
+0 (0 bits, #x0, #o0, #b0)
+
+POFTHEDAY>  (uiop:run-program (list "ls") :output t)
+2020-03
+LICENSE
+README.org
+media
+poftheday.asd
+NIL
+NIL
+0 (0 bits, #x0, #o0, #b0)
+
+#+end_src
+
+Probably, the most obvious and convenient part of simple-inferiors is
+how it handles nexted directory changing. Again, here is an
+illustration:
+
+#+begin_src lisp
+
+POFTHEDAY> (progn
+             (format t "~2&Directory structure:~2%")
+             (simple-inferiors:run "tree" '("foo") :output t)
+             
+             (format t "~2&Going one step down:~2%")
+             (simple-inferiors:with-chdir ("foo/")
+               (simple-inferiors:run "ls" '("-l") :output t)
+               
+               (format t "~2&Going deeper:~2%")
+               (simple-inferiors:with-chdir ("bar/")
+                 (simple-inferiors:run "ls" '("-l") :output t))))
+
+Directory structure:
+
+foo
+├── bar
+│   └── world.txt
+└── hello.txt
+
+1 directory, 2 files
+
+Going one step down:
+
+total 0
+drwxr-xr-x  3 art  LD\Domain Users  96 Mar 12 13:19 bar
+-rw-r--r--  1 art  LD\Domain Users   0 Mar 12 13:18 hello.txt
+
+Going deeper:
+
+total 0
+-rw-r--r--  1 art  LD\Domain Users  0 Mar 12 13:19 world.txt
+
+#+end_src
+
+There is the inconsistency in the way how does with-chdir work. You need
+to keep in mind that a directory name should have a backslash at the
+end. Otherwise, nesting won't work:
+
+#+begin_src lisp
+
+POFTHEDAY> (simple-inferiors:with-chdir ("foo/")
+             (simple-inferiors:with-chdir ("bar/")
+               simple-inferiors:*cwd*))
+#P"/Users/art/lisp-project-of-the-day/foo/bar/"
+POFTHEDAY> ;; Now, without slashes
+; No values
+POFTHEDAY> (simple-inferiors:with-chdir ("foo")
+             (simple-inferiors:with-chdir ("bar")
+               simple-inferiors:*cwd*))
+#P"/Users/art/lisp-project-of-the-day/bar"
+
+#+end_src
+
+I've created an issue on this problem:
+
+https://github.com/Shinmera/simple-inferiors/issues/4
+
+Do somebody want to fix it?
