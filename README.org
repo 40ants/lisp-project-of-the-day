@@ -9,7 +9,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 09 March – [[2020-03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] ([[https://twitter.com/svetlyak40wt/status/1237070320206561282][twitter]])
 - 10 March - [[2020-03/0003-secure-random.org][secure-random]] ([[https://twitter.com/svetlyak40wt/status/1237395451478851585][twitter]])
 - 11 March - [[2020-03/0004-physical-quantities.org][physical-quantities]] ([[https://twitter.com/svetlyak40wt/status/1237719603477872640][twitter]])
-- 12 March - [[2020-03/0005-simple-inferiors.org][simple-inferiors]]
+- 12 March - [[2020-03/0005-simple-inferiors.org][simple-inferiors]] ([[https://twitter.com/svetlyak40wt/status/1238071476860989440][twitter]])
 
 
 * Code, used to choose a project

@@ -1,4 +1,4 @@
-* simple-inferiors
+* simple-inferiors :os:
 
 This system is a wrapper around uiop's run-process. Documentation
 (http://quickdocs.org/simple-inferiors/) states it handles proper
@@ -8,7 +8,7 @@ sequential and parallel fashion.
 I've read the code of the simple-inferiors and don't understand why does
 it significantly better than using plain uiop:run-process.
 
-Here is example of calls both of thes libraries:
+Here is an example of calls both of these libraries:
 
 #+begin_src lisp
 
@@ -32,8 +32,8 @@ NIL
 
 #+end_src
 
-Probably, the most obvious and convenient part of simple-inferiors is
-how it handles nexted directory changing. Again, here is an
+Probably, the most convenient part of simple-inferiors is
+how it handles nested directory changing. Again, here is an
 illustration:
 
 #+begin_src lisp
@@ -95,4 +95,4 @@ I've created an issue on this problem:
 
 https://github.com/Shinmera/simple-inferiors/issues/4
 
-Do somebody want to fix it?
+Does somebody want to fix it?
