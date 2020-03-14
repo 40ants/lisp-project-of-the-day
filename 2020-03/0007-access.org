@@ -56,5 +56,6 @@ but I prefer to use a shorter macro ->:
 
 #+END_SRC
 
-Usually I use 'access' to process plists results from a Jonathan - JSON
-parser.
+Usually, I use 'access' to process plists results from a Jonathan - JSON
+parser. But it should be very convenient for accessing other data
+structures too.
