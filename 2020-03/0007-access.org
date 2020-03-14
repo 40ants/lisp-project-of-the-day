@@ -1,8 +1,10 @@
 * access :data_structures:
 
-This library brings a helper to access nested datastructures.
+This library brings a helper to access nested data structures.
 
-It has fairly detailed readme with examples.
+It has a fairly detailed readme with examples.
+
+I've prepared one example for you:
 
 #+BEGIN_SRC lisp
 POFTHEDAY> (defparameter obj
@@ -34,6 +36,8 @@ POFTHEDAY> (loop for key being the hash-keys in (get-bar *obj*)
 ((:SOME . "Hello world"))
 #+END_SRC
 
+It is able to access CLOS slots, plists, array items, hash keys, etc.
+
 Also, 'access' supports a reader syntax with a dotted notation,
 but I prefer to use a shorter macro ->:
 
@@ -41,6 +45,14 @@ but I prefer to use a shorter macro ->:
 
 (defmacro -> (obj &rest path)
   `(access:accesses ,obj ,@path))
+
+;; Somewhere in the code:
+
+(defcached get-stock-name (ticker)
+  (-> (%get-stock-data ticker)
+      :|payload|
+      :|symbol|
+      :|showName|))
 
 #+END_SRC
 
