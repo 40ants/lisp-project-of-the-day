@@ -1,0 +1,61 @@
+* access :data_structures:
+
+This library brings a helper to access nested data structures.
+
+It has a fairly detailed readme with examples.
+
+I've prepared one example for you:
+
+#+BEGIN_SRC lisp
+POFTHEDAY> (defparameter obj
+               (make-instance 'foo
+                              :bar (make-hash-table)))
+
+;; Now we will access a slot 'bar inside the object:
+POFTHEDAY> (access:accesses *obj* 'bar)
+#<HASH-TABLE :TEST EQL :COUNT 0 {1007D39263}>
+
+;; Now we go deeper and access an item :some
+;; inside this hash-table:
+POFTHEDAY> (access:accesses *obj* 'bar :some)
+NIL
+
+;; Accessor is allow us to use setf and it will automatically
+;; create all intermediate nodes:
+POFTHEDAY> (setf (access:accesses *obj* 'bar :some)
+                 "Hello world")
+"Hello world"
+
+;; Here is our result:
+POFTHEDAY> (access:accesses *obj* 'bar :some)
+"Hello world"
+
+POFTHEDAY> (loop for key being the hash-keys in (get-bar *obj*)
+                   using (hash-value value)
+                 collect (cons key value))
+((:SOME . "Hello world"))
+#+END_SRC
+
+It is able to access CLOS slots, plists, array items, hash keys, etc.
+
+Also, 'access' supports a reader syntax with a dotted notation,
+but I prefer to use a shorter macro ->:
+
+#+BEGIN_SRC lisp
+
+(defmacro -> (obj &rest path)
+  `(access:accesses ,obj ,@path))
+
+;; Somewhere in the code:
+
+(defcached get-stock-name (ticker)
+  (-> (%get-stock-data ticker)
+      :|payload|
+      :|symbol|
+      :|showName|))
+
+#+END_SRC
+
+Usually, I use 'access' to process plists results from a Jonathan - JSON
+parser. But it should be very convenient for accessing other data
+structures too.
