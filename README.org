@@ -12,7 +12,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 12 March - [[2020-03/0005-simple-inferiors.org][simple-inferiors]] ([[https://twitter.com/svetlyak40wt/status/1238071476860989440][twitter]])
 - 13 March - [[2020-03/0006-unix-opts.org][unix-opts]] ([[https://twitter.com/svetlyak40wt/status/1238386638088212480][twitter]])
 - 14 March - [[2020-03/0007-access.org][access]] ([[https://twitter.com/svetlyak40wt/status/1238937927222255617][twitter]])
-- 15 March - [[2020-03/0008-re.org][re]]
+- 15 March - [[2020-03/0008-re.org][re]] ([[https://twitter.com/svetlyak40wt/status/1239110401419358210][twitter]])
 
 
 * Code, used to choose a project

@@ -5,23 +5,23 @@ This is a small regular expressions engine, made by Jeffrey Massung
 
 This engine uses [[http://www.lua.org/pil/20.2.html][Lua's regexp syntax]].
 
-By the way, I was interested why did Lua developers choose such syntax
+By the way, I was interested in why did Lua developers choose such syntax
 over common Posix/Perl syntax. I found this interesting email from 
 Philippe Lhoste:
 
 http://lua-users.org/lists/lua-l/2001-04/msg00244.html
 
-In short, this alternative syntax was choosen to not support all the
+In short, this alternative syntax was chosen to not support all the
 features from Perl regexps and to make Lua's implementation short.
 
-Today's lua code contains 628 lines with regexp implemetation:
+Today lua code contains 628 lines with regexp implementation:
 
 https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980
 
-Common Lisp version is about 645 lines, but is based on a separate
+Common Lisp version is about 645 lines but is based on a separate
 parser library.
 
-I wondering how does re's performance compare with cl-ppcre? Lets check!
+I am wondering how does re's performance compare with cl-ppcre? Let's check!
 
 We will test performance on a simple example. It will extract a
 subreddit's name from the URL:
@@ -65,7 +65,7 @@ Evaluation took:
 
 #+end_src
 
-And here is result of the same amount of iterations for 're':
+And here is the result of the same amount of iterations for 're':
 
 #+begin_src lisp
 
@@ -89,10 +89,10 @@ Evaluation took:
 As you can see, cl-ppre is 20 times faster and consumes less memory than 're'.
 
 It would be interesting to compare cl-ppcre with other regexp
-engines. I've found a testsuite which already compares many engines:
+engines. I've found a test suite which already compares many engines:
 
 https://github.com/rust-leipzig/regex-performance
 
-But that is story for another thread.
+But that is the story for another thread.
 
 
