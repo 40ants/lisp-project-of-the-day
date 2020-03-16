@@ -1,6 +1,6 @@
 * random-sample :math:
 
-This is a small library to select N random items from given 
+This is a small library to select N random items from given sequence:
 
 #+BEGIN_SRC lisp
 
@@ -13,6 +13,17 @@ POFTHEDAY> (alexandria:iota 100)
 POFTHEDAY> ;; Now we'll select 10 random numbers
 POFTHEDAY> (random-sample:random-sample * 10)
 (73 38 39 56 26 83 86 62 46 27)
+
+;; It also works for vectors and strings:
+
+POFTHEDAY> #(1 2 3 4 5 6 7 8 9)
+#(1 2 3 4 5 6 7 8 9)
+POFTHEDAY> (random-sample:random-sample * 4)
+(8 2 7 1)
+POFTHEDAY> 
+; No values
+POFTHEDAY> (random-sample:random-sample "Hello world!" 4)
+(#\e #\o #\H #\ )
 
 #+END_SRC
 
