@@ -54,4 +54,4 @@ NIL
 Here is all dependencies of the :random-sample. Most of these, are
 subdependencies of the :serapeum:
 
-[[media/0009/random-sample-deps.png][Picture with dependency graph]]
+[[../media/0009/random-sample-deps.png][Picture with dependency graph]]
