@@ -14,6 +14,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 14 March - [[2020-03/0007-access.org][access]] ([[https://twitter.com/svetlyak40wt/status/1238937927222255617][twitter]])
 - 15 March - [[2020-03/0008-re.org][re]] ([[https://twitter.com/svetlyak40wt/status/1239110401419358210][twitter]])
 - 16 March - [[2020-03/0009-random-sample.org][random-sample]]
+- 17 March - [[2020-03/0010-ppath.org][ppath]]
 
 
 * Code, used to choose a project

@@ -1,0 +1,32 @@
+* ppath :system:
+
+This library brings Python's os.path API into the Common Lisp world.
+
+It manipulates by strings rather than by CL's pathnames.
+
+Ppath has pretty good documentation. I'll show only one example
+description of all available functions you'll find in the docs:
+
+http://quickdocs.org/ppath/
+
+#+begin_src lisp
+
+POFTHEDAY> (ppath:join "." "foo" "bar")
+"./foo/bar"
+
+POFTHEDAY> (ppath:exists (ppath:join "/tmp/" "foo"))
+T
+
+POFTHEDAY> (ppath:abspath ".")
+"/Users/art/projects/lisp/lisp-project-of-the-day"
+
+POFTHEDAY> (ppath:dirname (ppath:abspath "."))
+"/Users/art/projects/lisp"
+
+POFTHEDAY> (ppath:splitext "/tmp/some-file.jpg")
+("/tmp/some-file" . ".jpg")
+
+POFTHEDAY> (ppath:expandvars "/home/${LOGNAME}/bin")
+"/home/art/bin"
+
+#+end_src
