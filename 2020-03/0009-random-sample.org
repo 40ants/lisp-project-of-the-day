@@ -27,7 +27,7 @@ POFTHEDAY> (random-sample:random-sample "Hello world!" 4)
 
 #+END_SRC
 
-That is all what it does. But it has 20 dependencies! Why?
+That is all that it does. But it has 20 dependencies! Why?
 
 #+BEGIN_SRC lisp
 
@@ -46,7 +46,7 @@ To load "random-sample":
 
 #+END_SRC
 
-By the way, did you know there is a system which helps to visualize
+By the way, did you know there is a system that helps to visualize
 dependencies between ASDF systems? Let's try it as a bonus to this short
 thread!
 
@@ -62,7 +62,7 @@ POFTHEDAY> (asdf-viz:visualize-asdf-hierarchy
 NIL
 #+END_SRC
 
-Here is all dependencies of the :random-sample. Most of these, are
-subdependencies of the :serapeum:
+Here are all dependencies of the :random-sample. Most of these, are
+sub dependencies of the :serapeum:
 
 [[../media/0009/random-sample-deps.png]]
