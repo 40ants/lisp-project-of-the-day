@@ -36,3 +36,11 @@ POFTHEDAY> (pango-markup:markup-regions
 
 #+END_SRC
 
+If you want to use GTK from Common Lisp and output attributed text,
+:pango-markup will help you.
+
+Here is a full documentation to this library:
+
+https://shinmera.github.io/pango-markup/
+
+@shinmera's libraries have very nicely rendered documentation. Go, read it!
