@@ -1,8 +1,8 @@
 * pango-markup :text:
-This library allows to process a text with Pango Markup.
+This library allows processing a text with Pango Markup.
 
 Pango Markup used by GTK to render attributed text. It is a simple
-SGML-like language. It looks like a subset of html but uses custom
+SGML-like language. It looks like a subset of HTML but uses custom
 attributes.
 
 Gnome's Pango library contains a parser for this format:
@@ -15,7 +15,7 @@ attributes into this format.
 You should provide it a plain text and a separate list of regions with
 attributes.
 
-For example, is we whould like to make word "Bob" in "Hello Bob!", then
+For example, is we would like to make the word "Bob" in "Hello Bob!", then
 we need to do:
 
 #+BEGIN_SRC lisp
@@ -39,7 +39,7 @@ POFTHEDAY> (pango-markup:markup-regions
 If you want to use GTK from Common Lisp and output attributed text,
 :pango-markup will help you.
 
-Here is a full documentation to this library:
+Here is full documentation to this library:
 
 https://shinmera.github.io/pango-markup/
 
