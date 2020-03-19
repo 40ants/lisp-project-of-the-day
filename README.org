@@ -15,6 +15,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 15 March - [[2020-03/0008-re.org][re]] ([[https://twitter.com/svetlyak40wt/status/1239110401419358210][twitter]])
 - 16 March - [[2020-03/0009-random-sample.org][random-sample]] ([[https://twitter.com/svetlyak40wt/status/1239446033291194368][twitter]])
 - 17 March - [[2020-03/0010-ppath.org][ppath]] ([[https://twitter.com/svetlyak40wt/status/1239943718448365569][twitter]])
+- 19 March - [[2020-03/0012-cl-pack.org][cl-pack]]
+
 
 
 * Code, used to choose a project
