@@ -1,0 +1,46 @@
+* pango-markup :text:
+This library allows processing a text with Pango Markup.
+
+Pango Markup used by GTK to render attributed text. It is a simple
+SGML-like language. It looks like a subset of HTML but uses custom
+attributes.
+
+Gnome's Pango library contains a parser for this format:
+
+https://developer.gnome.org/pango/stable/pango-Markup.html
+
+But :pango-markup is not a parser, it's purpose is to render text and
+attributes into this format.
+
+You should provide it a plain text and a separate list of regions with
+attributes.
+
+For example, is we would like to make the word "Bob" in "Hello Bob!", then
+we need to do:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (pango-markup:markup-regions
+            "Hello Bob!"
+            '((6 9 :font (:weight :bold))))
+"Hello <span font_weight='bold'>Bob</span>!"
+
+;; Attributed ranges can be nested. Here we want
+;; to underline the whole sentence and make "Bob" bold:
+
+POFTHEDAY> (pango-markup:markup-regions
+            "Hello Bob!"
+            '((6 9 :font (:weight :bold))
+              (0 10 :underline t)))
+"<span underline='single'>Hello <span font_weight='bold'>Bob</span>!</span>"
+
+#+END_SRC
+
+If you want to use GTK from Common Lisp and output attributed text,
+:pango-markup will help you.
+
+Here is full documentation to this library:
+
+https://shinmera.github.io/pango-markup/
+
+@shinmera's libraries have very nicely rendered documentation. Go, read it!
