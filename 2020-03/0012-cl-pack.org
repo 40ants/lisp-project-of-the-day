@@ -1,13 +1,10 @@
 * cl-pack :data_structure:
 
-cl-pack supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
+It supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
 functions to allow easy use of (binary format) protocols and files with
-the above mentioned languages and C.
+the above-mentioned languages and C.
 
-Also, you can use it to implement a binary protocol between programs,
-written in different languages.
-
-I've tested :cl-pack using an example from it's README. Seems
+I've tested :cl-pack using an example from its README. Seems
 it does not work as expected, because it is unable to unpack the data,
 created by itself:
 
@@ -32,8 +29,8 @@ created by itself:
 As you can see, it wasn't able to unpack three unsigned chars from the
 end of the structure.
 
-I decided :cl-pack isn't able to distinguish the end of the line, and
-changed format string to the null terminated string.
+I've decided :cl-pack isn't able to distinguish the end of the line, and
+changed format string to the null-terminated string.
 
 But it doesn't work either:
 
