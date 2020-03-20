@@ -3,14 +3,11 @@
 Do+ is a macro, similar to 'loop' or 'iterate', but built with
 simplicity in mind.
 
-This project's repository lived at Google Code and was
-[[https://bitbucket.org/alessiostalla/doplus/src/default/][exported to the BitBucket]]. But it's readme does not contain a manual.
-
 Documentation is good and contains some examples showing how does
-iteration works and how to extend the behavior and add new iteration
+iteration works and how to extend the behaviour and add new iteration
 methods.
 
-Here is a simple iteration on list:
+Here is a simple iteration on the list:
 
 #+begin_src lisp
 
@@ -48,10 +45,10 @@ Hello SUNDAY
 Another cool feature is support for generators. BTW, :iterate supports
 them too.
 
-Lets try to build a generator which emits infinite number of fibbonachi
-numbers.
+Let's try to build a generator which emits an infinite sequence of
+Fibonacci numbers.
 
-First step, is to implement the iteration in do+ terms:
+The first step is to implement the iteration in do+ terms:
 
 #+begin_src lisp
 
@@ -75,7 +72,9 @@ prev: 55 x: 89
 
 #+end_src
 
-Next we need to wrap it into the defclause:
+Next, we need to wrap it into the defclause.
+
+This clause can be used in any do+ loops and will be lazily evaluated:
 
 #+begin_src lisp
 
@@ -85,6 +84,7 @@ POFTHEDAY> (defclause in-fib ()
                     (being 1 :then (prog1 (+ prev ,*iteration-variable*)
                                      (setf prev ,*iteration-variable*))))))
 
+;; Now we can use it as a clause inside another do+ form:
 POFTHEDAY> (do+
              (for x (in-fib))
              (format t "x: ~A~%" x)
@@ -103,8 +103,6 @@ x: 89
 NIL
 
 #+end_src
-
-This clause can be used in any do+ loops and will be lazy evaluated.
 
 Manual lives on the wiki:
 https://bitbucket.org/alessiostalla/doplus/wiki/Home
