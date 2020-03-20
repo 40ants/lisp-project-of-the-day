@@ -1,0 +1,113 @@
+* doplus :language:
+
+Do+ is a macro, similar to 'loop' or 'iterate', but built with
+simplicity in mind.
+
+This project's repository lived at Google Code and was
+[[https://bitbucket.org/alessiostalla/doplus/src/default/][exported to the BitBucket]]. But it's readme does not contain a manual.
+
+Documentation is good and contains some examples showing how does
+iteration works and how to extend the behavior and add new iteration
+methods.
+
+Here is a simple iteration on list:
+
+#+begin_src lisp
+
+POFTHEDAY> (use-package :doplus)
+T
+POFTHEDAY> (do+
+             (for i (in "Hello world!"))
+             (collect i))
+(#\H #\e #\l #\l #\o #\  #\w #\o #\r #\l #\d #\!)
+
+#+end_src
+
+Now let's try to extend do+ to iterate on week days:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclause in-days ()
+             `(for ,*iteration-variable*
+                   (in '(:monday :tuesday :wednesday
+                         :thursday :friday :saturday :sunday))))
+
+POFTHEDAY> (do+
+             (for day (in-days))
+             (format t "Hello ~A~%" day))
+Hello MONDAY
+Hello TUESDAY
+Hello WEDNESDAY
+Hello THURSDAY
+Hello FRIDAY
+Hello SATURDAY
+Hello SUNDAY
+
+#+end_src
+
+Another cool feature is support for generators. BTW, :iterate supports
+them too.
+
+Lets try to build a generator which emits infinite number of fibbonachi
+numbers.
+
+First step, is to implement the iteration in do+ terms:
+
+#+begin_src lisp
+
+POFTHEDAY> (do+
+             (with (prev 0))
+             (for x (being 1 :then (prog1 (+ prev x)
+                                     (setf prev x))))
+             (format t "prev: ~A x: ~A~%" prev x)
+             (stop-when (> x 100)))
+prev: 0 x: 1
+prev: 1 x: 1
+prev: 1 x: 2
+prev: 2 x: 3
+prev: 3 x: 5
+prev: 5 x: 8
+prev: 8 x: 13
+prev: 13 x: 21
+prev: 21 x: 34
+prev: 34 x: 55
+prev: 55 x: 89
+
+#+end_src
+
+Next we need to wrap it into the defclause:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclause in-fib ()
+             `((with (prev 0))
+               (for ,*iteration-variable*
+                    (being 1 :then (prog1 (+ prev ,*iteration-variable*)
+                                     (setf prev ,*iteration-variable*))))))
+
+POFTHEDAY> (do+
+             (for x (in-fib))
+             (format t "x: ~A~%" x)
+             (stop-when (> x 100)))
+x: 1
+x: 1
+x: 2
+x: 3
+x: 5
+x: 8
+x: 13
+x: 21
+x: 34
+x: 55
+x: 89
+NIL
+
+#+end_src
+
+This clause can be used in any do+ loops and will be lazy evaluated.
+
+Manual lives on the wiki:
+https://bitbucket.org/alessiostalla/doplus/wiki/Home
+
+
+See also :iterate, :for and :series.
