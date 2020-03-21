@@ -40,8 +40,8 @@ void loop () {
 
 #+END_SRC
 
-Now lets send some data to our microcomputer to show the string on
-attached LCD:
+Now, let's send some data to our microcomputer to show the string on
+the attached LCD:
 
 #+BEGIN_SRC lisp
 
