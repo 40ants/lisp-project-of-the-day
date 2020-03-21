@@ -1,4 +1,4 @@
-* access :data_structures:
+* access :data_structure:
 
 This library brings a helper to access nested data structures.
 
