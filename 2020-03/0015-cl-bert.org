@@ -34,7 +34,7 @@ POFTHEDAY> (coerce (mapcar #'code-char *) 'string)
 
 #+end_src
 
-How about more complext structures?
+How about more complex structures?
 
 #+begin_src lisp
 
@@ -59,7 +59,7 @@ To recap:
 - there is no documentation;
 - there is a bug with strings support;
 - vectors aren't supported;
-- RPC is not implmented, but probably can be done on top of the cl-bert,
+- RPC is not implemented, but probably can be done on top of the cl-bert,
   if these problems will be solved.
 
 Do you know other serialization libraries suitable for implementing a
