@@ -20,6 +20,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 20 March - [[2020-03/0013-doplus.org][doplus]] ([[https://twitter.com/svetlyak40wt/status/1241045194927230976][twitter]])
 - 21 March - [[2020-03/0014-cserial-port.org][cserial-port]] ([[https://twitter.com/svetlyak40wt/status/1241407253804126208][twitter]])
 - 22 March - [[2020-03/0015-cl-bert.org][cl-bert]] ([[https://twitter.com/svetlyak40wt/status/1241722134797443074][twitter]])
+- 23 March - [[2020-03/0016-kmrcl.org][kmrcl]]
 
 
 * Code, used to choose a project
