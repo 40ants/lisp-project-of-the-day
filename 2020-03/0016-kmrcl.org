@@ -1,18 +1,18 @@
 * kmrcl :utils:
 
 This is a collection of utility functions by Kevin M. Rosenberg.
-It includes wide range of tools and is completely undocumented :(
+It includes a wide range of tools and is completely undocumented :(
 
 Kmrcl is like :alexandria, :rutils or serapeuim.
 
 All symbols are in the :kmrcl package and to distinguish which
-functionality is covered by this library, it is better to download it's
+functionality is covered by this library, it is better to download its
 source from http://files.kpe.io/kmrcl/. Functionality is separated by
 files.
 
 Here is one interesting macro - if* from AllegroCL.
 
-Macro itself is not documented, but I found a documentation on Franz
+Macro itself is not documented, but I found documentation on Franz
 site: https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm
 
 Here is an example:
@@ -28,7 +28,7 @@ POFTHEDAY> (let ((score 75))
 #+END_SRC
 
 By the way, you can import this macro also from the @xach's :zacl
-system, also awailable from Quicklisp.
+system, also available from Quicklisp.
 
 Kmrcl contains many other utilities, to work with datastructures,
 classes, strings, network, memoization, html, xml and etc. Go, read the
