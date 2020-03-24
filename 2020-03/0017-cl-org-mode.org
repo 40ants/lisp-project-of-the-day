@@ -1,15 +1,12 @@
 * cl-org-mode :markup:
 
 This library contains a parser for Emacs org-mode and a primitive tool
-for doing Literate Programming. If you are looking for a better CL
+for doing Literate Programming. If you are looking for better CL
 support for literate programming try :literate-lisp.
 
 This parser can be interesting for people, who want to process org-mode
 files from the Common Lisp. For example, you can use it to write a
 plugin for blogging software like :coleslaw.
-
-I'm planning to write a simple static site generator for the Project of
-the Day, using this library and :spinneret for HTML generation.
 
 cl-org-mode has no any exported functions, but you can read it's sources
 and documentation:
@@ -62,3 +59,7 @@ i: 9 time: 1.46
 i: 10 time: 1.616
 "
 #+end_src
+
+I'm planning to write a simple static site generator for the Project of
+the Day, using this library and :spinneret for HTML generation.
+
