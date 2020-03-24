@@ -30,6 +30,31 @@ This code expands to the following cl-who code:
 
 #+END_SRC
 
+This is a more complex example from the README:
+
+#+BEGIN_SRC lisp
+
+(bs-navbar (:inverse t :brand "Brand")
+	(bs-navbar-nav ()
+		(bs-nav-li (:href "/panels") "Panels")
+		(bs-nav-dropdown (:title "Components")
+		(bs-nav-li (:href "/panels") "Panels")
+		(:li (:a :href "/buttons" "Buttons"))
+		(:li (:a :href "/labels" "Labels"))
+		(:li (:a :href "/modals" "Modal"))
+		(:li (:a :href "/tabs" "Tabs"))
+		(:li (:a :href "/dropdowns" "Dropdowns"))
+		(:li (:a :href "/tables" "Tables"))
+		(:li (:a :href "/carousel" "Carousel"))
+		(:li (:a :href "/navbars" "Navbars"))))
+	(bs-navbar-form ()
+		(:div
+			(:div :class "form-group"
+				(:input :type "text" :class "form-control" :placeholder "Search"))
+			(:button :type "submit" :class "btn btn-default" "Submit"))))
+
+#+END_SRC
+
 Here is the most colorful page from the demo:
 
 [[../media/0018/cl-bootstrap.png]]
