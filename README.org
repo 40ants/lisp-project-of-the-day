@@ -4,25 +4,25 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 
 * 2020
 ** March
-- 07 March – [[2020-03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
-- 08 March – [[2020-03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
-- 09 March – [[2020-03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] ([[https://twitter.com/svetlyak40wt/status/1237070320206561282][twitter]])
-- 10 March - [[2020-03/0003-secure-random.org][secure-random]] ([[https://twitter.com/svetlyak40wt/status/1237395451478851585][twitter]])
-- 11 March - [[2020-03/0004-physical-quantities.org][physical-quantities]] ([[https://twitter.com/svetlyak40wt/status/1237719603477872640][twitter]])
-- 12 March - [[2020-03/0005-simple-inferiors.org][simple-inferiors]] ([[https://twitter.com/svetlyak40wt/status/1238071476860989440][twitter]])
-- 13 March - [[2020-03/0006-unix-opts.org][unix-opts]] ([[https://twitter.com/svetlyak40wt/status/1238386638088212480][twitter]])
-- 14 March - [[2020-03/0007-access.org][access]] ([[https://twitter.com/svetlyak40wt/status/1238937927222255617][twitter]])
-- 15 March - [[2020-03/0008-re.org][re]] ([[https://twitter.com/svetlyak40wt/status/1239110401419358210][twitter]])
-- 16 March - [[2020-03/0009-random-sample.org][random-sample]] ([[https://twitter.com/svetlyak40wt/status/1239446033291194368][twitter]])
-- 17 March - [[2020-03/0010-ppath.org][ppath]] ([[https://twitter.com/svetlyak40wt/status/1239943718448365569][twitter]])
-- 18 March - [[2020-03/0011-pango-markup.org][pango-markup]] ([[https://twitter.com/svetlyak40wt/status/1240168844003618816][twitter]])
-- 19 March - [[2020-03/0012-cl-pack.org][cl-pack]] ([[https://twitter.com/svetlyak40wt/status/1240717258755694592][twitter]])
-- 20 March - [[2020-03/0013-doplus.org][doplus]] ([[https://twitter.com/svetlyak40wt/status/1241045194927230976][twitter]])
-- 21 March - [[2020-03/0014-cserial-port.org][cserial-port]] ([[https://twitter.com/svetlyak40wt/status/1241407253804126208][twitter]])
-- 22 March - [[2020-03/0015-cl-bert.org][cl-bert]] ([[https://twitter.com/svetlyak40wt/status/1241722134797443074][twitter]])
-- 23 March - [[2020-03/0016-kmrcl.org][kmrcl]] ([[https://twitter.com/svetlyak40wt/status/1242093281330241536][twitter]])
-- 24 March - [[2020-03/0017-cl-org-mode.org][cl-org-mode]] ([[https://twitter.com/svetlyak40wt/status/1242466873662373889][twitter]])
-- 25 March - [[2020-03/0018-cl-bootstrap.org][cl-bootstrap]]
+- 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
+- 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
+- 09 March – [[content/2020/03/0002-cl-custom-hash-table.org][cl-custom-hash-table]] ([[https://twitter.com/svetlyak40wt/status/1237070320206561282][twitter]])
+- 10 March - [[content/2020/03/0003-secure-random.org][secure-random]] ([[https://twitter.com/svetlyak40wt/status/1237395451478851585][twitter]])
+- 11 March - [[content/2020/03/0004-physical-quantities.org][physical-quantities]] ([[https://twitter.com/svetlyak40wt/status/1237719603477872640][twitter]])
+- 12 March - [[content/2020/03/0005-simple-inferiors.org][simple-inferiors]] ([[https://twitter.com/svetlyak40wt/status/1238071476860989440][twitter]])
+- 13 March - [[content/2020/03/0006-unix-opts.org][unix-opts]] ([[https://twitter.com/svetlyak40wt/status/1238386638088212480][twitter]])
+- 14 March - [[content/2020/03/0007-access.org][access]] ([[https://twitter.com/svetlyak40wt/status/1238937927222255617][twitter]])
+- 15 March - [[content/2020/03/0008-re.org][re]] ([[https://twitter.com/svetlyak40wt/status/1239110401419358210][twitter]])
+- 16 March - [[content/2020/03/0009-random-sample.org][random-sample]] ([[https://twitter.com/svetlyak40wt/status/1239446033291194368][twitter]])
+- 17 March - [[content/2020/03/0010-ppath.org][ppath]] ([[https://twitter.com/svetlyak40wt/status/1239943718448365569][twitter]])
+- 18 March - [[content/2020/03/0011-pango-markup.org][pango-markup]] ([[https://twitter.com/svetlyak40wt/status/1240168844003618816][twitter]])
+- 19 March - [[content/2020/03/0012-cl-pack.org][cl-pack]] ([[https://twitter.com/svetlyak40wt/status/1240717258755694592][twitter]])
+- 20 March - [[content/2020/03/0013-doplus.org][doplus]] ([[https://twitter.com/svetlyak40wt/status/1241045194927230976][twitter]])
+- 21 March - [[content/2020/03/0014-cserial-port.org][cserial-port]] ([[https://twitter.com/svetlyak40wt/status/1241407253804126208][twitter]])
+- 22 March - [[content/2020/03/0015-cl-bert.org][cl-bert]] ([[https://twitter.com/svetlyak40wt/status/1241722134797443074][twitter]])
+- 23 March - [[content/2020/03/0016-kmrcl.org][kmrcl]] ([[https://twitter.com/svetlyak40wt/status/1242093281330241536][twitter]])
+- 24 March - [[content/2020/03/0017-cl-org-mode.org][cl-org-mode]] ([[https://twitter.com/svetlyak40wt/status/1242466873662373889][twitter]])
+- 25 March - [[content/2020/03/0018-cl-bootstrap.org][cl-bootstrap]]
 
 
 
@@ -69,6 +69,23 @@ to initialize it:
   (setf *random-state*
         (make-random-state t))
 
+#+END_SRC
+
+* Here is how a website is rendered
+
+We need to read walk org-mode files in folders like 2020-03.
+The first
+
+#+BEGIN_SRC lisp
+(defun read-files ()
+  (uiop:while-collecting (tested)
+    (cl-fad:walk-directory "." 
+                           (lambda (f)
+                             f)
+                           :test (lambda (name)
+                                   (tested name)
+                                   t))
+    ))
 #+END_SRC
 
 * Good candidates for review
