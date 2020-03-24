@@ -33,3 +33,5 @@ This code expands to the following cl-who code:
 Here is the most colorful page from the demo:
 
 [[../media/0018/cl-bootstrap.png]]
+
+Seems this a good candidate to use together with the Weblocks.
