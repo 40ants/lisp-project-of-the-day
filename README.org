@@ -22,6 +22,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 22 March - [[2020-03/0015-cl-bert.org][cl-bert]] ([[https://twitter.com/svetlyak40wt/status/1241722134797443074][twitter]])
 - 23 March - [[2020-03/0016-kmrcl.org][kmrcl]] ([[https://twitter.com/svetlyak40wt/status/1242093281330241536][twitter]])
 - 24 March - [[2020-03/0017-cl-org-mode.org][cl-org-mode]] ([[https://twitter.com/svetlyak40wt/status/1242466873662373889][twitter]])
+- 25 March - [[2020-03/0018-cl-bootstrap.org][cl-bootstrap]]
+
 
 
 * Code, used to choose a project
@@ -57,6 +59,16 @@ Quicklisp distributions. You can have many of them:
                                  :prompt nil)
   CL-USER> (ql-dist:all-dists)
   (#<QL-DIST:DIST quicklisp 2019-08-13> #<QL-DIST:DIST ultralisp 20200307123509>)
+#+END_SRC
+
+To make randomizer choose different packages after Lisp restart, we need
+to initialize it:
+
+#+BEGIN_SRC lisp
+
+  (setf *random-state*
+        (make-random-state t))
+
 #+END_SRC
 
 * Good candidates for review
