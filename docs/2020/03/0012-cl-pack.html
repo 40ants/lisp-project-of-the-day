@@ -1,0 +1,55 @@
+<html><body><h1 class='title'>cl-pack</h1>
+It supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
+functions to allow easy use of (binary format) protocols and files with
+the above-mentioned languages and C.
+
+I&#039;ve tested :cl-pack using an example from its README. Seems
+it does not work as expected, because it is unable to unpack the data,
+created by itself:
+
+#+begin_src lisp
+
+ POFTHEDAY&gt; (defparameter *data*
+              (cl-pack:pack &quot;VgA*c*&quot;
+                            #x41424344
+                            161.99
+                            &quot; a string &quot;
+                            69 70 71))
+ *DATA*
+ POFTHEDAY&gt; *data*
+ &quot;DCBAC!&#253;q a string EFG&quot;
+ POFTHEDAY&gt; (cl-pack:unpack &quot;VgA*c*&quot; *data*)
+ 1094861636 (31 bits, #x41424344)
+ 161.99
+ &quot;a string EFG&quot;
+
+#+end_src
+
+As you can see, it wasn&#039;t able to unpack three unsigned chars from the
+end of the structure.
+
+I&#039;ve decided :cl-pack isn&#039;t able to distinguish the end of the line, and
+changed format string to the null-terminated string.
+
+But it doesn&#039;t work either:
+
+#+begin_src lisp
+
+ POFTHEDAY&gt; (defparameter *data*
+              (cl-pack:pack &quot;VgZ*c*&quot;
+                            #x41424344
+                            161.99
+                            &quot;a string&quot;
+                            69 70 71))
+ *DATA*
+ POFTHEDAY&gt; *data*
+ &quot;DCBAC!&#253;qa string^@EFG&quot;
+ POFTHEDAY&gt; (cl-pack:unpack &quot;VgZ*c*&quot; *data*)
+ 1094861636 (31 bits, #x41424344)
+ 161.99
+ &quot;a string^@EFG&quot;
+
+#+end_src
+
+Is it a fail, or I just did something wrong?
+</body></html>

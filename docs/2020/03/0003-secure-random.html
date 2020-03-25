@@ -1,0 +1,108 @@
+<html><body><h1 class='title'>secure-random</h1>
+This library provides a secure pseudo-random number generator for Common
+Lisp.
+
+It uses OpenSSL underneath.
+
+It is similar to builtin random function, but can&#039;t be used as a drop-in
+replacement, because behaviour is slightly different for float numbers.
+
+Builtin CL&#039;s random function reckons float interval as contiguous. But
+secure-random returns discrete values, coercing integers to floats:
+
+<pre><code>;; Integers
+POFTHEDAY&gt; (random 10)
+2 (2 bits, #x2, #o2, #b10)
+POFTHEDAY&gt; (random 10)
+9 (4 bits, #x9, #o11, #b1001)
+POFTHEDAY&gt; (secure-random:number 10)
+9 (4 bits, #x9, #o11, #b1001)
+POFTHEDAY&gt; (secure-random:number 10)
+5 (3 bits, #x5, #o5, #b101)
+
+;; Floats
+POFTHEDAY&gt; (random 10.0)
+2.9430425
+POFTHEDAY&gt; (random 10.0)
+1.8096626 (180.96626%)
+POFTHEDAY&gt; (secure-random:number 10.0)
+4.0
+POFTHEDAY&gt; (secure-random:number 10.0)
+5.0</code></pre>
+
+By the way, did you know that standard randomizer should be initialized
+each time at program start to get really random results?
+
+The most implementation keeps a compiled in random state in it, and without
+additional initialization &#039;random&#039; function will give you the same
+sequence of integers.
+
+Here is the illustration:
+
+<pre><code>$ ros run -L sbcl-bin -e &#039;(princ (random 100))&#039;
+5
+$ ros run -L sbcl-bin -e &#039;(princ (random 100))&#039;
+5
+
+$ ros run -L ccl-bin -e &#039;(princ (random 100))&#039;
+75
+$ ros run -L ccl-bin -e &#039;(princ (random 100))&#039;
+75
+
+$ ros run -L clisp -e &#039;(princ (random 100))&#039;
+70
+$ ros run -L clisp -e &#039;(princ (random 100))&#039;
+70
+
+$ ros run -L ecl -e &#039;(princ (random 100))&#039;
+10
+$ ros run -L ecl -e &#039;(princ (random 100))&#039;
+79
+$ ros run -L ecl -e &#039;(princ (random 100))&#039;
+13
+$ ros run -L ecl -e &#039;(princ (random 100))&#039;
+42</code></pre>
+
+As you can see, SBCL, CCL and CLISP have this problem, but ECL - doesn&#039;t.
+
+You can solve the problem by initialization of the random seed:
+
+<pre><code>$ ros run -L sbcl-bin -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                      -e &#039;(princ (random 100))&#039;
+68
+$ ros run -L sbcl-bin -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                      -e &#039;(princ (random 100))&#039;
+99
+
+$ ros run -L ccl-bin -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                     -e &#039;(princ (random 100))&#039;
+80
+$ ros run -L ccl-bin -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                     -e &#039;(princ (random 100))&#039;
+53
+
+$ ros run -L clisp -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                   -e &#039;(princ (random 100))&#039;
+68
+$ ros run -L clisp -e &#039;(setf *random-state* (make-random-state t))&#039; \
+                   -e &#039;(princ (random 100))&#039;
+9</code></pre>
+
+Library &#039;secure-random&#039; does not have this problem:
+
+<pre><code>$ ros run -L sbcl-bin -e &#039;(asdf:load-system :secure-random)&#039; \
+                      -e &#039;(princ (secure-random:number 100))&#039;
+30
+$ ros run -L sbcl-bin -e &#039;(asdf:load-system :secure-random)&#039; \
+                      -e &#039;(princ (secure-random:number 100))&#039;
+16
+$ ros run -L sbcl-bin -e &#039;(asdf:load-system :secure-random)&#039; \
+                      -e &#039;(princ (secure-random:number 100))&#039;
+37
+$ ros run -L sbcl-bin -e &#039;(asdf:load-system :secure-random)&#039; \
+                      -e &#039;(princ (secure-random:number 100))&#039;
+4
+$ ros run -L sbcl-bin -e &#039;(asdf:load-system :secure-random)&#039; \
+                      -e &#039;(princ (secure-random:number 100))&#039;
+62</code></pre>
+</body></html>

@@ -1,0 +1,32 @@
+<html><body><h1 class='title'>ppath</h1>
+This library brings Python&#039;s os.path API into the Common Lisp world.
+
+It manipulates by strings rather than by CL&#039;s pathnames.
+
+Ppath has pretty good documentation. I&#039;ll show only one example
+description of all available functions you&#039;ll find in the docs:
+
+http://quickdocs.org/ppath/
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (ppath:join &quot;.&quot; &quot;foo&quot; &quot;bar&quot;)
+&quot;./foo/bar&quot;
+
+POFTHEDAY&gt; (ppath:exists (ppath:join &quot;/tmp/&quot; &quot;foo&quot;))
+T
+
+POFTHEDAY&gt; (ppath:abspath &quot;.&quot;)
+&quot;/Users/art/projects/lisp/lisp-project-of-the-day&quot;
+
+POFTHEDAY&gt; (ppath:dirname (ppath:abspath &quot;.&quot;))
+&quot;/Users/art/projects/lisp&quot;
+
+POFTHEDAY&gt; (ppath:splitext &quot;/tmp/some-file.jpg&quot;)
+(&quot;/tmp/some-file&quot; . &quot;.jpg&quot;)
+
+POFTHEDAY&gt; (ppath:expandvars &quot;/home/${LOGNAME}/bin&quot;)
+&quot;/home/art/bin&quot;
+
+#+end_src
+</body></html>

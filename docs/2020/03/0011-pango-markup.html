@@ -1,0 +1,44 @@
+<html><body><h1 class='title'>pango-markup</h1>This library allows processing a text with Pango Markup.
+
+Pango Markup used by GTK to render attributed text. It is a simple
+SGML-like language. It looks like a subset of HTML but uses custom
+attributes.
+
+Gnome&#039;s Pango library contains a parser for this format:
+
+https://developer.gnome.org/pango/stable/pango-Markup.html
+
+But :pango-markup is not a parser, it&#039;s purpose is to render text and
+attributes into this format.
+
+You should provide it a plain text and a separate list of regions with
+attributes.
+
+For example, is we would like to make the word &quot;Bob&quot; in &quot;Hello Bob!&quot;, then
+we need to do:
+
+<pre><code>
+POFTHEDAY&gt; (pango-markup:markup-regions
+            &quot;Hello Bob!&quot;
+            &#039;((6 9 :font (:weight :bold))))
+&quot;Hello &lt;span font_weight=&#039;bold&#039;&gt;Bob&lt;/span&gt;!&quot;
+
+;; Attributed ranges can be nested. Here we want
+;; to underline the whole sentence and make &quot;Bob&quot; bold:
+
+POFTHEDAY&gt; (pango-markup:markup-regions
+            &quot;Hello Bob!&quot;
+            &#039;((6 9 :font (:weight :bold))
+              (0 10 :underline t)))
+&quot;&lt;span underline=&#039;single&#039;&gt;Hello &lt;span font_weight=&#039;bold&#039;&gt;Bob&lt;/span&gt;!&lt;/span&gt;&quot;
+</code></pre>
+
+If you want to use GTK from Common Lisp and output attributed text,
+:pango-markup will help you.
+
+Here is full documentation to this library:
+
+https://shinmera.github.io/pango-markup/
+
+@shinmera&#039;s libraries have very nicely rendered documentation. Go, read it!
+</body></html>

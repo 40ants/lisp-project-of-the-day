@@ -1,0 +1,29 @@
+<html><body><h1 class='title'>Day Zero</h1><h1>A small helper</h1>Wrote a small helper to choose a random Common Lisp project from the Quicklisp for my &quot;Project of the Day&quot; marathon!
+
+[[../media/0000/01-helper.png]]
+<h1>cl-mpg123 :audio:</h1>So, today&#039;s project is cl-mpg123!
+
+It&#039;s documentation (http://quickdocs.org/cl-mpg123/) says:
+
+#+BEGIN_QUOTE
+This is a binding to libmpg123 library allowing for convenient,
+extensive, and fast decoding of MPEG1/2/3 (most prominently mp3) files.
+#+END_QUOTE
+
+Also, this library is able to extract id3 tags from the mp3 files. You
+can use it to build an mp3 catalog in Common Lisp!
+
+
+Let&#039;s see it works!
+
+It almost was able to give me information about one of the mp3s I&#039;ve
+found on the disk!
+
+[[../media/0000/02-describe.png]]
+
+cl-mpg123:metadata method does not work on this file :(
+
+[[../media/0000/03-metadata.png]]
+
+Of cause, I&#039;ve submitted the issue: https://github.com/Shirakumo/cl-mpg123/issues/2
+</body></html>

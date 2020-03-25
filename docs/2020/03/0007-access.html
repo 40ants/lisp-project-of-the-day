@@ -1,0 +1,57 @@
+<html><body><h1 class='title'>access</h1>
+This library brings a helper to access nested data structures.
+
+It has a fairly detailed readme with examples.
+
+I&#039;ve prepared one example for you:
+
+<pre><code>POFTHEDAY&gt; (defparameter obj
+               (make-instance &#039;foo
+                              :bar (make-hash-table)))
+
+;; Now we will access a slot &#039;bar inside the object:
+POFTHEDAY&gt; (access:accesses *obj* &#039;bar)
+#&lt;HASH-TABLE :TEST EQL :COUNT 0 {1007D39263}&gt;
+
+;; Now we go deeper and access an item :some
+;; inside this hash-table:
+POFTHEDAY&gt; (access:accesses *obj* &#039;bar :some)
+NIL
+
+;; Accessor is allow us to use setf and it will automatically
+;; create all intermediate nodes:
+POFTHEDAY&gt; (setf (access:accesses *obj* &#039;bar :some)
+                 &quot;Hello world&quot;)
+&quot;Hello world&quot;
+
+;; Here is our result:
+POFTHEDAY&gt; (access:accesses *obj* &#039;bar :some)
+&quot;Hello world&quot;
+
+POFTHEDAY&gt; (loop for key being the hash-keys in (get-bar *obj*)
+                   using (hash-value value)
+                 collect (cons key value))
+((:SOME . &quot;Hello world&quot;))</code></pre>
+
+It is able to access CLOS slots, plists, array items, hash keys, etc.
+
+Also, &#039;access&#039; supports a reader syntax with a dotted notation,
+but I prefer to use a shorter macro -&gt;:
+
+<pre><code>
+(defmacro -&gt; (obj &amp;rest path)
+  `(access:accesses ,obj ,@path))
+
+;; Somewhere in the code:
+
+(defcached get-stock-name (ticker)
+  (-&gt; (%get-stock-data ticker)
+      :|payload|
+      :|symbol|
+      :|showName|))
+</code></pre>
+
+Usually, I use &#039;access&#039; to process plists results from a Jonathan - JSON
+parser. But it should be very convenient for accessing other data
+structures too.
+</body></html>

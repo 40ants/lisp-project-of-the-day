@@ -1,0 +1,111 @@
+<html><body><h1 class='title'>rate-monotonic</h1>Today&#039;s Common Lisp project of the Day is: rate-monotonic.
+
+It is a periodic thread scheduler inspired by RTEMS:
+
+http://quickdocs.org/rate-monotonic/
+
+The original documentation on Rate Monotonic Manager&#039;s API is not there
+anymore and page returns 404 error :( All we have is examples from
+rate-monotonic&#039;s readme file. However, I found a new address of this page
+and created a pull request to fix the readme:
+
+https://github.com/npatrick04/rate-monotonic/pull/1
+
+Here is a cite about what monotonic manager does:
+
+#+BEGIN_QUOTE
+The rate monotonic manager provides facilities to implement tasks which
+execute in a periodic fashion. Critically, it also gathers information
+about the execution of those periods and can provide important
+statistics to the user which can be used to analyze and tune the
+application.
+
+...
+manager was designed to support application designers who utilize the
+Rate Monotonic Scheduling Algorithm (RMS) to ensure that their periodic
+tasks will meet their deadlines, even under transient overload
+conditions. Although designed for hard real-time systems, the services
+provided by the rate monotonic manager may be used by any application
+which requires periodic tasks.
+
+#+END_QUOTE
+
+In other words, this library is useful when you have some function which
+should be called exactly in desired intervals.
+
+For example, we want to do some work every 100 milliseconds. The naive
+approach will be:
+
+<pre><code>
+POFTHEDAY&gt; (let ((started-at (get-internal-real-time)))
+             (dotimes (i 11)
+               (format t &quot;i: ~A time: ~A~%&quot;
+                       i
+                       (coerce (/ (- (get-internal-real-time)
+                                      started-at)
+                                    internal-time-units-per-second)
+                               &#039;float))
+               (force-output)
+               ;; Here we are modelling a payload
+               ;; which takes some time
+               (sleep (random 0.1))
+               ;; And here we&#039;ll try to add a sleep between
+               ;; executions
+               (sleep 0.1)))
+i: 0 time: 0.0
+i: 1 time: 0.166
+i: 2 time: 0.323
+i: 3 time: 0.431
+i: 4 time: 0.624
+i: 5 time: 0.776
+i: 6 time: 0.95
+i: 7 time: 1.142
+i: 8 time: 1.286
+i: 9 time: 1.46
+i: 10 time: 1.616
+</code></pre>
+
+As you can see, all iterations took 1.6s, however, we wanted each
+iteration to run every 100ms, and in summary, they should take a 1s.
+
+Here is how rate-monotonic can help here:
+
+<pre><code>
+POFTHEDAY&gt; (rm:with-timer-period () 
+             (let ((p (rm:make-timer-period))
+                   (started-at (get-internal-real-time)))
+               (dotimes (i 11)
+                 (rm:period p :ms 100)
+                 (format t &quot;i: ~A time: ~A~%&quot;
+                         i
+                         (coerce (/ (- (get-internal-real-time)
+                                        started-at)
+                                    internal-time-units-per-second)
+                                 &#039;float))
+                 (force-output)
+                 ;; Here we are modelling a payload
+                 ;; which takes some time
+                 (sleep (random 0.1)))
+               (rm:period-statistics p)))
+i: 0 time: 0.0
+i: 1 time: 0.17
+i: 2 time: 0.229
+i: 3 time: 0.327
+i: 4 time: 0.426
+i: 5 time: 0.509
+i: 6 time: 0.666
+i: 7 time: 0.732
+i: 8 time: 0.805
+i: 9 time: 0.965
+i: 10 time: 1.009
+#&lt;RATE-MONOTONIC::STAT :COUNT 10 :MISSED 4 :MIN 27 :AVG 51 :MAX 99&gt;
+</code></pre>
+
+Now our execution has almost 1 second length. That is it. rm:period
+works like an adaptive sleep. It pauses thread taking into account a
+time elapsed from the previous call to rm:period.
+
+Great! In my current project, I have a few places where this library can
+be used.
+
+</body></html>

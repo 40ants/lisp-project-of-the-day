@@ -1,0 +1,66 @@
+<html><body><h1 class='title'>cl-bert</h1>
+This library implements a BERT serializer which is a part of the
+[[http://bert-rpc.org/][BERT-RPC]], invented and used inside the GitHub.
+
+Let&#039;s try how it serializes Lisp structures:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (bert:encode 1)
+#(131 97 1)
+POFTHEDAY&gt; (bert:decode *)
+1 (1 bit, #x1, #o1, #b1)
+
+POFTHEDAY&gt; (bert:encode 100500)
+#(131 98 0 1 136 148)
+POFTHEDAY&gt; (bert:decode *)
+100500 (17 bits, #x18894)
+
+POFTHEDAY&gt; (bert:encode 3.1415926535)
+#(131 70 64 9 33 251 96 0 0 0)
+POFTHEDAY&gt; (bert:decode *)
+3.1415927410125732d0
+
+POFTHEDAY&gt; (bert:encode &quot;Hello Lisp World!&quot;)
+#(131 107 0 17 72 101 108 108 111 32 76 105 115 112 32 87 111 114 108 100 33)
+;; Ups!
+POFTHEDAY&gt; (bert:decode *)
+(72 101 108 108 111 32 76 105 115 112 32 87 111 114 108 100 33)
+
+;; Let&#039;s try to recover our string from char codes
+POFTHEDAY&gt; (coerce (mapcar #&#039;code-char *) &#039;string)
+&quot;Hello Lisp World!&quot;
+
+#+end_src
+
+How about more complex structures?
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (bert:encode (list 1 2 3 4 5))
+#(131 108 0 0 0 5 97 1 97 2 97 3 97 4 97 5 106)
+POFTHEDAY&gt; (bert:decode *)
+(1 2 3 4 5)
+
+POFTHEDAY&gt; (bert:encode (vector 1 2 3 4 5))
+; Debugger entered on #&lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {1002D21E43}&gt;
+
+POFTHEDAY&gt; (bert:encode (list 42 &quot;Hello&quot; (list 3 4 5)))
+#(131 108 0 0 0 3 97 42 107 0 5 72 101 108 108 111 108 0 0 0 3 97 3 97
+  4 97 5 106 106)
+POFTHEDAY&gt; (bert:decode *)
+(42 (72 101 108 108 111) (3 4 5))
+
+#+end_src
+
+To recap:
+
+- there is no documentation;
+- there is a bug with strings support;
+- vectors aren&#039;t supported;
+- RPC is not implemented, but probably can be done on top of the cl-bert,
+  if these problems will be solved.
+
+Do you know other serialization libraries suitable for implementing a
+binary RPC protocol which will work for many programming languages?
+</body></html>

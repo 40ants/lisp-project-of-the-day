@@ -1,5 +1,4 @@
 # -*- encoding:utf-8 Mode: POLY-ORG;  -*- ---
-#+Startup: noindent
 Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 * 2020
@@ -32,7 +31,7 @@ First of all, we need to define a package for our code:
 
 #+BEGIN_SRC lisp
 (defpackage #:poftheday
-  (:use #:cl)
+  (:use #:cl #:doplus)
   (:export
    #:choose))
 (in-package poftheday)
@@ -73,19 +72,180 @@ to initialize it:
 
 * Here is how a website is rendered
 
-We need to read walk org-mode files in folders like 2020-03.
-The first
+** Collecting source files
+
+First, we need to read walk all org-mode files in folder "content".
+We will keep a relative path pointing to the file and parse this file
+with cl-org-mode:
 
 #+BEGIN_SRC lisp
+
+(defclass file ()
+  ((filename :initarg :filename
+             :type string
+             :documentation "A relative path to the source org-mode file."
+             :reader get-filename)
+   (root :initarg :root
+         :documentation "Parsed org-mode document, root node."
+         :reader get-root)))
+
+
+(defmethod print-object ((file file) stream)
+  (print-unreadable-object (file stream :type t)
+    (format stream "~A" (get-filename file))))
+
+
 (defun read-files ()
-  (uiop:while-collecting (tested)
-    (cl-fad:walk-directory "." 
-                           (lambda (f)
-                             f)
-                           :test (lambda (name)
-                                   (tested name)
-                                   t))
-    ))
+  (uiop:while-collecting (collect)
+    (flet ((org-mode-p (name)
+             (string-equal (pathname-type name)
+                           "org"))
+           (make-file (filename)
+             (collect
+                 (let ((relative-filename
+                         (ppath:relpath (pathname-to-string filename)
+                                        "content/")))
+                   (make-instance 'file
+                                  :filename relative-filename
+                                  :root (cl-org-mode::read-org-file filename))))))
+      (cl-fad:walk-directory "content/"
+                             #'make-file
+                             :test #'org-mode-p))))
+#+END_SRC
+
+** Rendering org-mode to HTML
+
+When source files are collected, we need to render them to HTML inside
+the "docs" folder. Github will use content of this folder, to serve the
+site at http://40ants.com/lisp-project-of-the-day/
+
+To render the page, we need to extract a title from the first outline
+node of org-mode file:
+
+#+BEGIN_SRC lisp
+
+(defun get-title (file)
+  ;; Title can ends with tags, we need to remove them
+  ;; before returning the value
+  (cl-ppcre:regex-replace-all
+   " :.*:"
+   (cl-org-mode::node.heading
+    (cl-org-mode::node.next-node
+     (get-root file)))
+   ""))
+
+#+END_SRC
+
+To iterate over nodes in org-mode file, we will create a custom clause
+for the :doplus library. It was described [[content/2020/03/0013-poftheday.org][in this #poftheday post]].
+
+#+BEGIN_SRC lisp
+
+(defclause in-nodes (file)
+  `((with (node
+           ;; We need to skip root node and first top-level outline node
+           (cl-org-mode::node.next-node
+            (cl-org-mode::node.next-node
+             (get-root ,file)))))
+    (for ,*iteration-variable*
+         (being node :then (cl-org-mode::node.next-node
+                            ,*iteration-variable*)))
+    (stop-when (null ,*iteration-variable*))))
+
+#+END_SRC
+
+Org mode file can contain nodes of different types, we will render them
+using this generic function:
+
+#+BEGIN_SRC lisp
+
+(defgeneric render-node (node stream)
+  (:documentation "Renders org-mode node into the HTML stream"))
+
+#+END_SRC
+
+Outline node contains a header of a section and should be rendered as
+H1, H2, etc:
+
+#+BEGIN_SRC lisp
+
+(defmethod render-node ((node cl-org-mode::outline-node) stream)
+  (cl-who:with-html-output (stream)
+    (:h1 (cl-who:esc (cl-org-mode::node.heading node)))))
+
+#+END_SRC
+
+Text node contains code snippets, we need to wrap them into
+<code> tags and add a syntax highlighting:
+
+#+BEGIN_SRC lisp
+
+(defmethod render-node ((node cl-org-mode::src-node) stream)
+  (cl-who:with-html-output (stream)
+    (:pre
+     (:code
+      (cl-who:esc (cl-org-mode::node.text node))))))
+
+(defmethod render-node ((node cl-org-mode::closing-delimiter-node) stream)
+  ;; Closing delimiters for source code blocks should be ignored.
+  )
+
+#+END_SRC
+
+In text node we need to process links and images:
+
+#+BEGIN_SRC lisp
+
+(defmethod render-node ((node cl-org-mode::text-node) stream)
+  (cl-who:with-html-output (stream)
+    (cl-who:esc (cl-org-mode::node.text node))))
+
+#+END_SRC
+
+#+BEGIN_SRC lisp
+
+(defun make-output-filename (filename)
+  (ppath:join "docs"
+              (format nil "~A.html" (car (ppath:splitext filename)))))
+
+(defun render-file (file)
+  (let ((filename (make-output-filename (get-filename file)))
+        (title (get-title file)))
+    (ensure-directories-exist filename)
+    
+    (alexandria:with-output-to-file (stream filename :if-exists :supersede)
+      (cl-who:with-html-output (stream)
+        (:html
+         (:body
+          (:h1 :class "title"
+               (cl-who:str title))
+          (doplus:do+ (for node (in-nodes file))
+            (render-node node stream))))))))
+  
+#+END_SRC
+
+Also, we need a entry-point function which will do all the job - read
+files and write html:
+
+#+BEGIN_SRC lisp
+
+(defun render-site ()
+  (mapc #'render-file
+        (read-files)))
+
+#+END_SRC
+
+** Some utilities
+***  Converting pathnames to strings
+
+To work with files we will use [[content/2020/03/0010-ppath.org][ppath]]. This library is able to make
+relative path. However, it operates with strings, not pathnames.
+
+#+BEGIN_SRC lisp
+
+(defun pathname-to-string (p)
+  (format nil "~A" p))
+
 #+END_SRC
 
 * Good candidates for review

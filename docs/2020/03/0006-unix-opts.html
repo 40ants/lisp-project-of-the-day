@@ -1,0 +1,45 @@
+<html><body><h1 class='title'>unix-opts</h1>There are many command-line parsing libraries for Common Lisp. This one
+pretends to simplicity.
+
+Unix-opts has an interesting feature - it uses CL&#039;s restarts to allow you
+to decide what to do if the option is not supported or can&#039;t be parsed.
+
+Here is a short example:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (opts:get-opts (list &quot;myscript&quot;
+                                &quot;--help&quot;))
+; Debugger entered on #&lt;UNIX-OPTS:UNKNOWN-OPTION {1001CBE413}&gt;
+[1] POFTHEDAY&gt; 
+; Evaluation aborted on #&lt;UNIX-OPTS:UNKNOWN-OPTION {1001CBE413}&gt;
+
+;; We can solve this problem by calling a restart to skip and option
+;; or consider the problem is critical and finish the program.
+POFTHEDAY&gt; (handler-bind ((opts:unknown-option
+                            (lambda (condition)
+                              (format t &quot;Warning: ~s option is unknown!~%&quot;
+                                      (opts:option condition))
+                              (invoke-restart &#039;opts:skip-option))))
+             (opts:get-opts (list &quot;myscript&quot;
+                                  &quot;--help&quot;)))
+Warning: &quot;--help&quot; option is unknown!
+NIL
+(&quot;myscript&quot;)
+
+#+end_src
+
+Options are declared by a macro opts:define-opts it stores them in the
+global opts::*options* variable.
+
+Seems there is no way to have subcommands with different options when
+you are using unix-opts.
+
+Internal code of the unix-opts is short, readable and documented. The
+library has no dependencies which is good if you want to write simple
+command-line scripts in Common Lisp.
+
+Read full example in the documentation:
+
+http://quickdocs.org/unix-opts/
+</body></html>

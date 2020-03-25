@@ -1,0 +1,61 @@
+<html><body><h1 class='title'>cl-bootstrap</h1>
+This is a library of Twitter Bootstrap widgets for cl-who.
+
+It has many examples in the README and also an interactive demo where
+you can see all available components.
+
+Here is an of example how to use it:
+
+<pre><code>
+POFTHEDAY&gt; (cl-bootstrap:bs-btn-primary &quot;Hello Lisp World!&quot;)
+
+&lt;button type=&#039;button&#039; class=&#039;btn btn-primary&#039;&gt;Hello Lisp World!&lt;/button&gt;
+&quot;&gt;Hello Lisp World!&lt;/button&gt;&quot;
+</code></pre>
+
+This macro expands to the following cl-who code:
+
+<pre><code>
+(cl-who:with-html-output (*standard-output*)
+  (:button :type &quot;button&quot; :class
+   (concatenate &#039;string &quot;btn&quot;
+                (if &quot;primary&quot;
+                    (format nil &quot; btn-~a&quot; &quot;primary&quot;))
+                (if nil
+                    (format nil &quot; btn-~a&quot; nil)))
+   &quot;Hello Lisp World!&quot;))
+</code></pre>
+
+This is a more complex example from cl-bootstrap&#039;s README:
+
+<pre><code>
+(bs-navbar (:inverse t :brand &quot;Brand&quot;)
+	(bs-navbar-nav ()
+		(bs-nav-li (:href &quot;/panels&quot;) &quot;Panels&quot;)
+		(bs-nav-dropdown (:title &quot;Components&quot;)
+		(bs-nav-li (:href &quot;/panels&quot;) &quot;Panels&quot;)
+		(:li (:a :href &quot;/buttons&quot; &quot;Buttons&quot;))
+		(:li (:a :href &quot;/labels&quot; &quot;Labels&quot;))
+		(:li (:a :href &quot;/modals&quot; &quot;Modal&quot;))
+		(:li (:a :href &quot;/tabs&quot; &quot;Tabs&quot;))
+		(:li (:a :href &quot;/dropdowns&quot; &quot;Dropdowns&quot;))
+		(:li (:a :href &quot;/tables&quot; &quot;Tables&quot;))
+		(:li (:a :href &quot;/carousel&quot; &quot;Carousel&quot;))
+		(:li (:a :href &quot;/navbars&quot; &quot;Navbars&quot;))))
+	(bs-navbar-form ()
+		(:div
+			(:div :class &quot;form-group&quot;
+				(:input :type &quot;text&quot; :class &quot;form-control&quot; :placeholder &quot;Search&quot;))
+			(:button :type &quot;submit&quot; :class &quot;btn btn-default&quot; &quot;Submit&quot;))))
+</code></pre>
+
+Here is the most colorful page from the demo:
+
+[[../../media/0018/cl-bootstrap.png]]
+
+It seems this a good candidate to use together with the Weblocks.
+
+Maybe I&#039;ll use it along with cl-org-mode to create a static site for the
+#poftheday project.
+
+</body></html>

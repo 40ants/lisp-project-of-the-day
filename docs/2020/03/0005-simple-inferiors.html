@@ -1,0 +1,98 @@
+<html><body><h1 class='title'>simple-inferiors</h1>
+This system is a wrapper around uiop&#039;s run-process. Documentation
+(http://quickdocs.org/simple-inferiors/) states it handles proper
+copying of stdout and stderr of the process simultaneously, both in a
+sequential and parallel fashion.
+
+I&#039;ve read the code of the simple-inferiors and don&#039;t understand why does
+it significantly better than using plain uiop:run-process.
+
+Here is an example of calls both of these libraries:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (simple-inferiors:run &quot;ls&quot; () :output t)
+2020-03
+LICENSE
+README.org
+media
+poftheday.asd
+0 (0 bits, #x0, #o0, #b0)
+
+POFTHEDAY&gt;  (uiop:run-program (list &quot;ls&quot;) :output t)
+2020-03
+LICENSE
+README.org
+media
+poftheday.asd
+NIL
+NIL
+0 (0 bits, #x0, #o0, #b0)
+
+#+end_src
+
+Probably, the most convenient part of simple-inferiors is
+how it handles nested directory changing. Again, here is an
+illustration:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (progn
+             (format t &quot;~2&amp;Directory structure:~2%&quot;)
+             (simple-inferiors:run &quot;tree&quot; &#039;(&quot;foo&quot;) :output t)
+             
+             (format t &quot;~2&amp;Going one step down:~2%&quot;)
+             (simple-inferiors:with-chdir (&quot;foo/&quot;)
+               (simple-inferiors:run &quot;ls&quot; &#039;(&quot;-l&quot;) :output t)
+               
+               (format t &quot;~2&amp;Going deeper:~2%&quot;)
+               (simple-inferiors:with-chdir (&quot;bar/&quot;)
+                 (simple-inferiors:run &quot;ls&quot; &#039;(&quot;-l&quot;) :output t))))
+
+Directory structure:
+
+foo
+&#9500;&#9472;&#9472; bar
+&#9474;&#160;&#160; &#9492;&#9472;&#9472; world.txt
+&#9492;&#9472;&#9472; hello.txt
+
+1 directory, 2 files
+
+Going one step down:
+
+total 0
+drwxr-xr-x  3 art  LD\Domain Users  96 Mar 12 13:19 bar
+-rw-r--r--  1 art  LD\Domain Users   0 Mar 12 13:18 hello.txt
+
+Going deeper:
+
+total 0
+-rw-r--r--  1 art  LD\Domain Users  0 Mar 12 13:19 world.txt
+
+#+end_src
+
+There is the inconsistency in the way how does with-chdir work. You need
+to keep in mind that a directory name should have a backslash at the
+end. Otherwise, nesting won&#039;t work:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (simple-inferiors:with-chdir (&quot;foo/&quot;)
+             (simple-inferiors:with-chdir (&quot;bar/&quot;)
+               simple-inferiors:*cwd*))
+#P&quot;/Users/art/lisp-project-of-the-day/foo/bar/&quot;
+POFTHEDAY&gt; ;; Now, without slashes
+; No values
+POFTHEDAY&gt; (simple-inferiors:with-chdir (&quot;foo&quot;)
+             (simple-inferiors:with-chdir (&quot;bar&quot;)
+               simple-inferiors:*cwd*))
+#P&quot;/Users/art/lisp-project-of-the-day/bar&quot;
+
+#+end_src
+
+I&#039;ve created an issue on this problem:
+
+https://github.com/Shinmera/simple-inferiors/issues/4
+
+Does somebody want to fix it?
+</body></html>

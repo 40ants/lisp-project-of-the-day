@@ -1,0 +1,65 @@
+<html><body><h1 class='title'>cl-org-mode</h1>
+This library contains a parser for Emacs org-mode and a primitive tool
+for doing Literate Programming. If you are looking for better CL
+support for literate programming try :literate-lisp.
+
+This parser can be interesting for people, who want to process org-mode
+files from the Common Lisp. For example, you can use it to write a
+plugin for blogging software like :coleslaw.
+
+cl-org-mode has no any exported functions, but you can read it&#039;s sources
+and documentation:
+
+git clone https://gitlab.common-lisp.net/cl-org-mode/cl-org-mode.git
+
+https://common-lisp.net/project/cl-org-mode/
+
+Here is a short example, showing how to parse one of the articles of
+#poftheday and extract a code snipped:
+
+#+begin_src lisp
+POFTHEDAY&gt; (cl-org-mode::read-org-file &quot;2020-03/0001-rate-monotonic.org&quot;)
+#&lt;CL-ORG-MODE::ORG-FILE {10030B4153}&gt;
+POFTHEDAY&gt; (cl-org-mode::node.next-node *)
+#&lt;CL-ORG-MODE::OUTLINE-NODE {10030B65D3}&gt;
+POFTHEDAY&gt; (cl-org-mode::node.heading *)
+&quot;rate-monotonic :threads:&quot;
+POFTHEDAY&gt; (cl-org-mode::node.next-node **)
+#&lt;CL-ORG-MODE::TEXT-NODE {100317E1D3}&gt;
+POFTHEDAY&gt; (cl-org-mode::node.next-node *)
+#&lt;CL-ORG-MODE::SRC-NODE {100317C9F3}&gt;
+POFTHEDAY&gt; (cl-org-mode::node.text *)
+&quot;
+POFTHEDAY&gt; (let ((started-at (get-internal-real-time)))
+             (dotimes (i 11)
+               (format t \&quot;i: ~A time: ~A~%\&quot;
+                       i
+                       (coerce (/ (- (get-internal-real-time)
+                                      started-at)
+                                    internal-time-units-per-second)
+                               &#039;float))
+               (force-output)
+               ;; Here we are modelling a payload
+               ;; which takes some time
+               (sleep (random 0.1))
+               ;; And here we&#039;ll try to add a sleep between
+               ;; executions
+               (sleep 0.1)))
+i: 0 time: 0.0
+i: 1 time: 0.166
+i: 2 time: 0.323
+i: 3 time: 0.431
+i: 4 time: 0.624
+i: 5 time: 0.776
+i: 6 time: 0.95
+i: 7 time: 1.142
+i: 8 time: 1.286
+i: 9 time: 1.46
+i: 10 time: 1.616
+&quot;
+#+end_src
+
+I&#039;m planning to write a simple static site generator for the Project of
+the Day, using this library and :spinneret for HTML generation.
+
+</body></html>

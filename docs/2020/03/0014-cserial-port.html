@@ -1,0 +1,53 @@
+<html><body><h1 class='title'>cserial-port</h1>
+This library allows you to work with the serial port. It uses cffi to
+make system calls and should work on Linux, OSX and Windows.
+
+To test it, I wrote this small program for my Arduino UNO:
+
+<pre><code>
+#include &lt;LiquidCrystal.h&gt;
+
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+
+void setup() {
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+}
+
+String msg;
+int char_pos = 0;
+int row = 0;
+
+void loop () {
+  if (Serial.available()) {
+    char ch = Serial.read();
+    
+    if (ch == &#039;\n&#039;) {
+      char_pos = 0;
+    } else {
+      if (char_pos == 0) {
+          lcd.setCursor(0, 1);
+          lcd.print(&quot;                &quot;);
+      }
+      lcd.setCursor(char_pos, row);
+      lcd.print(ch);
+      char_pos++;
+    }
+  }
+}
+</code></pre>
+
+Now, let&#039;s send some data to our microcomputer to show the string on
+the attached LCD:
+
+<pre><code>
+CL-USER&gt; (cserial-port:with-serial (port &quot;/dev/cu.usbmodem14101&quot;)
+           (cserial-port:write-serial-string
+             &quot;Hello Lisp World!&quot;
+             port))
+</code></pre>
+
+And here is the result!
+
+[[../media/0014/arduino.jpg]]
+</body></html>

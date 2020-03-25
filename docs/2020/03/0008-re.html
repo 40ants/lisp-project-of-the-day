@@ -1,0 +1,98 @@
+<html><body><h1 class='title'>re</h1>
+This is a small regular expressions engine, made by Jeffrey Massung
+(@codeninja_blog).
+
+This engine uses [[http://www.lua.org/pil/20.2.html][Lua&#039;s regexp syntax]].
+
+By the way, I was interested in why did Lua developers choose such syntax
+over common Posix/Perl syntax. I found this interesting email from 
+Philippe Lhoste:
+
+http://lua-users.org/lists/lua-l/2001-04/msg00244.html
+
+In short, this alternative syntax was chosen to not support all the
+features from Perl regexps and to make Lua&#039;s implementation short.
+
+Today lua code contains 628 lines with regexp implementation:
+
+https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980
+
+Common Lisp version is about 645 lines but is based on a separate
+parser library.
+
+I am wondering how does re&#039;s performance compare with cl-ppcre? Let&#039;s check!
+
+We will test performance on a simple example. It will extract a
+subreddit&#039;s name from the URL:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (cl-ppcre:register-groups-bind
+               (subreddit)
+               (&quot;.*/r/(.*?)/&quot;
+                &quot;https://www.reddit.com/r/Common_Lisp/&quot;)
+             subreddit)
+&quot;Common_Lisp&quot;
+
+POFTHEDAY&gt; (first
+            (re:match-groups
+             (re:match-re #r&quot;.*/r/(.-)/&quot;
+                          &quot;https://www.reddit.com/r/Common_Lisp/&quot;)))
+&quot;Common_Lisp&quot;
+
+#+end_src
+
+Here is what I&#039;ve got running cl-ppcre 1 million times:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (time
+            (loop repeat *num-iterations*
+                  do (cl-ppcre:register-groups-bind
+                         (subreddit)
+                         (&quot;.*/r/(.*?)/&quot;
+                          &quot;https://www.reddit.com/r/Common_Lisp/&quot;)
+                       subreddit)))
+Evaluation took:
+  0.731 seconds of real time
+  0.615337 seconds of total run time (0.541851 user, 0.073486 system)
+  [ Run times consist of 0.061 seconds GC time, and 0.555 seconds non-GC time. ]
+  84.13% CPU
+  1,614,120,972 processor cycles
+  956 page faults
+  160,002,992 bytes consed
+
+#+end_src
+
+And here is the result of the same amount of iterations for &#039;re&#039;:
+
+#+begin_src lisp
+
+POFTHEDAY&gt; (time
+            (loop repeat *num-iterations*
+                  do (first
+                      (re:match-groups
+                       (re:match-re #r&quot;.*/r/(.-)/&quot;
+                                    &quot;https://www.reddit.com/r/Common_Lisp/&quot;)))))
+Evaluation took:
+  14.116 seconds of real time
+  14.126191 seconds of total run time (14.056847 user, 0.069344 system)
+  [ Run times consist of 0.301 seconds GC time, and 13.826 seconds non-GC time. ]
+  100.07% CPU
+  31,167,841,926 processor cycles
+  2 page faults
+  3,824,010,656 bytes consed
+
+#+end_src
+
+As you can see, cl-ppre is 20 times faster and consumes less memory than &#039;re&#039;.
+
+It would be interesting to compare cl-ppcre with other regexp
+engines. I&#039;ve found a test suite which already compares many engines:
+
+https://github.com/rust-leipzig/regex-performance
+
+But that is the story for another thread.
+
+
+</body></html>
