@@ -5,7 +5,7 @@ This is a library of Twitter Bootstrap widgets for cl-who.
 It has many examples in the README and also an interactive demo where
 you can see all available components.
 
-Here is an example how to use it:
+Here is an of example how to use it:
 
 #+BEGIN_SRC lisp
 
@@ -16,7 +16,7 @@ POFTHEDAY> (cl-bootstrap:bs-btn-primary "Hello Lisp World!")
 
 #+END_SRC
 
-This code expands to the following cl-who code:
+This macro expands to the following cl-who code:
 
 #+BEGIN_SRC lisp
 
@@ -31,7 +31,7 @@ This code expands to the following cl-who code:
 
 #+END_SRC
 
-This is a more complex example from the README:
+This is a more complex example from cl-bootstrap's README:
 
 #+BEGIN_SRC lisp
 
@@ -58,6 +58,6 @@ This is a more complex example from the README:
 
 Here is the most colorful page from the demo:
 
-[[../media/0018/cl-bootstrap.png]]
+[[../../media/0018/cl-bootstrap.png]]
 
 Seems this a good candidate to use together with the Weblocks.
