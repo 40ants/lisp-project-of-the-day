@@ -10,6 +10,7 @@ Here is an example how to use it:
 #+BEGIN_SRC lisp
 
 POFTHEDAY> (cl-bootstrap:bs-btn-primary "Hello Lisp World!")
+
 <button type='button' class='btn btn-primary'>Hello Lisp World!</button>
 ">Hello Lisp World!</button>"
 
