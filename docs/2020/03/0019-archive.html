@@ -13,20 +13,68 @@
 <p>It does not support gzipped or bzipped archive.</p>
 <p>I have a tar gzipped archive of the lisp system here.</p>
 <p>Attempt to read gzipped archive leads to a nasty error:</p>
-<p>#+begin_src lisp</p>
-<p>POFTHEDAY> (archive:with-open-archive                (archive                 "/tmp/archive-20160318-git.tgz"                 :direction :input)              (archive:do-archive-entries (entry archive)                (format t "~A~%"                        entry))) ; Debugger entered on #<SIMPLE-ERROR "Invalid byte: ~A in ~A" {1004E9FE73}> [1] POFTHEDAY> </p>
-<p>#+end_src</p>
-<p>We can try to use another system for working with compressed streams - :gzip-stream.</p>
+<pre><code>
+POFTHEDAY&gt; (archive:with-open-archive
+               (archive
+                &quot;/tmp/archive-20160318-git.tgz&quot;
+                :direction :input)
+             (archive:do-archive-entries (entry archive)
+               (format t &quot;~A~%&quot;
+                       entry)))
+; Debugger entered on #&lt;SIMPLE-ERROR &quot;Invalid byte: ~A in ~A&quot; {1004E9FE73}&gt;
+[1] POFTHEDAY&gt; 
+</code></pre><p>We can try to use another system for working with compressed streams - :gzip-stream.</p>
 <p>Consider this snippet as a bonus. Only today we are presenting two projects of the day simultaneously! :)</p>
-<p>#+begin_src lisp</p>
-<p>POFTHEDAY> (gzip-stream:with-open-gzip-file (stream "/tmp/archive-20160318-git.tgz")                (archive:with-open-archive                    (archive stream :direction :input)                  (archive:do-archive-entries (entry archive)                    (format t "~A~%"                            entry)))) #<Tar-Entry archive-20160318-git/> #<Tar-Entry archive-20160318-git/.gitignore> #<Tar-Entry archive-20160318-git/LICENSE> #<Tar-Entry archive-20160318-git/NEWS> #<Tar-Entry archive-20160318-git/README> #<Tar-Entry archive-20160318-git/TODO> #<Tar-Entry archive-20160318-git/archive.asd> #<Tar-Entry archive-20160318-git/archive.lisp> #<Tar-Entry archive-20160318-git/compat.lisp> #<Tar-Entry archive-20160318-git/conditions.lisp> #<Tar-Entry archive-20160318-git/cpio.lisp> #<Tar-Entry archive-20160318-git/example.lisp> #<Tar-Entry archive-20160318-git/formats.lisp> #<Tar-Entry archive-20160318-git/generics.lisp> #<Tar-Entry archive-20160318-git/macros.lisp> #<Tar-Entry archive-20160318-git/package.lisp> #<Tar-Entry archive-20160318-git/stream.lisp> #<Tar-Entry archive-20160318-git/tar.lisp></p>
-<p>#+end_src</p>
-<p>Now, how to read some file's content?</p>
+<pre><code>
+POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
+               (archive:with-open-archive
+                   (archive stream :direction :input)
+                 (archive:do-archive-entries (entry archive)
+                   (format t &quot;~A~%&quot;
+                           entry))))
+#&lt;Tar-Entry archive-20160318-git/&gt;
+#&lt;Tar-Entry archive-20160318-git/.gitignore&gt;
+#&lt;Tar-Entry archive-20160318-git/LICENSE&gt;
+#&lt;Tar-Entry archive-20160318-git/NEWS&gt;
+#&lt;Tar-Entry archive-20160318-git/README&gt;
+#&lt;Tar-Entry archive-20160318-git/TODO&gt;
+#&lt;Tar-Entry archive-20160318-git/archive.asd&gt;
+#&lt;Tar-Entry archive-20160318-git/archive.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/compat.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/conditions.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/cpio.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/example.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/formats.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/generics.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/macros.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/package.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/stream.lisp&gt;
+#&lt;Tar-Entry archive-20160318-git/tar.lisp&gt;
+</code></pre><p>Now, how to read some file's content?</p>
 <p>Easy! Lets pretend, we need to extract asd file from the archive. We will find it and read it from the stream, provided by :archive.</p>
-<p>#+begin_src lisp</p>
-<p>POFTHEDAY> (gzip-stream:with-open-gzip-file (stream "/tmp/archive-20160318-git.tgz")              (archive:with-open-archive (archive stream :direction :input)                (archive:do-archive-entries (entry archive)                  (when (cl-strings:ends-with (archive:name entry)                                              "/archive.asd")                    (format t "~A~%"                            (alexandria:read-stream-content-into-string                             (flexi-streams:make-flexi-stream                              (archive:entry-stream entry)))))))) ;;; -*- mode: lisp -*-</p>
-<p>(asdf:defsystem :archive   :version "0.9"   :author "Nathan Froyd <froydnj@gmail.com>"   :maintainer "Nathan Froyd <froydnj@gmail.com>"   :description "A package for reading and writing archive (tar, cpio, etc.) files."   :license "BSD-style (http://opensource.org/licenses/BSD-3-Clause)"   :depends-on (#+sbcl sb-posix trivial-gray-streams cl-fad)   :components ((:file "package")                (:file "conditions" :depends-on ("package"))                (:file "generics" :depends-on ("package")) ... #+end_src</p>
-<p>Here I used tree utility systems:</p>
+<pre><code>
+POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
+             (archive:with-open-archive (archive stream :direction :input)
+               (archive:do-archive-entries (entry archive)
+                 (when (cl-strings:ends-with (archive:name entry)
+                                             &quot;/archive.asd&quot;)
+                   (format t &quot;~A~%&quot;
+                           (alexandria:read-stream-content-into-string
+                            (flexi-streams:make-flexi-stream
+                             (archive:entry-stream entry))))))))
+;;; -*- mode: lisp -*-
+
+(asdf:defsystem :archive
+  :version &quot;0.9&quot;
+  :author &quot;Nathan Froyd &lt;froydnj@gmail.com&gt;&quot;
+  :maintainer &quot;Nathan Froyd &lt;froydnj@gmail.com&gt;&quot;
+  :description &quot;A package for reading and writing archive (tar, cpio, etc.) files.&quot;
+  :license &quot;BSD-style (http://opensource.org/licenses/BSD-3-Clause)&quot;
+  :depends-on (#+sbcl sb-posix trivial-gray-streams cl-fad)
+  :components ((:file &quot;package&quot;)
+               (:file &quot;conditions&quot; :depends-on (&quot;package&quot;))
+               (:file &quot;generics&quot; :depends-on (&quot;package&quot;))
+...</code></pre><p>Here I used tree utility systems:</p>
 <p>- cl-strings - to match text at the end of string - alexandria - to read from stream - flexi-streams - to convert binary stream into the text</p>
 </div><footer class='clearfix'><hr><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png'></a></p></center></footer></div></div>
   </body>
