@@ -143,7 +143,11 @@ that:
                 :rel "stylesheet"
                 :href  ,cl-bootstrap:*bootstrap-css-url*)
                (:script :src ,cl-bootstrap:*jquery-url*)
-               (:script :src ,cl-bootstrap:*bootstrap-js-url*))
+               (:script :src ,cl-bootstrap:*bootstrap-js-url*)
+               (:link :rel "stylesheet"
+                      :href "../../highlight/styles/tomorrow-night.css")
+               (:script :src "../../highlight/highlight.pack.js")
+               (:script "hljs.initHighlightingOnLoad();"))
               (:body 
                (cl-bootstrap:bs-container ()
                  (cl-bootstrap:bs-row
@@ -236,8 +240,9 @@ Text node contains code snippets, we need to wrap them into
 (defmethod render-node ((node cl-org-mode::src-node) stream)
   (cl-who:with-html-output (stream)
     (:pre
-     (:code
-      (cl-who:esc (cl-org-mode::node.text node))))))
+     (:code :class (string-trim (list #\Newline)
+                                (cl-org-mode::node.emacs-mode node))
+            (cl-who:esc (cl-org-mode::node.text node))))))
 
 (defmethod render-node ((node cl-org-mode::closing-delimiter-node) stream)
   ;; Closing delimiters for source code blocks should be ignored.

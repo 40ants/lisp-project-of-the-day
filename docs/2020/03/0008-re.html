@@ -8,6 +8,10 @@
     <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css'>
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
   </head>
   <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>re</h2></header><div class='col-md-12 col-md-offset-0'><p>This is a small regular expressions engine, made by Jeffrey Massung (@codeninja_blog).</p>
 <p>This engine uses [[http://www.lua.org/pil/20.2.html][Lua's regexp syntax]].</p>
@@ -19,7 +23,7 @@
 <p>Common Lisp version is about 645 lines but is based on a separate parser library.</p>
 <p>I am wondering how does re's performance compare with cl-ppcre? Let's check!</p>
 <p>We will test performance on a simple example. It will extract a subreddit's name from the URL:</p>
-<pre><code>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (cl-ppcre:register-groups-bind
                (subreddit)
                (&quot;.*/r/(.*?)/&quot;
@@ -33,7 +37,7 @@ POFTHEDAY&gt; (first
                           &quot;https://www.reddit.com/r/Common_Lisp/&quot;)))
 &quot;Common_Lisp&quot;
 </code></pre><p>Here is what I've got running cl-ppcre 1 million times:</p>
-<pre><code>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (cl-ppcre:register-groups-bind
@@ -50,7 +54,7 @@ Evaluation took:
   956 page faults
   160,002,992 bytes consed
 </code></pre><p>And here is the result of the same amount of iterations for 're':</p>
-<pre><code>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (first
