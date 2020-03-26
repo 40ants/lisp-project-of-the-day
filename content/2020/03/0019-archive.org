@@ -23,7 +23,7 @@ POFTHEDAY> (archive:with-open-archive
 #+end_src
 
 We can try to use another system for working with compressed streams -
-:gzip-stream.
+"gzip-stream".
 
 Consider this snippet as a bonus. Only today we are
 presenting two projects of the day simultaneously! :)
@@ -59,8 +59,8 @@ POFTHEDAY> (gzip-stream:with-open-gzip-file (stream "/tmp/archive-20160318-git.t
 
 Now, how to read some file's content?
 
-Easy! Lets pretend, we need to extract asd file from the archive. We
-will find it and read it from the stream, provided by :archive.
+Easy! Let's pretend, we need to extract asd file from the archive. We
+will find it and read it from the stream, provided by "archive".
 
 #+begin_src lisp
 
@@ -90,6 +90,7 @@ POFTHEDAY> (gzip-stream:with-open-gzip-file (stream "/tmp/archive-20160318-git.t
 
 Here I used tree utility systems:
 
-- cl-strings - to match text at the end of string
-- alexandria - to read from stream
-- flexi-streams - to convert binary stream into the text
+- cl-strings - to match text at the end of the filename
+- alexandria - to read all stream's content into the string
+- flexi-streams - to convert the binary stream into the text
+
