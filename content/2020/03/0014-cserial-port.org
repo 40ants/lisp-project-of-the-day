@@ -54,4 +54,4 @@ CL-USER> (cserial-port:with-serial (port "/dev/cu.usbmodem14101")
 
 And here is the result!
 
-[[../media/0014/arduino.jpg]]
+[[../../media/0014/arduino.jpg]]
