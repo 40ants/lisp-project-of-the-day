@@ -285,6 +285,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
 (defun render-text (text stream)
   (let ((buffer nil)
         (reading-quote nil)
+        (reading-list nil)
         (newline (coerce (list #\Newline) 'string)))
     (labels
         ((write-paragraph ()
@@ -307,8 +308,33 @@ text line by line and wrap it's pieces in appropriate HTML tags:
                                  :separator newline)))))
            (write-char #\Newline stream)
            (setf buffer nil))
+         (write-list ()
+           (cl-who:with-html-output (stream)
+             (:ul
+              (loop for item in buffer
+                    do (cl-who:htm
+                        (:li (cl-who:esc item))))))
+           (write-char #\Newline stream)
+           (setf buffer nil))
          (process (line)
            (cond
+             ((and (cl-strings:starts-with line
+                                           "- ")
+                   (not reading-quote))
+              (push (subseq line 2)
+                    buffer)
+              (setf reading-list t))
+             ((and reading-list
+                   (string= line ""))
+              (write-list)
+              (setf reading-list nil))
+             (reading-list
+              (setf buffer
+                    (list*
+                     (format nil "~A ~A"
+                             (car buffer)
+                             line)
+                     (cdr buffer))))
              ((string-equal line
                             "#+BEGIN_QUOTE")
               (setf reading-quote t))
