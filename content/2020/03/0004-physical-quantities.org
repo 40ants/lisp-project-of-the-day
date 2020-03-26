@@ -5,7 +5,7 @@ units, values and uncertainties.
 
 It has good documentation. Here is an example from the README:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (let (m c m)
              ;; Define the mass
@@ -19,12 +19,12 @@ POFTHEDAY> (let (m c m)
 
 #<QUANTITY 89.87552 +/- 1.0 % petajoule {...}>
 
-#+end_src
+#+END_SRC
 
 As you can see, physical-quantities not only able to tag values with
 units but also is able to convert from one unit to another:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (q* #q(2 +/- 0.1 m)
                #q(3 +/- 0.1 m))
@@ -33,7 +33,7 @@ POFTHEDAY> (q* #q(2 +/- 0.1 m)
 POFTHEDAY> #q(* -> mm ^ 2)
 #<QUANTITY 6000000 +/- 360555.16 millimetre ^ 2 {10023A6AF3}>
 
-#+end_src
+#+END_SRC
 
 You can find more examples in its documentation:
 

@@ -10,7 +10,7 @@ it significantly better than using plain uiop:run-process.
 
 Here is an example of calls both of these libraries:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (simple-inferiors:run "ls" () :output t)
 2020-03
@@ -30,13 +30,13 @@ NIL
 NIL
 0 (0 bits, #x0, #o0, #b0)
 
-#+end_src
+#+END_SRC
 
 Probably, the most convenient part of simple-inferiors is
 how it handles nested directory changing. Again, here is an
 illustration:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (progn
              (format t "~2&Directory structure:~2%")
@@ -70,13 +70,13 @@ Going deeper:
 total 0
 -rw-r--r--  1 art  LD\Domain Users  0 Mar 12 13:19 world.txt
 
-#+end_src
+#+END_SRC
 
 There is the inconsistency in the way how does with-chdir work. You need
 to keep in mind that a directory name should have a backslash at the
 end. Otherwise, nesting won't work:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (simple-inferiors:with-chdir ("foo/")
              (simple-inferiors:with-chdir ("bar/")
@@ -89,7 +89,7 @@ POFTHEDAY> (simple-inferiors:with-chdir ("foo")
                simple-inferiors:*cwd*))
 #P"/Users/art/lisp-project-of-the-day/bar"
 
-#+end_src
+#+END_SRC
 
 I've created an issue on this problem:
 

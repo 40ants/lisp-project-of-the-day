@@ -9,7 +9,7 @@ methods.
 
 Here is a simple iteration on the list:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (use-package :doplus)
 T
@@ -18,11 +18,11 @@ POFTHEDAY> (do+
              (collect i))
 (#\H #\e #\l #\l #\o #\  #\w #\o #\r #\l #\d #\!)
 
-#+end_src
+#+END_SRC
 
 Now let's try to extend do+ to iterate on week days:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (defclause in-days ()
              `(for ,*iteration-variable*
@@ -40,7 +40,7 @@ Hello FRIDAY
 Hello SATURDAY
 Hello SUNDAY
 
-#+end_src
+#+END_SRC
 
 Another cool feature is support for generators. BTW, :iterate supports
 them too.
@@ -50,7 +50,7 @@ Fibonacci numbers.
 
 The first step is to implement the iteration in do+ terms:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (do+
              (with (prev 0))
@@ -70,13 +70,13 @@ prev: 21 x: 34
 prev: 34 x: 55
 prev: 55 x: 89
 
-#+end_src
+#+END_SRC
 
 Next, we need to wrap it into the defclause.
 
 This clause can be used in any do+ loops and will be lazily evaluated:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (defclause in-fib ()
              `((with (prev 0))
@@ -102,7 +102,7 @@ x: 55
 x: 89
 NIL
 
-#+end_src
+#+END_SRC
 
 Manual lives on the wiki:
 https://bitbucket.org/alessiostalla/doplus/wiki/Home

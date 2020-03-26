@@ -8,7 +8,7 @@ I've tested :cl-pack using an example from its README. Seems
 it does not work as expected, because it is unable to unpack the data,
 created by itself:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
  POFTHEDAY> (defparameter *data*
               (cl-pack:pack "VgA*c*"
@@ -24,7 +24,7 @@ created by itself:
  161.99
  "a string EFG"
 
-#+end_src
+#+END_SRC
 
 As you can see, it wasn't able to unpack three unsigned chars from the
 end of the structure.
@@ -34,7 +34,7 @@ changed format string to the null-terminated string.
 
 But it doesn't work either:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
  POFTHEDAY> (defparameter *data*
               (cl-pack:pack "VgZ*c*"
@@ -50,6 +50,6 @@ But it doesn't work either:
  161.99
  "a string^@EFG"
 
-#+end_src
+#+END_SRC
 
 Is it a fail, or I just did something wrong?

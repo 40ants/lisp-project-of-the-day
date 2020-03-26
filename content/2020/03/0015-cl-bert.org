@@ -5,7 +5,7 @@ This library implements a BERT serializer which is a part of the
 
 Let's try how it serializes Lisp structures:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (bert:encode 1)
 #(131 97 1)
@@ -32,11 +32,11 @@ POFTHEDAY> (bert:decode *)
 POFTHEDAY> (coerce (mapcar #'code-char *) 'string)
 "Hello Lisp World!"
 
-#+end_src
+#+END_SRC
 
 How about more complex structures?
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (bert:encode (list 1 2 3 4 5))
 #(131 108 0 0 0 5 97 1 97 2 97 3 97 4 97 5 106)
@@ -52,7 +52,7 @@ POFTHEDAY> (bert:encode (list 42 "Hello" (list 3 4 5)))
 POFTHEDAY> (bert:decode *)
 (42 (72 101 108 108 111) (3 4 5))
 
-#+end_src
+#+END_SRC
 
 To recap:
 
