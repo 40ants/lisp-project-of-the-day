@@ -58,12 +58,20 @@
   color: #b294bb;
 }
 
+@font-face {
+    font-family: 'FontForCode';
+    src: url('../../fonts/font-for-code.ttf');
+}
+
 .hljs {
   display: block;
   overflow-x: auto;
   background: #1d1f21;
   color: #c5c8c6;
   padding: 0.5em;
+  font-family: 'FontForCode';
+  font-size: 16px;
+  font-variant-ligatures: common-ligatures;
 }
 
 .hljs-emphasis {
