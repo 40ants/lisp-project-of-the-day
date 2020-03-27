@@ -23,7 +23,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 24 March - [[content/2020/03/0017-cl-org-mode.org][cl-org-mode]] ([[https://twitter.com/svetlyak40wt/status/1242466873662373889][twitter]])
 - 25 March - [[content/2020/03/0018-cl-bootstrap.org][cl-bootstrap]] ([[https://twitter.com/svetlyak40wt/status/1242900031881056256][twitter]])
 - 26 March - [[content/2020/03/0019-archive.org][archive]] ([[https://twitter.com/svetlyak40wt/status/1243114779763507200][twitter]])
-- 27 March - [[content/2020/03/0020-cl-hash-table-destructuring.org][cl-hash-table-destructuring]]
+- 27 March - [[content/2020/03/0020-cl-hash-table-destructuring.org][cl-hash-table-destructuring]] ([[https://twitter.com/svetlyak40wt/status/1243506491040116737][twitter]])
 
 
 * Code, used to choose a project

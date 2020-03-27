@@ -4,10 +4,10 @@ This system provides a macro which works similarly to with-slots
 standard macro, but for hash tables.
 
 The simplest case is when your hash table has symbols as its keys.
-Macro establish local names for keys you need and these names are
+Macro establishes local names for keys you need and these names are
 setf-able.
 
-Setfable place, is such name or form for which you can apply a setf
+Setfable place is such name or form for which you can apply a setf
 operation to change its value.
 
 In this example I create an empty hash table and set two keys:
@@ -37,7 +37,7 @@ BAR -> "World"
 
 Pay attention, this package contains two similar macroses:
 
-- with-hash-table-items - makes names setf-able by expandingg into symbol-macrolet.
+- with-hash-table-items - makes names setf-able by expanding into symbol-macrolet.
 - with-hash-table-values - don't.
 
 Macro with-has-table-items expands into:
@@ -70,14 +70,14 @@ will expand into:
 
 #+END_SRC
 
-Of couse, not all hash tables has only symbols in their keys. If you
-keys has other types, then there are two ways to use
+Of couse, not all hash tables has only symbols in their keys. If your
+keys have other types, then there are two ways to use
 "cl-hash-table-destructuring".
 
-You can give it key value explicitly, like you can do when using
+You can give it key's value explicitly like you can do when using
 "with-slots" with custom slot names.
 
-In this example, we use strings as keys
+In this example, we use strings as keys:
 
 #+BEGIN_SRC lisp
 
@@ -104,8 +104,8 @@ POFTHEDAY> (let ((the-hash (make-hash-table :test 'equal)))
 
 Or, you can provide a function to convert symbols into the keys:
 
-In this example we will use function to make keys with symbols converted
-to pascal styled strings.
+In this example, we will use a function to make keys with symbols converted
+to pascal-styled strings.
 
 #+BEGIN_SRC lisp
 
@@ -129,8 +129,8 @@ POFTHEDAY> (let ((the-hash (make-hash-table :test 'equal)))
 
 #+END_SRC
 
-If you are interested in such thing like working with nested
-datastructures, then you might also be interested in another Common Lisp
+If you are interested in such thing as working with nested
+data structures, then you might also be interested in these Common Lisp
 systems:
 
 http://quickdocs.org/access/
