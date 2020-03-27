@@ -9,7 +9,7 @@ description of all available functions you'll find in the docs:
 
 http://quickdocs.org/ppath/
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (ppath:join "." "foo" "bar")
 "./foo/bar"
@@ -29,4 +29,4 @@ POFTHEDAY> (ppath:splitext "/tmp/some-file.jpg")
 POFTHEDAY> (ppath:expandvars "/home/${LOGNAME}/bin")
 "/home/art/bin"
 
-#+end_src
+#+END_SRC

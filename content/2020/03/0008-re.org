@@ -26,7 +26,7 @@ I am wondering how does re's performance compare with cl-ppcre? Let's check!
 We will test performance on a simple example. It will extract a
 subreddit's name from the URL:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (cl-ppcre:register-groups-bind
                (subreddit)
@@ -41,11 +41,11 @@ POFTHEDAY> (first
                           "https://www.reddit.com/r/Common_Lisp/")))
 "Common_Lisp"
 
-#+end_src
+#+END_SRC
 
 Here is what I've got running cl-ppcre 1 million times:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (time
             (loop repeat *num-iterations*
@@ -63,11 +63,11 @@ Evaluation took:
   956 page faults
   160,002,992 bytes consed
 
-#+end_src
+#+END_SRC
 
 And here is the result of the same amount of iterations for 're':
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (time
             (loop repeat *num-iterations*
@@ -84,7 +84,7 @@ Evaluation took:
   2 page faults
   3,824,010,656 bytes consed
 
-#+end_src
+#+END_SRC
 
 As you can see, cl-ppre is 20 times faster and consumes less memory than 're'.
 

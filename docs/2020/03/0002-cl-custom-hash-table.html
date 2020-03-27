@@ -1,30 +1,27 @@
-<html><body><h1 class='title'>cl-custom-hash-table</h1>
-In Common Lisp standard, a hash table can use only these test functions
-to check keys equality: eq, eql, equal and equalp
-(https://eli.thegreenplace.net/2004/08/08/equality-in-lisp), however
-sometimes you might want to provide a custom comparison and hash
-functions.
+<!DOCTYPE html>
 
-Some implementations support this by providing an
-extension. Cl-custom-hash-table provides a portability layer for
-defining such custom hash functions.
-
-BTW, did you know there is a table of Common Lisp portability layers?
-
-https://shinmera.github.io/portability/
-
-Working on this post, I&#039;ve created an issue to add cl-custom-hash-table
-into this list.
-
-Let&#039;s see, how does SBCL allow you to define custom hash functions using
-sb-ext:define-hash-table-test macro.
-
-For example, we want a hash table where we can use the first character
-of a string, given as a key.
-
-First, we need to define a comparison function:
-
-<pre><code>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>
+    </title>
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css'>
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-custom-hash-table</h2></header><div class='col-md-12 col-md-offset-0'><p>In Common Lisp standard, a hash table can use only these test functions to check keys equality: eq, eql, equal and equalp (https://eli.thegreenplace.net/2004/08/08/equality-in-lisp), however sometimes you might want to provide a custom comparison and hash functions.</p>
+<p>Some implementations support this by providing an extension. Cl-custom-hash-table provides a portability layer for defining such custom hash functions.</p>
+<p>BTW, did you know there is a table of Common Lisp portability layers?</p>
+<p>https://shinmera.github.io/portability/</p>
+<p>Working on this post, I've created an issue to add cl-custom-hash-table into this list.</p>
+<p>Let's see, how does SBCL allow you to define custom hash functions using sb-ext:define-hash-table-test macro.</p>
+<p>For example, we want a hash table where we can use the first character of a string, given as a key.</p>
+<p>First, we need to define a comparison function:</p>
+<pre><code class=' lisp '>
 POFTHEDAY&gt; (defun first-char-equal (left right)
              (char-equal (elt left 0)
                          (elt right 0)))
@@ -34,14 +31,9 @@ POFTHEDAY&gt; (first-char-equal &quot;Foo&quot; &quot;foo&quot;)
 T
 POFTHEDAY&gt; (first-char-equal &quot;Foo&quot; &quot;Bar&quot;)
 NIL
-</code></pre>
-
-Please, note, here I&#039;ve sacrificed the processing of corner cases when
-left and right are empty or not a strings in favor of readability.
-
-Also, we need to define a hash-function:
-
-<pre><code>
+</code></pre><p>Please, note, here I've sacrificed the processing of corner cases when left and right are empty or not a strings in favor of readability.</p>
+<p>Also, we need to define a hash-function:</p>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (defun first-char-hash (text)
              (sxhash (char-downcase (elt text 0))))
 FIRST-CHAR-HASH
@@ -51,13 +43,8 @@ POFTHEDAY&gt; (first-char-hash &quot;foo&quot;)
 
 POFTHEDAY&gt; (first-char-hash &quot;Foo&quot;)
 1193941380876393778 (61 bits, #x1091BB5C31C6DD32)
-</code></pre>
-
-Now we can to register our custom hash function and to create a
-hash-table:
-
-
-<pre><code>
+</code></pre><p>Now we can to register our custom hash function and to create a hash-table:</p>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (sb-ext:define-hash-table-test first-char-equal first-char-hash)
 FIRST-CHAR-EQUAL
 
@@ -83,13 +70,9 @@ POFTHEDAY&gt; (maphash (lambda (key value)
                     *h*)
 Foo -&gt; ANOTHER
 second -&gt; VALUE
-</code></pre>
-
-As you can see, this works as expected.
-
-Now let&#039;s try to define the same hash table using cl-custom-hash-table:
-
-<pre><code>
+</code></pre><p>As you can see, this works as expected.</p>
+<p>Now let's try to define the same hash table using cl-custom-hash-table:</p>
+<pre><code class=' lisp'>
 POFTHEDAY&gt; (cl-custom-hash-table:define-custom-hash-table-constructor
                make-first-char-hash
              :test first-char-equal
@@ -111,10 +94,7 @@ POFTHEDAY&gt; (cl-custom-hash-table:with-custom-hash-table
                               value))
                     *h*))
 Foo -&gt; ANOTHER
-second -&gt; VALUE</code></pre>
-
-As you can see, the result is the same. However, we have to wrap our code
-into the cl-custom-hash-table:with-custom-hash-table macro call. We need
-this to ensure that correct functions will be used on Lisp
-implementation which doesn&#039;t support the hash function&#039;s customization.
-</body></html>
+second -&gt; VALUE</code></pre><p>As you can see, the result is the same. However, we have to wrap our code into the cl-custom-hash-table:with-custom-hash-table macro call. We need this to ensure that correct functions will be used on Lisp implementation which doesn't support the hash function's customization.</p>
+</div><footer class='clearfix'><hr><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png'></a></p></center></footer></div></div>
+  </body>
+</html>

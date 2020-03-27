@@ -115,6 +115,63 @@ with cl-org-mode:
 
 ** Rendering org-mode to HTML
 
+***  A page skeleton
+For each page we need a skeleton with header, footer and necessary
+Bootstrap styles.
+
+With "cl-who" easiest way to create template is to use lisp macro like
+that:
+
+#+BEGIN_SRC lisp
+
+(defmacro app-page ((stream &key title index-uri (site-title "Lisp Project of the Day")) &body body)
+  (let ((site-title
+          (cond
+            (index-uri
+             (list (list :a :href index-uri
+                         site-title)))
+            (t
+             (list site-title)))))
+    `(cl-who:with-html-output (*standard-output* ,stream :prologue t :indent t)
+       (:html :lang "en"
+              (:head
+               (:meta :charset "utf-8")
+               ,@(when title
+                   `((:title ,title)))
+               (:link
+                :type "text/css"
+                :rel "stylesheet"
+                :href  ,cl-bootstrap:*bootstrap-css-url*)
+               (:script :src ,cl-bootstrap:*jquery-url*)
+               (:script :src ,cl-bootstrap:*bootstrap-js-url*)
+               (:link :rel "stylesheet"
+                      :href "../../highlight/styles/tomorrow-night.css")
+               (:script :src "../../highlight/highlight.pack.js")
+               (:script "hljs.initHighlightingOnLoad();"))
+              (:body 
+               (cl-bootstrap:bs-container ()
+                 (cl-bootstrap:bs-row
+                   (:header
+                    (:h1 :style "text-align: center"
+                         ,@site-title)
+                    ,@(when title
+                        `((:h2 :style "text-align: center"
+                               (cl-who:esc ,title)))))
+                   (cl-bootstrap:bs-col-md () 
+                     ,@body)
+                   (:footer :class "clearfix"
+                            (:hr)
+                            (:center
+                             (:p (cl-who:str "Brought to you by 40Ants under&nbsp;")
+                                 (:a :rel "license"
+                                     :href "http://creativecommons.org/licenses/by-sa/4.0/"
+                                     (:img :alt "Creative Commons License"
+                                           :style "border-width:0"
+                                           :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png"))))))))))))
+
+#+END_SRC
+***  Generation of separate pages for articles
+
 When source files are collected, we need to render them to HTML inside
 the "docs" folder. Github will use content of this folder, to serve the
 site at http://40ants.com/lisp-project-of-the-day/
@@ -183,8 +240,9 @@ Text node contains code snippets, we need to wrap them into
 (defmethod render-node ((node cl-org-mode::src-node) stream)
   (cl-who:with-html-output (stream)
     (:pre
-     (:code
-      (cl-who:esc (cl-org-mode::node.text node))))))
+     (:code :class (string-trim (list #\Newline)
+                                (cl-org-mode::node.emacs-mode node))
+            (cl-who:esc (cl-org-mode::node.text node))))))
 
 (defmethod render-node ((node cl-org-mode::closing-delimiter-node) stream)
   ;; Closing delimiters for source code blocks should be ignored.
@@ -192,37 +250,192 @@ Text node contains code snippets, we need to wrap them into
 
 #+END_SRC
 
-In text node we need to process links and images:
+In text node we need to process paragraphs, links, images and quotes. We
+will use a separate function to process text like this:
+
+#+BEGIN_QUOTE
+Today's Common Lisp project of the Day is: rate-monotonic.
+
+It is a periodic thread scheduler inspired by RTEMS:
+
+http://quickdocs.org/rate-monotonic/
+#+END_QUOTE
+
+into HTML:
+
+#+BEGIN_QUOTE
+<p>Today's Common Lisp project of the Day is: rate-monotonic.</p>
+
+<p>It is a periodic thread scheduler inspired by RTEMS:</p>
+
+<a href="http://quickdocs.org/rate-monotonic/">http://quickdocs.org/rate-monotonic/</a>
+#+END_QUOTE
+
+To do this, we'll write a simple state machine, which will read
+text line by line and wrap it's pieces in appropriate HTML tags:
+
+#+BEGIN_SRC lisp
+
+(defun replace-images (text)
+  (cl-ppcre:regex-replace-all
+   "\\[\\[(.*?\\.(png|jpg))\\]\\]"
+   text
+   "<img style=\"max-width: 100%\" src=\"\\1\"/>"))
+
+(defun render-text (text stream)
+  (let ((buffer nil)
+        (reading-quote nil)
+        (reading-list nil)
+        (newline (coerce (list #\Newline) 'string)))
+    (labels
+        ((write-paragraph ()
+           (cl-who:with-html-output (stream)
+             (:p (cl-who:str
+                  ;; Here we don't escape the text, because
+                  ;; it is from trusted source and will contain
+                  ;; links to the images
+                  (replace-images
+                   (cl-strings:join (nreverse buffer)
+                                    :separator " ")))))
+           (write-char #\Newline stream)
+           (setf buffer nil))
+         (write-quote ()
+           (cl-who:with-html-output (stream)
+             (:blockquote
+              (:pre
+               (cl-who:esc
+                (cl-strings:join (nreverse buffer)
+                                 :separator newline)))))
+           (write-char #\Newline stream)
+           (setf buffer nil))
+         (write-list ()
+           (cl-who:with-html-output (stream)
+             (:ul
+              (loop for item in buffer
+                    do (cl-who:htm
+                        (:li (cl-who:esc item))))))
+           (write-char #\Newline stream)
+           (setf buffer nil))
+         (process (line)
+           (cond
+             ((and (cl-strings:starts-with line
+                                           "- ")
+                   (not reading-quote))
+              (push (subseq line 2)
+                    buffer)
+              (setf reading-list t))
+             ((and reading-list
+                   (string= line ""))
+              (write-list)
+              (setf reading-list nil))
+             (reading-list
+              (setf buffer
+                    (list*
+                     (format nil "~A ~A"
+                             (car buffer)
+                             line)
+                     (cdr buffer))))
+             ((string-equal line
+                            "#+BEGIN_QUOTE")
+              (setf reading-quote t))
+             ((string-equal line
+                            "#+END_QUOTE")
+              (setf reading-quote nil)
+              (write-quote))
+             ((not (string= line ""))
+              (push line buffer))
+             ((and (not reading-quote)
+                   (and (string= line "")
+                        buffer))
+              (write-paragraph)))))
+      (mapc #'process
+            (cl-strings:split text #\Newline)))))
+
+#+END_SRC
+
+Now, we will use this text processing function to render all text nodes
+in our org-mode files:
 
 #+BEGIN_SRC lisp
 
 (defmethod render-node ((node cl-org-mode::text-node) stream)
-  (cl-who:with-html-output (stream)
-    (cl-who:esc (cl-org-mode::node.text node))))
+  (render-text (cl-org-mode::node.text node)
+               stream))
 
 #+END_SRC
 
+Now it is time to write a code which will render all org mode files into HTML:
+
 #+BEGIN_SRC lisp
 
-(defun make-output-filename (filename)
+(defun make-output-filename (file)
+  (check-type file file)
   (ppath:join "docs"
-              (format nil "~A.html" (car (ppath:splitext filename)))))
+              (format nil "~A.html" (car (ppath:splitext (get-filename file))))))
 
 (defun render-file (file)
-  (let ((filename (make-output-filename (get-filename file)))
+  (let ((filename (make-output-filename file))
         (title (get-title file)))
     (ensure-directories-exist filename)
     
     (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-      (cl-who:with-html-output (stream)
-        (:html
-         (:body
-          (:h1 :class "title"
-               (cl-who:str title))
+      (app-page (stream :title title :index-uri "../../index.html")
+        (cl-who:with-html-output (stream)
           (doplus:do+ (for node (in-nodes file))
-            (render-node node stream))))))))
+            (render-node node stream)))))))
   
 #+END_SRC
+
+***  Generating index page
+
+On index page we want to output a list of all articles.
+Probably later, we'll want to print only the latest and to create a tags
+based catalogue, but now a simple list is enough.
+
+We'll use few helpers to create urls and titles for the index page:
+
+#+BEGIN_SRC lisp
+
+(defun strip-doc-folder (filename)
+  "Removes doc/ from beginning of the filename"
+  (cond
+    ((cl-strings:starts-with filename "docs/")
+     (subseq filename 5))
+    (t filename)))
+
+
+(defun get-title-for-index (file)
+  (let* ((title (get-title file))
+         (filename (get-filename file))
+         (splitted (ppath:split filename))
+         (only-file (cdr splitted))
+         (number (first (cl-strings:split only-file #\-))))
+    (values title number)))
+
+#+END_SRC
+
+#+BEGIN_SRC lisp
+  
+(defun render-index (files)
+  (let ((filename (ppath:join "docs"
+                              "index.html")))
+    (alexandria:with-output-to-file (stream filename :if-exists :supersede)
+      (app-page (stream)
+        (:ul :style "list-style: none"
+         (loop for file in (reverse files)
+               for url = (strip-doc-folder (make-output-filename file))
+               do (multiple-value-bind (title number)
+                      (get-title-for-index file)
+                    (cl-who:with-html-output (stream)
+                      (:li (:span :style "font-weight: bold; margin-right: 0.7em"
+                                  (cl-who:esc (format nil "#~A" number)))
+                           (:a :href url
+                               (cl-who:esc title)))))))))
+    (values)))
+
+#+END_SRC
+
+***  Main function to render the whole site
 
 Also, we need a entry-point function which will do all the job - read
 files and write html:
@@ -230,10 +443,12 @@ files and write html:
 #+BEGIN_SRC lisp
 
 (defun render-site ()
-  (mapc #'render-file
-        (read-files)))
+  (let ((files (read-files)))
+    (mapc #'render-file files)
+    (render-index files)))
 
 #+END_SRC
+
 
 ** Some utilities
 ***  Converting pathnames to strings

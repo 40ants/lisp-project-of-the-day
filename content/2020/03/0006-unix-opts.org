@@ -7,7 +7,7 @@ to decide what to do if the option is not supported or can't be parsed.
 
 Here is a short example:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (opts:get-opts (list "myscript"
                                 "--help"))
@@ -28,7 +28,7 @@ Warning: "--help" option is unknown!
 NIL
 ("myscript")
 
-#+end_src
+#+END_SRC
 
 Options are declared by a macro opts:define-opts it stores them in the
 global opts::*options* variable.

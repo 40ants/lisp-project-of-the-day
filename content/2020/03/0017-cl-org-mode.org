@@ -18,7 +18,7 @@ https://common-lisp.net/project/cl-org-mode/
 Here is a short example, showing how to parse one of the articles of
 #poftheday and extract a code snipped:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 POFTHEDAY> (cl-org-mode::read-org-file "2020-03/0001-rate-monotonic.org")
 #<CL-ORG-MODE::ORG-FILE {10030B4153}>
 POFTHEDAY> (cl-org-mode::node.next-node *)
@@ -58,7 +58,8 @@ i: 8 time: 1.286
 i: 9 time: 1.46
 i: 10 time: 1.616
 "
-#+end_src
+#+END_SRC
+
 
 I'm planning to write a simple static site generator for the Project of
 the Day, using this library and :spinneret for HTML generation.
