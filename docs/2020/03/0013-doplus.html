@@ -1,14 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 
 <html lang='en'>
   <head>
-    <meta charset='utf-8' />
+    <meta charset='utf-8'>
     <title>
     </title>
-    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
-    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css'>
     <script src='../../highlight/highlight.pack.js'></script>
     <script>hljs.initHighlightingOnLoad();
     </script>
@@ -16,16 +16,13 @@
   <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>doplus</h2></header><div class='col-md-12 col-md-offset-0'><p>Do+ is a macro, similar to 'loop' or 'iterate', but built with simplicity in mind.</p>
 <p>Documentation is good and contains some examples showing how does iteration works and how to extend the behaviour and add new iteration methods.</p>
 <p>Here is a simple iteration on the list:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (use-package :doplus)
+<pre><code class=' lisp'>POFTHEDAY&gt; (use-package :doplus)
 T
 POFTHEDAY&gt; (do+
              (for i (in &quot;Hello world!&quot;))
              (collect i))
-(#\H #\e #\l #\l #\o #\  #\w #\o #\r #\l #\d #\!)
-</code></pre><p>Now let's try to extend do+ to iterate on week days:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (defclause in-days ()
+(#\H #\e #\l #\l #\o #\  #\w #\o #\r #\l #\d #\!)</code></pre><p>Now let's try to extend do+ to iterate on week days:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defclause in-days ()
              `(for ,*iteration-variable*
                    (in &#039;(:monday :tuesday :wednesday
                          :thursday :friday :saturday :sunday))))
@@ -39,12 +36,10 @@ Hello WEDNESDAY
 Hello THURSDAY
 Hello FRIDAY
 Hello SATURDAY
-Hello SUNDAY
-</code></pre><p>Another cool feature is support for generators. BTW, :iterate supports them too.</p>
+Hello SUNDAY</code></pre><p>Another cool feature is support for generators. BTW, :iterate supports them too.</p>
 <p>Let's try to build a generator which emits an infinite sequence of Fibonacci numbers.</p>
 <p>The first step is to implement the iteration in do+ terms:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (do+
+<pre><code class=' lisp'>POFTHEDAY&gt; (do+
              (with (prev 0))
              (for x (being 1 :then (prog1 (+ prev x)
                                      (setf prev x))))
@@ -60,11 +55,9 @@ prev: 8 x: 13
 prev: 13 x: 21
 prev: 21 x: 34
 prev: 34 x: 55
-prev: 55 x: 89
-</code></pre><p>Next, we need to wrap it into the defclause.</p>
+prev: 55 x: 89</code></pre><p>Next, we need to wrap it into the defclause.</p>
 <p>This clause can be used in any do+ loops and will be lazily evaluated:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (defclause in-fib ()
+<pre><code class=' lisp'>POFTHEDAY&gt; (defclause in-fib ()
              `((with (prev 0))
                (for ,*iteration-variable*
                     (being 1 :then (prog1 (+ prev ,*iteration-variable*)
@@ -86,9 +79,8 @@ x: 21
 x: 34
 x: 55
 x: 89
-NIL
-</code></pre><p>Manual lives on the wiki: https://bitbucket.org/alessiostalla/doplus/wiki/Home</p>
+NIL</code></pre><p>Manual lives on the wiki:<a href="https://bitbucket.org/alessiostalla/doplus/wiki/Home">https://bitbucket.org/alessiostalla/doplus/wiki/Home</a></p>
 <p>See also :iterate, :for and :series.</p>
-</div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
+</div><footer class='clearfix'><hr><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png'></a></p></center></footer></div></div>
   </body>
 </html>

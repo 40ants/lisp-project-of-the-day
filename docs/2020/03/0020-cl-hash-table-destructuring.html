@@ -1,14 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 
 <html lang='en'>
   <head>
-    <meta charset='utf-8' />
+    <meta charset='utf-8'>
     <title>
     </title>
-    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
-    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css'>
     <script src='../../highlight/highlight.pack.js'></script>
     <script>hljs.initHighlightingOnLoad();
     </script>
@@ -17,8 +17,7 @@
 <p>The simplest case is when your hash table has symbols as its keys. Macro establishes local names for keys you need and these names are setf-able.</p>
 <p>Setfable place is such name or form for which you can apply a setf operation to change its value.</p>
 <p>In this example I create an empty hash table and set two keys:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (let ((the-hash (make-hash-table)))
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table)))
              (cl-hash-table-destructuring:with-hash-table-items
                  (foo bar)
                  the-hash
@@ -35,32 +34,26 @@ POFTHEDAY&gt; (let ((the-hash (make-hash-table)))
                       the-hash))
 
 FOO -&gt; &quot;Hello&quot;
-BAR -&gt; &quot;World&quot;
-</code></pre><p>Pay attention, this package contains two similar macroses:</p>
+BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains two similar macroses:</p>
 <ul><li>with-hash-table-items - makes names setf-able by expanding into symbol-macrolet.</li><li>with-hash-table-values - don&#039;t.</li></ul>
 <p>Macro with-has-table-items expands into:</p>
-<pre><code class=' lisp'>
-(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
+<pre><code class=' lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
   (let ((#:hash-table (the hash-table the-hash)))
     (let ((#:foo (funcall #:keyfn &#039;foo))
           (#:bar (funcall #:keyfn &#039;bar)))
       (symbol-macrolet ((foo (gethash #:foo #:hash-table))
                         (bar (gethash #:bar #:hash-table)))
         (setf foo &quot;Hello&quot;)
-        (setf bar &quot;World&quot;)))))
-</code></pre><p>Attempt to use setf when using "with-has-table-values" will not issue any errors and will not change the state of the hash, because this macro will expand into:</p>
-<pre><code class=' lisp'>
-(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
+        (setf bar &quot;World&quot;)))))</code></pre><p>Attempt to use setf when using "with-has-table-values" will not issue any errors and will not change the state of the hash, because this macro will expand into:</p>
+<pre><code class=' lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
   (let ((#:hash-table (the hash-table the-hash)))
     (let ((foo (gethash (funcall #:keyfn &#039;foo) #:hash-table))
           (bar (gethash (funcall #:keyfn &#039;bar) #:hash-table)))
       (setf foo &quot;Hello&quot;)
-      (setf bar &quot;World&quot;))))
-</code></pre><p>Of couse, not all hash tables has only symbols in their keys. If your keys have other types, then there are two ways to use "cl-hash-table-destructuring".</p>
+      (setf bar &quot;World&quot;))))</code></pre><p>Of couse, not all hash tables has only symbols in their keys. If your keys have other types, then there are two ways to use "cl-hash-table-destructuring".</p>
 <p>You can give it key's value explicitly like you can do when using "with-slots" with custom slot names.</p>
 <p>In this example, we use strings as keys:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
              (cl-hash-table-destructuring:with-hash-table-items
                  ((foo &quot;Foo&quot;) (bar &quot;Bar&quot;))
                  the-hash
@@ -77,11 +70,9 @@ POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
                       the-hash))
 
 &quot;Foo&quot; -&gt; &quot;Hello&quot;
-&quot;Bar&quot; -&gt; &quot;World&quot;
-</code></pre><p>Or, you can provide a function to convert symbols into the keys:</p>
+&quot;Bar&quot; -&gt; &quot;World&quot;</code></pre><p>Or, you can provide a function to convert symbols into the keys:</p>
 <p>In this example, we will use a function to make keys with symbols converted to pascal-styled strings.</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
              (cl-hash-table-destructuring:with-hash-table-items-fn
                  (some-key-name)
                  (the-hash (lambda (symbol)
@@ -97,10 +88,9 @@ POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
                                 value))
                       the-hash))
 
-&quot;SomeKeyName&quot; -&gt; &quot;Hello World!&quot;
-</code></pre><p>If you are interested in such thing as working with nested data structures, then you might also be interested in these Common Lisp systems:</p>
-<p>http://quickdocs.org/access/</p>
-<p>http://quickdocs.org/let-plus/</p>
-</div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
+&quot;SomeKeyName&quot; -&gt; &quot;Hello World!&quot;</code></pre><p>If you are interested in such thing as working with nested data structures, then you might also be interested in these Common Lisp systems:</p>
+<p><a href="http://quickdocs.org/access/">http://quickdocs.org/access/</a></p>
+<p><a href="http://quickdocs.org/let-plus/">http://quickdocs.org/let-plus/</a></p>
+</div><footer class='clearfix'><hr><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png'></a></p></center></footer></div></div>
   </body>
 </html>

@@ -1,0 +1,99 @@
+* lass :web:
+
+Common Lisp is a good language to write various domain specific
+languages (DSLs). This library provides a DSL which compiles into the
+CSS.
+
+Lass is lisp community's response to [[https://sass-lang.com/][Sass]], [[http://lesscss.org/][LESS]] and [[https://stylus-lang.com/][Stylus]].
+
+Here is a short example:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (lass:compile-and-write
+            '(nav
+              (ul
+               :list-style none
+               (li
+                :margin 0 :padding 0
+                :display inline-block))))
+"
+nav ul{
+    list-style: none;
+}
+
+nav ul li{
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}"
+
+#+END_SRC
+
+As you can see, definitions can be nested. Also, you can use variables
+the same way like you do when writing macroses.
+
+Another cool feature is flexible selectors, which can be used to make
+definition more concise:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (lass:compile-and-write
+            '((:and
+               (:or article section)
+               (:= data-author (:or yukari ran chen))
+               (:nth-child (:or 1 2 3)))
+              :display none))
+
+"article[data-author=\"yukari\"]:nth-child(1),
+article[data-author=\"yukari\"]:nth-child(2),
+article[data-author=\"yukari\"]:nth-child(3),
+article[data-author=\"ran\"]:nth-child(1),
+article[data-author=\"ran\"]:nth-child(2),
+article[data-author=\"ran\"]:nth-child(3),
+article[data-author=\"chen\"]:nth-child(1),
+article[data-author=\"chen\"]:nth-child(2),
+article[data-author=\"chen\"]:nth-child(3),
+section[data-author=\"yukari\"]:nth-child(1),
+section[data-author=\"yukari\"]:nth-child(2),
+section[data-author=\"yukari\"]:nth-child(3),
+section[data-author=\"ran\"]:nth-child(1),
+section[data-author=\"ran\"]:nth-child(2),
+section[data-author=\"ran\"]:nth-child(3),
+section[data-author=\"chen\"]:nth-child(1),
+section[data-author=\"chen\"]:nth-child(2),
+section[data-author=\"chen\"]:nth-child(3){
+    display: none;
+}"
+
+#+END_SRC
+
+Another great feature is support for brower specifix prefixes. Lass will
+expand to them, keeping your code clean:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (lass:compile-and-write
+            '(.fun
+              :linear-gradient "deg(45)" black 0% darkgray 100%
+              :transform rotate -45deg))
+".fun{
+    background: -moz-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -o-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -webkit-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: -ms-linear-gradient(deg(45), black 0%, darkgray 100%);
+    background: linear-gradient(deg(45), black 0%, darkgray 100%);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}"
+
+#+END_SRC
+
+This library has very good documentation:
+
+http://quickdocs.org/lass/
+
+Thanks, [[https://twitter.com/shinmera][@shinmera]]!

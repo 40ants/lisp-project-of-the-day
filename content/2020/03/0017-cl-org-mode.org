@@ -9,11 +9,13 @@ files from the Common Lisp. For example, you can use it to write a
 plugin for blogging software like :coleslaw.
 
 cl-org-mode has no any exported functions, but you can read it's sources
-and documentation:
+and [[https://common-lisp.net/project/cl-org-mode/][documentation]]:
+
+#+BEGIN_SRC bash
 
 git clone https://gitlab.common-lisp.net/cl-org-mode/cl-org-mode.git
 
-https://common-lisp.net/project/cl-org-mode/
+#+END_SRC
 
 Here is a short example, showing how to parse one of the articles of
 #poftheday and extract a code snipped:

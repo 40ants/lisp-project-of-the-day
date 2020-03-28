@@ -1,30 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 
 <html lang='en'>
   <head>
-    <meta charset='utf-8' />
+    <meta charset='utf-8'>
     <title>
     </title>
-    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
-    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css'>
     <script src='../../highlight/highlight.pack.js'></script>
     <script>hljs.initHighlightingOnLoad();
     </script>
   </head>
   <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>re</h2></header><div class='col-md-12 col-md-offset-0'><p>This is a small regular expressions engine, made by Jeffrey Massung (@codeninja_blog).</p>
-<p>This engine uses [[http://www.lua.org/pil/20.2.html][Lua's regexp syntax]].</p>
+<p>This engine uses <a href="http://www.lua.org/pil/20.2.html">Lua's regexp syntax</a>.</p>
 <p>By the way, I was interested in why did Lua developers choose such syntax over common Posix/Perl syntax. I found this interesting email from  Philippe Lhoste:</p>
-<p>http://lua-users.org/lists/lua-l/2001-04/msg00244.html</p>
+<p><a href="http://lua-users.org/lists/lua-l/2001-04/msg00244.html">http://lua-users.org/lists/lua-l/2001-04/msg00244.html</a></p>
 <p>In short, this alternative syntax was chosen to not support all the features from Perl regexps and to make Lua's implementation short.</p>
 <p>Today lua code contains 628 lines with regexp implementation:</p>
-<p>https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980</p>
+<p><a href="https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980">https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980</a></p>
 <p>Common Lisp version is about 645 lines but is based on a separate parser library.</p>
 <p>I am wondering how does re's performance compare with cl-ppcre? Let's check!</p>
 <p>We will test performance on a simple example. It will extract a subreddit's name from the URL:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (cl-ppcre:register-groups-bind
+<pre><code class=' lisp'>POFTHEDAY&gt; (cl-ppcre:register-groups-bind
                (subreddit)
                (&quot;.*/r/(.*?)/&quot;
                 &quot;https://www.reddit.com/r/Common_Lisp/&quot;)
@@ -35,10 +34,8 @@ POFTHEDAY&gt; (first
             (re:match-groups
              (re:match-re #r&quot;.*/r/(.-)/&quot;
                           &quot;https://www.reddit.com/r/Common_Lisp/&quot;)))
-&quot;Common_Lisp&quot;
-</code></pre><p>Here is what I've got running cl-ppcre 1 million times:</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (time
+&quot;Common_Lisp&quot;</code></pre><p>Here is what I've got running cl-ppcre 1 million times:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (cl-ppcre:register-groups-bind
                          (subreddit)
@@ -52,10 +49,8 @@ Evaluation took:
   84.13% CPU
   1,614,120,972 processor cycles
   956 page faults
-  160,002,992 bytes consed
-</code></pre><p>And here is the result of the same amount of iterations for 're':</p>
-<pre><code class=' lisp'>
-POFTHEDAY&gt; (time
+  160,002,992 bytes consed</code></pre><p>And here is the result of the same amount of iterations for 're':</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (first
                       (re:match-groups
@@ -68,11 +63,10 @@ Evaluation took:
   100.07% CPU
   31,167,841,926 processor cycles
   2 page faults
-  3,824,010,656 bytes consed
-</code></pre><p>As you can see, cl-ppre is 20 times faster and consumes less memory than 're'.</p>
+  3,824,010,656 bytes consed</code></pre><p>As you can see, cl-ppre is 20 times faster and consumes less memory than 're'.</p>
 <p>It would be interesting to compare cl-ppcre with other regexp engines. I've found a test suite which already compares many engines:</p>
-<p>https://github.com/rust-leipzig/regex-performance</p>
+<p><a href="https://github.com/rust-leipzig/regex-performance">https://github.com/rust-leipzig/regex-performance</a></p>
 <p>But that is the story for another thread.</p>
-</div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
+</div><footer class='clearfix'><hr><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png'></a></p></center></footer></div></div>
   </body>
 </html>
