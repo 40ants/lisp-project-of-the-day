@@ -284,6 +284,18 @@ text line by line and wrap it's pieces in appropriate HTML tags:
    text
    "<img style=\"max-width: 100%\" src=\"\\1\"/>"))
 
+(defun replace-links (text)
+  (cl-ppcre:regex-replace-all
+   "\\[\\[(.*?)\\]\\[(.*?)\\]\\]"
+   text
+   "<a href=\"\\1\">\\2</a>"))
+
+(defun replace-raw-urls (text)
+  (cl-ppcre:regex-replace-all
+   "(^| )(https?://.*?)[,.!]?( |$)"
+   text
+   "<a href=\"\\2\">\\2</a>"))
+
 (defun render-text (text stream)
   (let ((buffer nil)
         (reading-quote nil)
@@ -295,8 +307,10 @@ text line by line and wrap it's pieces in appropriate HTML tags:
                   ;; Here we don't escape the text, because
                   ;; it is from trusted source and will contain
                   ;; links to the images
-                  (replace-images
-                   (str:join " " (nreverse buffer))))))
+                  (replace-raw-urls
+                   (replace-links
+                    (replace-images
+                     (str:join " " (nreverse buffer))))))))
            (write-char #\Newline stream)
            (setf buffer nil))
          (write-quote ()
