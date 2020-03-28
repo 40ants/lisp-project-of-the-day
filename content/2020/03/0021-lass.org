@@ -1,10 +1,10 @@
 * lass :web:
 
-Common Lisp is a good language to write various domain specific
-languages (DSLs). This library provides a DSL which compiles into the
+Common Lisp is a good language to write various domain-specific
+languages (DSLs). This library provides a DSL that compiles into the
 CSS.
 
-Lass is lisp community's response to [[https://sass-lang.com/][Sass]], [[http://lesscss.org/][LESS]] and [[https://stylus-lang.com/][Stylus]].
+Lass is the lisp community's response to [[https://sass-lang.com/][Sass]], [[http://lesscss.org/][LESS]] and [[https://stylus-lang.com/][Stylus]].
 
 Here is a short example:
 
@@ -31,10 +31,10 @@ nav ul li{
 #+END_SRC
 
 As you can see, definitions can be nested. Also, you can use variables
-the same way like you do when writing macroses.
+the same way as you do when writing macroses.
 
 Another cool feature is flexible selectors, which can be used to make
-definition more concise:
+a definition more concise:
 
 #+BEGIN_SRC lisp
 
@@ -68,7 +68,7 @@ section[data-author=\"chen\"]:nth-child(3){
 
 #+END_SRC
 
-Another great feature is support for brower specifix prefixes. Lass will
+Another great feature is support for browser-specific prefixes. Lass will
 expand to them, keeping your code clean:
 
 #+BEGIN_SRC lisp
