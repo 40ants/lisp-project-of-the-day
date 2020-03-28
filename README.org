@@ -24,7 +24,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 25 March - [[content/2020/03/0018-cl-bootstrap.org][cl-bootstrap]] ([[https://twitter.com/svetlyak40wt/status/1242900031881056256][twitter]])
 - 26 March - [[content/2020/03/0019-archive.org][archive]] ([[https://twitter.com/svetlyak40wt/status/1243114779763507200][twitter]])
 - 27 March - [[content/2020/03/0020-cl-hash-table-destructuring.org][cl-hash-table-destructuring]] ([[https://twitter.com/svetlyak40wt/status/1243506491040116737][twitter]])
-
+- 28 March - [[content/2020/03/0021-lass.org][lass]]
 
 * Code, used to choose a project
 
@@ -243,7 +243,8 @@ Text node contains code snippets, we need to wrap them into
     (:pre
      (:code :class (string-trim (list #\Newline)
                                 (cl-org-mode::node.emacs-mode node))
-            (cl-who:esc (cl-org-mode::node.text node))))))
+            (cl-who:esc (str:trim
+                         (cl-org-mode::node.text node)))))))
 
 (defmethod render-node ((node cl-org-mode::closing-delimiter-node) stream)
   ;; Closing delimiters for source code blocks should be ignored.
@@ -286,8 +287,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
 (defun render-text (text stream)
   (let ((buffer nil)
         (reading-quote nil)
-        (reading-list nil)
-        (newline (coerce (list #\Newline) 'string)))
+        (reading-list nil))
     (labels
         ((write-paragraph ()
            (cl-who:with-html-output (stream)
@@ -296,8 +296,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
                   ;; it is from trusted source and will contain
                   ;; links to the images
                   (replace-images
-                   (cl-strings:join (nreverse buffer)
-                                    :separator " ")))))
+                   (str:join " " (nreverse buffer))))))
            (write-char #\Newline stream)
            (setf buffer nil))
          (write-quote ()
@@ -305,8 +304,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
              (:blockquote
               (:pre
                (cl-who:esc
-                (cl-strings:join (nreverse buffer)
-                                 :separator newline)))))
+                (str:join #\Newline (nreverse buffer))))))
            (write-char #\Newline stream)
            (setf buffer nil))
          (write-list ()
@@ -319,8 +317,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
            (setf buffer nil))
          (process (line)
            (cond
-             ((and (cl-strings:starts-with line
-                                           "- ")
+             ((and (str:starts-with-p "- " line)
                    (not reading-quote))
               (push (subseq line 2)
                     buffer)
@@ -350,7 +347,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
                         buffer))
               (write-paragraph)))))
       (mapc #'process
-            (cl-strings:split text #\Newline)))))
+            (str:split #\Newline text)))))
 
 #+END_SRC
 
@@ -400,7 +397,7 @@ We'll use few helpers to create urls and titles for the index page:
 (defun strip-doc-folder (filename)
   "Removes doc/ from beginning of the filename"
   (cond
-    ((cl-strings:starts-with filename "docs/")
+    ((str:starts-with-p "docs/" filename)
      (subseq filename 5))
     (t filename)))
 
@@ -410,7 +407,7 @@ We'll use few helpers to create urls and titles for the index page:
          (filename (get-filename file))
          (splitted (ppath:split filename))
          (only-file (cdr splitted))
-         (number (first (cl-strings:split only-file #\-))))
+         (number (first (str:split #\- only-file))))
     (values title number)))
 
 #+END_SRC

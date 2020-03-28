@@ -5,7 +5,7 @@
   :depends-on ("cl-org-mode"
                "cl-bootstrap"
                "cl-fad"
-               "cl-strings"
+               "str"
                "cl-ppcre"
                "cl-who"
                "ppath"
