@@ -139,6 +139,9 @@ that:
                (:meta :charset "utf-8")
                ,@(when title
                    `((:title ,title)))
+               (:link :rel "alternate"
+                      :href "/lisp-project-of-the-day/rss.xml"
+                      :type "application/rss+xml")
                (:link
                 :type "text/css"
                 :rel "stylesheet"
@@ -398,6 +401,26 @@ Now it is time to write a code which will render all org mode files into HTML:
   
 #+END_SRC
 
+***  Writing RSS feed
+
+#+BEGIN_SRC lisp
+
+(defun render-rss (files)
+  (alexandria:with-output-to-file (stream "docs/rss.xml"
+                                          :if-exists :supersede)
+    (let ((base-url "http://40ants.com/lisp-project-of-the-day/"))
+      (xml-emitter:with-rss2 (stream)
+        (xml-emitter:rss-channel-header "Common Lisp Project of the Day"
+                                        base-url)
+        (loop for file in files
+              for title = (get-title file)
+              for uri = (get-uri file)
+              for full-url = (format nil "~A~A" base-url uri)
+              do (xml-emitter:rss-item title
+                                       :link full-url))))))
+
+#+END_SRC
+
 ***  Generating index page
 
 On index page we want to output a list of all articles.
@@ -414,6 +437,10 @@ We'll use few helpers to create urls and titles for the index page:
     ((str:starts-with-p "docs/" filename)
      (subseq filename 5))
     (t filename)))
+
+(defun get-uri (file)
+  "Returns a link like 2020/03/001-some.html"
+  (strip-doc-folder (make-output-filename file)))
 
 
 (defun get-title-for-index (file)
@@ -435,7 +462,7 @@ We'll use few helpers to create urls and titles for the index page:
       (app-page (stream)
         (:ul :style "list-style: none"
          (loop for file in (reverse files)
-               for url = (strip-doc-folder (make-output-filename file))
+               for url = (get-uri file)
                do (multiple-value-bind (title number)
                       (get-title-for-index file)
                     (cl-who:with-html-output (stream)
@@ -457,7 +484,9 @@ files and write html:
 (defun render-site ()
   (let ((files (read-files)))
     (mapc #'render-file files)
-    (render-index files)))
+    (render-index files)
+    (render-rss files)
+    (values)))
 
 #+END_SRC
 

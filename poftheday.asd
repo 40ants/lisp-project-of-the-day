@@ -10,5 +10,6 @@
                "cl-who"
                "ppath"
                "alexandria"
+               "xml-emitter"
                "doplus")
   :components ((:org "readme")))
