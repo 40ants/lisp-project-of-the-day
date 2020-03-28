@@ -125,6 +125,18 @@ that:
 
 #+BEGIN_SRC lisp
 
+(defparameter *google-code* "
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-162105820-1\"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-162105820-1');
+</script>
+")
+
 (defmacro app-page ((stream &key title index-uri (site-title "Lisp Project of the Day")) &body body)
   (let ((site-title
           (cond
@@ -142,6 +154,7 @@ that:
                (:link :rel "alternate"
                       :href "/lisp-project-of-the-day/rss.xml"
                       :type "application/rss+xml")
+               ,*google-code*
                (:link
                 :type "text/css"
                 :rel "stylesheet"
