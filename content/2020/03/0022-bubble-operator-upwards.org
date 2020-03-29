@@ -1,0 +1,105 @@
+* bubble-operator-upwards :symbols:
+
+This is a library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It contains a function for
+demultiplexing all alternative branches in given form by producing a
+cartesian product.
+
+Here is a short example:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
+            :or
+            '(:or a (:or b c)))
+(:OR A B C)
+
+POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
+            :or
+            '(:and a (:or b c)))
+(:OR (:AND A B) (:AND A C))
+
+POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
+            :or
+            '(:or a (:and b c)))
+(:OR A (:AND B C))
+
+POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
+            :or
+            '(:and
+              (:or a b)
+              (:or c d)))
+(:OR (:AND A C) (:AND A D) (:AND B C) (:AND B D))
+
+#+END_SRC
+
+Do you remember what is capable Lass from my previos post?
+
+It provides a shorthand form for writing complex CSS selectors:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (lass:compile-and-write
+            '((:and
+               (:or article section)
+               (:= data-author (:or yukari ran chen))
+               (:nth-child (:or 1 2 3)))
+              :display none))
+
+"article[data-author=\"yukari\"]:nth-child(1),
+article[data-author=\"yukari\"]:nth-child(2),
+article[data-author=\"yukari\"]:nth-child(3),
+article[data-author=\"ran\"]:nth-child(1),
+article[data-author=\"ran\"]:nth-child(2),
+article[data-author=\"ran\"]:nth-child(3),
+article[data-author=\"chen\"]:nth-child(1),
+article[data-author=\"chen\"]:nth-child(2),
+article[data-author=\"chen\"]:nth-child(3),
+section[data-author=\"yukari\"]:nth-child(1),
+section[data-author=\"yukari\"]:nth-child(2),
+section[data-author=\"yukari\"]:nth-child(3),
+section[data-author=\"ran\"]:nth-child(1),
+section[data-author=\"ran\"]:nth-child(2),
+section[data-author=\"ran\"]:nth-child(3),
+section[data-author=\"chen\"]:nth-child(1),
+section[data-author=\"chen\"]:nth-child(2),
+section[data-author=\"chen\"]:nth-child(3){
+    display: none;
+}"
+
+#+END_SRC
+
+It is amazing, but with "bubble-operator-upwards" you can get the same
+behaviour in one call:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
+            :or
+            '((:or article section)
+              (:= data-author (:or yukari ran chen))
+              (:nth-child (:or 1 2 3))))
+(:OR (ARTICLE (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 1))
+ (ARTICLE (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 2))
+ (ARTICLE (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 3))
+ (ARTICLE (:= DATA-AUTHOR RAN) (:NTH-CHILD 1))
+ (ARTICLE (:= DATA-AUTHOR RAN) (:NTH-CHILD 2))
+ (ARTICLE (:= DATA-AUTHOR RAN) (:NTH-CHILD 3))
+ (ARTICLE (:= DATA-AUTHOR CHEN) (:NTH-CHILD 1))
+ (ARTICLE (:= DATA-AUTHOR CHEN) (:NTH-CHILD 2))
+ (ARTICLE (:= DATA-AUTHOR CHEN) (:NTH-CHILD 3))
+ (SECTION (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 1))
+ (SECTION (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 2))
+ (SECTION (:= DATA-AUTHOR YUKARI) (:NTH-CHILD 3))
+ (SECTION (:= DATA-AUTHOR RAN) (:NTH-CHILD 1))
+ (SECTION (:= DATA-AUTHOR RAN) (:NTH-CHILD 2))
+ (SECTION (:= DATA-AUTHOR RAN) (:NTH-CHILD 3))
+ (SECTION (:= DATA-AUTHOR CHEN) (:NTH-CHILD 1))
+ (SECTION (:= DATA-AUTHOR CHEN) (:NTH-CHILD 2))
+ (SECTION (:= DATA-AUTHOR CHEN) (:NTH-CHILD 3)))
+  
+#+END_SRC
+
+What does it mean?
+
+If you want to implement similar shorthand syntax in your DSL, you don't
+have to implement it yourself. Use "bubble-operator-upwards".
