@@ -1,7 +1,7 @@
 * bubble-operator-upwards :symbols:
 
 This is a library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It contains a function for
-demultiplexing all alternative branches in given form by producing a
+demultiplexing all alternative branches in a given form by producing a
 cartesian product.
 
 Here is a short example:
@@ -32,7 +32,7 @@ POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
 
 #+END_SRC
 
-Do you remember what is capable Lass from my previos post?
+Do you remember what is capable Lass from my previous post?
 
 It provides a shorthand form for writing complex CSS selectors:
 
@@ -68,8 +68,8 @@ section[data-author=\"chen\"]:nth-child(3){
 
 #+END_SRC
 
-It is amazing, but with "bubble-operator-upwards" you can get the same
-behaviour in one call:
+It is crazy, but with "bubble-operator-upwards" you can get the same
+behavior in one call:
 
 #+BEGIN_SRC lisp
 
