@@ -25,7 +25,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 26 March - [[content/2020/03/0019-archive.org][archive]] ([[https://twitter.com/svetlyak40wt/status/1243114779763507200][twitter]])
 - 27 March - [[content/2020/03/0020-cl-hash-table-destructuring.org][cl-hash-table-destructuring]] ([[https://twitter.com/svetlyak40wt/status/1243506491040116737][twitter]])
 - 28 March - [[content/2020/03/0021-lass.org][lass]] ([[https://twitter.com/svetlyak40wt/status/1243862908217569283][twitter]])
-- 29 March - [[contents/2020/03/0022-bubble-operator-upwards.org][bubble-operator-upwards]] ([[https://twitter.com/svetlyak40wt/status/1244319074353643520][twitter]])
+- 29 March - [[content/2020/03/0022-bubble-operator-upwards.org][bubble-operator-upwards]] ([[https://twitter.com/svetlyak40wt/status/1244319074353643520][twitter]])
+- 30 March - [[content/2020/03/0023-softdrink.org][softdrink]]
 
 * Code, used to choose a project
 

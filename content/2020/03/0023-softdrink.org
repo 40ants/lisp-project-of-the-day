@@ -1,0 +1,17 @@
+* softdrink :web:
+
+This is a small library by [[https://twitter.com/shinmera][@shinmera]]. It is able to extract CSS from
+HTML or embed it back.
+
+"Softdrink" could be useful, for example, to produce HTML emails. Most
+email software ignore external stylesheets, but is able to use styles,
+embedded into HTML nodes.
+
+Unfortunately, even the README examples don't work. Probably because
+library's dependencies were changed in the last few years.
+
+I've created an issue about these problems:
+
+https://github.com/Shinmera/softdrink/issues/1
+
+Hope, @shinmera will help to figure out, how to fix the problems.
