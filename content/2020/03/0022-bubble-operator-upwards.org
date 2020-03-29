@@ -32,7 +32,7 @@ POFTHEDAY> (bubble-operator-upwards:bubble-operator-upwards
 
 #+END_SRC
 
-Do you remember what is capable Lass from my previous post?
+Do you remember what is capable Lass from [[http://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html][my previous post]]?
 
 It provides a shorthand form for writing complex CSS selectors:
 

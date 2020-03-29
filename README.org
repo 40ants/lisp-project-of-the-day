@@ -313,6 +313,12 @@ text line by line and wrap it's pieces in appropriate HTML tags:
    text
    "<a href=\"\\2\">\\2</a>"))
 
+(defun replace-org-mode-markup-with-html (text)
+  (replace-raw-urls
+   (replace-links
+    (replace-images
+     text))))
+
 (defun render-text (text stream)
   (let ((buffer nil)
         (reading-quote nil)
@@ -324,10 +330,8 @@ text line by line and wrap it's pieces in appropriate HTML tags:
                   ;; Here we don't escape the text, because
                   ;; it is from trusted source and will contain
                   ;; links to the images
-                  (replace-raw-urls
-                   (replace-links
-                    (replace-images
-                     (str:join " " (nreverse buffer))))))))
+                  (replace-org-mode-markup-with-html
+                   (str:join " " (nreverse buffer))))))
            (write-char #\Newline stream)
            (setf buffer nil))
          (write-quote ()
@@ -426,11 +430,13 @@ Now it is time to write a code which will render all org mode files into HTML:
       (xml-emitter:with-rss2 (stream)
         (xml-emitter:rss-channel-header "Common Lisp Project of the Day"
                                         base-url)
-        (loop for file in files
+        (loop for file in (rutils:take 20 (reverse files))
               for title = (get-title file)
               for uri = (get-uri file)
               for full-url = (format nil "~A~A" base-url uri)
+              for description = (make-description file)
               do (xml-emitter:rss-item title
+                                       :description description
                                        :link full-url))))))
 
 #+END_SRC
@@ -506,6 +512,25 @@ files and write html:
 
 
 ** Some utilities
+
+***  Org-mode helpers
+
+#+BEGIN_SRC lisp
+
+(defun get-first-text-node (file)
+  "We'll use this function to get an article description for the readme"
+  (doplus:do+ (for node (in-nodes file))
+    (when (typep node 'cl-org-mode::text-node)
+      (return-from get-first-text-node node))))
+
+
+(defun make-description (file)
+  (replace-org-mode-markup-with-html
+   (cl-org-mode::node.text
+    (get-first-text-node file))))
+
+#+END_SRC
+
 ***  Converting pathnames to strings
 
 To work with files we will use [[content/2020/03/0010-ppath.org][ppath]]. This library is able to make

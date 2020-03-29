@@ -6,96 +6,314 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
-            <title>Day Zero</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0000-cl-mpg123.html</link>
-        </item>
-        <item>
-            <title>rate-monotonic</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0001-rate-monotonic.html</link>
-        </item>
-        <item>
-            <title>cl-custom-hash-table</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0002-cl-custom-hash-table.html</link>
-        </item>
-        <item>
-            <title>secure-random</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0003-secure-random.html</link>
-        </item>
-        <item>
-            <title>physical-quantities</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0004-physical-quantities.html</link>
-        </item>
-        <item>
-            <title>simple-inferiors</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0005-simple-inferiors.html</link>
-        </item>
-        <item>
-            <title>unix-opts</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html</link>
-        </item>
-        <item>
-            <title>access</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html</link>
-        </item>
-        <item>
-            <title>re</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0008-re.html</link>
-        </item>
-        <item>
-            <title>random-sample</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0009-random-sample.html</link>
-        </item>
-        <item>
-            <title>ppath</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0010-ppath.html</link>
-        </item>
-        <item>
-            <title>pango-markup</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0011-pango-markup.html</link>
-        </item>
-        <item>
-            <title>cl-pack</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0012-cl-pack.html</link>
-        </item>
-        <item>
-            <title>doplus</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0013-doplus.html</link>
-        </item>
-        <item>
-            <title>cserial-port</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0014-cserial-port.html</link>
-        </item>
-        <item>
-            <title>cl-bert</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html</link>
-        </item>
-        <item>
-            <title>kmrcl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0016-kmrcl.html</link>
-        </item>
-        <item>
-            <title>cl-org-mode</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0017-cl-org-mode.html</link>
-        </item>
-        <item>
-            <title>cl-bootstrap</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html</link>
-        </item>
-        <item>
-            <title>archive &amp; gzip-stream                                             </title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0019-archive.html</link>
-        </item>
-        <item>
-            <title>cl-hash-table-destructuring</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0020-cl-hash-table-destructuring.html</link>
+            <title>bubble-operator-upwards</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0022-bubble-operator-upwards.html</link>
+            <description>
+This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It contains a function for
+demultiplexing all alternative branches in a given form by producing a
+cartesian product.
+
+Here is a short example:
+
+</description>
         </item>
         <item>
             <title>lass</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html</link>
+            <description>
+Common Lisp is a good language to write various domain-specific
+languages (DSLs). This library provides a DSL that compiles into the
+CSS.
+
+Lass is the lisp community&apos;s response to &lt;a href=&quot;https://sass-lang.com/&quot;&gt;Sass&lt;/a&gt;, &lt;a href=&quot;http://lesscss.org/&quot;&gt;LESS&lt;/a&gt; and &lt;a href=&quot;https://stylus-lang.com/&quot;&gt;Stylus&lt;/a&gt;.
+
+Here is a short example:
+
+</description>
         </item>
         <item>
-            <title>bubble-operator-upwards</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0022-bubble-operator-upwards.html</link>
+            <title>cl-hash-table-destructuring</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0020-cl-hash-table-destructuring.html</link>
+            <description>
+This system provides a macro which works similarly to with-slots
+standard macro, but for hash tables.
+
+The simplest case is when your hash table has symbols as its keys.
+Macro establishes local names for keys you need and these names are
+setf-able.
+
+Setfable place is such name or form for which you can apply a setf
+operation to change its value.
+
+In this example I create an empty hash table and set two keys:
+
+</description>
+        </item>
+        <item>
+            <title>archive &amp; gzip-stream                                             </title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0019-archive.html</link>
+            <description>
+This is a pure Common Lisp implementation of TAR and CPIO.
+
+It does not support gzipped or bzipped archive.
+
+I have a tar gzipped archive of the lisp system here.
+
+Attempt to read gzipped archive leads to a nasty error:
+
+</description>
+        </item>
+        <item>
+            <title>cl-bootstrap</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html</link>
+            <description>
+This is a library of Twitter Bootstrap widgets for cl-who.
+
+It has many examples in the README and also an interactive demo where
+you can see all available components.
+
+Here is an of example how to use it:
+
+</description>
+        </item>
+        <item>
+            <title>cl-org-mode</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0017-cl-org-mode.html</link>
+            <description>
+This library contains a parser for Emacs org-mode and a primitive tool
+for doing Literate Programming. If you are looking for better CL
+support for literate programming try :literate-lisp.
+
+This parser can be interesting for people, who want to process org-mode
+files from the Common Lisp. For example, you can use it to write a
+plugin for blogging software like :coleslaw.
+
+cl-org-mode has no any exported functions, but you can read it&apos;s sources
+and &lt;a href=&quot;https://common-lisp.net/project/cl-org-mode/&quot;&gt;documentation&lt;/a&gt;:
+
+</description>
+        </item>
+        <item>
+            <title>kmrcl</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0016-kmrcl.html</link>
+            <description>
+This is a collection of utility functions by Kevin M. Rosenberg.
+It includes a wide range of tools and is completely undocumented :(
+
+Kmrcl is like :alexandria, :rutils or serapeuim.
+
+All symbols are in the :kmrcl package and to distinguish which
+functionality is covered by this library, it is better to download its
+source from&lt;a href=&quot;http://files.kpe.io/kmrcl/&quot;&gt;http://files.kpe.io/kmrcl/&lt;/a&gt;Functionality is separated by
+files.
+
+Here is one interesting macro - if* from AllegroCL.
+
+Macro itself is not documented, but I found documentation on Franz
+site: https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm
+
+Here is an example:
+
+</description>
+        </item>
+        <item>
+            <title>cl-bert</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html</link>
+            <description>
+This library implements a BERT serializer which is a part of the
+&lt;a href=&quot;http://bert-rpc.org/&quot;&gt;BERT-RPC&lt;/a&gt;, invented and used inside the GitHub.
+
+Let&apos;s try how it serializes Lisp structures:
+
+</description>
+        </item>
+        <item>
+            <title>cserial-port</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0014-cserial-port.html</link>
+            <description>
+This library allows you to work with the serial port. It uses cffi to
+make system calls and should work on Linux, OSX and Windows.
+
+To test it, I wrote this small program for my Arduino UNO:
+
+</description>
+        </item>
+        <item>
+            <title>doplus</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0013-doplus.html</link>
+            <description>
+Do+ is a macro, similar to &apos;loop&apos; or &apos;iterate&apos;, but built with
+simplicity in mind.
+
+Documentation is good and contains some examples showing how does
+iteration works and how to extend the behaviour and add new iteration
+methods.
+
+Here is a simple iteration on the list:
+
+</description>
+        </item>
+        <item>
+            <title>cl-pack</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0012-cl-pack.html</link>
+            <description>
+It supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
+functions to allow easy use of (binary format) protocols and files with
+the above-mentioned languages and C.
+
+I&apos;ve tested :cl-pack using an example from its README. Seems
+it does not work as expected, because it is unable to unpack the data,
+created by itself:
+
+</description>
+        </item>
+        <item>
+            <title>pango-markup</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0011-pango-markup.html</link>
+            <description>This library allows processing a text with Pango Markup.
+
+Pango Markup used by GTK to render attributed text. It is a simple
+SGML-like language. It looks like a subset of HTML but uses custom
+attributes.
+
+Gnome&apos;s Pango library contains a parser for this format:
+
+https://developer.gnome.org/pango/stable/pango-Markup.html
+
+But :pango-markup is not a parser, it&apos;s purpose is to render text and
+attributes into this format.
+
+You should provide it a plain text and a separate list of regions with
+attributes.
+
+For example, is we would like to make the word &quot;Bob&quot; in &quot;Hello Bob!&quot;, then
+we need to do:
+
+</description>
+        </item>
+        <item>
+            <title>ppath</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0010-ppath.html</link>
+            <description>
+This library brings Python&apos;s os.path API into the Common Lisp world.
+
+It manipulates by strings rather than by CL&apos;s pathnames.
+
+Ppath has pretty good documentation. I&apos;ll show only one example
+description of all available functions you&apos;ll find in the docs:
+
+http://quickdocs.org/ppath/
+
+</description>
+        </item>
+        <item>
+            <title>random-sample</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0009-random-sample.html</link>
+            <description>
+This is a small library to select N random items from given sequence:
+
+</description>
+        </item>
+        <item>
+            <title>re</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0008-re.html</link>
+            <description>
+This is a small regular expressions engine, made by Jeffrey Massung
+(@codeninja_blog).
+
+This engine uses &lt;a href=&quot;http://www.lua.org/pil/20.2.html&quot;&gt;Lua&apos;s regexp syntax&lt;/a&gt;.
+
+By the way, I was interested in why did Lua developers choose such syntax
+over common Posix/Perl syntax. I found this interesting email from 
+Philippe Lhoste:
+
+http://lua-users.org/lists/lua-l/2001-04/msg00244.html
+
+In short, this alternative syntax was chosen to not support all the
+features from Perl regexps and to make Lua&apos;s implementation short.
+
+Today lua code contains 628 lines with regexp implementation:
+
+https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980
+
+Common Lisp version is about 645 lines but is based on a separate
+parser library.
+
+I am wondering how does re&apos;s performance compare with cl-ppcre? Let&apos;s check!
+
+We will test performance on a simple example. It will extract a
+subreddit&apos;s name from the URL:
+
+</description>
+        </item>
+        <item>
+            <title>access</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html</link>
+            <description>
+This library brings a helper to access nested data structures.
+
+It has a fairly detailed readme with examples.
+
+I&apos;ve prepared one example for you:
+
+</description>
+        </item>
+        <item>
+            <title>unix-opts</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html</link>
+            <description>There are many command-line parsing libraries for Common Lisp. This one
+pretends to simplicity.
+
+Unix-opts has an interesting feature - it uses CL&apos;s restarts to allow you
+to decide what to do if the option is not supported or can&apos;t be parsed.
+
+Here is a short example:
+
+</description>
+        </item>
+        <item>
+            <title>simple-inferiors</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0005-simple-inferiors.html</link>
+            <description>
+This system is a wrapper around uiop&apos;s run-process. Documentation
+(http://quickdocs.org/simple-inferiors/) states it handles proper
+copying of stdout and stderr of the process simultaneously, both in a
+sequential and parallel fashion.
+
+I&apos;ve read the code of the simple-inferiors and don&apos;t understand why does
+it significantly better than using plain uiop:run-process.
+
+Here is an example of calls both of these libraries:
+
+</description>
+        </item>
+        <item>
+            <title>physical-quantities</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0004-physical-quantities.html</link>
+            <description>
+This is a library for handling physical quantities. It supports physical
+units, values and uncertainties.
+
+It has good documentation. Here is an example from the README:
+
+</description>
+        </item>
+        <item>
+            <title>secure-random</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0003-secure-random.html</link>
+            <description>
+This library provides a secure pseudo-random number generator for Common
+Lisp.
+
+It uses OpenSSL underneath.
+
+It is similar to builtin random function, but can&apos;t be used as a drop-in
+replacement, because behaviour is slightly different for float numbers.
+
+Builtin CL&apos;s random function reckons float interval as contiguous. But
+secure-random returns discrete values, coercing integers to floats:
+
+</description>
         </item>
     </channel>
 </rss>
