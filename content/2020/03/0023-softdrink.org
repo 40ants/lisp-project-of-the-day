@@ -15,3 +15,46 @@ I've created an issue about these problems:
 https://github.com/Shinmera/softdrink/issues/1
 
 Hope, @shinmera will help to figure out, how to fix the problems.
+
+** Update
+
+Nicolas was able to fix the issue very quick. You can install fixed
+version from the https://ultralisp.org.
+
+Lets try how it works!
+
+The first example shows how to extract CSS from HTML:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (softdrink:slurp "<div>
+                               <foo/>
+                               <foo id=\"bla\"
+                                    style=\"foo: bar; blah: minor\" />
+                             </div>")
+"div>#bla{
+    foo: bar;
+    blah: minor;
+}"
+
+#+END_SRC
+
+The second example embeds CSS into HTML and render it into the string:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (softdrink:pour
+            (softdrink:mix
+             "<foo>
+                <p>Hello Lisp World!</p>
+              </foo>"
+             ;; This is a style to embed into HTML
+             '(p :text-decoration underline)))
+
+"<foo>
+                <p style=\"text-decoration:underline;\">Hello Lisp World!</p>
+              </foo>"
+
+#+END_SRC
+
+Great! All work like expected!

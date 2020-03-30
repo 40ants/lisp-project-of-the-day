@@ -30,6 +30,29 @@
 <p>I've created an issue about these problems:</p>
 <p><a href="https://github.com/Shinmera/softdrink/issues/1">https://github.com/Shinmera/softdrink/issues/1</a></p>
 <p>Hope, @shinmera will help to figure out, how to fix the problems.</p>
+<h1>Update</h1><p>Nicolas was able to fix the issue very quick. You can install fixed version from the<a href="https://ultralisp.org">https://ultralisp.org</a></p>
+<p>Lets try how it works!</p>
+<p>The first example shows how to extract CSS from HTML:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (softdrink:slurp &quot;&lt;div&gt;
+                               &lt;foo/&gt;
+                               &lt;foo id=\&quot;bla\&quot;
+                                    style=\&quot;foo: bar; blah: minor\&quot; /&gt;
+                             &lt;/div&gt;&quot;)
+&quot;div&gt;#bla{
+    foo: bar;
+    blah: minor;
+}&quot;</code></pre><p>The second example embeds CSS into HTML and render it into the string:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (softdrink:pour
+            (softdrink:mix
+             &quot;&lt;foo&gt;
+                &lt;p&gt;Hello Lisp World!&lt;/p&gt;
+              &lt;/foo&gt;&quot;
+             ;; This is a style to embed into HTML
+             &#039;(p :text-decoration underline)))
+
+&quot;&lt;foo&gt;
+                &lt;p style=\&quot;text-decoration:underline;\&quot;&gt;Hello Lisp World!&lt;/p&gt;
+              &lt;/foo&gt;&quot;</code></pre><p>Great! All work like expected!</p>
 </div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
   </body>
 </html>
