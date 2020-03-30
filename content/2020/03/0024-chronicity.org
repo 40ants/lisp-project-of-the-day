@@ -4,7 +4,7 @@ This library works well together with [[http://quickdocs.org/local-time/][local-
 It is amazing, because it is able to parse human readable strings into
 the local-time:timestamp objects:
 
-#+begin_src lisp
+#+BEGIN_SRC lisp
 
 POFTHEDAY> (local-time:now)
 @2020-03-30T13:50:54.523151+03:00
@@ -24,7 +24,7 @@ POFTHEDAY> (values
              "5 days ago"))
 @2020-03-25T13:51:16.700641+03:00
 
-#+end_src
+#+END_SRC
 
 Being able to use natural language to enter dates into the computer, is
 very convenient.
