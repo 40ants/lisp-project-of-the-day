@@ -11,5 +11,6 @@
                "ppath"
                "alexandria"
                "xml-emitter"
+               "rutils"
                "doplus")
   :components ((:org "readme")))

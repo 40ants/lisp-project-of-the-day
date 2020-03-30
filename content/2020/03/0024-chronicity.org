@@ -1,0 +1,32 @@
+* chronicity :datetime:
+
+This library works well together with [[http://quickdocs.org/local-time/][local-time]].
+It is amazing, because it is able to parse human readable strings into
+the local-time:timestamp objects:
+
+#+begin_src lisp
+
+POFTHEDAY> (local-time:now)
+@2020-03-30T13:50:54.523151+03:00
+
+POFTHEDAY> (values
+            (chronicity:parse
+             "2018-02-14 15:34"))
+@2018-02-14T15:34:00.000000+03:00
+
+POFTHEDAY> (values
+            (chronicity:parse
+             "15 April 16PM"))
+@2020-04-15T16:00:00.000000+03:00
+
+POFTHEDAY> (values
+            (chronicity:parse
+             "5 days ago"))
+@2020-03-25T13:51:16.700641+03:00
+
+#+end_src
+
+Being able to use natural language to enter dates into the computer, is
+very convenient.
+
+Well done, [[https://twitter.com/chaitanya_gupta][@chaitanya_gupta]]!
