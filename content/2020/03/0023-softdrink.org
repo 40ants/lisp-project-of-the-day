@@ -4,11 +4,11 @@ This is a small library by [[https://twitter.com/shinmera][@shinmera]]. It is ab
 HTML or embed it back.
 
 "Softdrink" could be useful, for example, to produce HTML emails. Most
-email software ignore external stylesheets, but is able to use styles,
+email software ignores external stylesheets but is able to use styles,
 embedded into HTML nodes.
 
 Unfortunately, even the README examples don't work. Probably because
-library's dependencies were changed in the last few years.
+the library's dependencies were changed in the last few years.
 
 I've created an issue about these problems:
 
