@@ -46,7 +46,7 @@
 
 FOO -&gt; &quot;Hello&quot;
 BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains two similar macroses:</p>
-<ul><li>with-hash-table-items - makes names setf-able by expanding into symbol-macrolet.</li><li>with-hash-table-values - don&#039;t.</li></ul>
+<ul><li>with-hash-table-items - makes names setf-able by expanding into symbol-macrolet.</li><li>with-hash-table-values - don't.</li></ul>
 <p>Macro with-has-table-items expands into:</p>
 <pre><code class=' lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
   (let ((#:hash-table (the hash-table the-hash)))

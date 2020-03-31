@@ -30,3 +30,9 @@ Being able to use natural language to enter dates into the computer, is
 very convenient.
 
 Well done, [[https://twitter.com/chaitanya_gupta][@chaitanya_gupta]]!
+
+** Update
+
+- [[https://twitter.com/chaitanya_gupta][@chaitanya_gupta]] gave a link to [[https://lisper.in/nlp-date-parser][the article]] where chronicle's internals are described.
+- [[https://twitter.com/RainerJoswig][@RainerJoswig]] noted that similar functionality was implemented in Lisp
+  Machines in 1980. He have a [[http://lispm.de/source/lispm-system-78-48/lmio1/timpar.lisp][link to these ancient sources]].

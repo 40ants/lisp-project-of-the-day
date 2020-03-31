@@ -350,7 +350,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
              (:ul
               (loop for item in (reverse buffer)
                     do (cl-who:htm
-                        (:li (cl-who:esc item))))))
+                        (:li (cl-who:str (replace-org-mode-markup-with-html item)))))))
            (write-char #\Newline stream)
            (setf buffer nil))
          (process (line)
