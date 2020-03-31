@@ -1,8 +1,8 @@
 * chronicity :datetime:
 
 This library works well together with [[http://quickdocs.org/local-time/][local-time]].
-It is amazing, because it is able to parse human readable strings into
-the local-time:timestamp objects:
+It is amazing because it is able to parse human-readable strings into
+the *local-time:timestamp* objects:
 
 #+BEGIN_SRC lisp
 
