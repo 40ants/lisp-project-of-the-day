@@ -1,0 +1,90 @@
+* april :language:
+
+"April" is a subset of the [[http://archive.vector.org.uk/art10011550][APL]] (A Programming Language).
+
+Why does APL can be interesting?
+
+- it was developed in 1960s.
+- it is able to work with multidimentional arrays is a very concise manner.
+- it uses special graphic symbols to represent most functions and operators.
+- it is not a "1 April joke".
+
+You can replace hundreds of lines of number-crunching code with a single
+line of APL.
+
+Personally, I'm not familiar with this language and APL code seems very
+cryptic to me. But if you are working with numbers and algorithms,
+probably APL worth thing to look at.
+
+"April" contains embedded testsuite and a demo. Here is a piece of it's
+demo output:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (april:april (demo))
+
+...  
+
+∇ Monadic inline function.
+  _ {⍵+3} 3 4 5
+    6 7 8
+    
+∇ Dyadic inline function.
+  _ 1 2 3 {⍺×⍵+3} 3 4 5
+    6 14 24
+    
+∇ Vector of input variables and discrete values processed within a function.
+  _ fn←{3+⍵} ⋄ {fn 8 ⍵} 9
+    11 12
+
+...
+
+#+END_SRC
+
+Here is how you can eval the same programs from the Lisp repl:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (april:april "{⍵+3} 3 4 5")
+#(6 7 8)
+
+POFTHEDAY> (april:april "1 2 3 {⍺×⍵+3} 3 4 5")
+#(6 14 24)
+
+POFTHEDAY> (april:april "fn←{3+⍵} ⋄ {fn 8 ⍵} 9")
+#(11 12)
+
+#+END_SRC
+
+The cool thing is that "april:april" is a macro. It is expanded into the
+Lisp code which can be compiled into the native code and executed very
+fast:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (macroexpand-1 '(april:april "1 2 3 {⍺×⍵+3} 3 4 5"))
+  
+(PROGN
+  NIL
+  (LET* ((APRIL::OUTPUT-STREAM *STANDARD-OUTPUT*)
+         (APRIL::INDEX-ORIGIN 1)
+         (APRIL::PRINT-PRECISION 10))
+    (DECLARE
+     (IGNORABLE APRIL::OUTPUT-STREAM APRIL::INDEX-ORIGIN
+                APRIL::PRINT-PRECISION))
+    (APRIL::APL-OUTPUT
+     (APRIL::APL-CALL :FN
+                      (LAMBDA (APRIL::⍵ &OPTIONAL APRIL::⍺)
+                        (DECLARE (IGNORABLE APRIL::⍵ APRIL::⍺))
+                        (APRIL::APL-CALL × (APRIL::SCALAR-FUNCTION *)
+                                         (APRIL::APL-CALL +
+                                                          (APRIL::SCALAR-FUNCTION
+                                                           +)
+                                                          3 APRIL::⍵)
+                                         APRIL::⍺))
+                      (APRIL::AVECTOR 3 4 5) (APRIL::AVECTOR 1 2 3))
+     :PRINT-PRECISION APRIL::PRINT-PRECISION)))
+
+#+END_SRC
+
+It is worth to read [[https://github.com/phantomics/april][April's documentation]]. It is full of with examples.
