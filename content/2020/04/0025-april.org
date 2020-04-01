@@ -4,8 +4,8 @@
 
 Why does APL can be interesting?
 
-- it was developed in 1960s.
-- it is able to work with multidimentional arrays is a very concise manner.
+- it was developed in the 1960s.
+- it is able to work with multidimensional arrays is a very concise manner.
 - it uses special graphic symbols to represent most functions and operators.
 - it is not a "1 April joke".
 
@@ -16,7 +16,7 @@ Personally, I'm not familiar with this language and APL code seems very
 cryptic to me. But if you are working with numbers and algorithms,
 probably APL worth thing to look at.
 
-"April" contains embedded testsuite and a demo. Here is a piece of it's
+"April" contains an embedded test suite and a demo. Here is a piece of its
 demo output:
 
 #+BEGIN_SRC lisp
@@ -41,7 +41,7 @@ POFTHEDAY> (april:april (demo))
 
 #+END_SRC
 
-Here is how you can eval the same programs from the Lisp repl:
+Here is how you can eval the same programs from the Lisp REPL:
 
 #+BEGIN_SRC lisp
 
@@ -87,4 +87,4 @@ POFTHEDAY> (macroexpand-1 '(april:april "1 2 3 {⍺×⍵+3} 3 4 5"))
 
 #+END_SRC
 
-It is worth to read [[https://github.com/phantomics/april][April's documentation]]. It is full of with examples.
+It is worth to read [[https://github.com/phantomics/april][April's documentation]]. It is full of examples.

@@ -6,6 +6,31 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>april</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0025-april.html</link>
+            <description>
+&quot;April&quot; is a subset of the &lt;a href=&quot;http://archive.vector.org.uk/art10011550&quot;&gt;APL&lt;/a&gt; (A Programming Language).
+
+Why does APL can be interesting?
+
+- it was developed in the 1960s.
+- it is able to work with multidimensional arrays is a very concise manner.
+- it uses special graphic symbols to represent most functions and operators.
+- it is not a &quot;1 April joke&quot;.
+
+You can replace hundreds of lines of number-crunching code with a single
+line of APL.
+
+Personally, I&apos;m not familiar with this language and APL code seems very
+cryptic to me. But if you are working with numbers and algorithms,
+probably APL worth thing to look at.
+
+&quot;April&quot; contains an embedded test suite and a demo. Here is a piece of its
+demo output:
+
+</description>
+        </item>
+        <item>
             <title>chronicity</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/03/0024-chronicity.html</link>
             <description>
@@ -300,22 +325,6 @@ Unix-opts has an interesting feature - it uses CL&apos;s restarts to allow you
 to decide what to do if the option is not supported or can&apos;t be parsed.
 
 Here is a short example:
-
-</description>
-        </item>
-        <item>
-            <title>simple-inferiors</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0005-simple-inferiors.html</link>
-            <description>
-This system is a wrapper around uiop&apos;s run-process. Documentation
-(http://quickdocs.org/simple-inferiors/) states it handles proper
-copying of stdout and stderr of the process simultaneously, both in a
-sequential and parallel fashion.
-
-I&apos;ve read the code of the simple-inferiors and don&apos;t understand why does
-it significantly better than using plain uiop:run-process.
-
-Here is an example of calls both of these libraries:
 
 </description>
         </item>
