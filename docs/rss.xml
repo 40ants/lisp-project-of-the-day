@@ -6,6 +6,34 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>periods</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0026-periods.html</link>
+            <description>
+This is a library for time manipulation. May be you heard about
+&quot;local-time-duration&quot; system? &quot;Periods&quot; is a &quot;local-time-duration&quot; on
+steroids.
+
+With &quot;periods&quot; you can generate sequences of dates by defining special
+rules.
+
+In it&apos;s earlier version, this library was tightly integrated with
+&quot;Series&quot; but &lt;a href=&quot;https://github.com/jwiegley/periods/commit/e649722416e0a26d22b81232dcd2c2dc8b3f7134&quot;&gt;this commit&lt;/a&gt; broke that functionality.
+
+Actually, the pull intended to separate Period&apos;s integration with
+Series, but it has broken it because nobody cares.
+
+I think this integration with Series is cool. So, I&apos;ve &lt;a href=&quot;https://github.com/jwiegley/periods/pull/12&quot;&gt;fixed it&lt;/a&gt;.
+
+Let&apos;s see how does it work!
+
+This example shows how to create an infinite sequence of dates with 14
+days interval between them.
+
+I specified a starting date and interval&apos;s duration:
+
+</description>
+        </item>
+        <item>
             <title>april</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0025-april.html</link>
             <description>
@@ -312,19 +340,6 @@ This library brings a helper to access nested data structures.
 It has a fairly detailed readme with examples.
 
 I&apos;ve prepared one example for you:
-
-</description>
-        </item>
-        <item>
-            <title>unix-opts</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html</link>
-            <description>There are many command-line parsing libraries for Common Lisp. This one
-pretends to simplicity.
-
-Unix-opts has an interesting feature - it uses CL&apos;s restarts to allow you
-to decide what to do if the option is not supported or can&apos;t be parsed.
-
-Here is a short example:
 
 </description>
         </item>

@@ -1,26 +1,26 @@
 * periods :datetime:
 
-Periods is a library to time manipulation. May be you heard about
+This is a library for time manipulation. May be you heard about
 "local-time-duration" system? "Periods" is a "local-time-duration" on
-steriods.
+steroids.
 
-With "periods" you can generate sequences of dates by defining a special
+With "periods" you can generate sequences of dates by defining special
 rules.
 
-In it's ealier version, this library was tightly integrated with
+In it's earlier version, this library was tightly integrated with
 "Series" but [[https://github.com/jwiegley/periods/commit/e649722416e0a26d22b81232dcd2c2dc8b3f7134][this commit]] broke that functionality.
 
 Actually, the pull intended to separate Period's integration with
-Series, but it have broken it because nobody cares.
+Series, but it has broken it because nobody cares.
 
-I think, this integration with Series is cool. So, I've [[https://github.com/jwiegley/periods/pull/12][fixed it]].
+I think this integration with Series is cool. So, I've [[https://github.com/jwiegley/periods/pull/12][fixed it]].
 
-Lets see how does it work!
+Let's see how does it work!
 
-This example shows how to create in infinite sequence of dates with 14
+This example shows how to create an infinite sequence of dates with 14
 days interval between them.
 
-I specified a starting date and interval's duration.
+I specified a starting date and interval's duration:
 
 #+BEGIN_SRC lisp
 
@@ -68,7 +68,7 @@ POFTHEDAY> (series:mapping ((time (periods-series:scan-times
 
 #+END_SRC
 
-Now lets go step by step to understand what happens under the hood.
+Now let's go step by step to understand what happens under the hood.
 
 This form gives as a date pointing to the beginning of the current month:
 
@@ -81,7 +81,7 @@ POFTHEDAY> (periods::previous-time @2020-04-02
 #+END_SRC
 
 Next, we are defining a generator which iterates by months starting from
-the current one.
+the current one:
 
 #+BEGIN_SRC lisp
 
@@ -98,8 +98,8 @@ POFTHEDAY> (periods-series:scan-times
 
 #+END_SRC
 
-As you might notice, a sequence starts from the May, skipping the second
-Friday of the April. Probably it is a bug inside the "" because it
+As you might notice, a sequence starts from May, skipping the second
+Friday of April. Probably it is a bug inside the "scan-times" because it
 generates a sequence, skipping the initial month:
 
 #+BEGIN_SRC lisp
@@ -117,16 +117,16 @@ POFTHEDAY> (series:subseries
 
 #+END_SRC
 
-But may this is not a bug in the library, but a bug in the example.
+But maybe this is not a bug in the library, but a bug in the example.
 
-Anyway, now we have a infinite sequence of dates where each date, is the
+Anyway, now we have an infinite sequence of dates where each date, is the
 beginning of the month. We need to shift these dates to the second Friday.
 
 Function "periods::next-time" combined with "periods::relative-time"
 does what we need. It moves given time forward according to the given
 relative time definition.
 
-For example, today is 2 April, Thusday. But we want to move the date to
+For example, today is 2 April, Thursday. But we want to move the date to
 the next Friday:
 
 #+BEGIN_SRC lisp
@@ -137,9 +137,9 @@ POFTHEDAY> (periods::next-time @2020-04-02
 
 #+END_SRC
 
-But if the current day is already Friday, then this call will give us a
-next Friday. Begining of the month can be a Friday. In this case,
-calling "next-time" twice, will give us the third Friday instead of the
+But if the current day is already Friday, then this call will give us the
+next Friday. Beginning of the month can be a Friday. In this case,
+calling "next-time" twice will give us the third Friday instead of the
 second.
 
 To prevent this but, in the code I've shown, the first call to the
@@ -148,7 +148,7 @@ To prevent this but, in the code I've shown, the first call to the
 
 That is how does this complex example work.
 
-"Periods" documentation have one more interesting example, where you are
+"Periods" documentation has one more interesting example, where you are
 iterating by 15 days intervals, but skipping the weekends:
 
 #+BEGIN_SRC lisp
@@ -169,17 +169,14 @@ iterating by 15 days intervals, but skipping the weekends:
 
 #+END_SRC
 
-Note, that 04 April + 15 days will be 19 Apirl, but it is a Sunday a
-date in our sequence was moved to the next Monday - 20 April.
-
-By the way, you might note that some symbols I've used are not
-external, but they are part of the API.
+Note, that 04 April + 15 days will be 19 April, but it is a
+Sunday. Because of this, a date in our sequence was moved to the next Monday - 20 April.
 
 Working with time is hard.
 
-I think, this cool library is need some love - a few fixes in package
+I think this cool library needs some love - a few fixes in package
 definition and better documentation.
 
-World-wide pandemia is the best period to contribute to Opensource! Go
-and make a pull request to https://github.com/jwiegley/periods!
+Worldwide pandemic is the best period to contribute to Opensource! Go
+and make a pull request to the https://github.com/jwiegley/periods!
 
