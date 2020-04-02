@@ -1,0 +1,181 @@
+* periods :datetime:
+
+Periods is a library to time manipulation. May be you heard about
+"local-time-duration" system? "Periods" is a "local-time-duration" on
+steriods.
+
+With "periods" you can generate sequences of dates by defining a special
+rules.
+
+In it's ealier version, this library was tightly integrated with
+"Series" buy [[https://github.com/jwiegley/periods/commit/e649722416e0a26d22b81232dcd2c2dc8b3f7134][this pull]] broke that functionality.
+
+Actually, the pull intended to separate Period's integration with
+Series, but it have broken it because nobody cares.
+
+I think, this integration with Series is cool. So, I've fixed it.
+
+Lets see how does it work!
+
+This example shows how to create in infinite sequence of dates with 14
+days interval between them.
+
+I specified a starting date and interval's duration.
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (local-time:enable-read-macros)
+
+POFTHEDAY> (periods-series:scan-times @2007-11-18
+                                      (periods:duration :days 14))
+#Z(@2007-12-02T03:00:00.000000+03:00
+   @2007-12-16T03:00:00.000000+03:00
+   @2007-12-30T03:00:00.000000+03:00
+   @2008-01-13T03:00:00.000000+03:00
+   @2008-01-27T03:00:00.000000+03:00
+   @2008-02-10T03:00:00.000000+03:00
+   ...
+  
+#+END_SRC
+
+The library contains other functions for relative date definition.
+
+I was able to reproduce a more complex example from the documentation.
+
+It generates an infinite sequence of dates, where each date is the
+second Friday of month.
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (series:mapping ((time (periods-series:scan-times
+                                   (periods::previous-time @2020-04-02
+                                                          (periods::relative-time :day 1))
+                                   (periods:duration :months 1))))
+             (periods::next-time (periods::next-time
+                                  time
+                                  (periods::relative-time :day-of-week 5)
+                                  :accept-anchor t)
+                                 (periods::relative-time :day-of-week 5)))
+#Z(@2020-05-08T03:00:00.000000+03:00
+   @2020-06-12T03:00:00.000000+03:00
+   @2020-07-10T03:00:00.000000+03:00
+   @2020-08-14T03:00:00.000000+03:00
+   @2020-09-11T03:00:00.000000+03:00
+   @2020-10-09T03:00:00.000000+03:00
+   @2020-11-13T03:00:00.000000+03:00
+   @2020-12-11T03:00:00.000000+03:00
+   ...
+
+#+END_SRC
+
+Now lets go step by step to understand what happens under the hood.
+
+This form gives as a date pointing to the beginning of the current month:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (periods::previous-time @2020-04-02
+                                   (periods::relative-time :day 1))
+@2020-04-01T00:00:00.000000Z
+
+#+END_SRC
+
+Next, we are defining a generator which iterates by months starting from
+the current one.
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (periods-series:scan-times
+            (periods::previous-time @2020-04-02
+                                    (periods::relative-time :day 1))
+            (periods:duration :months 1))
+#Z(@2020-05-01T00:00:00.000000Z
+   @2020-06-01T00:00:00.000000Z
+   @2020-07-01T00:00:00.000000Z
+   @2020-08-01T00:00:00.000000Z
+   @2020-09-01T00:00:00.000000Z
+   ...
+
+#+END_SRC
+
+As you might notice, a sequence starts from the May, skipping the second
+Friday of the April. Probably it is a bug inside the "" because it
+generates a sequence, skipping the initial month:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (series:subseries
+            (periods-series:scan-times
+             @2020-04-01
+             (periods:duration :months 1))
+            0 5)
+#Z(@2020-05-01T00:00:00.000000Z
+   @2020-06-01T00:00:00.000000Z
+   @2020-07-01T00:00:00.000000Z
+   @2020-08-01T00:00:00.000000Z
+   @2020-09-01T00:00:00.000000Z)
+
+#+END_SRC
+
+But may this is not a bug in the library, but a bug in the example.
+
+Anyway, now we have a infinite sequence of dates where each date, is the
+beginning of the month. We need to shift these dates to the second Friday.
+
+Function "periods::next-time" combined with "periods::relative-time"
+does what we need. It moves given time forward according to the given
+relative time definition.
+
+For example, today is 2 April, Thusday. But we want to move the date to
+the next Friday:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (periods::next-time @2020-04-02
+                               (periods::relative-time :day-of-week 5))
+@2020-04-03T00:00:00.000000Z
+
+#+END_SRC
+
+But if the current day is already Friday, then this call will give us a
+next Friday. Begining of the month can be a Friday. In this case,
+calling "next-time" twice, will give us the third Friday instead of the
+second.
+
+To prevent this but, in the code I've shown, the first call to the
+"next-time" have a special flag ":accept-anchor". It says literally:
+"Hey, if date already is Friday, then don't move!"
+
+That is how does this complex example work.
+
+"Periods" documentation have one more interesting example, where you are
+iterating by 15 days intervals, but skipping the weekends:
+
+#+BEGIN_SRC lisp
+
+  POFTHEDAY> (series:mapping ((time (periods-series:scan-times
+                                   @2020-04-04
+                                   (periods:duration :days 15))))
+             (if (periods:falls-on-weekend-p time)
+                 (periods::next-time time
+                                     (periods::relative-time
+                                      :day-of-week 1))
+                 time))
+#Z(@2020-04-20T00:00:00.000000Z
+   @2020-05-04T00:00:00.000000Z
+   @2020-05-19T00:00:00.000000Z
+   @2020-06-03T00:00:00.000000Z
+   ...
+
+#+END_SRC
+
+Note, that 04 April + 15 days will be 19 Apirl, but it is a Sunday a
+date in our sequence was moved to the next Monday - 20 April.
+
+By the way, you might note that some symbols I've used are not
+external, but they are part of the API.
+
+Working with time is hard.
+
+I think, this cool library is need some love - a few fixes in package
+definition and better documentation.
