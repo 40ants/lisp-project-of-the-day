@@ -8,12 +8,12 @@ With "periods" you can generate sequences of dates by defining a special
 rules.
 
 In it's ealier version, this library was tightly integrated with
-"Series" buy [[https://github.com/jwiegley/periods/commit/e649722416e0a26d22b81232dcd2c2dc8b3f7134][this pull]] broke that functionality.
+"Series" but [[https://github.com/jwiegley/periods/commit/e649722416e0a26d22b81232dcd2c2dc8b3f7134][this commit]] broke that functionality.
 
 Actually, the pull intended to separate Period's integration with
 Series, but it have broken it because nobody cares.
 
-I think, this integration with Series is cool. So, I've fixed it.
+I think, this integration with Series is cool. So, I've [[https://github.com/jwiegley/periods/pull/12][fixed it]].
 
 Lets see how does it work!
 
@@ -179,3 +179,7 @@ Working with time is hard.
 
 I think, this cool library is need some love - a few fixes in package
 definition and better documentation.
+
+World-wide pandemia is the best period to contribute to Opensource! Go
+and make a pull request to https://github.com/jwiegley/periods!
+
