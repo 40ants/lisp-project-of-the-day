@@ -1,12 +1,12 @@
 * golden-utils :utils:
 
-This is a yet another utility collectio like "alexandria", rutils or
-mentioned in the #16 #pfotheday "kmrcl". Author is [[https://twitter.com/mfiano][@mfiano]]. He has many
+This is a yet another utility collection like "alexandria", rutils or
+mentioned in the #16 #pfotheday "kmrcl". The author is [[https://twitter.com/mfiano][@mfiano]]. He has many
 interesting CL projects on the GitHub, but now let's look at
 "golden-utils".
 
 This library lack documentation, but it's [[https://github.com/mfiano/golden-utils/blob/master/src/package.lisp][package.lisp]] file is
-structurized so you can figure out which areas are covered by the
+structured so you can figure out which areas are covered by the
 library.
 
 For example, it has interesting functions to create and merge hash
@@ -115,15 +115,15 @@ POFTHEDAY> (golden-utils:mvlet ((a b c (foo))
 
 #+END_SRC
 
-There are also other libraries which bring similar functionaly, like:
+There are also other libraries which bring similar functionality, like:
 
 - http://quickdocs.org/metabang-bind/
 - http://quickdocs.org/x.let-star/
 - http://quickdocs.org/serapeum/
 - http://quickdocs.org/rutils/
-- may be something else
+- maybe something else
 
-By the way in serapeum, binding macro also is called mvlet, but internal
+By the way in the "serapeum", binding macro also is called "mvlet", but internal
 code is different.
 
-Investigate other "golden-utils" facilities and may be you will find gold!
+Investigate other "golden-utils" facilities and maybe you will find gold!

@@ -6,6 +6,24 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>golden-utils</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0027-golden-utils.html</link>
+            <description>
+This is a yet another utility collection like &quot;alexandria&quot;, rutils or
+mentioned in the #16 #pfotheday &quot;kmrcl&quot;. The author is &lt;a href=&quot;https://twitter.com/mfiano&quot;&gt;@mfiano&lt;/a&gt;. He has many
+interesting CL projects on the GitHub, but now let&apos;s look at
+&quot;golden-utils&quot;.
+
+This library lack documentation, but it&apos;s &lt;a href=&quot;https://github.com/mfiano/golden-utils/blob/master/src/package.lisp&quot;&gt;package.lisp&lt;/a&gt; file is
+structured so you can figure out which areas are covered by the
+library.
+
+For example, it has interesting functions to create and merge hash
+tables:
+
+</description>
+        </item>
+        <item>
             <title>periods</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0026-periods.html</link>
             <description>
@@ -328,18 +346,6 @@ I am wondering how does re&apos;s performance compare with cl-ppcre? Let&apos;s 
 
 We will test performance on a simple example. It will extract a
 subreddit&apos;s name from the URL:
-
-</description>
-        </item>
-        <item>
-            <title>access</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html</link>
-            <description>
-This library brings a helper to access nested data structures.
-
-It has a fairly detailed readme with examples.
-
-I&apos;ve prepared one example for you:
 
 </description>
         </item>

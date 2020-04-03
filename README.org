@@ -5,7 +5,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
 - 02 April - [[content/2020/04/0026-periods.org][periods]] ([[https://twitter.com/svetlyak40wt/status/1245693772316528641][twitter]])
-- 03 April - [[content/2020/04/0027-golden-utils.org][golden-utils]]
+- 03 April - [[content/2020/04/0027-golden-utils.org][golden-utils]] ([[https://twitter.com/svetlyak40wt/status/1246106685745311777][twitter]])
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
