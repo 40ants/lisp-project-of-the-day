@@ -1,0 +1,129 @@
+* golden-utils :utils:
+
+This is a yet another utility collectio like "alexandria", rutils or
+mentioned in the #16 #pfotheday "kmrcl". Author is [[https://twitter.com/mfiano][@mfiano]]. He has many
+interesting CL projects on the GitHub, but now let's look at
+"golden-utils".
+
+This library lack documentation, but it's [[https://github.com/mfiano/golden-utils/blob/master/src/package.lisp][package.lisp]] file is
+structurized so you can figure out which areas are covered by the
+library.
+
+For example, it has interesting functions to create and merge hash
+tables:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> ;; Here is how we can create a simple dictionary:
+
+POFTHEDAY> (golden-utils:dict :foo "bar")
+#<HASH-TABLE :TEST EQ :COUNT 1 {1008B89313}>
+
+POFTHEDAY> ;; If first argument is a function, it will be used
+POFTHEDAY> ;; as :test for created hash table:
+
+POFTHEDAY> (golden-utils:dict #'equal "foo" "bar")
+#<HASH-TABLE :TEST EQUAL :COUNT 1 {1008FEFC73}>
+
+POFTHEDAY> ;; Also, there are few conversion functions:
+POFTHEDAY> (golden-utils:hash->alist
+            (golden-utils:dict :foo "bar"))
+((:FOO . "bar"))
+
+POFTHEDAY> ;; And a function hash-merge:    
+
+POFTHEDAY> (golden-utils:hash->alist
+            (golden-utils:hash-merge
+             (golden-utils:dict :foo "bar")
+             (golden-utils:dict :blah "minor")))
+((:BLAH . "minor") (:FOO . "bar"))
+
+#+END_SRC
+
+There are also interesting macroses. For example, this little helper to
+define a "print-object" method for your classes.
+
+This macro hides all common boilerplate:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defclass foo () ())
+#<STANDARD-CLASS POFTHEDAY::FOO>
+
+POFTHEDAY> (defvar *obj* (make-instance 'foo))
+*OBJ*
+
+;; By default, only class method and object's ID are printed:
+POFTHEDAY> *obj*
+#<FOO {10094F9363}>
+
+POFTHEDAY> (golden-utils:define-printer (foo stream)
+             (format stream "Hello Lisp World!"))
+#<STANDARD-METHOD COMMON-LISP:PRINT-OBJECT (FOO T) {100632A163}>
+
+;; But now, when we defined a method, we can have a human-readable
+;; object description:
+POFTHEDAY> *obj*
+#<FOO Hello Lisp World!>
+
+POFTHEDAY> (macroexpand-1
+            '(golden-utils:define-printer (foo stream)
+              (format stream "Hello Lisp World!")))
+(DEFMETHOD PRINT-OBJECT ((FOO FOO) STREAM)
+  (PRINT-UNREADABLE-OBJECT (FOO STREAM :TYPE T :IDENTITY NIL)
+    (FORMAT STREAM "Hello Lisp World!")))
+  
+#+END_SRC
+
+There is another interesting macro "mvlet", which combines together
+semantics of "let" and "multiple-value-bind".
+
+This macro does is complex and does not have a docstring.
+
+I was able to find an example in other Michael's sources and to create
+this simplified example for you:
+
+#+BEGIN_SRC lisp
+
+;; First, we'll define a function which
+;; returns multiple values
+POFTHEDAY> (defun foo ()
+             (values 1 2 3))
+POFTHEDAY> (foo)
+1 (1 bit, #x1, #o1, #b1)
+2 (2 bits, #x2, #o2, #b10)
+3 (2 bits, #x3, #o3, #b11)
+
+;; Using usual "let" we can catch only the first value:
+POFTHEDAY> (let ((a (foo))
+                 (blah "minor"))
+             (list a blah))
+(1 "minor")
+
+;; We have to use nested "multiple-value-bind":
+POFTHEDAY> (let ((blah "minor"))
+             (multiple-value-bind (a b c)
+                 (foo)
+               (list a b c blah)))
+(1 2 3 "minor")
+
+;; With mvlet we can decrease nesting level:
+POFTHEDAY> (golden-utils:mvlet ((a b c (foo))
+                                (blah "minor"))
+             (list a b c blah))
+(1 2 3 "minor")
+
+#+END_SRC
+
+There are also other libraries which bring similar functionaly, like:
+
+- http://quickdocs.org/metabang-bind/
+- http://quickdocs.org/x.let-star/
+- http://quickdocs.org/serapeum/
+- http://quickdocs.org/rutils/
+- may be something else
+
+By the way in serapeum, binding macro also is called mvlet, but internal
+code is different.
+
+Investigate other "golden-utils" facilities and may be you will find gold!
