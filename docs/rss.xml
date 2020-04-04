@@ -6,6 +6,24 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-conspack</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html</link>
+            <description>
+Previously, I&apos;ve posted about the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html&quot;&gt;cl-bert&lt;/a&gt; a serialization
+library. &quot;cl-conspack&quot; is also a serialization library with interesting
+features.
+
+These features are:
+
+- compact binary representation;
+- support for object references;
+- and speed.
+
+Let&apos;s compare it with cl-bert:
+
+</description>
+        </item>
+        <item>
             <title>golden-utils</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0027-golden-utils.html</link>
             <description>
@@ -314,38 +332,6 @@ http://quickdocs.org/ppath/
             <link>http://40ants.com/lisp-project-of-the-day/2020/03/0009-random-sample.html</link>
             <description>
 This is a small library to select N random items from given sequence:
-
-</description>
-        </item>
-        <item>
-            <title>re</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0008-re.html</link>
-            <description>
-This is a small regular expressions engine, made by Jeffrey Massung
-(@codeninja_blog).
-
-This engine uses &lt;a href=&quot;http://www.lua.org/pil/20.2.html&quot;&gt;Lua&apos;s regexp syntax&lt;/a&gt;.
-
-By the way, I was interested in why did Lua developers choose such syntax
-over common Posix/Perl syntax. I found this interesting email from 
-Philippe Lhoste:
-
-http://lua-users.org/lists/lua-l/2001-04/msg00244.html
-
-In short, this alternative syntax was chosen to not support all the
-features from Perl regexps and to make Lua&apos;s implementation short.
-
-Today lua code contains 628 lines with regexp implementation:
-
-https://github.com/lua/lua/blob/e4607523234f16ed9ed0436340b9315377dbfe7f/lstrlib.c#L352-L980
-
-Common Lisp version is about 645 lines but is based on a separate
-parser library.
-
-I am wondering how does re&apos;s performance compare with cl-ppcre? Let&apos;s check!
-
-We will test performance on a simple example. It will extract a
-subreddit&apos;s name from the URL:
 
 </description>
         </item>

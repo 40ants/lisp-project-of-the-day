@@ -1,6 +1,6 @@
 * cl-conspack :data_structure:
 
-Previosly, I've posted about the [[http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html][cl-bert]] a serialization
+Previously, I've posted about the [[http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html][cl-bert]] a serialization
 library. "cl-conspack" is also a serialization library with interesting
 features.
 
@@ -8,9 +8,9 @@ These features are:
 
 - compact binary representation;
 - support for object references;
-- and speed;
+- and speed.
 
-Let's compare it with cl-bert.
+Let's compare it with cl-bert:
 
 #+BEGIN_SRC lisp
 
@@ -52,9 +52,9 @@ POFTHEDAY> (conspack:with-index (:hello :lisp :world!)
 #+END_SRC
 
 As you can see, now our data is only 6 bytes. This will work very good
-when yor data uses many duplicate symbols.
+when you data uses many duplicate symbols.
 
-In the next example, we will test how does links work:
+In the next example, we will test how do links work:
 
 #+BEGIN_SRC lisp
 
@@ -112,7 +112,7 @@ to restore it completely.
 
 Probably, this could be improved.
 
-Now let's combine compression with object serialization. In previous
+Now let's combine compression with object serialization. In the previous
 example, serialized data took 103 bytes. Let's see how much we can
 squeeze:
 
@@ -131,6 +131,10 @@ POFTHEDAY> (length *)
 
 16 bytes. Not bad!
 
-Seems, cl-conspack could be a good for making a binary RPC protocol. By
-the way, it already has implementations not only for Common Lisp, but
+Seems, cl-conspack could be good for making a binary RPC protocol. By
+the way, it already has implementations not only for Common Lisp but
 also for Python and C.
+
+* See also
+
+- [[http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html][cl-bert]]
