@@ -6,6 +6,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
 - 02 April - [[content/2020/04/0026-periods.org][periods]] ([[https://twitter.com/svetlyak40wt/status/1245693772316528641][twitter]])
 - 03 April - [[content/2020/04/0027-golden-utils.org][golden-utils]] ([[https://twitter.com/svetlyak40wt/status/1246106685745311777][twitter]])
+- 04 April - [[content/2020/04/0028-cl-conspack.org][cl-conspack]]
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -428,16 +429,59 @@ Now it is time to write a code which will render all org mode files into HTML:
 
 ***  Writing RSS feed
 
+We want to show in RSS only posts, published at Twitter. This
+information can be extracted from the README.org, because there I'm
+adding a link to the tweet. If there is a link, the post is published.
+
+So, we have to find all list items inside "2020" heading and choose only
+those, having a link to the twitter.
+
+#+BEGIN_SRC lisp
+
+(defun find-not-published-systems ()
+  (let* ((file (cl-org-mode::read-org-file "README.org"))
+         (years (loop for node = file then (cl-org-mode::node.next-node node)
+                      while node
+                      when (and (typep node 'cl-org-mode::outline-node)
+                                (str:starts-with-p "20"
+                                                   (cl-org-mode::node.heading node)))
+                      collect node))
+         (months (loop for year in years
+                       appending (cl-org-mode::node.children year)))
+         (text-nodes (loop for month in months
+                           appending (cl-org-mode::node.children month)))
+         (texts (loop for node in text-nodes
+                      collect (cl-org-mode::node.text node)))
+         (lines (loop for text in texts
+                      appending (str:split #\Newline text))))
+    (loop for line in lines
+          when (and (str:starts-with-p "-" line)
+                    ;; If there are two links, then the second link is to the twitter post.
+                    ;; In this case this post is published.
+                    (= (str:count-substring "[[" line)
+                       1))
+          collect (cl-ppcre:regex-replace ".*?\\]\\[(.*?)\\].*"
+                                          line
+                                          "\\1"))))
+
+#+END_SRC
+
 #+BEGIN_SRC lisp
 
 (defun render-rss (files)
   (alexandria:with-output-to-file (stream "docs/rss.xml"
                                           :if-exists :supersede)
-    (let ((base-url "http://40ants.com/lisp-project-of-the-day/"))
+    (let ((base-url "http://40ants.com/lisp-project-of-the-day/")
+          (not-published (find-not-published-systems)))
       (xml-emitter:with-rss2 (stream)
         (xml-emitter:rss-channel-header "Common Lisp Project of the Day"
                                         base-url)
-        (loop for file in (rutils:take 20 (reverse files))
+        (loop for file in (rutils:take 20 (reverse
+                                           (remove-if (lambda (file)
+                                                        (member (get-title file)
+                                                                not-published
+                                                                :test #'string-equal))
+                                                      files)))
               for title = (get-title file)
               for uri = (get-uri file)
               for full-url = (format nil "~A~A" base-url uri)
@@ -484,19 +528,26 @@ We'll use few helpers to create urls and titles for the index page:
   
 (defun render-index (files)
   (let ((filename (ppath:join "docs"
-                              "index.html")))
-    (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-      (app-page (stream)
-        (:ul :style "list-style: none"
-         (loop for file in (reverse files)
-               for url = (get-uri file)
-               do (multiple-value-bind (title number)
-                      (get-title-for-index file)
-                    (cl-who:with-html-output (stream)
-                      (:li (:span :style "font-weight: bold; margin-right: 0.7em"
-                                  (cl-who:esc (format nil "#~A" number)))
-                           (:a :href url
-                               (cl-who:esc title)))))))))
+                              "index.html"))
+        (not-published (find-not-published-systems)))
+    (flet ((is-not-published (file)
+             (member (get-title file)
+                     not-published
+                     :test #'string-equal)))
+      (alexandria:with-output-to-file (stream filename :if-exists :supersede)
+        (app-page (stream)
+          (:ul :style "list-style: none"
+               (loop for file in (reverse files)
+                     for url = (get-uri file)
+                     do (multiple-value-bind (title number)
+                            (get-title-for-index file)
+                          (cl-who:with-html-output (stream)
+                            (:li (:span :style "font-weight: bold; margin-right: 0.7em"
+                                        (cl-who:esc (format nil "#~A" number)))
+                                 (:a :href url
+                                     (cl-who:esc title))
+                                 (when (is-not-published file)
+                                   (cl-who:str " (draft)"))))))))))
     (values)))
 
 #+END_SRC

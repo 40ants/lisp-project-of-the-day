@@ -1,0 +1,136 @@
+* cl-conspack :data_structure:
+
+Previosly, I've posted about the [[http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html][cl-bert]] a serialization
+library. "cl-conspack" is also a serialization library with interesting
+features.
+
+These features are:
+
+- compact binary representation;
+- support for object references;
+- and speed;
+
+Let's compare it with cl-bert.
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (bert:encode (list :hello
+                              :lisp
+                              :world!))
+#(131 108 0 0 0 3 115 5 72 69 76 76 79
+  115 4 76 73 83 80 115 6 87 79 82 76 68
+  33 106)
+POFTHEDAY> (length *)
+28
+
+POFTHEDAY> (conspack:encode (list :hello
+                                  :lisp
+                                  :world!))
+#(40 4 131 64 5 72 69 76 76 79 131 64 4 76
+  73 83 80 131 64 6 87 79 82 76 68 33 0)
+POFTHEDAY> (length *)
+27
+#+END_SRC
+
+As you can see, conspack's result is one byte smaller, but we can
+squeeze more if we provide some knowledge about data to the "conspack":
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (conspack:with-index (:hello :lisp :world!)
+             (conspack:encode (list :hello
+                                    :lisp
+                                    :world!)))
+#(40 4 176 177 178 0)
+POFTHEDAY> (length *)
+6 (3 bits, #x6, #o6, #b110)
+POFTHEDAY> (conspack:with-index (:hello :lisp :world!)
+             (conspack:decode **))
+(:HELLO :LISP :WORLD!)
+6
+
+#+END_SRC
+
+As you can see, now our data is only 6 bytes. This will work very good
+when yor data uses many duplicate symbols.
+
+In the next example, we will test how does links work:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defclass node ()
+             ((name :type keyword
+                    :initarg :name
+                    :reader get-name)
+              (next :type (or null
+                              node)
+                    :initform nil
+                    :accessor get-next)))
+
+POFTHEDAY> (defmethod print-object ((node node) stream)
+             (format stream "<node ~A>" (get-name node)))
+
+POFTHEDAY> (defparameter *first* (make-instance 'node :name :first))
+POFTHEDAY> (defparameter *second* (make-instance 'node :name :second))
+
+POFTHEDAY> (setf (get-next *first*)
+                 *second*)
+
+POFTHEDAY> (setf (get-next *second*)
+                 *first*)
+
+;; Now we need to tell cl-conspack which slots should be
+;; serialized.
+POFTHEDAY> (conspack:defencoding node
+             name next)
+
+POFTHEDAY> (conspack:tracking-refs ()
+             (conspack:encode *first*))
+#(242 56 2 130 64 4 78 79 68 69 129 64 9 80 79 70 84 72 69 68 65 89 240 130 64
+  4 78 65 77 69 129 64 9 80 79 70 84 72 69 68 65 89 131 64 5 70 73 82 83 84 241
+  130 64 4 78 69 88 84 129 64 9 80 79 70 84 72 69 68 65 89 56 2 130 64 4 78 79
+  68 69 129 64 9 80 79 70 84 72 69 68 65 89 112 131 64 6 83 69 67 79 78 68 113
+  114)
+
+POFTHEDAY> (length *)
+103
+
+POFTHEDAY> (conspack:tracking-refs ()
+             (conspack:decode **))
+<node FIRST>
+
+POFTHEDAY> (get-next *)
+<node SECOND>
+
+POFTHEDAY> (get-next *)
+#S(CONSPACK::FORWARD-REF :TYPE :CDR :REF (NEXT . <node FIRST>) :DATUM NIL)
+  
+#+END_SRC
+
+As you can see, "cl-conspack" broke the circular loop, but wasn't able
+to restore it completely.
+
+Probably, this could be improved.
+
+Now let's combine compression with object serialization. In previous
+example, serialized data took 103 bytes. Let's see how much we can
+squeeze:
+
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (conspack:with-index (node name next :first :second)
+             (conspack:tracking-refs ()
+               (conspack:encode *first*)))
+#(242 56 2 176 240 177 179 241 178 56 2 176 112 180 113 114)
+
+POFTHEDAY> (length *)
+16
+
+#+END_SRC
+
+16 bytes. Not bad!
+
+Seems, cl-conspack could be a good for making a binary RPC protocol. By
+the way, it already has implementations not only for Common Lisp, but
+also for Python and C.
