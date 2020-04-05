@@ -39,8 +39,8 @@ POFTHEDAY&gt; (dotimes (i *color-count*)
                                                  (random 256))
                                *color-table*))</code></pre><p>We  are going to create an animation with 256 random rectagles, that is why our color table contains a 256 random colors.</p>
 <p>Now, we need to create a "skeleton" for the image. We will add our animation frames to this skeleton. Skippy call it a "data-stream":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *height* 100)
-POFTHEDAY&gt; (defparameter *width* 100)
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *height* 200)
+POFTHEDAY&gt; (defparameter *width* 200)
 
 POFTHEDAY&gt; (defparameter *data-stream*
              (skippy:make-data-stream
@@ -64,9 +64,10 @@ POFTHEDAY&gt; (defparameter *data-stream*
                                               :image-data image-data
                                               :delay-time 5)))
                (skippy:add-image image *data-stream*)))</code></pre><p>And finally, we need to save our animation to the file:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (skippy:output-data-stream *data-stream*
-                                      #p&quot;example.gif&quot;)
-#P&quot;/Users/art/projects/lisp/lisp-project-of-the-day/example.gif&quot;</code></pre><p>Here is the result:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (skippy:output-data-stream
+            *data-stream*
+            #p&quot;docs/media/0029/example.gif&quot;)
+#P&quot;/Users/art/projects/lisp/lisp-project-of-the-day/docs/media/0029/example.gif&quot;</code></pre><p>Here is the result:</p>
 <p><img style="max-width: 100%" src="../../media/0029/example.gif"/></p>
 </div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
   </body>

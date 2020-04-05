@@ -34,8 +34,8 @@ animation frames to this skeleton. Skippy call it a "data-stream":
 
 #+BEGIN_SRC lisp
 
-POFTHEDAY> (defparameter *height* 100)
-POFTHEDAY> (defparameter *width* 100)
+POFTHEDAY> (defparameter *height* 200)
+POFTHEDAY> (defparameter *width* 200)
 
 POFTHEDAY> (defparameter *data-stream*
              (skippy:make-data-stream
@@ -75,9 +75,11 @@ And finally, we need to save our animation to the file:
 
 #+BEGIN_SRC lisp
 
-POFTHEDAY> (skippy:output-data-stream *data-stream*
-                                      #p"example.gif")
-#P"/Users/art/projects/lisp/lisp-project-of-the-day/example.gif"
+POFTHEDAY> (skippy:output-data-stream
+            *data-stream*
+            #p"docs/media/0029/example.gif")
+#P"/Users/art/projects/lisp/lisp-project-of-the-day/docs/media/0029/example.gif"
+
 
 #+END_SRC
 
