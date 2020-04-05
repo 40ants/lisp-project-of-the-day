@@ -60,7 +60,7 @@
 
 @font-face {
     font-family: 'FontForCode';
-    src: url('../../fonts/font-for-code.ttf');
+    src: url('../../fonts/font-for-code.woff2');
 }
 
 .hljs {

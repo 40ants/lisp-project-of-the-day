@@ -1,0 +1,86 @@
+* skippy :graphics:
+
+This library is for work with GIF image format. It is able to tear apart
+a GIF file and to assemble it from pieces.
+
+Let's go through one of examples from skippy's documentation.
+
+This example creates an animated GIF file with randomly placed color rectangles.
+
+May be you know, the GIF file can hold only a limited number of colors
+and any pixel's color is an index from the color table.
+
+First we need to create such a table:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defparameter *color-count* 256)
+
+POFTHEDAY> (defparameter *color-table* (skippy:make-color-table))
+
+POFTHEDAY> (dotimes (i *color-count*)
+             (skippy:add-color (skippy:rgb-color (random 256)
+                                                 (random 256)
+                                                 (random 256))
+                               *color-table*))
+
+#+END_SRC
+
+We  are going to create an animation with 256 random rectagles, that is
+why our color table contains a 256 random colors.
+
+Now, we need to create a "skeleton" for the image. We will add our
+animation frames to this skeleton. Skippy call it a "data-stream":
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defparameter *height* 100)
+POFTHEDAY> (defparameter *width* 100)
+
+POFTHEDAY> (defparameter *data-stream*
+             (skippy:make-data-stream
+              :color-table *color-table*
+              :loopingp t
+              :height *height*
+              :width *width*))
+
+#+END_SRC
+
+Here we specified an image size and also that the animation will be looping.
+
+Now, we need to add some animation frames. We will create random
+rectangles and fill them by color from the created color-table:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (dotimes (color *color-count*)
+             (let* ((top (random *height*))
+                    (left (random *width*))
+                    (h (1+ (random (- *height* top))))
+                    (w (1+ (random (- *width* left))))
+                    (image-data (skippy:make-image-data
+                                 w h
+                                 :initial-element color))
+                    (image (skippy:make-image :height h
+                                              :width w 
+                                              :top-position top
+                                              :left-position left
+                                              :image-data image-data
+                                              :delay-time 5)))
+               (skippy:add-image image *data-stream*)))
+
+#+END_SRC
+
+And finally, we need to save our animation to the file:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (skippy:output-data-stream *data-stream*
+                                      #p"example.gif")
+#P"/Users/art/projects/lisp/lisp-project-of-the-day/example.gif"
+
+#+END_SRC
+
+Here is the result:
+
+[[../../media/0029/example.gif]]
