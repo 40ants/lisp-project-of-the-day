@@ -86,3 +86,6 @@ POFTHEDAY> (skippy:output-data-stream
 Here is the result:
 
 [[../../media/0029/example.gif]]
+
+It is time to take some [[https://twitter.com/inconvergent][@inconvergent]]'s [[https://github.com/inconvergent/snek][Snek]] and create some GIF
+animations! But that is theme for another post :)
