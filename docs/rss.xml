@@ -6,6 +6,26 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>skippy</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0029-skippy.html</link>
+            <description>
+This library is for work with GIF image format. It is able to tear apart
+a GIF file and to assemble it from pieces.
+
+Skippy was written by &lt;a href=&quot;https://twitter.com/xach&quot;&gt;@xach&lt;/a&gt; for&lt;a href=&quot;http://wigflip.com/&quot;&gt;http://wigflip.com/&lt;/a&gt;meme generator.
+
+Let&apos;s go through one of examples from skippy&apos;s documentation.
+
+This example creates an animated GIF file with randomly placed color rectangles.
+
+Maybe you know, the GIF file can hold only a limited number of colours
+and any pixel&apos;s colour is an index from the colour table.
+
+First, we need to create such a table:
+
+</description>
+        </item>
+        <item>
             <title>cl-conspack</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html</link>
             <description>
@@ -324,14 +344,6 @@ Ppath has pretty good documentation. I&apos;ll show only one example
 description of all available functions you&apos;ll find in the docs:
 
 http://quickdocs.org/ppath/
-
-</description>
-        </item>
-        <item>
-            <title>random-sample</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0009-random-sample.html</link>
-            <description>
-This is a small library to select N random items from given sequence:
 
 </description>
         </item>

@@ -3,14 +3,16 @@
 This library is for work with GIF image format. It is able to tear apart
 a GIF file and to assemble it from pieces.
 
+Skippy was written by [[https://twitter.com/xach][@xach]] for http://wigflip.com/ meme generator.
+
 Let's go through one of examples from skippy's documentation.
 
 This example creates an animated GIF file with randomly placed color rectangles.
 
-May be you know, the GIF file can hold only a limited number of colors
-and any pixel's color is an index from the color table.
+Maybe you know, the GIF file can hold only a limited number of colours
+and any pixel's colour is an index from the colour table.
 
-First we need to create such a table:
+First, we need to create such a table:
 
 #+BEGIN_SRC lisp
 
@@ -26,11 +28,11 @@ POFTHEDAY> (dotimes (i *color-count*)
 
 #+END_SRC
 
-We  are going to create an animation with 256 random rectagles, that is
+We  are going to create an animation with 256 random rectangles, that is
 why our color table contains a 256 random colors.
 
 Now, we need to create a "skeleton" for the image. We will add our
-animation frames to this skeleton. Skippy call it a "data-stream":
+animation frames to this skeleton. Skippy calls it a "data-stream":
 
 #+BEGIN_SRC lisp
 
@@ -46,7 +48,7 @@ POFTHEDAY> (defparameter *data-stream*
 
 #+END_SRC
 
-Here we specified an image size and also that the animation will be looping.
+Here we specified image size and also that the animation will be looping.
 
 Now, we need to add some animation frames. We will create random
 rectangles and fill them by color from the created color-table:
@@ -88,4 +90,4 @@ Here is the result:
 [[../../media/0029/example.gif]]
 
 It is time to take some [[https://twitter.com/inconvergent][@inconvergent]]'s [[https://github.com/inconvergent/snek][Snek]] and create some GIF
-animations! But that is theme for another post :)
+animations! But that is a theme for another post :)
