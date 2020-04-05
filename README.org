@@ -306,7 +306,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
 
 (defun replace-images (text)
   (cl-ppcre:regex-replace-all
-   "\\[\\[(.*?\\.(png|jpg))\\]\\]"
+   "\\[\\[(.*?\\.(png|jpg|gif))\\]\\]"
    text
    "<img style=\"max-width: 100%\" src=\"\\1\"/>"))
 
