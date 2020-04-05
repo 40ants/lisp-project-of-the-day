@@ -12,7 +12,7 @@
 This library is for work with GIF image format. It is able to tear apart
 a GIF file and to assemble it from pieces.
 
-Skippy was written by &lt;a href=&quot;https://twitter.com/xach&quot;&gt;@xach&lt;/a&gt; for&lt;a href=&quot;http://wigflip.com/&quot;&gt;http://wigflip.com/&lt;/a&gt;meme generator.
+Skippy was written by &lt;a href=&quot;https://twitter.com/xach&quot;&gt;@xach&lt;/a&gt; for &lt;a href=&quot;http://wigflip.com/&quot;&gt;http://wigflip.com/&lt;/a&gt; meme generator.
 
 Let&apos;s go through one of examples from skippy&apos;s documentation.
 
@@ -245,7 +245,7 @@ Kmrcl is like :alexandria, :rutils or serapeuim.
 
 All symbols are in the :kmrcl package and to distinguish which
 functionality is covered by this library, it is better to download its
-source from&lt;a href=&quot;http://files.kpe.io/kmrcl/&quot;&gt;http://files.kpe.io/kmrcl/&lt;/a&gt;Functionality is separated by
+source from &lt;a href=&quot;http://files.kpe.io/kmrcl/&quot;&gt;http://files.kpe.io/kmrcl/&lt;/a&gt; Functionality is separated by
 files.
 
 Here is one interesting macro - if* from AllegroCL.

@@ -320,7 +320,7 @@ text line by line and wrap it's pieces in appropriate HTML tags:
   (cl-ppcre:regex-replace-all
    "(^| )(https?://.*?)[,.!]?( |$)"
    text
-   "<a href=\"\\2\">\\2</a>"))
+   "\\1<a href=\"\\2\">\\2</a>\\3"))
 
 (defun replace-org-mode-markup-with-html (text)
   (replace-raw-urls
