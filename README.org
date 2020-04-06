@@ -8,7 +8,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 03 April - [[content/2020/04/0027-golden-utils.org][golden-utils]] ([[https://twitter.com/svetlyak40wt/status/1246106685745311777][twitter]])
 - 04 April - [[content/2020/04/0028-cl-conspack.org][cl-conspack]] ([[https://twitter.com/svetlyak40wt/status/1246429190439739399][twitter]])
 - 05 April - [[content/2020/04/0029-skippy][skippy]] ([[https://twitter.com/svetlyak40wt/status/1246779138335289346][twitter]])
-- 06 April - [[content/2020/03/0030-skippy-renderer.org][skippy-renderer & zpng]]
+- 06 April - [[content/2020/03/0030-skippy-renderer.org][skippy-renderer & zpng]] ([[https://twitter.com/svetlyak40wt/status/1247269224860581896][twitter]])
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])

@@ -5,7 +5,7 @@ Today I'd like to tell you about two libraries:
 - skippy-renderer
 - zpng
 
-Both allows you to work with graphics format GIF and PNG.
+Both allow you to work with graphics format GIF and PNG.
 
 "Skippy-renderer" extends Skippy from the [[http://40ants.com/lisp-project-of-the-day/2020/04/0029-skippy.html][previous post]]. It is able to produce
 a sequence of images from the GIF.
@@ -13,7 +13,7 @@ a sequence of images from the GIF.
 All images will have the same size and can be combined into the video or
 written in the separate images.
 
-Let's try to tear apart the GIF, made in the previos post.
+Let's try to tear apart the GIF, made in the previous post.
 
 First, we need to read data from a file using skippy's
 "load-data-stream" function:
@@ -29,7 +29,7 @@ POFTHEDAY> *data-stream*
 
 #+END_SRC
 
-Skyppy renderer returns a sequence of vectors with ARGB or BGRA bytes:
+Skyppy renderer returns us a sequence of vectors with ARGB or BGRA bytes:
 
 #+BEGIN_SRC lisp
 
@@ -41,11 +41,11 @@ POFTHEDAY> (skippy-renderer:render *data-stream*)
    
 #+END_SRC
 
-As second and third value it returns delays between frames and image
+As the second and third value, it returns delays between frames and image
 size.
 
-Now we'll try to render 150 frame of the animation into a PNG image,
-using another graphics library from [[https://twitter.com/xach][@xach]] - zpng.
+Now we'll try to render 150-th frame of the animation into a PNG image,
+using another graphics library from [[https://twitter.com/xach][@xach]] - "zpng".
 
 #+BEGIN_SRC lisp
 
@@ -86,9 +86,12 @@ POFTHEDAY> (zpng:write-png *png*
 #+END_SRC
 
 Here I've moved data from 150-th GIF frame into a PNG image frame. I
-have to move "alpha" byte, because GIF frame has ARGB order of bytes,
+have to move "alpha" byte because GIF frame has ARGB order of bytes,
 but PNG image uses RGBA.
 
 Here is the resulting PNG image:
 
 [[../../media/0030/150-frame.png]]
+
+This way, you can save all frames into files and encode them to the
+video format using FFmpeg. Or do some analysis or other crazy things.

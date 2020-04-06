@@ -14,7 +14,7 @@ Today I&apos;d like to tell you about two libraries:
 - skippy-renderer
 - zpng
 
-Both allows you to work with graphics format GIF and PNG.
+Both allow you to work with graphics format GIF and PNG.
 
 &quot;Skippy-renderer&quot; extends Skippy from the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0029-skippy.html&quot;&gt;previous post&lt;/a&gt;. It is able to produce
 a sequence of images from the GIF.
@@ -22,7 +22,7 @@ a sequence of images from the GIF.
 All images will have the same size and can be combined into the video or
 written in the separate images.
 
-Let&apos;s try to tear apart the GIF, made in the previos post.
+Let&apos;s try to tear apart the GIF, made in the previous post.
 
 First, we need to read data from a file using skippy&apos;s
 &quot;load-data-stream&quot; function:
