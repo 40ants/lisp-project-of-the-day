@@ -91,4 +91,4 @@ but PNG image uses RGBA.
 
 Here is the resulting PNG image:
 
-[[../../media/0030/150-frame.pngg]]
+[[../../media/0030/150-frame.png]]
