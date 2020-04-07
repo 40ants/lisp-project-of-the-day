@@ -1,0 +1,58 @@
+* lispqr :graphics:
+
+This small library is able to generate standard QR codes.
+
+It produces either a matrix, which you can render on your own:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (mare5x.lispqr.encode::encode->matrix
+              "Hello Lisp World!")
+#2A((1 1 1 1 1 1 1 0 0 0 0 0 0 0 1 1 1 1 1 1 1)
+    (1 0 0 0 0 0 1 0 1 1 0 1 1 0 1 0 0 0 0 0 1)
+    (1 0 1 1 1 0 1 0 0 1 0 0 1 0 1 0 1 1 1 0 1)
+    (1 0 1 1 1 0 1 0 1 1 1 1 0 0 1 0 1 1 1 0 1)
+    (1 0 1 1 1 0 1 0 0 1 0 0 0 0 1 0 1 1 1 0 1)
+    (1 0 0 0 0 0 1 0 1 0 0 1 1 0 1 0 0 0 0 0 1)
+    (1 1 1 1 1 1 1 0 1 0 1 0 1 0 1 1 1 1 1 1 1)
+    (0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0)
+    (1 1 1 1 1 0 1 1 1 1 0 0 1 1 0 1 0 1 0 1 0)
+    (0 1 0 1 0 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 1)
+    (0 1 1 1 0 1 1 0 0 1 1 1 1 1 0 0 0 1 1 1 0)
+    (0 0 1 0 0 1 0 0 1 0 1 1 0 1 0 1 0 1 1 0 0)
+    (1 0 1 1 1 0 1 1 0 0 0 1 0 1 1 0 1 0 0 0 1)
+    (0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 1 0 1 0 0 0)
+    (1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 0 0 0 1 1 0)
+    (1 0 0 0 0 0 1 0 0 0 0 1 0 1 0 1 0 1 1 1 0)
+    (1 0 1 1 1 0 1 0 1 1 1 1 1 1 1 1 0 0 0 0 0)
+    (1 0 1 1 1 0 1 0 1 1 1 1 1 0 0 1 1 1 0 1 0)
+    (1 0 1 1 1 0 1 0 1 1 0 1 1 0 0 1 0 0 1 0 0)
+    (1 0 0 0 0 0 1 0 1 1 0 0 1 0 0 0 1 1 1 0 0)
+    (1 1 1 1 1 1 1 0 1 1 0 0 1 0 1 0 1 0 0 1 0))
+  
+#+END_SRC
+
+Or it can render image into a png (internally, it uses [[https://twitter.com/xach][@xach]]'s zpng,
+used in my [[http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html][previous post]] to render a frame from the GIF file):
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (mare5x.lispqr.encode::encode->image
+             "http://40ants.com/lisp-project-of-the-day/"
+             "docs/media/0031/qr-code.png")
+Encoding "http://40ants.com/lisp-project-of-the-day/"
+Version 3
+Error correction level M
+Encoding mode 8-BIT-BYTE
+Mask-number -1
+/Users/art/poftheday/docs/media/0031/qr-code.png
+  
+#+END_SRC
+
+Here is the result:
+
+[[../../media/0031/qr-code.png]]
+
+
+Symbols "encode->image" and "encode->matrix" are not external yet, but
+I've created the [[https://github.com/mare5x/LispQR/pull/3][pull request]] to fix it.
