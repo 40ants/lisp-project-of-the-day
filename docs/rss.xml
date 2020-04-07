@@ -6,6 +6,16 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lispqr</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0031-lispqr.html</link>
+            <description>
+This small library is able to generate standard QR codes.
+
+It produces either a matrix, which you can render on your own:
+
+</description>
+        </item>
+        <item>
             <title>skippy-renderer &amp; zpng                                          </title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html</link>
             <description>
@@ -329,30 +339,6 @@ the above-mentioned languages and C.
 I&apos;ve tested :cl-pack using an example from its README. Seems
 it does not work as expected, because it is unable to unpack the data,
 created by itself:
-
-</description>
-        </item>
-        <item>
-            <title>pango-markup</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0011-pango-markup.html</link>
-            <description>This library allows processing a text with Pango Markup.
-
-Pango Markup used by GTK to render attributed text. It is a simple
-SGML-like language. It looks like a subset of HTML but uses custom
-attributes.
-
-Gnome&apos;s Pango library contains a parser for this format:
-
-https://developer.gnome.org/pango/stable/pango-Markup.html
-
-But :pango-markup is not a parser, it&apos;s purpose is to render text and
-attributes into this format.
-
-You should provide it a plain text and a separate list of regions with
-attributes.
-
-For example, is we would like to make the word &quot;Bob&quot; in &quot;Hello Bob!&quot;, then
-we need to do:
 
 </description>
         </item>

@@ -32,7 +32,7 @@ POFTHEDAY> (mare5x.lispqr.encode::encode->matrix
   
 #+END_SRC
 
-Or it can render image into a png (internally, it uses [[https://twitter.com/xach][@xach]]'s zpng,
+Or it can render the image into a png (internally, it uses [[https://twitter.com/xach][@xach]]'s "zpng",
 used in my [[http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html][previous post]] to render a frame from the GIF file):
 
 #+BEGIN_SRC lisp
