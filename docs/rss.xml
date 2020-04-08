@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>buildnode</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0032-buildnode.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>lispqr</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0031-lispqr.html</link>
             <description>
@@ -325,20 +330,6 @@ iteration works and how to extend the behaviour and add new iteration
 methods.
 
 Here is a simple iteration on the list:
-
-</description>
-        </item>
-        <item>
-            <title>cl-pack</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0012-cl-pack.html</link>
-            <description>
-It supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
-functions to allow easy use of (binary format) protocols and files with
-the above-mentioned languages and C.
-
-I&apos;ve tested :cl-pack using an example from its README. Seems
-it does not work as expected, because it is unable to unpack the data,
-created by itself:
 
 </description>
         </item>

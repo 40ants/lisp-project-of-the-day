@@ -10,7 +10,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 05 April - [[content/2020/04/0029-skippy][skippy]] ([[https://twitter.com/svetlyak40wt/status/1246779138335289346][twitter]])
 - 06 April - [[content/2020/03/0030-skippy-renderer.org][skippy-renderer & zpng]] ([[https://twitter.com/svetlyak40wt/status/1247269224860581896][twitter]])
 - 07 April - [[content/2020/04/0031-lispqr.org][lispqr]] ([[https://twitter.com/svetlyak40wt/status/1247548175352823808][twitter]])
-- 08 April - [[content/2020/04/0032-buildnode.org][buildnode]]
+- 08 April - [[content/2020/04/0032-buildnode.org][buildnode]] ([[https://twitter.com/svetlyak40wt/status/1247931828071211008][twitter]])
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -211,15 +211,17 @@ node of org-mode file:
 
 #+BEGIN_SRC lisp
 
+(defun remove-tags (title)
+  (cl-ppcre:regex-replace-all " :.*:" title ""))
+
+
 (defun get-title (file)
   ;; Title can ends with tags, we need to remove them
   ;; before returning the value
-  (cl-ppcre:regex-replace-all
-   " :.*:"
+  (remove-tags
    (cl-org-mode::node.heading
     (cl-org-mode::node.next-node
-     (get-root file)))
-   ""))
+     (get-root file)))))
 
 #+END_SRC
 
@@ -258,7 +260,40 @@ H1, H2, etc:
 
 (defmethod render-node ((node cl-org-mode::outline-node) stream)
   (cl-who:with-html-output (stream)
-    (:h1 (cl-who:esc (cl-org-mode::node.heading node)))))
+    (:h1 (cl-who:esc (remove-tags
+                      (cl-org-mode::node.heading node)))))
+  (call-render-for-all-children node stream))
+
+#+END_SRC
+
+First outline of the article can have properties. These properties
+describe the state of the project, if it has documentation, how active
+it is, etc. These properties have grades:
+
+- :) everything is good
+- :| means, for example, that documentation exists as a short readme and
+  dont cover all functionality
+- :( the project lack of this category at all.
+
+#+BEGIN_SRC lisp 
+
+(defmethod render-node ((node cl-org-mode::properties-node) stream)
+  (cl-who:with-html-output (stream)
+    (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em;"
+     (mapcar
+      (lambda (item)
+        (render-node item stream))
+      (cl-org-mode::node.children node)))))
+
+(defmethod render-node ((node cl-org-mode::property-node) stream)
+  (cl-who:with-html-output (stream)
+    (:tr
+     (:td :style "padding-left: 0.5rem; padding-right: 0.5rem"
+          (cl-who:esc
+           (cl-org-mode::property-node.property node)))
+     (:td :style "padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD"
+          (cl-who:esc
+           (cl-org-mode::property-node.value node))))))
 
 #+END_SRC
 
@@ -418,16 +453,26 @@ Now it is time to write a code which will render all org mode files into HTML:
   (ppath:join "docs"
               (format nil "~A.html" (car (ppath:splitext (get-filename file))))))
 
+(defmethod render-node ((file file) stream)
+  (render-node (get-root file)
+               stream))
+
+(defun call-render-for-all-children (node stream)
+  (loop for child in (cl-org-mode::node.children node)
+        do (render-node child
+                        stream)))
+
+(defmethod render-node ((file cl-org-mode::org-file) stream)
+  (call-render-for-all-children file stream))
+
 (defun render-file (file)
-  (let ((filename (make-output-filename file))
-        (title (get-title file)))
+  (let ((filename (make-output-filename file)))
     (ensure-directories-exist filename)
     
     (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-      (app-page (stream :title title :index-uri "../../index.html")
+      (app-page (stream :index-uri "../../index.html")
         (cl-who:with-html-output (stream)
-          (doplus:do+ (for node (in-nodes file))
-            (render-node node stream)))))))
+          (render-node file stream))))))
   
 #+END_SRC
 

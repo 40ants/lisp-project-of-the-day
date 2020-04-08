@@ -1,4 +1,12 @@
 * buildnode :data_formats:xml:markup:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests: :|
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
 This library contains tools for building XML based documents of
 different formats.
@@ -11,12 +19,10 @@ Buildnode supports these formats:
 - [[https://developer.mozilla.org/en-US/docs/Archive/Mozilla/XUL][XUL]] - XML User Interface Language, XML-based language for building user interfaces of applications like Firefox.
 - [[https://en.wikipedia.org/wiki/Keyhole_Markup_Language][KML]] - XML notation for expressing geographic annotation and visualization within two-dimensional maps.
 
-Other examples are available [[https://github.com/AccelerationNet/buildnode/tree/master/examples][on the GitHub]].
-
 To test this library, let's make a script which will fetch COVID-19
 stats and produce the Excel spreadsheet.
 
-First, we need a function whuch will fetch data. It uses "dexador" to
+First, we need a function which will fetch data. It uses "dexador" to
 make GET http request and "jonathan" to parse received JSON:
 
 #+BEGIN_SRC lisp
@@ -46,7 +52,7 @@ POFTHEDAY> (get-data)
  ...)
 #+END_SRC
 
-Now we can create the document:
+Now we can create Excel document:
 
 #+BEGIN_SRC lisp
 
@@ -76,6 +82,12 @@ POFTHEDAY> (buildnode:write-doc-to-file * "covid-19.xml")
 #+END_SRC
 
 If we open resulting XML in the Excel, we can find all our data on the
-page:
+page.
+
+As you can see, we can set different properties for cells. For example,
+our title merges across two cells and column headers have their own color:
 
 [[../../media/0032/excel.png]]
+
+So, this library can be used to create files in different XML based formats.
+Other examples are available [[https://github.com/AccelerationNet/buildnode/tree/master/examples][on the GitHub]].
