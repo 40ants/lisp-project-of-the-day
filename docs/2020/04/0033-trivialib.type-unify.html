@@ -42,7 +42,18 @@ POFTHEDAY&gt; (trivialib.type-unify:type-unify1
             &#039;(a) ;; this is a variables for binding
             &#039;(integer * a) ;; the template
             &#039;fixnum)       ;; the type specifier
-((A . 4611686018427387903))</code></pre><p>README contains more <a href="http://quickdocs.org/trivialib.type-unify/">complex examples</a>.</p>
+((A . 4611686018427387903))</code></pre><p>It is also possible to work with other datatypes, for example, with vectors:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (trivialib.type-unify:type-unify1
+            &#039;(a b)
+            &#039;(array a (b))
+            &#039;(array char (3)))
+((A . CHAR) (B . 3))
+
+POFTHEDAY&gt; (trivialib.type-unify:type-unify1
+            &#039;(a b)
+            &#039;(array a (b))
+            &#039;string)
+((A . CHARACTER) (B . *))</code></pre><p>README contains more <a href="http://quickdocs.org/trivialib.type-unify/">complex examples</a>.</p>
 <p>I think, this is the very interesting library for anybody who are doing something with types in Common Lisp.</p>
 </div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
   </body>

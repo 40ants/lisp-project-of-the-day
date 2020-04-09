@@ -42,6 +42,25 @@ POFTHEDAY> (trivialib.type-unify:type-unify1
 
 #+END_SRC
 
+It is also possible to work with other datatypes, for example, with
+vectors:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (trivialib.type-unify:type-unify1
+            '(a b)
+            '(array a (b))
+            '(array char (3)))
+((A . CHAR) (B . 3))
+
+POFTHEDAY> (trivialib.type-unify:type-unify1
+            '(a b)
+            '(array a (b))
+            'string)
+((A . CHARACTER) (B . *))
+
+#+END_SRC
+
 README contains more [[http://quickdocs.org/trivialib.type-unify/][complex examples]].
 
 I think, this is the very interesting library for anybody who are doing
