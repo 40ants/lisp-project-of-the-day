@@ -1,0 +1,48 @@
+* trivialib.type-unify                                      :typing:language:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :)
+:END:
+
+This small library from [[https://twitter.com/guicho271828][@guicho271828]] does some sort of pattern matching
+but for type specifiers.
+
+With "type-unify" you can extract information from type specifiers and
+use it macroses or for other purpose.
+
+This way you might discover interesting traits of a type such as a
+limits of a number.
+
+Of cause, in these examples limits are obvious, but in real life you
+might not know which type specifier user will pass to your macro:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (trivialib.type-unify:type-unify1
+            '(a)
+            '(integer * a)
+            '(unsigned-byte 8))
+((A . 255))
+
+POFTHEDAY> (trivialib.type-unify:type-unify1
+            '(a b)
+            '(integer a b)
+            '(signed-byte 8))
+((A . -128) (B . 127))
+
+POFTHEDAY> (trivialib.type-unify:type-unify1
+            '(a) ;; this is a variables for binding
+            '(integer * a) ;; the template
+            'fixnum)       ;; the type specifier
+((A . 4611686018427387903))
+
+#+END_SRC
+
+README contains more [[http://quickdocs.org/trivialib.type-unify/][complex examples]].
+
+I think, this is the very interesting library for anybody who are doing
+something with types in Common Lisp.

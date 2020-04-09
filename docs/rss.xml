@@ -21,7 +21,7 @@ It produces either a matrix, which you can render on your own:
 </description>
         </item>
         <item>
-            <title>skippy-renderer &amp; zpng                                          </title>
+            <title>skippy-renderer &amp; zpng</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html</link>
             <description>
 Today I&apos;d like to tell you about two libraries:
@@ -230,7 +230,7 @@ In this example I create an empty hash table and set two keys:
 </description>
         </item>
         <item>
-            <title>archive &amp; gzip-stream                                             </title>
+            <title>archive &amp; gzip-stream</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/03/0019-archive.html</link>
             <description>
 This is a pure Common Lisp implementation of TAR and CPIO.
