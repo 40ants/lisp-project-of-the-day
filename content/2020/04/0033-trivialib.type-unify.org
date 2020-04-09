@@ -12,20 +12,20 @@ This small library from [[https://twitter.com/guicho271828][@guicho271828]] does
 but for type specifiers.
 
 With "type-unify" you can extract information from type specifiers and
-use it macroses or for other purpose.
+use it macroses or for other purposes.
 
-This way you might discover interesting traits of a type such as a
+This way you might discover interesting traits of a type such as the
 limits of a number.
 
-Of cause, in these examples limits are obvious, but in real life you
+Of cause, in these examples limits are obvious, but in real life, you
 might not know which type specifier user will pass to your macro:
 
 #+BEGIN_SRC lisp
 
 POFTHEDAY> (trivialib.type-unify:type-unify1
-            '(a)
-            '(integer * a)
-            '(unsigned-byte 8))
+            '(a)       ;; this is a variable bindings
+            '(integer * a)      ;; the template
+            '(unsigned-byte 8)) ;; the type specifier
 ((A . 255))
 
 POFTHEDAY> (trivialib.type-unify:type-unify1
@@ -35,9 +35,9 @@ POFTHEDAY> (trivialib.type-unify:type-unify1
 ((A . -128) (B . 127))
 
 POFTHEDAY> (trivialib.type-unify:type-unify1
-            '(a) ;; this is a variables for binding
-            '(integer * a) ;; the template
-            'fixnum)       ;; the type specifier
+            '(a)
+            '(integer * a)
+            'fixnum)
 ((A . 4611686018427387903))
 
 #+END_SRC

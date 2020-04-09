@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivialib.type-unify</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html</link>
+            <description> |</description>
+        </item>
+        <item>
             <title>buildnode</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0032-buildnode.html</link>
             <description> (</description>
@@ -315,21 +320,6 @@ This library allows you to work with the serial port. It uses cffi to
 make system calls and should work on Linux, OSX and Windows.
 
 To test it, I wrote this small program for my Arduino UNO:
-
-</description>
-        </item>
-        <item>
-            <title>doplus</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0013-doplus.html</link>
-            <description>
-Do+ is a macro, similar to &apos;loop&apos; or &apos;iterate&apos;, but built with
-simplicity in mind.
-
-Documentation is good and contains some examples showing how does
-iteration works and how to extend the behaviour and add new iteration
-methods.
-
-Here is a simple iteration on the list:
 
 </description>
         </item>
