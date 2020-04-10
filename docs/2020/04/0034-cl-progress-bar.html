@@ -33,7 +33,7 @@
 
 Testing the progressbar
 ==================================================
-Finished in 10.26 seconds</code></pre><p>Rederer is very simple and can be ruined by any other output, you program produce during the loop:</p>
+Finished in 10.26 seconds</code></pre><p>The renderer is very simple and can be ruined by any other output, your program produce during the loop:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (cl-progress-bar:with-progress-bar
                  (100 &quot;Testing the progressbar&quot;)
                (loop for i from 1 upto 100
@@ -55,8 +55,8 @@ Testing the progressbar
 ======This is 100-th iteration
 
 Finished in 10.28 seconds</code></pre><p>It is interesting, is it possible to detect that some output was written to the *standard-output* and to rerender the progress bar in full length?</p>
-<p>Also, it would be nice feature to output estimated time and to support progress bars for unknown number of items.</p>
-<p>For inspiration, you can take a look how Python library "tqdm" processes progress bars:</p>
+<p>Also, it would be a nice feature to output estimated time and to support progress bars for an unknown number of items.</p>
+<p>For inspiration, you can take a look at how Python library "tqdm" processes progress bars:</p>
 <p><img style="max-width: 100%" src="https://raw.githubusercontent.com/tqdm/tqdm/master/images/tqdm.gif"/></p>
 <p>By the way, I found, this library uses <a href="http://quickdocs.org/documentation-utils/">documentation-utils</a> and keeps it's docstrings in a separate file. So, when you navigate to the function source, you will not see docstrings.</p>
 <p>But if you hit C-c C-d C-d in Emacs, it will show you this nice description:</p>
