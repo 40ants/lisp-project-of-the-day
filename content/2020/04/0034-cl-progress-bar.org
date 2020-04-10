@@ -8,12 +8,12 @@
 :CI:       :(
 :END:
 
-This small library provides a facitity to display simple progress-bars
-in the REPL or command line app.
+This small library provides a facility to display simple progress-bars
+in the REPL or command-line app.
 
 The progress bar is hidden by default and you need to set a variable to
 make it rendered. This can be useful in apps which can be running as a
-part of the unix pipeline.
+part of the UNIX pipeline.
 
 In this small example, I create a progress bar and update it in a loop:
 
@@ -62,6 +62,14 @@ Finished in 10.28 seconds
 
 It is interesting, is it possible to detect that some output was written
 to the *standard-output* and to rerender the progress bar in full length?
+
+Also, it would be nice feature to output estimated time and to support
+progress bars for unknown number of items.
+
+For inspiration, you can take a look how Python library "tqdm" processes
+progress bars:
+
+[[https://raw.githubusercontent.com/tqdm/tqdm/master/images/tqdm.gif]]
 
 By the way, I found, this library uses [[http://quickdocs.org/documentation-utils/][documentation-utils]] and keeps
 it's docstrings in a separate file. So, when you navigate to the

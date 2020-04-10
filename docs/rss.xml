@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-progress-bar</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0034-cl-progress-bar.html</link>
+            <description> |</description>
+        </item>
+        <item>
             <title>trivialib.type-unify</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html</link>
             <description> |</description>
@@ -309,17 +314,6 @@ This library implements a BERT serializer which is a part of the
 &lt;a href=&quot;http://bert-rpc.org/&quot;&gt;BERT-RPC&lt;/a&gt;, invented and used inside the GitHub.
 
 Let&apos;s try how it serializes Lisp structures:
-
-</description>
-        </item>
-        <item>
-            <title>cserial-port</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0014-cserial-port.html</link>
-            <description>
-This library allows you to work with the serial port. It uses cffi to
-make system calls and should work on Linux, OSX and Windows.
-
-To test it, I wrote this small program for my Arduino UNO:
 
 </description>
         </item>
