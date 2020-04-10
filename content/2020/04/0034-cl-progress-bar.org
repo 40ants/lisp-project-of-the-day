@@ -108,3 +108,29 @@ WITH-PROGRESS-BAR names a macro:
 
 I think this is inconvenient. What do you think about this way of
 keeping documentation for the code?
+
+** Update on code documentation
+
+What if somebody create an extended defun macro which will make it
+possible to combine type annotations and documentation like that:
+
+#+BEGIN_SRC lisp
+
+(defun* update ((unit-count (integer 1 *)
+                            "How many steps has been finished?")
+                &optional
+                (progress-bar (or null cl-progress-bar.progress:progress-bar)
+                              *progress-bar*
+                              "Instance of progress-bar. Usually should be
+                               left with default (namely: *progress-bar*)."))
+  -> null
+  (:doc "Notify progress bar about step completion."
+   :thread-safety "This function is thread safe.")
+  
+  (when progress-bar
+    (bt:with-lock-held ((cl-progress-bar.progress:mutex progress-bar))
+      (cl-progress-bar.progress:update-progress progress-bar unit-count))))
+  
+#+END_SRC
+
+In this example I moved all docstrings from [[https://github.com/sirherrbatka/cl-progress-bar/blob/master/src/docstrings.lisp][the separate file]] into the function.

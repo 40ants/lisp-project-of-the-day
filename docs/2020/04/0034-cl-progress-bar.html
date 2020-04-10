@@ -83,6 +83,21 @@ WITH-PROGRESS-BAR names a macro:
      However, top level with-progress-bar should
      contain correct steps-count.
   Source file: /Users/art/poftheday/.qlot/...</code></pre><p>I think this is inconvenient. What do you think about this way of keeping documentation for the code?</p>
+<h1>Update on code documentation</h1><p>What if somebody create an extended defun macro which will make it possible to combine type annotations and documentation like that:</p>
+<pre><code class=' lisp'>(defun* update ((unit-count (integer 1 *)
+                            &quot;How many steps has been finished?&quot;)
+                &amp;optional
+                (progress-bar (or null cl-progress-bar.progress:progress-bar)
+                              *progress-bar*
+                              &quot;Instance of progress-bar. Usually should be
+                               left with default (namely: *progress-bar*).&quot;))
+  -&gt; null
+  (:doc &quot;Notify progress bar about step completion.&quot;
+   :thread-safety &quot;This function is thread safe.&quot;)
+  
+  (when progress-bar
+    (bt:with-lock-held ((cl-progress-bar.progress:mutex progress-bar))
+      (cl-progress-bar.progress:update-progress progress-bar unit-count))))</code></pre><p>In this example I moved all docstrings from <a href="https://github.com/sirherrbatka/cl-progress-bar/blob/master/src/docstrings.lisp">the separate file</a> into the function.</p>
 </div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
   </body>
 </html>
