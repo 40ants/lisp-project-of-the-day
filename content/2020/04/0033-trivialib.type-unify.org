@@ -42,7 +42,7 @@ POFTHEDAY> (trivialib.type-unify:type-unify1
 
 #+END_SRC
 
-It is also possible to work with other datatypes, for example, with
+It is also possible to work with other data types, for example, with
 vectors:
 
 #+BEGIN_SRC lisp
@@ -63,5 +63,5 @@ POFTHEDAY> (trivialib.type-unify:type-unify1
 
 README contains more [[http://quickdocs.org/trivialib.type-unify/][complex examples]].
 
-I think, this is the very interesting library for anybody who are doing
+I think this is a very interesting library for anybody who is doing
 something with types in Common Lisp.

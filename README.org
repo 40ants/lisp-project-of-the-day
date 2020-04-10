@@ -12,6 +12,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 07 April - [[content/2020/04/0031-lispqr.org][lispqr]] ([[https://twitter.com/svetlyak40wt/status/1247548175352823808][twitter]])
 - 08 April - [[content/2020/04/0032-buildnode.org][buildnode]] ([[https://twitter.com/svetlyak40wt/status/1247931828071211008][twitter]])
 - 09 April - [[content/2020/04/0033-trivialib.type-unify.org][trivialib.type-unify]] ([[https://twitter.com/svetlyak40wt/status/1248304050778583040][twitter]])
+- 10 April - [[content/2020/04/0034-cl-progress-bar.org][cl-progress-bar]]
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])

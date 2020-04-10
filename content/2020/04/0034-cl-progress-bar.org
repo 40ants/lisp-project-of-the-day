@@ -1,0 +1,102 @@
+* cl-progress-bar :commandline:terminal:ui:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This small library provides a facitity to display simple progress-bars
+in the REPL or command line app.
+
+The progress bar is hidden by default and you need to set a variable to
+make it rendered. This can be useful in apps which can be running as a
+part of the unix pipeline.
+
+In this small example, I create a progress bar and update it in a loop:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (cl-progress-bar:with-progress-bar
+               (100 "Testing the progressbar")
+             (loop for i from 1 upto 100
+                   do (cl-progress-bar:update 1)
+                      (sleep 0.1)))
+
+Testing the progressbar
+==================================================
+Finished in 10.26 seconds
+
+#+END_SRC
+
+Rederer is very simple and can be ruined by any other output, you
+program produce during the loop:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (cl-progress-bar:with-progress-bar
+                 (100 "Testing the progressbar")
+               (loop for i from 1 upto 100
+                     do (cl-progress-bar:update 1)
+                        (when (zerop (mod i 10))
+                          (format t "This is ~A-th iteration~%" i))
+                        (sleep 0.1)))
+
+Testing the progressbar
+=====This is 10-th iteration
+====This is 20-th iteration
+=====This is 30-th iteration
+======This is 40-th iteration
+====This is 50-th iteration
+=====This is 60-th iteration
+======This is 70-th iteration
+====This is 80-th iteration
+=====This is 90-th iteration
+======This is 100-th iteration
+
+Finished in 10.28 seconds
+
+#+END_SRC
+
+It is interesting, is it possible to detect that some output was written
+to the *standard-output* and to rerender the progress bar in full length?
+
+By the way, I found, this library uses [[http://quickdocs.org/documentation-utils/][documentation-utils]] and keeps
+it's docstrings in a separate file. So, when you navigate to the
+function source, you will not see docstrings.
+
+But if you hit C-c C-d C-d in Emacs, it will show you this nice
+description:
+
+#+BEGIN_SRC text
+
+CL-PROGRESS-BAR:WITH-PROGRESS-BAR
+  [symbol]
+
+WITH-PROGRESS-BAR names a macro:
+  Lambda-list: ((CL-PROGRESS-BAR::STEPS-COUNT
+                 CL-PROGRESS-BAR::DESCRIPTION &REST
+                 CL-PROGRESS-BAR::DESC-ARGS)
+                &BODY CL-PROGRESS-BAR::BODY)
+  Documentation:
+    Description:
+     Macro. Build active progress bar. Requires size
+     and description that will be printed out to
+     the REPL. If *progress-bar-endabled* is nil or
+     there is another progress bar active already
+     progress bar will not be shown.
+    
+    Notes:
+     Because with-progress-bar handles cases where
+     another progress-bar is active it is generally
+     safe to nest code with this macro on call stack.
+     However, top level with-progress-bar should
+     contain correct steps-count.
+  Source file: /Users/art/poftheday/.qlot/...
+
+#+END_SRC
+
+I think this is inconvenient. What do you think about this way of
+keeping documentation for the code?
