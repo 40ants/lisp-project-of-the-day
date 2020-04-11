@@ -654,6 +654,60 @@ relative path. However, it operates with strings, not pathnames.
 
 #+END_SRC
 
+* A way to find intereting stats from Quicklisp
+This morning I decided to do a week of ASDF extensions review. There is
+incomplete [[https://common-lisp.net/project/asdf/#extensions][listing of ASDF extensions]] in it's documentation, but how
+to find all available ASDF extensions? Obviously, by parsing all "*.asd"
+files, and extracting their ":defsystem-depends-on".
+
+#+BEGIN_SRC lisp
+
+(defun install-all-quicklisp ()
+  (loop with dist = (ql-dist:find-dist "quicklisp")
+        with releases = (ql-dist:provided-releases dist)
+        for release in releases
+        do (ql-dist:install release)))
+
+(defun get-software-dir ()
+  (let ((dist (ql-dist:find-dist "quicklisp")))
+    (ql-dist:relative-to dist
+                         (make-pathname :directory
+                                        (list :relative "software")))))
+
+(defun grep-defsystem-depends ()
+  "Returns lines produced by grep"
+  (str:split #\Newline
+             (with-output-to-string (s)
+               (uiop:run-program (format nil "find ~A -name '*.asd' -print0 | xargs -0 grep -i defsystem-depends-on"
+                                         (get-software-dir))
+                                 :output s))))
+
+(defun extract-systems (line)
+  (when (str:contains? "defsystem-depends-on"
+                       line)
+    (loop with names = (str:words
+                        (cl-ppcre:regex-replace
+                         ".*:defsystem-depends-on.*\\((.*?)\\).*"
+                         line
+                         "\\1"))
+          for name in names
+          collect (string-trim "\":#"
+                               name))))
+
+(defun get-asdf-extensions ()
+  (loop with result = (make-hash-table :test #'equal)
+        for line in (grep-defsystem-depends)
+        for systems = (extract-systems line)
+        do (loop for system in systems
+                 do (push line (gethash system result nil)))
+        finally  (return
+                   (loop with sorted = (sort (alexandria:hash-table-alist result)
+                                             #'>
+                                             :key (lambda (item)
+                                                    (length (cdr item))))
+                         for (system . lines) in sorted
+                         collect (cons system (length lines))))))
+#+END_SRC
 * Good candidates for review
 - a bunch of hu.dwim.* systems seems can be very interesting. We can
   make "A Week of DWIM.HU"!
