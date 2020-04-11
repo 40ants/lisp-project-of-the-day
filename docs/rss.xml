@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-mmap</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0035-trivial-mmap.html</link>
+            <description> |</description>
+        </item>
+        <item>
             <title>cl-progress-bar</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0034-cl-progress-bar.html</link>
             <description> |</description>
@@ -303,17 +308,6 @@ Macro itself is not documented, but I found documentation on Franz
 site: https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm
 
 Here is an example:
-
-</description>
-        </item>
-        <item>
-            <title>cl-bert</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html</link>
-            <description>
-This library implements a BERT serializer which is a part of the
-&lt;a href=&quot;http://bert-rpc.org/&quot;&gt;BERT-RPC&lt;/a&gt;, invented and used inside the GitHub.
-
-Let&apos;s try how it serializes Lisp structures:
 
 </description>
         </item>

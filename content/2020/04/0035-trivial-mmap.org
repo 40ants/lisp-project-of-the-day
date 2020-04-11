@@ -11,7 +11,7 @@
 This library provides a few functions and macros to work with memory
 mapped files from Lisp.
 
-Memory mapped files are useful when you need to process large amount of
+Memory-mapped files are useful when you need to process a large amount of
 data which may not fit into the RAM. At the end I'll give a link to the
 article which more detail, but now let's see how it works on a small example.
 
@@ -33,18 +33,18 @@ POFTHEDAY> (coerce * 'string)
 
 #+END_SRC
 
-Of cause, in this syntetic example we aren't having any profits from
-using mmap. To feel the difference we need to operate on gygabytes of
+Of cause, in this synthetic example we aren't having any profits from
+using mmap. To feel the difference we need to operate on gigabytes of
 data.
 
-Usually, this technick is used by databases and image/video processing
+Usually, this technique is used by databases and image/video processing
 software.
 
-When using mmap, you can access content of the file like you do with
-usual memory array. But in Common Lisp you will need to use CFFI.
+When using mmap, you can access the content of the file like you do with
+a usual memory array. But in Common Lisp, you will need to use CFFI.
 
-Here is a function which reads a "byte" from the memory mapped file. It
-increments a pointer and fetches an unsigned byte from the array.
+Here is a function which reads a "byte" from the memory-mapped file. It
+increments a pointer and fetches an unsigned byte from the array:
 
 #+BEGIN_SRC lisp
 
@@ -55,9 +55,9 @@ the POINTER-TO-MMAP-FILE pointer, offset by OFFSET bytes."
 
 #+END_SRC
 
-On top of this, you may implement your own datastractures. By the way,
+On top of this, you may implement your own data structures. By the way,
 for serialization/deserialization you may try [[http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html][cl-conspack]], reviewed a
 week ago.
 
-Finally, I want to give [[https://www.kdab.com/making-the-most-of-your-memory-with-mmap/][a link]] to the article describing when this
-the memory mapped files can be useful.
+Finally, I want to give [[https://www.kdab.com/making-the-most-of-your-memory-with-mmap/][a link]] to the article describing when
+the memory-mapped files can be useful.
