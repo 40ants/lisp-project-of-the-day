@@ -1,0 +1,63 @@
+* trivial-mmap :system:posix:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :|
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(s
+:CI:       :(
+:END:
+
+This library provides a few functions and macros to work with memory
+mapped files from Lisp.
+
+Memory mapped files are useful when you need to process large amount of
+data which may not fit into the RAM. At the end I'll give a link to the
+article which more detail, but now let's see how it works on a small example.
+
+The main entry point is the "with-mmap-file" it opens the file and maps
+its content into the memory.
+
+Also, "trivial-mmap" provides few functions for sequential reads from
+the file by "char" or by "byte":
+
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (trivial-mmap:with-mmap-file (file "/tmp/the-file.dat")
+             (loop for i upto 16
+                   collect (trivial-mmap:mmap-read-char file)))
+(#\H #\e #\l #\l #\o #\  #\L #\i #\s #\p #\  #\W #\o #\r #\l #\d #\!)
+POFTHEDAY> (coerce * 'string)
+"Hello Lisp World!"
+
+#+END_SRC
+
+Of cause, in this syntetic example we aren't having any profits from
+using mmap. To feel the difference we need to operate on gygabytes of
+data.
+
+Usually, this technick is used by databases and image/video processing
+software.
+
+When using mmap, you can access content of the file like you do with
+usual memory array. But in Common Lisp you will need to use CFFI.
+
+Here is a function which reads a "byte" from the memory mapped file. It
+increments a pointer and fetches an unsigned byte from the array.
+
+#+BEGIN_SRC lisp
+
+(defun %mmap-read-byte (pointer-to-mmap-file offset)
+  "Reads and returns one byte from a memory-mapped file pointed to by
+the POINTER-TO-MMAP-FILE pointer, offset by OFFSET bytes."
+  (cffi:mem-aref (cffi:inc-pointer pointer-to-mmap-file offset) :uint8))
+
+#+END_SRC
+
+On top of this, you may implement your own datastractures. By the way,
+for serialization/deserialization you may try [[http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html][cl-conspack]], reviewed a
+week ago.
+
+Finally, I want to give [[https://www.kdab.com/making-the-most-of-your-memory-with-mmap/][a link]] to the article describing when this
+the memory mapped files can be useful.
