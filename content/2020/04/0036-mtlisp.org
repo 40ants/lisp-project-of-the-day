@@ -1,4 +1,12 @@
 * mtlisp :utils:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :|
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
 Today I want to present you a utility library, collected and written by
 [[https://github.com/mtravers][Mike Travers]]. It's name is "mtlisp" and it consist of different
@@ -91,7 +99,7 @@ Producing fibbonachi for 0
 
 #+END_SRC
 
-Another interesting feature of "mtutils" is "closstar" package. It
+Another interesting feature of "mtlisp" is "closstar" package. It
 combines features of CLOS with its predecessor - [[https://en.wikipedia.org/wiki/Flavors_(programming_language)][Flavors]].
 
 This package is based on previous Mike's work [[https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp][Artificial Flavors]] made in 88-89
@@ -161,5 +169,5 @@ That is because "defmethod*" calls "with-slots" under the hood:
 
 #+END_SRC
 
-To conclude, mtutils is unsupported now but might include hidden
+To conclude, "mtlisp" is unsupported now but might include hidden
 gems. Perhaps one day there will be a craftsman who will cut them.

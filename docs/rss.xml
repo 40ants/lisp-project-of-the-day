@@ -8,22 +8,7 @@
         <item>
             <title>mtlisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0036-mtlisp.html</link>
-            <description>
-Today I want to present you a utility library, collected and written by
-&lt;a href=&quot;https://github.com/mtravers&quot;&gt;Mike Travers&lt;/a&gt;. It&apos;s name is &quot;mtlisp&quot; and it consist of different
-functionality, collected into one package.
-
-I&apos;ve contacted Mike and he suggested two the most interesting
-features of &quot;mtlisp&quot; system.
-
-First interesting part is &quot;ctrace&quot;. It solves the problem of
-interleaved output which you&apos;ll have when working with standard trace,
-builtin into Lisp REPL.
-
-Let&apos;s pretend we have a function we&apos;d like to trace but it prints
-something to stdout and breaks our nice traces, making them hard to read:
-
-</description>
+            <description> (</description>
         </item>
         <item>
             <title>trivial-mmap</title>
