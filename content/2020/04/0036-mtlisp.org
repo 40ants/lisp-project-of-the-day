@@ -1,13 +1,13 @@
 * mtlisp :utils:
 
-Today I want to present you an utility library, collected and written by
+Today I want to present you a utility library, collected and written by
 [[https://github.com/mtravers][Mike Travers]]. It's name is "mtlisp" and it consist of different
 functionality, collected into one package.
 
-I've contacted with Mike and he suggested two the most interesting
+I've contacted Mike and he suggested two the most interesting
 features of "mtlisp" system.
 
-First interesting facility is "ctrace". It solves the problem of
+First interesting part is "ctrace". It solves the problem of
 interleaved output which you'll have when working with standard trace,
 builtin into Lisp REPL.
 
@@ -52,11 +52,11 @@ Producing fibbonachi for 0
 
 #+END_SRC
 
-Ctrace facility collects traces into a separate datastructure and prints
+Ctrace collects traces into a separate data structure and prints
 it after the function execution. Probably it also has other features.
 
 The problem is that it works only in AllegroCL, CCL and ABCL, because
-uses "function advices".
+uses [[https://ccl.clozure.com/docs/ccl.html#advising][function advices]].
 
 I have problems with running ClozureCL and AllegroCL on latest OSX, and mtlisp depends
 on "acl-compat" which can't be loaded into ABCL. Also, I encounter other
@@ -92,9 +92,9 @@ Producing fibbonachi for 0
 #+END_SRC
 
 Another interesting feature of "mtutils" is "closstar" package. It
-combines features of CLOS with its predcessor - [[https://en.wikipedia.org/wiki/Flavors_(programming_language)][Flavors]].
+combines features of CLOS with its predecessor - [[https://en.wikipedia.org/wiki/Flavors_(programming_language)][Flavors]].
 
-This package is based on previos Mike's work [[https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp][Artificial Flavors]] made in 88-89
+This package is based on previous Mike's work [[https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp][Artificial Flavors]] made in 88-89
 years. I was only 8 years old, when this man wrote such interesting things!
 
 Defclass* macro allows to define classes in a more concise way, almost
@@ -130,7 +130,7 @@ NIL
 #+END_SRC
 
 Besides brevity, "defclass*" has other interesting features. Take a look
-at it's definition to learn more.
+at its definition to learn more.
 
 Closstar has it's own counterpart of "defmethod" - "defmethod*":
 

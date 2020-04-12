@@ -6,6 +6,26 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>mtlisp</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0036-mtlisp.html</link>
+            <description>
+Today I want to present you a utility library, collected and written by
+&lt;a href=&quot;https://github.com/mtravers&quot;&gt;Mike Travers&lt;/a&gt;. It&apos;s name is &quot;mtlisp&quot; and it consist of different
+functionality, collected into one package.
+
+I&apos;ve contacted Mike and he suggested two the most interesting
+features of &quot;mtlisp&quot; system.
+
+First interesting part is &quot;ctrace&quot;. It solves the problem of
+interleaved output which you&apos;ll have when working with standard trace,
+builtin into Lisp REPL.
+
+Let&apos;s pretend we have a function we&apos;d like to trace but it prints
+something to stdout and breaks our nice traces, making them hard to read:
+
+</description>
+        </item>
+        <item>
             <title>trivial-mmap</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0035-trivial-mmap.html</link>
             <description> |</description>
@@ -285,29 +305,6 @@ plugin for blogging software like :coleslaw.
 
 cl-org-mode has no any exported functions, but you can read it&apos;s sources
 and &lt;a href=&quot;https://common-lisp.net/project/cl-org-mode/&quot;&gt;documentation&lt;/a&gt;:
-
-</description>
-        </item>
-        <item>
-            <title>kmrcl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0016-kmrcl.html</link>
-            <description>
-This is a collection of utility functions by Kevin M. Rosenberg.
-It includes a wide range of tools and is completely undocumented :(
-
-Kmrcl is like :alexandria, :rutils or serapeuim.
-
-All symbols are in the :kmrcl package and to distinguish which
-functionality is covered by this library, it is better to download its
-source from &lt;a href=&quot;http://files.kpe.io/kmrcl/&quot;&gt;http://files.kpe.io/kmrcl/&lt;/a&gt; Functionality is separated by
-files.
-
-Here is one interesting macro - if* from AllegroCL.
-
-Macro itself is not documented, but I found documentation on Franz
-site: https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm
-
-Here is an example:
 
 </description>
         </item>
