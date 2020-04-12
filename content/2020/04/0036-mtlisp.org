@@ -1,0 +1,165 @@
+* mtlisp :utils:
+
+Today I want to present you an utility library, collected and written by
+[[https://github.com/mtravers][Mike Travers]]. It's name is "mtlisp" and it consist of different
+functionality, collected into one package.
+
+I've contacted with Mike and he suggested two the most interesting
+features of "mtlisp" system.
+
+First interesting facility is "ctrace". It solves the problem of
+interleaved output which you'll have when working with standard trace,
+builtin into Lisp REPL.
+
+Let's pretend we have a function we'd like to trace but it prints
+something to stdout and breaks our nice traces, making them hard to read:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defun fib (n &optional (a 0) (b 1) (acc ()))
+             (format t "Producing fibbonachi for ~A~%"
+                     n)
+             (if (zerop n)
+                 (nreverse acc)
+                 (fib (1- n)
+                      b
+                      (+ a b)
+                      (cons a acc))))
+
+POFTHEDAY> (trace fib)
+(FIB)
+  
+POFTHEDAY> (fib 5)
+  0: (POFTHEDAY::FIB 5)
+Producing fibbonachi for 5
+    1: (POFTHEDAY::FIB 4 1 1 (0))
+Producing fibbonachi for 4
+      2: (POFTHEDAY::FIB 3 1 2 (1 0))
+Producing fibbonachi for 3
+        3: (POFTHEDAY::FIB 2 2 3 (1 1 0))
+Producing fibbonachi for 2
+          4: (POFTHEDAY::FIB 1 3 5 (2 1 1 0))
+Producing fibbonachi for 1
+            5: (POFTHEDAY::FIB 0 5 8 (3 2 1 1 0))
+Producing fibbonachi for 0
+            5: FIB returned (0 1 1 2 3)
+          4: FIB returned (0 1 1 2 3)
+        3: FIB returned (0 1 1 2 3)
+      2: FIB returned (0 1 1 2 3)
+    1: FIB returned (0 1 1 2 3)
+  0: FIB returned (0 1 1 2 3)
+(0 1 1 2 3)
+
+#+END_SRC
+
+Ctrace facility collects traces into a separate datastructure and prints
+it after the function execution. Probably it also has other features.
+
+The problem is that it works only in AllegroCL, CCL and ABCL, because
+uses "function advices".
+
+I have problems with running ClozureCL and AllegroCL on latest OSX, and mtlisp depends
+on "acl-compat" which can't be loaded into ABCL. Also, I encounter other
+problems trying to load the library into ABCL :(
+
+However, I found it is possible to outcome standard trace's behaviour with rebinding
+*trace-output* stream:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (with-output-to-string (*trace-output*)
+             (fib 5))
+Producing fibbonachi for 5
+Producing fibbonachi for 4
+Producing fibbonachi for 3
+Producing fibbonachi for 2
+Producing fibbonachi for 1
+Producing fibbonachi for 0
+"  0: (POFTHEDAY::FIB 5)
+    1: (POFTHEDAY::FIB 4 1 1 (0))
+      2: (POFTHEDAY::FIB 3 1 2 (1 0))
+        3: (POFTHEDAY::FIB 2 2 3 (1 1 0))
+          4: (POFTHEDAY::FIB 1 3 5 (2 1 1 0))
+            5: (POFTHEDAY::FIB 0 5 8 (3 2 1 1 0))
+            5: FIB returned (0 1 1 2 3)
+          4: FIB returned (0 1 1 2 3)
+        3: FIB returned (0 1 1 2 3)
+      2: FIB returned (0 1 1 2 3)
+    1: FIB returned (0 1 1 2 3)
+  0: FIB returned (0 1 1 2 3)
+"
+
+#+END_SRC
+
+Another interesting feature of "mtutils" is "closstar" package. It
+combines features of CLOS with its predcessor - [[https://en.wikipedia.org/wiki/Flavors_(programming_language)][Flavors]].
+
+This package is based on previos Mike's work [[https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp][Artificial Flavors]] made in 88-89
+years. I was only 8 years old, when this man wrote such interesting things!
+
+Defclass* macro allows to define classes in a more concise way, almost
+like you do with defstruct:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (closstar:defclass* blah ()
+             (foo
+              (bar nil)))
+#<STANDARD-CLASS POFTHEDAY::BLAH>
+POFTHEDAY> (describe *)
+#<STANDARD-CLASS POFTHEDAY::BLAH>
+  [standard-object]
+
+
+Direct superclasses: STANDARD-OBJECT
+No subclasses.
+Not yet finalized.
+Direct slots:
+  FOO
+  BAR
+
+POFTHEDAY> (defvar *v* (make-instance 'blah))
+*V*
+POFTHEDAY> (slot-boundp *v* 'foo)
+NIL
+POFTHEDAY> (slot-boundp *v* 'bar)
+T
+POFTHEDAY> (slot-value *v* 'bar)
+NIL
+
+#+END_SRC
+
+Besides brevity, "defclass*" has other interesting features. Take a look
+at it's definition to learn more.
+
+Closstar has it's own counterpart of "defmethod" - "defmethod*":
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (closstar:defmethod* describe-this ((self blah))
+             (format t "A BLAH object with bar=~A~%"
+                     bar))
+
+POFTHEDAY> (describe-this *v*)
+A BLAH object with bar=NIL
+NIL
+
+#+END_SRC
+
+What is interesting here is that inside method body you can access all
+object's slots without having to call slot-value or accessor explicitly.
+
+That is because "defmethod*" calls "with-slots" under the hood:
+
+#+BEGIN_SRC lisp
+
+(defmethod describe-this ((self blah))
+  (with-slots (bar foo)
+      self
+    (declare (ignorable bar foo))
+    (format t "A BLAH object with bar=~A~%" bar)))
+
+#+END_SRC
+
+To conclude, mtutils is unsupported now but might include hidden
+gems. Perhaps one day there will be a craftsman who will cut them.

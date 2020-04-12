@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><h1>mtlisp</h1><p>Today I want to present you an utility library, collected and written by <a href="https://github.com/mtravers">Mike Travers</a>. It's name is "mtlisp" and it consist of different functionality, collected into one package.</p>
+<p>I've contacted with Mike and he suggested two the most interesting features of "mtlisp" system.</p>
+<p>First interesting facility is "ctrace". It solves the problem of interleaved output which you'll have when working with standard trace, builtin into Lisp REPL.</p>
+<p>Let's pretend we have a function we'd like to trace but it prints something to stdout and breaks our nice traces, making them hard to read:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defun fib (n &amp;optional (a 0) (b 1) (acc ()))
+             (format t &quot;Producing fibbonachi for ~A~%&quot;
+                     n)
+             (if (zerop n)
+                 (nreverse acc)
+                 (fib (1- n)
+                      b
+                      (+ a b)
+                      (cons a acc))))
+
+POFTHEDAY&gt; (trace fib)
+(FIB)
+  
+POFTHEDAY&gt; (fib 5)
+  0: (POFTHEDAY::FIB 5)
+Producing fibbonachi for 5
+    1: (POFTHEDAY::FIB 4 1 1 (0))
+Producing fibbonachi for 4
+      2: (POFTHEDAY::FIB 3 1 2 (1 0))
+Producing fibbonachi for 3
+        3: (POFTHEDAY::FIB 2 2 3 (1 1 0))
+Producing fibbonachi for 2
+          4: (POFTHEDAY::FIB 1 3 5 (2 1 1 0))
+Producing fibbonachi for 1
+            5: (POFTHEDAY::FIB 0 5 8 (3 2 1 1 0))
+Producing fibbonachi for 0
+            5: FIB returned (0 1 1 2 3)
+          4: FIB returned (0 1 1 2 3)
+        3: FIB returned (0 1 1 2 3)
+      2: FIB returned (0 1 1 2 3)
+    1: FIB returned (0 1 1 2 3)
+  0: FIB returned (0 1 1 2 3)
+(0 1 1 2 3)</code></pre><p>Ctrace facility collects traces into a separate datastructure and prints it after the function execution. Probably it also has other features.</p>
+<p>The problem is that it works only in AllegroCL, CCL and ABCL, because uses "function advices".</p>
+<p>I have problems with running ClozureCL and AllegroCL on latest OSX, and mtlisp depends on "acl-compat" which can't be loaded into ABCL. Also, I encounter other problems trying to load the library into ABCL :(</p>
+<p>However, I found it is possible to outcome standard trace's behaviour with rebinding *trace-output* stream:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (with-output-to-string (*trace-output*)
+             (fib 5))
+Producing fibbonachi for 5
+Producing fibbonachi for 4
+Producing fibbonachi for 3
+Producing fibbonachi for 2
+Producing fibbonachi for 1
+Producing fibbonachi for 0
+&quot;  0: (POFTHEDAY::FIB 5)
+    1: (POFTHEDAY::FIB 4 1 1 (0))
+      2: (POFTHEDAY::FIB 3 1 2 (1 0))
+        3: (POFTHEDAY::FIB 2 2 3 (1 1 0))
+          4: (POFTHEDAY::FIB 1 3 5 (2 1 1 0))
+            5: (POFTHEDAY::FIB 0 5 8 (3 2 1 1 0))
+            5: FIB returned (0 1 1 2 3)
+          4: FIB returned (0 1 1 2 3)
+        3: FIB returned (0 1 1 2 3)
+      2: FIB returned (0 1 1 2 3)
+    1: FIB returned (0 1 1 2 3)
+  0: FIB returned (0 1 1 2 3)
+&quot;</code></pre><p>Another interesting feature of "mtutils" is "closstar" package. It combines features of CLOS with its predcessor - <a href="https://en.wikipedia.org/wiki/Flavors_(programming_language)">Flavors</a>.</p>
+<p>This package is based on previos Mike's work <a href="https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp">Artificial Flavors</a> made in 88-89 years. I was only 8 years old, when this man wrote such interesting things!</p>
+<p>Defclass* macro allows to define classes in a more concise way, almost like you do with defstruct:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (closstar:defclass* blah ()
+             (foo
+              (bar nil)))
+#&lt;STANDARD-CLASS POFTHEDAY::BLAH&gt;
+POFTHEDAY&gt; (describe *)
+#&lt;STANDARD-CLASS POFTHEDAY::BLAH&gt;
+  [standard-object]
+
+
+Direct superclasses: STANDARD-OBJECT
+No subclasses.
+Not yet finalized.
+Direct slots:
+  FOO
+  BAR
+
+POFTHEDAY&gt; (defvar *v* (make-instance &#039;blah))
+*V*
+POFTHEDAY&gt; (slot-boundp *v* &#039;foo)
+NIL
+POFTHEDAY&gt; (slot-boundp *v* &#039;bar)
+T
+POFTHEDAY&gt; (slot-value *v* &#039;bar)
+NIL</code></pre><p>Besides brevity, "defclass*" has other interesting features. Take a look at it's definition to learn more.</p>
+<p>Closstar has it's own counterpart of "defmethod" - "defmethod*":</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (closstar:defmethod* describe-this ((self blah))
+             (format t &quot;A BLAH object with bar=~A~%&quot;
+                     bar))
+
+POFTHEDAY&gt; (describe-this *v*)
+A BLAH object with bar=NIL
+NIL</code></pre><p>What is interesting here is that inside method body you can access all object's slots without having to call slot-value or accessor explicitly.</p>
+<p>That is because "defmethod*" calls "with-slots" under the hood:</p>
+<pre><code class=' lisp'>(defmethod describe-this ((self blah))
+  (with-slots (bar foo)
+      self
+    (declare (ignorable bar foo))
+    (format t &quot;A BLAH object with bar=~A~%&quot; bar)))</code></pre><p>To conclude, mtutils is unsupported now but might include hidden gems. Perhaps one day there will be a craftsman who will cut them.</p>
+</div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
+  </body>
+</html>
