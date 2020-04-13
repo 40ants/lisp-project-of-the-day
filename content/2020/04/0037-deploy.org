@@ -8,11 +8,11 @@
 :CI:       :(
 :END:
 
-This system from [[https://twitter.com/shinmera][@shinmera]] help to deliver your Lisp application to end
-users. I belive, Nicolas uses it for distribution of computer games to
-make them available for Linux, Windows and OSX.
+This system from [[https://twitter.com/shinmera][@shinmera]] help to deliver your Lisp application to
+end-users. I belive, Nicolas uses it for distribution of computer games
+to make them available for Linux, Windows and OSX.
 
-"Deploy" has following features:
+"Deploy" has the following features:
 
 - it provides useful build/startup hooks;
 - bundles your binary with dynamic libraries;
@@ -88,7 +88,7 @@ completely ready for being delivered to the end user!
 When you run this binary, it will output some additional information
 about hooks exectution and libraries it loads:
 
-#+BEGIN_SRC text
+#+BEGIN_SRC bash
 
 [poftheday]% bin/some
 bin/some
