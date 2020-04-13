@@ -15,6 +15,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 10 April - [[content/2020/04/0034-cl-progress-bar.org][cl-progress-bar]] ([[https://twitter.com/svetlyak40wt/status/1248662624465833989][twitter]])
 - 11 April - [[content/2020/04/0035-trivial-mmap.org][trivial-mmap]] ([[https://twitter.com/svetlyak40wt/status/1249021775742226432][twitter]])
 - 12 April - [[content/2020/04/0036-mtlisp.org][mtlisp]] ([[https://twitter.com/svetlyak40wt/status/1249437833858867200][twitter]])
+- 13 April - [[content/2020/04/0037-deploy.org][deploy]]
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -656,7 +657,7 @@ relative path. However, it operates with strings, not pathnames.
 
 #+END_SRC
 
-* A way to find intereting stats from Quicklisp
+* A way to find interesting stats from Quicklisp
 This morning I decided to do a week of ASDF extensions review. There is
 incomplete [[https://common-lisp.net/project/asdf/#extensions][listing of ASDF extensions]] in it's documentation, but how
 to find all available ASDF extensions? Obviously, by parsing all "*.asd"
@@ -713,37 +714,38 @@ files, and extracting their ":defsystem-depends-on".
 * Good candidates for review
 - a bunch of hu.dwim.* systems seems can be very interesting. We can
   make "A Week of DWIM.HU"!
+- https://github.com/ruricolist/vernacular - interesting system to
+  extend Lisp with other syntax
 
 ASDF extensions:
 
 #+BEGIN_SRC text
 
-hu.dwim.asdf - 150
-prove-asdf - 133
-asdf-encodings - 29
-cffi-grovel - 27
-qt-libs - 22
+hu.dwim.asdf - 150  +
+prove-asdf - 133    ?
+asdf-encodings - 29 +
+cffi-grovel - 27    +
+qt-libs - 22        ?
 asdf-package-system - 16
-iolib.asdf - 13
-trivial-package-manager - 12
+iolib.asdf - 13     + interesting way to muffle sb-int:package-at-variance condition (https://github.com/sionescu/iolib/blame/master/src/base/asdf.lisp, http://www.sbcl.org/manual/#Package-Variance)
+trivial-package-manager - 12 +
 iolib.conf - 11
-trivial-features - 10
-bodge-blobs-support - 9
-com.google.base - 7
+trivial-features - 10        +
+bodge-blobs-support - 9      +
+com.google.base - 7          ? - надо выяснить, как используется
 cffi/c2ffi - 6
 qtools - 5
 prove - 4
 cl-mpi-asdf-integration - 3
 protobuf - 3
-defsystem-depends-on - 3
 simplet-asdf - 3
 asdf - 3
 iolib.grovel - 3
 cl-test-more - 3
-asdf-finalizers - 2
-deploy - 2
+asdf-finalizers - 2          ? выяснить как использовать
+deploy - 2                   +
 gendl-asdf - 2
-literate-lisp - 2
+literate-lisp - 2            +
 iolib.base - 2
 modularize - 2
 cacau-asdf - 2
@@ -753,14 +755,14 @@ quickutil-client-management - 1
 eco - 1
 paren-files - 1
 asdf-dependency-grovel - 1
-asdf-linguist - 1
+asdf-linguist - 1            +
 zacl - 1
 closure-template - 1
 f2cl-asdf - 1
 fiveam - 1
 bytecurry.asdf-ext - 1
 clos-fixtures - 1
-rte - 1
+rte - 1 (regular-type-expression)  ?
 ci-utils-features - 1
 cffi-toolchain - 1
 wild-package-inferred-system - 1

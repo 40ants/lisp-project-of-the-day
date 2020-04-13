@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><h1>deploy</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   :|</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      :(</td></tr></table><p>This system from <a href="https://twitter.com/shinmera">@shinmera</a> help to deliver your Lisp application to end users. I belive, Nicolas uses it for distribution of computer games to make them available for Linux, Windows and OSX.</p>
+<p>"Deploy" has following features:</p>
+<ul><li>it provides useful build/startup hooks;</li><li>bundles your binary with dynamic libraries;</li><li>automatically turns on image compression for SBCL.</li></ul>
+<p>And probably something more.</p>
+<p>This is the minimal application which uses "deploy":</p>
+<pre><code class=' lisp'>;; some.asd
+(defsystem &quot;some&quot;
+  :defsystem-depends-on (:deploy)
+  :build-operation &quot;deploy-op&quot;
+  :build-pathname &quot;some&quot;
+  :entry-point &quot;some:main&quot;
+  :depends-on (#:osicat)
+  :components ((:file &quot;some&quot;)))
+
+;; some.lisp
+(defpackage #:some
+  (:use #:cl)
+  (:export
+   #:main))
+(in-package some)
+
+(defun main ()
+  (format t &quot;Hello Somebody!~%&quot;))</code></pre><p>Now we can build this application using standard "asdf:make" call. But during the build, "deploy" will be called to make its magic:</p>
+<pre><code class=' bash'>[poftheday]% qlot exec ros run --eval &#039;(asdf:make :some)&#039;
+
+; compiling file &quot;/Users/art/poftheday/some.lisp&quot; (written 13 APR 2020 09:44:07 PM):
+; compiling (DEFPACKAGE #:SOME ...)
+; compiling (IN-PACKAGE SOME)
+; compiling (DEFUN MAIN ...)
+; compilation finished in 0:00:00.003
+ ==&gt; Gathering system information.
+   -&gt; Will load the following foreign libs on boot:
+      (#&lt;DEPLOY:LIBRARY LIBOSICAT&gt;)
+ ==&gt; Deploying files to /Users/art/poftheday/bin/
+   -&gt; Copying library #&lt;LIBRARY LIBZ&gt;
+   -&gt; Copying library #&lt;LIBRARY LIBOSICAT&gt;
+ ==&gt; Running build hooks.
+   -&gt; Closing foreign library #&lt;LIBRARY LIBOSICAT&gt;.
+ ==&gt; Dumping image to /Users/art/poftheday/bin/some
+compressed 0 bytes into 8 at level -1
+compressed 32768 bytes into 262 at level -1
+compressed 33882112 bytes into 7608233 at level -1
+compressed 2129920 bytes into 582409 at level -1
+compressed 13238272 bytes into 4127821 at level -1
+  
+[poftheday]% ll bin
+total 25848
+-rw-r--r--  1 art  LD\Domain Users    19K Apr 13 21:45 libosicat.dylib
+-rw-r--r--  1 art  LD\Domain Users   103K Apr 13 21:45 libz.dylib
+-rwxr-xr-x  1 art  LD\Domain Users    12M Apr 13 21:45 some
+[poftheday]%</code></pre><p>As you might notice, our bin directory contains not only the "some" binary, but also two dynamic libraries it depends on. This directory is completely ready for being delivered to the end user!</p>
+<p>When you run this binary, it will output some additional information about hooks exectution and libraries it loads:</p>
+<pre><code class=' text'>[poftheday]% bin/some
+bin/some
+ ==&gt; Performing warm boot.
+   -&gt; Runtime directory is //Users/art/poftheday/bin/
+   -&gt; Resource directory is //Users/art/poftheday/bin/
+ ==&gt; Running boot hooks.
+ ==&gt; Reloading foreign libraries.
+   -&gt; Loading foreign library #&lt;LIBRARY LIBOSICAT&gt;.
+ ==&gt; Launching application.
+Hello Somebody!
+ ==&gt; Epilogue.
+ ==&gt; Running quit hooks.</code></pre><p>If you are writing a command-line application, you might want to suppress this additional output. To accomplish this, set deploy:*status-output* to nil:</p>
+<pre><code class=' bash'>[pofthedayday]% qlot exec ros run \
+   --eval &#039;(asdf:load-system :deploy)&#039; \
+   --eval &#039;(setf deploy:*status-output* nil)&#039; \
+   --eval &#039;(asdf:make :some)&#039;
+
+compressed 0 bytes into 8 at level -1
+compressed 32768 bytes into 262 at level -1
+compressed 33849344 bytes into 7608426 at level -1
+compressed 2129920 bytes into 582398 at level -1
+compressed 13271040 bytes into 4129409 at level -1
+
+[poftheday]% bin/some
+Hello Somebody!</code></pre><p>That is it for today. Tomorrow we'll look at some other Common Lisp system, useful to use with ASDF.</p>
+</div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
+  </body>
+</html>

@@ -1,0 +1,131 @@
+* deploy :asdf_extension:delivering:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :|
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This system from [[https://twitter.com/shinmera][@shinmera]] help to deliver your Lisp application to end
+users. I belive, Nicolas uses it for distribution of computer games to
+make them available for Linux, Windows and OSX.
+
+"Deploy" has following features:
+
+- it provides useful build/startup hooks;
+- bundles your binary with dynamic libraries;
+- automatically turns on image compression for SBCL.
+
+And probably something more.
+
+This is the minimal application which uses "deploy":
+
+#+BEGIN_SRC lisp
+
+;; some.asd
+(defsystem "some"
+  :defsystem-depends-on (:deploy)
+  :build-operation "deploy-op"
+  :build-pathname "some"
+  :entry-point "some:main"
+  :depends-on (#:osicat)
+  :components ((:file "some")))
+
+;; some.lisp
+(defpackage #:some
+  (:use #:cl)
+  (:export
+   #:main))
+(in-package some)
+
+(defun main ()
+  (format t "Hello Somebody!~%"))
+
+#+END_SRC
+
+Now we can build this application using standard "asdf:make" call. But
+during the build, "deploy" will be called to make its magic:
+
+#+BEGIN_SRC bash
+
+[poftheday]% qlot exec ros run --eval '(asdf:make :some)'
+
+; compiling file "/Users/art/poftheday/some.lisp" (written 13 APR 2020 09:44:07 PM):
+; compiling (DEFPACKAGE #:SOME ...)
+; compiling (IN-PACKAGE SOME)
+; compiling (DEFUN MAIN ...)
+; compilation finished in 0:00:00.003
+ ==> Gathering system information.
+   -> Will load the following foreign libs on boot:
+      (#<DEPLOY:LIBRARY LIBOSICAT>)
+ ==> Deploying files to /Users/art/poftheday/bin/
+   -> Copying library #<LIBRARY LIBZ>
+   -> Copying library #<LIBRARY LIBOSICAT>
+ ==> Running build hooks.
+   -> Closing foreign library #<LIBRARY LIBOSICAT>.
+ ==> Dumping image to /Users/art/poftheday/bin/some
+compressed 0 bytes into 8 at level -1
+compressed 32768 bytes into 262 at level -1
+compressed 33882112 bytes into 7608233 at level -1
+compressed 2129920 bytes into 582409 at level -1
+compressed 13238272 bytes into 4127821 at level -1
+  
+[poftheday]% ll bin
+total 25848
+-rw-r--r--  1 art  LD\Domain Users    19K Apr 13 21:45 libosicat.dylib
+-rw-r--r--  1 art  LD\Domain Users   103K Apr 13 21:45 libz.dylib
+-rwxr-xr-x  1 art  LD\Domain Users    12M Apr 13 21:45 some
+[poftheday]%
+
+#+END_SRC
+
+As you might notice, our bin directory contains not only the "some"
+binary, but also two dynamic libraries it depends on. This directory is
+completely ready for being delivered to the end user!
+
+When you run this binary, it will output some additional information
+about hooks exectution and libraries it loads:
+
+#+BEGIN_SRC text
+
+[poftheday]% bin/some
+bin/some
+ ==> Performing warm boot.
+   -> Runtime directory is //Users/art/poftheday/bin/
+   -> Resource directory is //Users/art/poftheday/bin/
+ ==> Running boot hooks.
+ ==> Reloading foreign libraries.
+   -> Loading foreign library #<LIBRARY LIBOSICAT>.
+ ==> Launching application.
+Hello Somebody!
+ ==> Epilogue.
+ ==> Running quit hooks.
+
+#+END_SRC
+
+If you are writing a command-line application, you might want to
+suppress this additional output. To accomplish this, set
+deploy:*status-output* to nil:
+
+#+BEGIN_SRC bash
+
+[pofthedayday]% qlot exec ros run \
+   --eval '(asdf:load-system :deploy)' \
+   --eval '(setf deploy:*status-output* nil)' \
+   --eval '(asdf:make :some)'
+
+compressed 0 bytes into 8 at level -1
+compressed 32768 bytes into 262 at level -1
+compressed 33849344 bytes into 7608426 at level -1
+compressed 2129920 bytes into 582398 at level -1
+compressed 13271040 bytes into 4129409 at level -1
+
+[poftheday]% bin/some
+Hello Somebody!
+
+#+END_SRC
+
+That is it for today. Tomorrow we'll look at some other Common Lisp
+system, useful to use with ASDF.
