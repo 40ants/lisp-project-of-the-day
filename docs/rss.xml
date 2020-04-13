@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>deploy</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0037-deploy.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>mtlisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0036-mtlisp.html</link>
             <description> (</description>
@@ -273,23 +278,6 @@ It has many examples in the README and also an interactive demo where
 you can see all available components.
 
 Here is an of example how to use it:
-
-</description>
-        </item>
-        <item>
-            <title>cl-org-mode</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0017-cl-org-mode.html</link>
-            <description>
-This library contains a parser for Emacs org-mode and a primitive tool
-for doing Literate Programming. If you are looking for better CL
-support for literate programming try :literate-lisp.
-
-This parser can be interesting for people, who want to process org-mode
-files from the Common Lisp. For example, you can use it to write a
-plugin for blogging software like :coleslaw.
-
-cl-org-mode has no any exported functions, but you can read it&apos;s sources
-and &lt;a href=&quot;https://common-lisp.net/project/cl-org-mode/&quot;&gt;documentation&lt;/a&gt;:
 
 </description>
         </item>

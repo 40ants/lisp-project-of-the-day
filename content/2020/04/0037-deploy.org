@@ -83,10 +83,10 @@ total 25848
 
 As you might notice, our bin directory contains not only the "some"
 binary, but also two dynamic libraries it depends on. This directory is
-completely ready for being delivered to the end user!
+completely ready for being delivered to the end-user!
 
-When you run this binary, it will output some additional information
-about hooks exectution and libraries it loads:
+This binary, it will output additional information about executed hooks
+and loaded libraries:
 
 #+BEGIN_SRC bash
 
@@ -128,4 +128,4 @@ Hello Somebody!
 #+END_SRC
 
 That is it for today. Tomorrow we'll look at some other Common Lisp
-system, useful to use with ASDF.
+system, useful when paired to ASDF.
