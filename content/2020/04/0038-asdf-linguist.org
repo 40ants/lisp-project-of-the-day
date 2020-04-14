@@ -11,7 +11,7 @@
 This is a set of extensions for ASDF to compile or preprocess various
 languages with a single tool.
 
-To demostrate, how it works, I've created a small example with system
+To demonstrate, how it works, I've created a small example with a system
 which contains only one [[https://sass-lang.com/][Sass]] stylesheet. Sass is a language which
 compiles into CSS and provides interesting features such as mixins,
 variables and others.
@@ -24,7 +24,7 @@ On OSX it is as simple, as doing:
 brew install node-sass
 #+END_SRC
 
-First, create an ASDF system definition:
+Next, we need to create an ASDF system definition:
 
 #+BEGIN_SRC lisp
 (defsystem "foo"
@@ -33,10 +33,11 @@ First, create an ASDF system definition:
 #+END_SRC
 
 Here we are using special component type ":sass" which is predefined by
-"asdf-linguist". Also we are telling ASDF to load this extenstion before
+"asdf-linguist". Also, we are telling ASDF to load this extension before
 building our system.
 
-Also, we need to create a stylesheet:
+After that, we need to create a stylesheet. It will be hierarchical and
+without semicolons  because this is Sass:
 
 #+BEGIN_SRC css
 section {
@@ -61,7 +62,7 @@ POFTHEDAY> (asdf:load-system :foo)
 
 Here is the result.
 
-#+BEGIN_SRC lisp
+#+BEGIN_SRC css
 section h1 {
   color: red;
 }
