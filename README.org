@@ -16,6 +16,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 11 April - [[content/2020/04/0035-trivial-mmap.org][trivial-mmap]] ([[https://twitter.com/svetlyak40wt/status/1249021775742226432][twitter]])
 - 12 April - [[content/2020/04/0036-mtlisp.org][mtlisp]] ([[https://twitter.com/svetlyak40wt/status/1249437833858867200][twitter]])
 - 13 April - [[content/2020/04/0037-deploy.org][deploy]] ([[https://twitter.com/svetlyak40wt/status/1249776210709708801][twitter]])
+- 14 April - [[content/2020/04/0038-asdf-linguist.org][asdf-linguist]] ([[https://twitter.com/svetlyak40wt/status/1250125216447152128][twitter]])
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -697,7 +698,7 @@ files, and extracting their ":defsystem-depends-on".
           collect (string-trim "\":#"
                                name))))
 
-(defun get-asdf-extensions ()
+(defun get-asdf-extensions (&key show-paths)
   (loop with result = (make-hash-table :test #'equal)
         for line in (grep-defsystem-depends)
         for systems = (extract-systems line)
@@ -709,7 +710,9 @@ files, and extracting their ":defsystem-depends-on".
                                              :key (lambda (item)
                                                     (length (cdr item))))
                          for (system . lines) in sorted
-                         collect (cons system (length lines))))))
+                         collect (cons system (if show-paths
+                                                  lines
+                                                  (length lines)))))))
 #+END_SRC
 * Good candidates for review
 - a bunch of hu.dwim.* systems seems can be very interesting. We can
@@ -738,16 +741,16 @@ qtools - 5
 prove - 4
 cl-mpi-asdf-integration - 3
 protobuf - 3
-simplet-asdf - 3
+simplet-asdf - 3 (test runner)
 asdf - 3
 iolib.grovel - 3
 cl-test-more - 3
 asdf-finalizers - 2          ? выяснить как использовать
-deploy - 2                   +
+deploy - 2                   *
 gendl-asdf - 2
 literate-lisp - 2            +
 iolib.base - 2
-modularize - 2
+modularize - 2               +
 cacau-asdf - 2
 overlord - 1
 cl-protobufs - 1

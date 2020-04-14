@@ -60,7 +60,7 @@ POFTHEDAY> (asdf:load-system :foo)
 
 #+END_SRC
 
-Here is the result.
+Here is the result:
 
 #+BEGIN_SRC css
 section h1 {
@@ -71,7 +71,7 @@ section p {
 }
 #+END_SRC
 
-Let's take a look how "asdf-linguist defines a transformation which
+Let's take a look at how "asdf-linguist defines a transformation which
 makes this magic happen!
 
 It defines a new component type with this simple call:
@@ -85,13 +85,15 @@ It defines a new component type with this simple call:
 
 #+END_SRC
 
+Simple, isn't it?
+
 There is also another way to define components in case if you want to
 write it in Lisp.
 
 Let's pretend we'd like to use a Lass instead of Sass. Lass is a lispy
 equivalent of Sass, I [[http://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html][wrote about it before]].
 
-To do this we'll need to define such component:
+To do this we'll need to define such a component:
 
 #+BEGIN_SRC lisp
 
@@ -104,7 +106,7 @@ POFTHEDAY> (asdf-linguist::define-component lass
                                      :pretty t)))
 #+END_SRC
 
-In this case resul will be almost the same as with Sass:
+In this case, the result will be almost the same as with Sass:
 
 #+BEGIN_SRC css
 
@@ -118,6 +120,6 @@ section p{
 
 #+END_SRC
 
-I think this is very convenient way to add support for new filetypes
+I think this is a very convenient way to add support for new filetypes
 into the ASDF. This project already supports many processors out of the
 box. Check them out in this [[https://github.com/eudoxia0/asdf-linguist/blob/master/asdf-linguist-test.asd][test system]].

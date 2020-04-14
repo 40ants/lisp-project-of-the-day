@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>asdf-linguist</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0038-asdf-linguist.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>deploy</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0037-deploy.html</link>
             <description> )</description>
@@ -265,19 +270,6 @@ It does not support gzipped or bzipped archive.
 I have a tar gzipped archive of the lisp system here.
 
 Attempt to read gzipped archive leads to a nasty error:
-
-</description>
-        </item>
-        <item>
-            <title>cl-bootstrap</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html</link>
-            <description>
-This is a library of Twitter Bootstrap widgets for cl-who.
-
-It has many examples in the README and also an interactive demo where
-you can see all available components.
-
-Here is an of example how to use it:
 
 </description>
         </item>
