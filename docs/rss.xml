@@ -6,6 +6,28 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>com.google.base</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0039-com.google.base.html</link>
+            <description>
+Today&apos;s Common Lisp Project of the Day is a library, written by Robert
+Brown, one of the authors of Google&apos;s Common Lisp Style Guide.
+
+The library I&apos;m talking about is &quot;com.google.base&quot;.
+
+It contains a simple asdf extension and some helpers for code
+optimization.
+
+The extension gives you the ability to tell that some ASDF
+system&apos;s component should be compiled with maximum speed. Also, it is
+able to manage how fast and unsafe this code should be when you are
+compiling it for development or production.
+
+To check how it works, we create a simple system with three components
+each with its own compiler policies:
+
+</description>
+        </item>
+        <item>
             <title>asdf-linguist</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0038-asdf-linguist.html</link>
             <description> (</description>
@@ -256,20 +278,6 @@ Setfable place is such name or form for which you can apply a setf
 operation to change its value.
 
 In this example I create an empty hash table and set two keys:
-
-</description>
-        </item>
-        <item>
-            <title>archive &amp; gzip-stream</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0019-archive.html</link>
-            <description>
-This is a pure Common Lisp implementation of TAR and CPIO.
-
-It does not support gzipped or bzipped archive.
-
-I have a tar gzipped archive of the lisp system here.
-
-Attempt to read gzipped archive leads to a nasty error:
 
 </description>
         </item>

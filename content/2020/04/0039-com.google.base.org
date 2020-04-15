@@ -1,20 +1,20 @@
 * com.google.base :asdf_extension:performance:
 
 Today's Common Lisp Project of the Day is a library, written by Robert
-Brown, one of the authors of the Google's Common Lisp Style Guide.
+Brown, one of the authors of Google's Common Lisp Style Guide.
 
-Library I'm talking about is "com.google.base".
+The library I'm talking about is "com.google.base".
 
 It contains a simple asdf extension and some helpers for code
 optimization.
 
-The extension I'm talking about gives you ability to tell that some ASDF
-system's component should be compiled with maximum speed. Also it is
+The extension gives you the ability to tell that some ASDF
+system's component should be compiled with maximum speed. Also, it is
 able to manage how fast and unsafe this code should be when you are
 compiling it for development or production.
 
 To check how it works, we create a simple system with three components
-each with it's own compiler policies:
+each with its own compiler policies:
 
 #+BEGIN_SRC lisp
 
@@ -113,15 +113,15 @@ POFTHEDAY> com.google.base:*optimize-fast-unsafe*
 
 #+END_SRC
 
-As you can see, first component retained default policy. Second
+As you can see, the first component retained the default policy. The second
 component changed only "debug" policy to 3 and third component's policy
 is equal to the policy defined in
 com.google.base:*optimize-fast-unsafe*.
 
 But what if for development environment we want to change a compilation
-policy for all performance critical parts of the system?
+policy for all performance-critical parts of the system?
 
-With "com.google.base" this is easy task:
+With "com.google.base" this is an easy task:
 
 #+BEGIN_SRC lisp
 
@@ -142,7 +142,7 @@ SPEED = 1
 
 #+END_SRC
 
-Robert Brown uses this trick for many his systems where some components
+Robert Brown uses this trick for many of his systems where some components
 should have high compiler optimization settings:
 
 - https://github.com/brown/protobuf
