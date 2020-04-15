@@ -1,0 +1,153 @@
+* com.google.base :asdf_extension:performance:
+
+Today's Common Lisp Project of the Day is a library, written by Robert
+Brown, one of the authors of the Google's Common Lisp Style Guide.
+
+Library I'm talking about is "com.google.base".
+
+It contains a simple asdf extension and some helpers for code
+optimization.
+
+The extension I'm talking about gives you ability to tell that some ASDF
+system's component should be compiled with maximum speed. Also it is
+able to manage how fast and unsafe this code should be when you are
+compiling it for development or production.
+
+To check how it works, we create a simple system with three components
+each with it's own compiler policies:
+
+#+BEGIN_SRC lisp
+
+;; foo.asd file
+  
+(defsystem "foo"
+  :defsystem-depends-on (#:com.google.base)
+  :serial t
+  :components ((:file "package")
+               (:file "first")
+               (:file "second")
+               ;; This special component type is defined
+               ;; in the com.google.base
+               (:fast-unsafe-source-file "third")))
+
+;; first.lisp
+;; 
+;; This is usual CL file without
+;; any compiler policy.
+
+(defparameter *first*
+  (with-output-to-string (*standard-output*)
+    (sb-ext:describe-compiler-policy)))
+
+
+;; second.lisp
+;; 
+;; Here we naively change the optimization
+;; settings
+(declaim (optimize (debug 3)))
+
+(defparameter *second*
+  (with-output-to-string (*standard-output*)
+    (sb-ext:describe-compiler-policy)))
+
+;; third.lisp
+;;
+;; Here we do nothing with optimization,
+;; but in asd file this component is marked
+;; as :fast-unsafe-source-file
+
+(defparameter *third*
+  (with-output-to-string (*standard-output*)
+    (sb-ext:describe-compiler-policy)))
+
+#+END_SRC
+
+My default compiler policy is:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (sb-ext:describe-compiler-policy)
+  Basic qualities:
+COMPILATION-SPEED = 1
+DEBUG = 1
+SAFETY = 1
+SPACE = 1
+SPEED = 1
+
+#+END_SRC
+
+And here what I've got after "foo" compilation:
+
+#+BEGIN_SRC lisp
+POFTHEDAY> foo::*first*
+"  Basic qualities:
+COMPILATION-SPEED = 1
+DEBUG = 1
+SAFETY = 1
+SPACE = 1
+SPEED = 1
+...
+"
+
+POFTHEDAY> foo::*second*
+"  Basic qualities:
+COMPILATION-SPEED = 1
+DEBUG = 3
+SAFETY = 1
+SPACE = 1
+SPEED = 1
+..."
+
+POFTHEDAY> foo::*third*
+"  Basic qualities:
+COMPILATION-SPEED = 0
+DEBUG = 2
+SAFETY = 0
+SPACE = 1
+SPEED = 3
+..."
+
+POFTHEDAY> com.google.base:*optimize-fast-unsafe*
+(OPTIMIZE (COMPILATION-SPEED 0) (DEBUG 2)
+          (SAFETY 0) (SPACE 1) (SPEED 3))
+
+#+END_SRC
+
+As you can see, first component retained default policy. Second
+component changed only "debug" policy to 3 and third component's policy
+is equal to the policy defined in
+com.google.base:*optimize-fast-unsafe*.
+
+But what if for development environment we want to change a compilation
+policy for all performance critical parts of the system?
+
+With "com.google.base" this is easy task:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (let ((com.google.base:*optimize-fast-unsafe*
+                   '(optimize
+                     (compilation-speed 0) (debug 3)
+                     (safety 3) (space 1) (speed 1))))
+               (asdf:load-system :foo :force t))
+
+POFTHEDAY> foo::*third*
+"  Basic qualities:
+COMPILATION-SPEED = 0
+DEBUG = 3
+SAFETY = 3
+SPACE = 1
+SPEED = 1
+..." 
+
+#+END_SRC
+
+Robert Brown uses this trick for many his systems where some components
+should have high compiler optimization settings:
+
+- https://github.com/brown/protobuf
+- https://github.com/brown/sip-hash
+- https://github.com/brown/snappy
+
+Also "google.com.base" contains a few type declarations and helpers for
+working with vectors.

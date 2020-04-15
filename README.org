@@ -17,6 +17,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 12 April - [[content/2020/04/0036-mtlisp.org][mtlisp]] ([[https://twitter.com/svetlyak40wt/status/1249437833858867200][twitter]])
 - 13 April - [[content/2020/04/0037-deploy.org][deploy]] ([[https://twitter.com/svetlyak40wt/status/1249776210709708801][twitter]])
 - 14 April - [[content/2020/04/0038-asdf-linguist.org][asdf-linguist]] ([[https://twitter.com/svetlyak40wt/status/1250125216447152128][twitter]])
+- 15 April - [[content/2020/04/0039-com.google.base.org][com.google.base]]
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -719,6 +720,7 @@ files, and extracting their ":defsystem-depends-on".
   make "A Week of DWIM.HU"!
 - https://github.com/ruricolist/vernacular - interesting system to
   extend Lisp with other syntax
+- [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
 
 ASDF extensions:
 
@@ -758,7 +760,7 @@ quickutil-client-management - 1
 eco - 1
 paren-files - 1
 asdf-dependency-grovel - 1
-asdf-linguist - 1            +
+asdf-linguist - 1            *
 zacl - 1
 closure-template - 1
 f2cl-asdf - 1
