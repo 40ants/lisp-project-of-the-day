@@ -19,6 +19,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 14 April - [[content/2020/04/0038-asdf-linguist.org][asdf-linguist]] ([[https://twitter.com/svetlyak40wt/status/1250125216447152128][twitter]])
 - 15 April - [[content/2020/04/0039-com.google.base.org][com.google.base]] ([[https://twitter.com/svetlyak40wt/status/1250523505382363137][twitter]])
 - 16 April - [[content/2020/04/0040-asdf-finalizers.org][asdf-finalizers]] ([[https://twitter.com/svetlyak40wt/status/1250840036184113155][twitter]])
+- 17 April - [[contents/2020/04/0041-bodge-blobs-support.org][bodge-blobs-support]] ([[https://twitter.com/svetlyak40wt/status/1251183079072432129][twitter]])
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])

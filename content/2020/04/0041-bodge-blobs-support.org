@@ -1,9 +1,17 @@
 * bodge-blobs-support :asdf_extension:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
-This is a yet another ASDF extension. It is build by [[https://twitter.com/borodust][@borodust]] to
-distribute a prebuilt C/C++ library wrappers he are making for gamedev.
+This is a yet another ASDF extension. It is built by [[https://twitter.com/borodust][@borodust]] to
+distribute a prebuilt C/C++ library wrappers he is making for gamedev.
 
-Here is example of the system definition which uses
+Here is an example of the system definition which uses
 "bodge-blobs-support":
 
 #+BEGIN_SRC lisp
@@ -54,5 +62,5 @@ POFTHEDAY> (cffi:list-foreign-libraries)
 As you can see, this way we can easily install a library from the
 Quicklisp. It will bring all prebuilt binary parts for your system.
 
-This extension can be used not only by gamedev libraries, but with any
-library which need to interop with C/C++ code via a wrapper.
+This extension can be used not only by gamedev libraries but with any
+library which needs to interop with C/C++ code via a wrapper.

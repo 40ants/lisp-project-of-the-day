@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>bodge-blobs-support</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>asdf-finalizers</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0040-asdf-finalizers.html</link>
             <description>
@@ -259,20 +264,6 @@ Hope, @shinmera will help to figure out, how to fix the problems.
 This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It contains a function for
 demultiplexing all alternative branches in a given form by producing a
 cartesian product.
-
-Here is a short example:
-
-</description>
-        </item>
-        <item>
-            <title>lass</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html</link>
-            <description>
-Common Lisp is a good language to write various domain-specific
-languages (DSLs). This library provides a DSL that compiles into the
-CSS.
-
-Lass is the lisp community&apos;s response to &lt;a href=&quot;https://sass-lang.com/&quot;&gt;Sass&lt;/a&gt;, &lt;a href=&quot;http://lesscss.org/&quot;&gt;LESS&lt;/a&gt; and &lt;a href=&quot;https://stylus-lang.com/&quot;&gt;Stylus&lt;/a&gt;.
 
 Here is a short example:
 
