@@ -1,0 +1,58 @@
+* bodge-blobs-support :asdf_extension:
+
+This is a yet another ASDF extension. It is build by [[https://twitter.com/borodust][@borodust]] to
+distribute a prebuilt C/C++ library wrappers he are making for gamedev.
+
+Here is example of the system definition which uses
+"bodge-blobs-support":
+
+#+BEGIN_SRC lisp
+
+(asdf:defsystem chipmunk-blob
+  :author "Pavel Korolev"
+  :description "Chipmunk physics foreign library collection"
+  :license "MIT"
+  :defsystem-depends-on (:bodge-blobs-support)
+  :class :bodge-blob-system
+  :libraries (((:darwin :x86-64) "libchipmunk.dylib.bodged" "x86_64/")
+              ((:darwin :x86) "libchipmunk.dylib.bodged" "x86/")
+              ((:unix (:not :darwin) :x86-64) "libchipmunk.so.bodged" "x86_64/")
+              ((:unix (:not :darwin) :x86) "libchipmunk.so.bodged" "x86/")
+              ((:windows :x86-64) "libchipmunk.dll.bodged" "x86_64/")
+              ((:windows :x86) "libchipmunk.dll.bodged" "x86/")))
+
+#+END_SRC
+
+This definition contains a list of libraries which should be loaded by
+CFFI for different combinations of *features*.
+
+When you load such a system, it automatically sets a path to the library
+and loads it into the Lisp image:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (ql:quickload :chipmunk-blob)
+
+POFTHEDAY> (bodge-blobs-support:list-registered-libraries)
+(#P"/Users/art/poftheday/.qlot/dists/
+    quicklisp/software/chipmunk-blob-stable-55c6bf5b-git/
+    x86_64/libchipmunk.dylib.bodged")
+
+POFTHEDAY> cffi:*foreign-library-directories*
+(#P"/Users/art/poftheday/.qlot/dists/
+    quicklisp/software/chipmunk-blob-stable-55c6bf5b-git/x86_64/"
+   (CFFI::EXPLODE-PATH-ENVIRONMENT-VARIABLE "LD_LIBRARY_PATH")
+   (CFFI::EXPLODE-PATH-ENVIRONMENT-VARIABLE "DYLD_LIBRARY_PATH")
+   (UIOP/OS:GETCWD) (CFFI::DARWIN-FALLBACK-LIBRARY-PATH))
+
+POFTHEDAY> (cffi:list-foreign-libraries)
+(#<CFFI:FOREIGN-LIBRARY LIBCHIPMUNK.DYLIB.BODGED-743 "libchipmunk.dylib.bodged">
+ #<CFFI:FOREIGN-LIBRARY LIBOSICAT "libosicat.dylib">)
+
+#+END_SRC
+
+As you can see, this way we can easily install a library from the
+Quicklisp. It will bring all prebuilt binary parts for your system.
+
+This extension can be used not only by gamedev libraries, but with any
+library which need to interop with C/C++ code via a wrapper.
