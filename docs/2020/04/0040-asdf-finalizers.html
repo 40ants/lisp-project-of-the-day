@@ -114,6 +114,8 @@ T</code></pre><p>But if we'll put this naive type definition into a library "my-
 <p>You can also use this technic to inject any code from macroses into the top-level. Just call "asdf-finalizers:eval-at-toplevel" or "asdf-finalizers:register-final-form" from the macro's code and don't forget to insert "(final-forms)" to the end of files where these macroses will be used.</p>
 <p>As a bonus for everybody who is interested to learn how does code processing work in Common Lisp, there is a great <a href="https://twitter.com/ngnghm">@ngnghm</a>'s article about Common Lisp code processing stages and eval-when usage:</p>
 <p><a href="https://fare.livejournal.com/146698.html">https://fare.livejournal.com/146698.html</a></p>
+<h1>Update</h1><p>Fare shared <a href="https://twitter.com/Ngnghm/status/1250860841676742662">a piece of history</a> explaining why "asdf-finalizers" were created:</p>
+<p><img style="max-width: 100%" src="../../media/0040/tweet-from-fare.png"/></p>
 </div><footer class='clearfix'><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></footer></div></div>
   </body>
 </html>

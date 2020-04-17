@@ -174,3 +174,9 @@ processing work in Common Lisp, there is a great [[https://twitter.com/ngnghm][@
 Common Lisp code processing stages and eval-when usage:
 
 https://fare.livejournal.com/146698.html
+
+** Update
+
+Fare shared [[https://twitter.com/Ngnghm/status/1250860841676742662][a piece of history]] explaining why "asdf-finalizers" were created:
+
+[[../../media/0040/tweet-from-fare.png]]
