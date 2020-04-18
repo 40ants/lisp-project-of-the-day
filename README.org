@@ -197,17 +197,26 @@ that:
                     ,@(when title
                         `((:h2 :style "text-align: center"
                                (cl-who:esc ,title)))))
-                   (cl-bootstrap:bs-col-md () 
-                     ,@body)
-                   (:footer :class "clearfix"
-                            (:hr)
-                            (:center
-                             (:p (cl-who:str "Brought to you by 40Ants under&nbsp;")
-                                 (:a :rel "license"
-                                     :href "http://creativecommons.org/licenses/by-sa/4.0/"
-                                     (:img :alt "Creative Commons License"
-                                           :style "border-width:0"
-                                           :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png"))))))))))))
+                   (cl-bootstrap:bs-col-md ()
+                     (:center
+                      (:h3 "You can support this project by donating at:")
+                      (:a :href "https://www.patreon.com/bePatron?u=33868637"
+                          (:img :alt "Donate using Patreon"
+                                :src "http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png"
+                                :width "160"))
+                      (:a :href "https://liberapay.com/poftheday/donate"
+                          (:img :alt "Donate using Liberapay"
+                                :src "https://liberapay.com/assets/widgets/donate.svg")))
+                     ,@body))
+                 (:div
+                  (:hr)
+                  (:center
+                   (:p (cl-who:str "Brought to you by 40Ants under&nbsp;")
+                       (:a :rel "license"
+                           :href "http://creativecommons.org/licenses/by-sa/4.0/"
+                           (:img :alt "Creative Commons License"
+                                 :style "border-width:0"
+                                 :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png")))))))))))
 
 #+END_SRC
 ***  Generation of separate pages for articles
@@ -597,18 +606,21 @@ We'll use few helpers to create urls and titles for the index page:
                      :test #'string-equal)))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
         (app-page (stream)
-          (:ul :style "list-style: none"
-               (loop for file in (reverse files)
-                     for url = (get-uri file)
-                     do (multiple-value-bind (title number)
-                            (get-title-for-index file)
-                          (cl-who:with-html-output (stream)
-                            (:li (:span :style "font-weight: bold; margin-right: 0.7em"
-                                        (cl-who:esc (format nil "#~A" number)))
-                                 (:a :href url
-                                     (cl-who:esc title))
-                                 (when (is-not-published file)
-                                   (cl-who:str " (draft)"))))))))))
+          (:section :style " margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
+                    (:h3 :style "margin-left: 1.6em"
+                         "Latest post")
+                    (:ul :style "list-style: none;"
+                     (loop for file in (reverse files)
+                           for url = (get-uri file)
+                           do (multiple-value-bind (title number)
+                                  (get-title-for-index file)
+                                (cl-who:with-html-output (stream)
+                                  (:li (:span :style "font-weight: bold; margin-right: 0.7em"
+                                              (cl-who:esc (format nil "#~A" number)))
+                                       (:a :href url
+                                           (cl-who:esc title))
+                                       (when (is-not-published file)
+                                         (cl-who:str " (draft)")))))))))))
     (values)))
 
 #+END_SRC
