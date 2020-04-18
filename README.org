@@ -625,6 +625,25 @@ We'll use few helpers to create urls and titles for the index page:
 
 #+END_SRC
 
+*** Also, we need a function to render the page with a Patreon patron's listing
+
+#+BEGIN_SRC lisp
+
+(defun render-patrons ()
+  (let ((filename (ppath:join "docs"
+                              "patrons"
+                              "index.html")))
+    (alexandria:with-output-to-file (stream filename :if-exists :supersede)
+      (app-page (stream :index-uri "../")
+        (:section :style " margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
+                  (:h3 :style "margin-left: 1.6em"
+                       "Project Patrons")
+                  (:ul :style "list-style: none;"
+                       (:li "There is not any patrons yet. Become the first one!")))))
+    (values)))
+
+#+END_SRC
+
 ***  Main function to render the whole site
 
 Also, we need a entry-point function which will do all the job - read
@@ -636,6 +655,7 @@ files and write html:
   (let ((files (read-files)))
     (mapc #'render-file files)
     (render-index files)
+    (render-patrons)
     (render-rss files)
     (values)))
 
