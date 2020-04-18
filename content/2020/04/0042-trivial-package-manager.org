@@ -1,0 +1,65 @@
+* trivial-package-manager :asdf_extension:system:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This small library, written by [[https://twitter.com/guicho271828][@guicho271828]], can be used for similar
+purpose like [[http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html][bodge-blobs-support]]. The difference is that
+"trivial-package-manager" installs dependencies using system's native
+package manager.
+
+It supports: Apt, Yum, Dnf, Pacman, Yaourt, Brew, Macports, Fink, Choco
+as well as installation from sources.
+
+You can use "trivial-package-manager" with ASDF or separately. It is
+able to install executables and libraries.
+
+Let's install install "wget" binary on my OSX laptop! To be able to see
+which command will be called, we'll apply TRACE to "uiop:run-program":
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (trace uiop:run-program)
+
+POFTHEDAY> (tpm:ensure-program "wget"
+                               :brew "wget"
+                               :apt "wget")
+
+  0: (UIOP/RUN-PROGRAM:RUN-PROGRAM ("which" "wget"))
+  0: (UIOP/RUN-PROGRAM:RUN-PROGRAM ("which" "apt-get"))
+  0: (UIOP/RUN-PROGRAM:RUN-PROGRAM ("which" "brew"))
+  0: UIOP/RUN-PROGRAM:RUN-PROGRAM returned NIL NIL 0
+  0: (UIOP/RUN-PROGRAM:RUN-PROGRAM ("brew" "install" "wget")
+          :OUTPUT :INTERACTIVE :ERROR-OUTPUT
+          :INTERACTIVE :INPUT :INTERACTIVE)
+  0: UIOP/RUN-PROGRAM:RUN-PROGRAM returned NIL NIL 0
+
+
+#+END_SRC
+
+To install library or program during with you Lisp system installation,
+you need to call this function from "load-op" method:
+
+#+BEGIN_SRC lisp
+
+(defsystem cl-wget
+  :components ((:file "cl-wget"))
+  :description "Toy system to call wget from Lisp"
+  :defsystem-depends-on (:trivial-package-manager)
+  :perform
+  (load-op :before (op c)
+           (uiop:symbol-call :trivial-package-manager
+                             :ensure-program
+                             "wget"
+                             :apt "wget"
+                             :brew "wget")))
+
+#+END_SRC
+
+After somebody will do "(ql:quickload :cl-wget)" you can be sure there
+is a wget binary in the system ready to be called by your program.
