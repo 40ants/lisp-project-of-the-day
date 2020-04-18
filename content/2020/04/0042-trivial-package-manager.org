@@ -9,8 +9,8 @@
 :END:
 
 This small library, written by [[https://twitter.com/guicho271828][@guicho271828]], can be used for similar
-purpose like [[http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html][bodge-blobs-support]]. The difference is that
-"trivial-package-manager" installs dependencies using system's native
+purposes like [[http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html][bodge-blobs-support]]. The difference is that
+"trivial-package-manager" installs dependencies using the system's native
 package manager.
 
 It supports: Apt, Yum, Dnf, Pacman, Yaourt, Brew, Macports, Fink, Choco
@@ -19,7 +19,7 @@ as well as installation from sources.
 You can use "trivial-package-manager" with ASDF or separately. It is
 able to install executables and libraries.
 
-Let's install install "wget" binary on my OSX laptop! To be able to see
+Let's install "wget" binary on my OSX laptop! To be able to see
 which command will be called, we'll apply TRACE to "uiop:run-program":
 
 #+BEGIN_SRC lisp

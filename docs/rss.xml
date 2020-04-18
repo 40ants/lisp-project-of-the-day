@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-package-manager</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0042-trivial-package-manager.html</link>
+            <description> |</description>
+        </item>
+        <item>
             <title>bodge-blobs-support</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html</link>
             <description> (</description>
@@ -254,18 +259,6 @@ I&apos;ve created an issue about these problems:
 https://github.com/Shinmera/softdrink/issues/1
 
 Hope, @shinmera will help to figure out, how to fix the problems.
-
-</description>
-        </item>
-        <item>
-            <title>bubble-operator-upwards</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0022-bubble-operator-upwards.html</link>
-            <description>
-This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It contains a function for
-demultiplexing all alternative branches in a given form by producing a
-cartesian product.
-
-Here is a short example:
 
 </description>
         </item>
