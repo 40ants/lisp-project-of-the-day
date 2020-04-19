@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>hu.dwim.asdf</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   :(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      :(</td></tr></table><p>This is the most popular asdf extension. I've created a script which analized all Quicklisp projects and "hu.dwim.asdf" is mentioned in "defsystem-depends-on" of 150 systems.</p>
+<p>First feature it provides is a way to distinguish between development and production builds.</p>
+<p>There is a variable ~*hu.dwim.asdf:*load-as-production?*~ which is ~nil~ by default. Macroses ~debug-only~ and ~production-only~ will expand only when you are compiling code in particular mode.</p>
+<p>Also, there is ~optimize-declaration~ function, which also depends on ~*load-as-production?*~ variable and returns either ~(optimize (speed 3) (debug 0) (safety 0))~ for production or ~(optimize (debug 3) (safety 3))~ for development mode.</p>
+<p>In code it can be used like this:</p>
+<pre><code class=' lisp'>(defun foo ()
+  (declare #.(optimize-declaration))
+  (debug-only
+    (format t &quot;Function foo was called~%&quot;))
+  (do-some-real-work))</code></pre><pre><code class=' lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-compile-output
+            (asdf:find-system :hu.dwim.logger))
+&quot;........
+[package hu.dwim.logger].........&quot;
+
+POFTHEDAY&gt; (hu.dwim.asdf:system-load-output
+            (asdf:find-system :hu.dwim.logger))
+&quot;&quot;</code></pre><p>There is also three asdf system classes:</p>
+<ul><li>~hu.dwim.system~</li><li>~hu.dwim.test-system~</li><li>~hu.dwim.documentation-system~</li></ul>
+<p>When you use them in a combination, ~hu.dwim.asdf~ allows to call ~asdf:test-system~ on a base system and test suite will be automatically called. But you should also use ~hu.dwim.stefil~ test framework:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (asdf:test-system :hu.dwim.logger)
+
+The result of HU.DWIM.LOGGER.TEST::TEST is:
+
+  #&lt;test-run: 1 test, 0 assertions, 0 failures in 0.0f0 sec&gt;
+
+For more details run it from the REPL and use the customized Slime inspector
+to inspect the results (ASDF eats up the return values).</code></pre><p>Also, ~hu.dwim.test-system~ class stores a test result and output inside the system object. This allows to extract this information later:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-test-result
+            (asdf:find-system :hu.dwim.logger.test))
+#&lt;test-run: 1 test, 0 assertions, 0 failures in 0.0 sec&gt;
+POFTHEDAY&gt; (hu.dwim.asdf:system-test-output
+            (asdf:find-system :hu.dwim.logger.test))
+&quot;Running test: TEST
+The result of HU.DWIM.LOGGER.TEST::TEST is:
+
+  #&lt;test-run: 1 test, 0 assertions, 0 failures in 0.0 sec&gt;
+
+For more details run it from the REPL and use the customized Slime inspector
+to inspect the results (ASDF eats up the return values).
+&quot;</code></pre><p>You can define you own class based on ~hu.dwim.test-system~ and a method ~run-test-suite~ to run test framework other than ~stefil~.</p>
+<p>There isn't any special code for ~hu.dwim.documentation-system~ except that such a system will have this string as a default for its description:</p>
+<p>"Documentation for the similarly named system. It should contain formally processable data and its contents should be available at <a href="http://dwim.hu"">http://dwim.hu"</a></p>
+<p>Another feature of ~hu.dwim.asdf~ is its ~develop-system~ function which does few things:</p>
+<ul><li>turn's on debug mode;</li><li>evals (declaim (optimize (debug 3)));</li><li>loads system using quicklisp if it is available with verbose output;</li><li>loads ~swank~ and integrations of the loaded system with it;</li><li>changes current package to the package associated with a loaded system.</li></ul>
+<p>As a final note I want to mention there was hard to understand what this system is able to to because there is no documentation, nor docstrings or examples.</p>
+<p>Hu.dwim.* systems contains interesting solutions. Probably we should document them propertly.</p>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
