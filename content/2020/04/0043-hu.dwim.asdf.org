@@ -8,21 +8,27 @@
 :CI:       :(
 :END:
 
+Today I want to review a ~hu.dwim.asdf~ system, which is a part of the
+large ecosystem, created by a [[https://cliki.net/dwim.hu][group of Hungarian lispers]].
+
 This is the most popular asdf extension. I've created a script which
-analized all Quicklisp projects and "hu.dwim.asdf" is mentioned in
+analyzed all Quicklisp projects and "hu.dwim.asdf" is mentioned in
 "defsystem-depends-on" of 150 systems.
 
-First feature it provides is a way to distinguish between development
+The first feature it provides is a way to distinguish between development
 and production builds.
 
-There is a variable ~*hu.dwim.asdf:*load-as-production?*~ which is ~nil~ by
+There is a variable ~hu.dwim.asdf:*load-as-production?*~ which is ~nil~ by
 default. Macroses ~debug-only~ and ~production-only~ will expand only when
-you are compiling code in particular mode.
+you are compiling code in a particular mode.
 
 Also, there is ~optimize-declaration~ function, which also depends on
 ~*load-as-production?*~ variable and returns either ~(optimize (speed 3)
 (debug 0) (safety 0))~ for production or ~(optimize (debug 3) (safety 3))~
 for development mode.
+
+The similar feature you'll find also in ~com.google.base~ system,
+[[http://40ants.com/lisp-project-of-the-day/2020/04/0039-com.google.base.html][reviewed on this week]].
 
 In code it can be used like this:
 
@@ -36,13 +42,24 @@ In code it can be used like this:
   
 #+END_SRC
 
+If you'll set a ~:class "hu.dwim.asdf:hu.dwim.system"~ for your ASDF
+system, then some additional features will be enabled.
+
+For example, all compiler's output will be stored in a special slot, and
+you'll be able to inspect it at any time to find out compiler warnings:
 
 #+BEGIN_SRC lisp
 
 POFTHEDAY> (hu.dwim.asdf:system-compile-output
             (asdf:find-system :hu.dwim.logger))
-"........
-[package hu.dwim.logger]........."
+"; compiling file "/Users/art/poftheday/.../package.lisp"
+; compiling (IN-PACKAGE :HU.DWIM.DEF)
+; compiling (DEF PACKAGE ...)
+
+; wrote /Users/art/.cache/common-lisp/sbcl-2.0.2-macosx-x64/...
+; compilation finished in 0:00:00.002
+; compiling file
+..."
 
 POFTHEDAY> (hu.dwim.asdf:system-load-output
             (asdf:find-system :hu.dwim.logger))
@@ -50,7 +67,7 @@ POFTHEDAY> (hu.dwim.asdf:system-load-output
 
 #+END_SRC
 
-There is also three asdf system classes:
+There are three ASDF system classes:
 
 - ~hu.dwim.system~
 - ~hu.dwim.test-system~
@@ -94,7 +111,7 @@ to inspect the results (ASDF eats up the return values).
 
 #+END_SRC
 
-You can define you own class based on ~hu.dwim.test-system~ and a method
+You can define your own class based on ~hu.dwim.test-system~ and a method
 ~run-test-suite~ to run test framework other than ~stefil~.
 
 There isn't any special code for ~hu.dwim.documentation-system~ except
@@ -106,7 +123,7 @@ formally processable data and its contents should be available at
 http://dwim.hu"
 
 Another feature of ~hu.dwim.asdf~ is its ~develop-system~ function which
-does few things:
+does a few things:
 
 - turn's on debug mode;
 - evals (declaim (optimize (debug 3)));
@@ -114,9 +131,9 @@ does few things:
 - loads ~swank~ and integrations of the loaded system with it;
 - changes current package to the package associated with a loaded system.
 
-As a final note I want to mention there was hard to understand what this
-system is able to to because there is no documentation, nor docstrings
+As a final note, I want to mention there was hard to understand what this
+system is able to do because there is no documentation, nor docstrings
 or examples.
 
-Hu.dwim.* systems contains interesting solutions. Probably we should
-document them propertly.
+~Hu.dwim.*~ systems contains interesting solutions. Probably we should
+document them properly.

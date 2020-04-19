@@ -21,7 +21,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 16 April - [[content/2020/04/0040-asdf-finalizers.org][asdf-finalizers]] ([[https://twitter.com/svetlyak40wt/status/1250840036184113155][twitter]])
 - 17 April - [[contents/2020/04/0041-bodge-blobs-support.org][bodge-blobs-support]] ([[https://twitter.com/svetlyak40wt/status/1251183079072432129][twitter]])
 - 18 April - [[content/2020/04/0042-trivial-package-manager.org][trivial-package-manager]] ([[https://twitter.com/svetlyak40wt/status/1251518621165248512][twitter]])
-- 19 April - [[content/2020/04/0043-hu.dwim.asdf.org][hu.dwim.asdf]]
+- 19 April - [[content/2020/04/0043-hu.dwim.asdf.org][hu.dwim.asdf]] ([[https://twitter.com/svetlyak40wt/status/1251946744356777991][twitter]])
 
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
@@ -300,7 +300,7 @@ it is, etc. These properties have grades:
 
 (defmethod render-node ((node cl-org-mode::properties-node) stream)
   (cl-who:with-html-output (stream)
-    (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em;"
+    (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;"
      (mapcar
       (lambda (item)
         (render-node item stream))
@@ -381,11 +381,18 @@ text line by line and wrap it's pieces in appropriate HTML tags:
    text
    "\\1<a href=\"\\2\">\\2</a>\\3"))
 
+(defun replace-inline-code (text)
+  (cl-ppcre:regex-replace-all
+   "~(.*?)~"
+   text
+   "<code>\\1</code>"))
+
 (defun replace-org-mode-markup-with-html (text)
-  (replace-raw-urls
-   (replace-links
-    (replace-images
-     text))))
+  (replace-inline-code
+   (replace-raw-urls
+    (replace-links
+     (replace-images
+      text)))))
 
 (defun render-text (text stream)
   (let ((buffer nil)
