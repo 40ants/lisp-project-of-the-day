@@ -44,7 +44,7 @@ POFTHEDAY> (hu.dwim.walker:unwalk-form ***)
   
 #+END_SRC
 
-~hu.dwim.walker~ also provides functions to rewrite AST and to searialize
+~hu.dwim.walker~ also provides functions to rewrite AST and to serialize
 it back into the s-exp form:
 
 #+BEGIN_SRC lisp
@@ -54,7 +54,6 @@ POFTHEDAY> (defparameter *ast*
               '(let (a
                      (b 1))
                 (list a b c))))
-
 
 POFTHEDAY> (hu.dwim.walker:rewrite-ast
             *ast*
@@ -69,11 +68,11 @@ POFTHEDAY> (hu.dwim.walker:rewrite-ast
                   '(some-replacement)))
                 (t form))))
 #<HU.DWIM.WALKER:LET-FORM
-(#<FREE-APPLICATION-FORM
- !(LIST #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !A {100158A5B3}>
-        #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !B {100158A773}>
-        #<FREE-APPLICATION-FORM !(SOME-REPLACEMENT ) {1001B94063}>)
- {100158A403}>)
+  (#<FREE-APPLICATION-FORM
+   !(LIST #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !A {100158A5B3}>
+          #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !B {100158A773}>
+          #<FREE-APPLICATION-FORM !(SOME-REPLACEMENT ) {1001B94063}>)
+   {100158A403}>)
 {1001589973}>
 
 POFTHEDAY> (hu.dwim.walker:unwalk-form *)

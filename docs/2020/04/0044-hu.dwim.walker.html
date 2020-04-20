@@ -46,13 +46,12 @@ POFTHEDAY&gt; (hu.dwim.walker:collect-variable-references
 
 POFTHEDAY&gt; (hu.dwim.walker:unwalk-form ***)
 (LET ((A NIL) (B 1))
-  (LIST A B C))</code></pre><p><code>hu.dwim.walker</code> also provides functions to rewrite AST and to searialize it back into the s-exp form:</p>
+  (LIST A B C))</code></pre><p><code>hu.dwim.walker</code> also provides functions to rewrite AST and to serialize it back into the s-exp form:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *ast*
              (hu.dwim.walker:walk-form
               &#039;(let (a
                      (b 1))
                 (list a b c))))
-
 
 POFTHEDAY&gt; (hu.dwim.walker:rewrite-ast
             *ast*
@@ -67,11 +66,11 @@ POFTHEDAY&gt; (hu.dwim.walker:rewrite-ast
                   &#039;(some-replacement)))
                 (t form))))
 #&lt;HU.DWIM.WALKER:LET-FORM
-(#&lt;FREE-APPLICATION-FORM
- !(LIST #&lt;WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !A {100158A5B3}&gt;
-        #&lt;WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !B {100158A773}&gt;
-        #&lt;FREE-APPLICATION-FORM !(SOME-REPLACEMENT ) {1001B94063}&gt;)
- {100158A403}&gt;)
+  (#&lt;FREE-APPLICATION-FORM
+   !(LIST #&lt;WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !A {100158A5B3}&gt;
+          #&lt;WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !B {100158A773}&gt;
+          #&lt;FREE-APPLICATION-FORM !(SOME-REPLACEMENT ) {1001B94063}&gt;)
+   {100158A403}&gt;)
 {1001589973}&gt;
 
 POFTHEDAY&gt; (hu.dwim.walker:unwalk-form *)
