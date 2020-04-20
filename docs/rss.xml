@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>hu.dwim.walker</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0044-hu.dwim.walker.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>hu.dwim.asdf</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0043-hu.dwim.asdf.html</link>
             <description> (</description>
@@ -232,16 +237,6 @@ probably APL worth thing to look at.
 
 &quot;April&quot; contains an embedded test suite and a demo. Here is a piece of its
 demo output:
-
-</description>
-        </item>
-        <item>
-            <title>chronicity</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/03/0024-chronicity.html</link>
-            <description>
-This library works well together with &lt;a href=&quot;http://quickdocs.org/local-time/&quot;&gt;local-time&lt;/a&gt;.
-It is amazing because it is able to parse human-readable strings into
-the *local-time:timestamp* objects:
 
 </description>
         </item>

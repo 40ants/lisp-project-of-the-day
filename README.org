@@ -22,7 +22,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 17 April - [[contents/2020/04/0041-bodge-blobs-support.org][bodge-blobs-support]] ([[https://twitter.com/svetlyak40wt/status/1251183079072432129][twitter]])
 - 18 April - [[content/2020/04/0042-trivial-package-manager.org][trivial-package-manager]] ([[https://twitter.com/svetlyak40wt/status/1251518621165248512][twitter]])
 - 19 April - [[content/2020/04/0043-hu.dwim.asdf.org][hu.dwim.asdf]] ([[https://twitter.com/svetlyak40wt/status/1251946744356777991][twitter]])
-- 20 April - [[content/2020/04/0044-hu.dwim.walker.org][hu.dwim.walker]]
+- 20 April - [[content/2020/04/0044-hu.dwim.walker.org][hu.dwim.walker]] ([[https://twitter.com/svetlyak40wt/status/1252332579526709249][twitter]])
 
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
