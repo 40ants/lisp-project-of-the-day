@@ -1,0 +1,87 @@
+* hu.dwim.walker :language:macro:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today I want to review an utility library, useful for writing  macroses:
+~hu.dwim.walker~. This library provides a code walker which returns an AST
+representation of the walked form.
+
+Resulted AST contains important semantic information which will be hard
+to extract. For example, it is possible to distinguish lexical variables
+and free variables:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (hu.dwim.walker:walk-form
+            '(let (a
+                   (b 1))
+              (list a b c)))
+WARNING: Reference to unknown variable C in C.
+#<HU.DWIM.WALKER:LET-FORM
+(#<FREE-APPLICATION-FORM
+ !(LIST #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM
+        !A {1002754213}>
+        #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM
+        !B {10027543D3}>
+        #<FREE-VARIABLE-REFERENCE-FORM !C {1002755023}>)
+ {1002754063}>)
+{1002753373}>
+
+POFTHEDAY> (hu.dwim.walker:collect-variable-references
+            *
+            :type 'hu.dwim.walker:free-variable-reference-form)
+(#<HU.DWIM.WALKER:FREE-VARIABLE-REFERENCE-FORM !C {1002755023}>)
+
+POFTHEDAY> (hu.dwim.walker:unwalk-form ***)
+(LET ((A NIL) (B 1))
+  (LIST A B C))
+  
+#+END_SRC
+
+~hu.dwim.walker~ also provides functions to rewrite AST and to searialize
+it back into the s-exp form:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defparameter *ast*
+             (hu.dwim.walker:walk-form
+              '(let (a
+                     (b 1))
+                (list a b c))))
+
+
+POFTHEDAY> (hu.dwim.walker:rewrite-ast
+            *ast*
+            ;; This is a visitor function which can
+            ;; replace some parts of the AST:
+            (lambda (parent field form)
+              (typecase form
+                (hu.dwim.walker:free-variable-reference-form
+                 ;; In real code, we'll need to create
+                 ;; a new piece of AST here:
+                 (hu.dwim.walker:walk-form
+                  '(some-replacement)))
+                (t form))))
+#<HU.DWIM.WALKER:LET-FORM
+(#<FREE-APPLICATION-FORM
+ !(LIST #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !A {100158A5B3}>
+        #<WALKED-LEXICAL-VARIABLE-REFERENCE-FORM !B {100158A773}>
+        #<FREE-APPLICATION-FORM !(SOME-REPLACEMENT ) {1001B94063}>)
+ {100158A403}>)
+{1001589973}>
+
+POFTHEDAY> (hu.dwim.walker:unwalk-form *)
+(LET ((A NIL) (B 1))
+  (LIST A B (SOME-REPLACEMENT)))
+
+#+END_SRC
+
+Probably, there are more interesting things in this system, but complete
+absence of documentation and examples makes it hard to understand how to
+use it :(
