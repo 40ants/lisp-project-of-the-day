@@ -8,6 +8,9 @@
 :CI:       :(
 :END:
 
+This project originally was written by Michael Parker more than 10 years
+ago and now seems abandoned.
+
 This system provides a simple regexp-based lexer. With macro ~deflexer~
 you can define a function which accepts a string and returns another
 function. This resulting function can be called to retrieve tokens.
@@ -43,7 +46,7 @@ FLT
 
 #+END_SRC
 
-Lexing function consist of a number patterns and a code to act on these
+Lexing function consists of a number of patterns and a code to act on these
 patters. If code block calls ~return~ to return any value as a token.
 
 Here is how we can make another lexer to parse natural text:
@@ -77,7 +80,7 @@ PUNCTUATION: !
 
 #+END_SRC
 
-Here is more useful example - parser for logs:
+Here is more useful example - a log parser:
 
 #+BEGIN_SRC lisp
 
