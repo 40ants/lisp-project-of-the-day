@@ -1,0 +1,112 @@
+* cl-lexer :language:regex:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system provides a simple regexp-based lexer. With macro ~deflexer~
+you can define a function which accepts a string and returns another
+function. This resulting function can be called to retrieve tokens.
+
+Here is an example from the README:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (deflexer test-lexer
+             ("[0-9]+([.][0-9]+([Ee][0-9]+)?)"
+              (return (values 'flt (num %0))))
+             ("[0-9]+"
+              (return (values 'int (int %0))))
+             ("[:alpha:][:alnum:]*"
+              (return (values 'name %0)))
+             ("[:space:]+"))
+
+POFTHEDAY> (defvar *func*
+             (test-lexer "1.0 12 fred 10.23e3"))
+*FUNC*
+POFTHEDAY> (funcall *func*)
+FLT
+1.0 (100.0%)
+POFTHEDAY> (funcall *func*)
+INT
+12 (4 bits, #xC, #o14, #b1100)
+POFTHEDAY> (funcall *func*)
+NAME
+"fred"
+POFTHEDAY> (funcall *func*)
+FLT
+10230.0
+
+#+END_SRC
+
+Lexing function consist of a number patterns and a code to act on these
+patters. If code block calls ~return~ to return any value as a token.
+
+Here is how we can make another lexer to parse natural text:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (deflexer test-lexer
+             ("[:punct:]"
+              (return (list 'punctuation %0)))
+             ("[:alpha:][:alnum:]*"
+              (return (list 'word %0)))
+             ("[:space:]+"))
+
+POFTHEDAY> (loop with text = "Alice loves Bob, but Bob loves Lisp!"
+                 with lexer = (test-lexer text)
+                 for (type value) = (funcall lexer)
+                   then (funcall lexer)
+                 while type
+                 do (format t "~A: ~A~%"
+                            type
+                            value))
+WORD: Alice
+WORD: loves
+WORD: Bob
+PUNCTUATION: ,
+WORD: but
+WORD: Bob
+WORD: loves
+WORD: Lisp
+PUNCTUATION: !
+
+#+END_SRC
+
+Here is more useful example - parser for logs:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defparameter *log-message*
+             " <INFO> [2020-04-21 22:11:23] - Hello Lisp World!")
+
+POFTHEDAY> (deflexer test-lexer
+             ("^[:space:]*<(DEBUG|INFO|ERROR)>"
+              (return (list 'level %1)))
+             ("\\[(.*?)\\]"
+              (return (list 'time
+                            (chronicity:parse %1))))
+             (" - (.*)"
+              (return (list 'message
+                            %1)))
+             ("[:space:]+"))
+
+POFTHEDAY> (loop with text = *log-message*
+                 with lexer = (test-lexer text)
+                 for (type value) = (funcall lexer)
+                   then (funcall lexer)
+                 while type
+                 do (format t "~A: ~A~%"
+                            type
+                            value))
+LEVEL: INFO
+TIME: 2020-04-21T22:11:23.000000+03:00
+MESSAGE: Hello Lisp World!
+
+#+END_SRC
+
+That is it for today!
