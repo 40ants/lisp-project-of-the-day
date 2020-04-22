@@ -24,7 +24,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 19 April - [[content/2020/04/0043-hu.dwim.asdf.org][hu.dwim.asdf]] ([[https://twitter.com/svetlyak40wt/status/1251946744356777991][twitter]])
 - 20 April - [[content/2020/04/0044-hu.dwim.walker.org][hu.dwim.walker]] ([[https://twitter.com/svetlyak40wt/status/1252332579526709249][twitter]])
 - 21 April - [[content/2020/04/0045-cl-lexer.org][cl-lexer]] ([[https://twitter.com/svetlyak40wt/status/1252668190968238081][twitter]])
-- 22 April - [[content/2020/04/0046-arrows.org][arrows]]
+- 22 April - [[content/2020/04/0046-arrows.org][arrows]] ([[https://twitter.com/svetlyak40wt/status/1253050884461932551][twitter]])
 
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])

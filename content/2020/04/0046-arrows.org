@@ -17,7 +17,7 @@ There are two other CL libraries similar to ~arrows~:
 - ~cl-arrows~
 - ~arrow-macros~
 
-but ~arrows~ has more features.
+but ~arrows~ have more features.
 
 Here is an example of two simples arrows:
 
@@ -47,7 +47,7 @@ POFTHEDAY> (mapcar #'reverse
 
 #+END_SRC
 
-There is also ~->>~ which adds argument to the end, and ~->*~ which uses the
+There is also ~->>~ which adds an argument to the end, and ~->*~ which uses the
 last form as an initial value. They could be used in tandem like this:
 
 #+BEGIN_SRC lisp
@@ -77,7 +77,7 @@ POFTHEDAY> (expt
   
 #+END_SRC
 
-Another interesting macro is ~as->~. It creates a lexical bindings and a
+Another interesting macro is ~as->~. It creates a lexical binding and a
 variable can be used in any place of the nested code:
 
 #+BEGIN_SRC lisp
@@ -95,5 +95,5 @@ Var value: 15
 
 #+END_SRC
 
-There are few other interesting types of arrows. Go, read about the in
+There are a few other interesting types of arrows. Go, read about them in
 the [[https://gitlab.com/Harleqin/arrows][documentation]]!
