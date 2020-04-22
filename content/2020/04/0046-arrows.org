@@ -1,0 +1,99 @@
+* arrows :utility:data_structures:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This library is inspired by Clojure and implements threading
+macros. They are useful when you need to chain some calls, passing
+result from one call to another.
+
+There are two other CL libraries similar to ~arrows~:
+
+- ~cl-arrows~
+- ~arrow-macros~
+
+but ~arrows~ has more features.
+
+Here is an example of two simples arrows:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (arrows:-> (list :foo
+                            (list :bar
+                                  (list
+                                   (list 1 2 3)
+                                   (list 'a 'b 'c))))
+             (getf :foo)
+             (getf :bar)
+             (arrows:->> (mapcar #'reverse)))
+((3 2 1) (C B A))
+
+;; The code above is translated into:
+POFTHEDAY> (mapcar #'reverse
+                   (getf
+                    (getf
+                     (list :foo
+                           (list :bar
+                                 (list (list 1 2 3)
+                                       (list 'a 'b 'c))))
+                     :foo)
+                    :bar))
+((3 2 1) (C B A))
+
+#+END_SRC
+
+There is also ~->>~ which adds argument to the end, and ~->*~ which uses the
+last form as an initial value. They could be used in tandem like this:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (arrows:->> '((:foo . ((:bar . 8))))
+             (assoc :foo)
+             cdr
+             (assoc :bar)
+             cdr
+             (arrows:->*
+              (mod 3)
+              (expt 2)))
+4 (3 bits, #x4, #o4, #b100)
+
+;; Real operations will be:
+;; (expt (mod 8 3)
+;;       2)
+;; and here is the full macroexpansion:
+
+POFTHEDAY> (expt
+            (mod
+             (cdr (assoc :bar
+               (cdr (assoc :foo
+                           '((:foo (:bar . 8)))))))
+             3)
+            2)
+  
+#+END_SRC
+
+Another interesting macro is ~as->~. It creates a lexical bindings and a
+variable can be used in any place of the nested code:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (arrows:-> '(:foo (:bar 15))
+             (getf :foo)
+             (getf :bar)
+             (arrows:as-> $
+                 (progn
+                   (format t "Var value: ~A~%" $)
+                   $))
+             (/ 75))
+Var value: 15
+1/5 (0.2, 20%)
+
+#+END_SRC
+
+There are few other interesting types of arrows. Go, read about the in
+the [[https://gitlab.com/Harleqin/arrows][documentation]]!

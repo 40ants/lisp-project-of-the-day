@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>arrows</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:|</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   :(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:|</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      :(</td></tr></table><p>This library is inspired by Clojure and implements threading macros. They are useful when you need to chain some calls, passing result from one call to another.</p>
+<p>There are two other CL libraries similar to <code>arrows</code>:</p>
+<ul><li><code>cl-arrows</code></li><li><code>arrow-macros</code></li></ul>
+<p>but <code>arrows</code> has more features.</p>
+<p>Here is an example of two simples arrows:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt; (list :foo
+                            (list :bar
+                                  (list
+                                   (list 1 2 3)
+                                   (list &#039;a &#039;b &#039;c))))
+             (getf :foo)
+             (getf :bar)
+             (arrows:-&gt;&gt; (mapcar #&#039;reverse)))
+((3 2 1) (C B A))
+
+;; The code above is translated into:
+POFTHEDAY&gt; (mapcar #&#039;reverse
+                   (getf
+                    (getf
+                     (list :foo
+                           (list :bar
+                                 (list (list 1 2 3)
+                                       (list &#039;a &#039;b &#039;c))))
+                     :foo)
+                    :bar))
+((3 2 1) (C B A))</code></pre><p>There is also <code>->></code> which adds argument to the end, and <code>->*</code> which uses the last form as an initial value. They could be used in tandem like this:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt;&gt; &#039;((:foo . ((:bar . 8))))
+             (assoc :foo)
+             cdr
+             (assoc :bar)
+             cdr
+             (arrows:-&gt;*
+              (mod 3)
+              (expt 2)))
+4 (3 bits, #x4, #o4, #b100)
+
+;; Real operations will be:
+;; (expt (mod 8 3)
+;;       2)
+;; and here is the full macroexpansion:
+
+POFTHEDAY&gt; (expt
+            (mod
+             (cdr (assoc :bar
+               (cdr (assoc :foo
+                           &#039;((:foo (:bar . 8)))))))
+             3)
+            2)</code></pre><p>Another interesting macro is <code>as-></code>. It creates a lexical bindings and a variable can be used in any place of the nested code:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt; &#039;(:foo (:bar 15))
+             (getf :foo)
+             (getf :bar)
+             (arrows:as-&gt; $
+                 (progn
+                   (format t &quot;Var value: ~A~%&quot; $)
+                   $))
+             (/ 75))
+Var value: 15
+1/5 (0.2, 20%)</code></pre><p>There are few other interesting types of arrows. Go, read about the in the <a href="https://gitlab.com/Harleqin/arrows">documentation</a>!</p>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
