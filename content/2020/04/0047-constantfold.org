@@ -1,9 +1,9 @@
 * constantfold :language:macro:
 
-This is an intesting library by [[https://twitter.com/guicho271828][@guicho271828]], which allows to move some
+This is an interesting library by [[https://twitter.com/guicho271828][@guicho271828]], which allows moving some
 calculations into the compile-time.
 
-Constant folding is a cool thing when smart compiler simplifies an
+Constant folding is a cool thing when smart compiler simplifies
 expressions in compile-time if some parts of the expression are known.
 
 For example, when you will write ~(* (+ 1 3) 3600)~, SBCL will simplify it
@@ -66,7 +66,7 @@ POFTHEDAY> (macroexpand-dammit
 
 #+END_SRC
 
-To look how does it work  in the whild, you might write ~NumCL~'s
-code. This library uses ~constantfold~ to [[https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp][mark functions]] which works with
+To look at how does it work  in the whild, you might write ~NumCL~'s
+code. This library uses ~constantfold~ to [[https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp][mark functions]] which work with
 numbers to make constant folding work for them.
 

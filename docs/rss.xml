@@ -6,6 +6,24 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>constantfold</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0047-constantfold.html</link>
+            <description>
+This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some
+calculations into the compile-time.
+
+Constant folding is a cool thing when smart compiler simplifies
+expressions in compile-time if some parts of the expression are known.
+
+For example, when you will write &lt;code&gt;(* (+ 1 3) 3600)&lt;/code&gt;, SBCL will simplify it
+to a &lt;code&gt;14400&lt;/code&gt; constant during compilation of the lisp file.
+
+Library &lt;code&gt;constantfold&lt;/code&gt; allows you to define rules for constant folding for
+custom data structures:
+
+</description>
+        </item>
+        <item>
             <title>arrows</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0046-arrows.html</link>
             <description> |</description>
@@ -176,24 +194,6 @@ These features are:
 - and speed.
 
 Let&apos;s compare it with cl-bert:
-
-</description>
-        </item>
-        <item>
-            <title>golden-utils</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0027-golden-utils.html</link>
-            <description>
-This is a yet another utility collection like &quot;alexandria&quot;, rutils or
-mentioned in the #16 #pfotheday &quot;kmrcl&quot;. The author is &lt;a href=&quot;https://twitter.com/mfiano&quot;&gt;@mfiano&lt;/a&gt;. He has many
-interesting CL projects on the GitHub, but now let&apos;s look at
-&quot;golden-utils&quot;.
-
-This library lack documentation, but it&apos;s &lt;a href=&quot;https://github.com/mfiano/golden-utils/blob/master/src/package.lisp&quot;&gt;package.lisp&lt;/a&gt; file is
-structured so you can figure out which areas are covered by the
-library.
-
-For example, it has interesting functions to create and merge hash
-tables:
 
 </description>
         </item>
