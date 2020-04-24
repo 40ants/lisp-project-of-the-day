@@ -1,0 +1,46 @@
+* find-port :network:
+
+This small utility library allows you to find an open network port or to
+probe if port is open.
+
+It is useful, when you need to start a server on some free port in a
+given range:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (find-port:find-port :min 4005)
+4005 (12 bits, #xFA5)
+
+;; Now we'll start the netcat process
+;; to listen on the 4005 port
+POFTHEDAY> (bt:make-thread
+            (lambda ()
+              (uiop:run-program
+               "nc -l 127.0.0.1 4005")))
+#<SB-THREAD:THREAD "Anonymous thread" RUNNING {10050A25F3}>
+
+;; Port 4005 is taken now:
+POFTHEDAY> (find-port:find-port :min 4005)
+4006 (12 bits, #xFA6)
+
+;; This function can be used to check if the port is taken:
+POFTHEDAY> (find-port:port-open-p 4005)
+NIL
+POFTHEDAY> (find-port:port-open-p 4006)
+T
+  
+#+END_SRC
+
+Beware, this library consideres port is taken only when this port is
+opened by another process. This is because it uses ~:reuse-address~
+argument when checking if port is opened:
+
+#+BEGIN_SRC lisp
+
+(usocket:socket-listen interface port
+                       :reuse-address t)
+
+#+END_SRC
+
+That is it for this Friday. I have to spend some time with the
+family. Have a nice weekend!
