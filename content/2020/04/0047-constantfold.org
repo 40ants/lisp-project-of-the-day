@@ -1,4 +1,12 @@
 * constantfold :language:macro:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :)
+:END:
 
 This is an interesting library by [[https://twitter.com/guicho271828][@guicho271828]], which allows moving some
 calculations into the compile-time.

@@ -6,22 +6,14 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>find-port</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0048-find-port.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>constantfold</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0047-constantfold.html</link>
-            <description>
-This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some
-calculations into the compile-time.
-
-Constant folding is a cool thing when smart compiler simplifies
-expressions in compile-time if some parts of the expression are known.
-
-For example, when you will write &lt;code&gt;(* (+ 1 3) 3600)&lt;/code&gt;, SBCL will simplify it
-to a &lt;code&gt;14400&lt;/code&gt; constant during compilation of the lisp file.
-
-Library &lt;code&gt;constantfold&lt;/code&gt; allows you to define rules for constant folding for
-custom data structures:
-
-</description>
+            <description> |</description>
         </item>
         <item>
             <title>arrows</title>
@@ -176,24 +168,6 @@ Maybe you know, the GIF file can hold only a limited number of colours
 and any pixel&apos;s colour is an index from the colour table.
 
 First, we need to create such a table:
-
-</description>
-        </item>
-        <item>
-            <title>cl-conspack</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html</link>
-            <description>
-Previously, I&apos;ve posted about the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html&quot;&gt;cl-bert&lt;/a&gt; a serialization
-library. &quot;cl-conspack&quot; is also a serialization library with interesting
-features.
-
-These features are:
-
-- compact binary representation;
-- support for object references;
-- and speed.
-
-Let&apos;s compare it with cl-bert:
 
 </description>
         </item>

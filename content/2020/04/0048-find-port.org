@@ -1,9 +1,17 @@
 * find-port :network:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :|
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
 
 This small utility library allows you to find an open network port or to
-probe if port is open.
+probe if the  port is open.
 
-It is useful, when you need to start a server on some free port in a
+It is useful when you need to start a server on some free port in a
 given range:
 
 #+BEGIN_SRC lisp
@@ -31,9 +39,9 @@ T
   
 #+END_SRC
 
-Beware, this library consideres port is taken only when this port is
+Beware, this library considered port is taken only when this port is
 opened by another process. This is because it uses ~:reuse-address~
-argument when checking if port is opened:
+argument when checking if the port is opened:
 
 #+BEGIN_SRC lisp
 
@@ -42,5 +50,5 @@ argument when checking if port is opened:
 
 #+END_SRC
 
-That is it for this Friday. I have to spend some time with the
+That is it for this Friday. I have to spend some time with my
 family. Have a nice weekend!
