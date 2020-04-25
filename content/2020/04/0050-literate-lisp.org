@@ -1,0 +1,58 @@
+* literate-lisp :asdf_extension:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+During the week of ASDF extensions I didn't tell you about this library,
+however I'm using it to render #poftheday site. But preparing the
+yesterday post about ~print-html~ I found it is written in Literate
+Programming Style.
+
+But ~print-html~ is written in org-mode file which was preprocessed and
+transformed into usual lisp file. Literate-lisp is an ASDF extension
+which allows you to load ~org-mode~ as usual lisp files.
+
+All what you need to do is to write ~:defsystem-depends-on
+("literate-lisp")~ in the system definition file and to use ~:org~ type for
+components.
+
+Here is content of my ASD file:
+
+#+BEGIN_SRC lisp
+
+(asdf:defsystem "poftheday"
+  :author "Alexander Artemenko <svetlyak.40wt@gmail.com>"
+  :serial t
+  :defsystem-depends-on ("literate-lisp")
+  :depends-on ("cl-org-mode"
+               "cl-bootstrap"
+               "cl-fad"
+               "str"
+               "cl-ppcre"
+               "cl-who"
+               "ppath"
+               "alexandria"
+               "xml-emitter"
+               "rutils"
+               "doplus")
+  ;; This component type is defined by
+  ;; literate-lisp system:
+  :components ((:org "readme")))
+
+#+END_SRC
+
+[[https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org][Readme.org]] is a usual org-mode file with ~lisp~ code blocks in
+it. Literate-lisp system defines a custom reader which skips all file
+content except of code blocks and loads them in to lisp image.
+
+When used with [[https://github.com/polymode/poly-org][poly-org]] mode, this allows to have convenient Lisp code
+navigation and shortcuts right inside the org-mode file. I can hit ~C-c
+C-c~ to evaluate functions, etc.
+
+So, if you wanted to try Literate Programming, then Jintao Xu's
+literate-lisp is the best way to go!
