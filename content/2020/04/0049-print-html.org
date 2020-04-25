@@ -8,14 +8,14 @@
 :CI:       :(
 :END:
 
-This is a HTML generator. This library is similar to cl-who or
+This is an HTML generator. This library is similar to cl-who or
 spinneret, but with two interesting differences.
 
-First distinction is that ~print-html~ is written in the literate
-programmin style and have very succinct code which can be read in 5-10
+The first distinction is that ~print-html~ is written in the literate
+programmings style and have very succinct code which can be read in 5-10
 minutes.
 
-Second distinction is that ~print-html~ is based on generics and you can
+The second distinction is that ~print-html~ is based on generics and you can
 define a method to print some classes into HTML.
 
 Let's try this!

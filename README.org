@@ -27,6 +27,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 22 April - [[content/2020/04/0046-arrows.org][arrows]] ([[https://twitter.com/svetlyak40wt/status/1253050884461932551][twitter]])
 - 23 April - [[content/2020/04/0047-constantfold.org][constantfold]] ([[https://twitter.com/svetlyak40wt/status/1253405484465479680][twitter]])
 - 24 April - [[content/2020/04/0048-find-port.org][find-port]] ([[https://twitter.com/svetlyak40wt/status/1253742586927480832][twitter]])
+- 25 April - [[content/2020/04/0049-print-html.org][print-html]] ([[https://twitter.com/svetlyak40wt/status/1254090822192152577][twitter]])
 
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
@@ -557,22 +558,27 @@ those, having a link to the twitter.
                                           :if-exists :supersede)
     (let ((base-url "http://40ants.com/lisp-project-of-the-day/")
           (not-published (find-not-published-systems)))
-      (xml-emitter:with-rss2 (stream)
-        (xml-emitter:rss-channel-header "Common Lisp Project of the Day"
-                                        base-url)
-        (loop for file in (rutils:take 20 (reverse
-                                           (remove-if (lambda (file)
-                                                        (member (get-title file)
-                                                                not-published
-                                                                :test #'string-equal))
-                                                      files)))
-              for title = (get-title file)
-              for uri = (get-uri file)
-              for full-url = (format nil "~A~A" base-url uri)
-              for description = (make-description file)
-              do (xml-emitter:rss-item title
-                                       :description description
-                                       :link full-url))))))
+      (flet ((is-not-published (file)
+               (let ((title (get-title file))
+                     (filename (get-filename file)))
+                 (or (member title
+                             not-published
+                             :test #'string-equal)
+                     (str:containsp "draft"
+                                    filename)))))
+        (xml-emitter:with-rss2 (stream)
+          (xml-emitter:rss-channel-header "Common Lisp Project of the Day"
+                                          base-url)
+          (loop for file in (rutils:take 20 (reverse
+                                             (remove-if #'is-not-published
+                                                        files)))
+                for title = (get-title file)
+                for uri = (get-uri file)
+                for full-url = (format nil "~A~A" base-url uri)
+                for description = (make-description file)
+                do (xml-emitter:rss-item title
+                                         :description description
+                                         :link full-url)))))))
 
 #+END_SRC
 
@@ -615,9 +621,10 @@ We'll use few helpers to create urls and titles for the index page:
                               "index.html"))
         (not-published (find-not-published-systems)))
     (flet ((is-not-published (file)
-             (member (get-title file)
-                     not-published
-                     :test #'string-equal)))
+             (let ((title (get-title file)))
+               (member title
+                       not-published
+                       :test #'string-equal))))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
         (app-page (stream)
           (:section :style " margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
@@ -628,13 +635,16 @@ We'll use few helpers to create urls and titles for the index page:
                            for url = (get-uri file)
                            do (multiple-value-bind (title number)
                                   (get-title-for-index file)
-                                (cl-who:with-html-output (stream)
-                                  (:li (:span :style "font-weight: bold; margin-right: 0.7em"
-                                              (cl-who:esc (format nil "#~A" number)))
-                                       (:a :href url
-                                           (cl-who:esc title))
-                                       (when (is-not-published file)
-                                         (cl-who:str " (draft)")))))))))))
+                                
+                                (unless (string-equal number
+                                                      "draft")
+                                  (cl-who:with-html-output (stream)
+                                    (:li (:span :style "font-weight: bold; margin-right: 0.7em"
+                                                (cl-who:esc (format nil "#~A" number)))
+                                         (:a :href url
+                                             (cl-who:esc title))
+                                         (when (is-not-published file)
+                                           (cl-who:str " (draft)"))))))))))))
     (values)))
 
 #+END_SRC
