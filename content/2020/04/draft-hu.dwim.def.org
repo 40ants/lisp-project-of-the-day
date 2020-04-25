@@ -1,0 +1,20 @@
+* hu.dwim.def
+
+#+begin_src lisp
+
+POFTHEDAY> (hu.dwim.def::find-definer 'hu.dwim.def:macro)
+#<definer HU.DWIM.DEF:MACRO>
+
+POFTHEDAY> (funcall (hu.dwim.def::expander-of *)
+                    *
+                    '(def (macro e) break/print (&body forms)
+                      `(break/print* ()
+                         ,@forms))
+                    nil)
+(PROGN
+ (LOCALLY
+  (DECLARE (OPTIMIZE (SPEED 0) (DEBUG 1)))
+  (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE) (EXPORT 'BREAK/PRINT))
+  (DEFMACRO BREAK/PRINT (&BODY FORMS) `(BREAK/PRINT* NIL ,@FORMS))))
+
+#+end_src

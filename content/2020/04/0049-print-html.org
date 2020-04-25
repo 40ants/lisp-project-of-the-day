@@ -1,0 +1,89 @@
+* print-html :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a HTML generator. This library is similar to cl-who or
+spinneret, but with two interesting differences.
+
+First distinction is that ~print-html~ is written in the literate
+programmin style and have very succinct code which can be read in 5-10
+minutes.
+
+Second distinction is that ~print-html~ is based on generics and you can
+define a method to print some classes into HTML.
+
+Let's try this!
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (print-html:print-html-to-string
+            (print-html:html
+              (:article
+               ((:section :class "intro")
+                (:p "Hello Lisp World!")))))
+"<article>
+<section class=\"intro\">
+<p>Hello Lisp World!</p>
+</section>
+</article>
+"
+
+#+END_SRC
+
+Now I'll create a class of user which can be serialized into HTML:
+
+#+BEGIN_SRC lisp
+
+;; This is our buisiness logic:
+POFTHEDAY> (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY> (defparameter *user*
+             (make-instance 'user
+                            :name "Sponge Bob"))
+
+POFTHEDAY> (defun get-profile-uri (user)
+             (format nil "/user/~A"
+                     (get-name user)))
+
+;; Here is the method to transform business logic
+;; object into its HTML representation.
+POFTHEDAY> (defmethod print-html:render ((user user))
+             (print-html:html
+               ((:a :href (get-profile-uri user))
+                (get-name user))))
+
+;; Note, it returns HTML nodes, not 
+POFTHEDAY> (print-html:render *user*)
+(#S(PRINT-HTML::TAG
+    :NAME :A
+    :ATTRS (:HREF "/user/Sponge Bob")
+    :CHILDREN ("Sponge Bob")))
+
+;; Now we can use this kind of objects
+;; directly when rendering HTML pages:
+POFTHEDAY> (print-html:print-html-to-string
+            (print-html:html
+              (:article
+               ((:section :class "intro")
+                (:p "Hello"
+                    *user*)))))
+"<article>
+<section class=\"intro\">
+<p>Hello
+<a href=\"/user/Sponge Bob\">Sponge Bob</a>
+</p>
+</section>
+</article>
+"
+
+#+END_SRC
+
+Seems this is an interesting approach to render HTML. What do you think?
