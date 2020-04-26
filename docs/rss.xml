@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>literate-lisp</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>print-html</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html</link>
             <description> )</description>
@@ -129,30 +134,6 @@ each with its own compiler policies:
 This small library is able to generate standard QR codes.
 
 It produces either a matrix, which you can render on your own:
-
-</description>
-        </item>
-        <item>
-            <title>skippy-renderer &amp; zpng</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html</link>
-            <description>
-Today I&apos;d like to tell you about two libraries:
-
-- skippy-renderer
-- zpng
-
-Both allow you to work with graphics format GIF and PNG.
-
-&quot;Skippy-renderer&quot; extends Skippy from the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0029-skippy.html&quot;&gt;previous post&lt;/a&gt;. It is able to produce
-a sequence of images from the GIF.
-
-All images will have the same size and can be combined into the video or
-written in the separate images.
-
-Let&apos;s try to tear apart the GIF, made in the previous post.
-
-First, we need to read data from a file using skippy&apos;s
-&quot;load-data-stream&quot; function:
 
 </description>
         </item>

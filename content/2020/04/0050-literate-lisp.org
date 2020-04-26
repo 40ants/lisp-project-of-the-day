@@ -17,11 +17,11 @@ But ~print-html~ is written in org-mode file which was preprocessed and
 transformed into usual lisp file. Literate-lisp is an ASDF extension
 which allows you to load ~org-mode~ as usual lisp files.
 
-All what you need to do is to write ~:defsystem-depends-on
+All that you need to do is to write ~:defsystem-depends-on
 ("literate-lisp")~ in the system definition file and to use ~:org~ type for
 components.
 
-Here is content of my ASD file:
+Here is the content of my ASD file:
 
 #+BEGIN_SRC lisp
 
@@ -46,11 +46,11 @@ Here is content of my ASD file:
 
 #+END_SRC
 
-[[https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org][Readme.org]] is a usual org-mode file with ~lisp~ code blocks in
+My [[https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org][README.org]] is a usual org-mode file with ~lisp~ code blocks in
 it. Literate-lisp system defines a custom reader which skips all file
-content except of code blocks and loads them in to lisp image.
+content except code blocks and loads them into lisp image.
 
-When used with [[https://github.com/polymode/poly-org][poly-org]] mode, this allows to have convenient Lisp code
+When used with [[https://github.com/polymode/poly-org][poly-org]] mode, this allows having convenient Lisp code
 navigation and shortcuts right inside the org-mode file. I can hit ~C-c
 C-c~ to evaluate functions, etc.
 
