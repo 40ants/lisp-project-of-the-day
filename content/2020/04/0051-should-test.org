@@ -1,0 +1,100 @@
+* should-test :test_framework:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This is yet another testing framework written by [[https://twitter.com/vseloved][@vseloved]]. It is
+interesting because provides a protocol to define new kinds of
+assertions.
+
+Here is a simple example:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defun plus-100 (x)
+             (+ x x))
+
+POFTHEDAY> (st:deftest test-plus-100 ()
+             (st:should be = 200 (plus-100 100))
+             (st:should be = 150 (plus-100 50))
+             (st:should signal 'error (plus-100 "blah")))
+
+;; Now let's run the tests in the current package:
+POFTHEDAY> (st:test)
+
+Test TEST-PLUS-100: 
+(PLUS-100 50) FAIL
+expect: 150
+actual: 100
+(PLUS-100 blah) FAIL
+expect: (QUOTE ERROR)
+actual: #<TYPE-ERROR expected-type: NUMBER datum: "blah">
+  FAILED
+
+NIL
+#<HASH-TABLE :TEST EQL :COUNT 1 {1006D9D273}>
+#<HASH-TABLE :TEST EQL :COUNT 0 {1006D9D553}>
+
+;; Second value is a hash with thrown exceptions:
+POFTHEDAY> (alexandria:hash-table-alist #v116:1)
+((TEST-PLUS-100 #<TYPE-ERROR expected-type: NUMBER datum: "blah"> (100)))
+
+#+END_SRC
+
+Now let's try to extend this library with a custom check which will
+assert that float value more or less than expected no more than
+specified delta:
+
+#+BEGIN_SRC lisp
+
+;; This method defines a new assertion:
+POFTHEDAY> (defmethod st:should-check ((key (eql :be-within)) delta fn &rest expected)
+             (assert (= (length expected)
+                        1))
+             (let* ((result (funcall fn))
+                    (real-difference (abs (- result
+                                              (first expected)))))
+               (or (<= real-difference delta)
+                   (values nil
+                           (list :result result
+                                 :delta real-difference)))))
+
+;; This is the fake function we are going to test:
+POFTHEDAY> (defun kind-of-random ()
+             0.323)
+
+POFTHEDAY> (st:deftest test-within ()
+             (st:should be-within 0.01 0.35
+                        (kind-of-random)))
+
+POFTHEDAY> (st:test)
+Test TEST-WITHIN: 
+(KIND-OF-RANDOM) FAIL
+expect: 0.35
+actual: :RESULT 0.323 :DELTA 0.02699998
+  FAILED
+
+;; Now we will fix the "error"
+POFTHEDAY> (defun kind-of-random ()
+             0.345)
+
+POFTHEDAY> (st:test)
+Test TEST-WITHIN:   OK
+
+#+END_SRC
+
+On my taste, it was not convenient to define a test predicate this way,
+because I didn't have control of assertion syntax. It always should be
+like "name test expected form".
+
+In my case I have a 0.01 delta in place of the test, which is not
+semantic at all and form completion in SLY does not help me to
+understand what does "should" macro expect if the first argument is
+"be-within".
+
+But this is is relatively young test framework :)

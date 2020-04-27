@@ -29,6 +29,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 24 April - [[content/2020/04/0048-find-port.org][find-port]] ([[https://twitter.com/svetlyak40wt/status/1253742586927480832][twitter]])
 - 25 April - [[content/2020/04/0049-print-html.org][print-html]] ([[https://twitter.com/svetlyak40wt/status/1254090822192152577][twitter]])
 - 26 April - [[content/2020/04/0050-literate-lisp.org][literate-lisp]] ([[https://twitter.com/svetlyak40wt/status/1254493004695560194][twitter]])
+- 27 April - [[content/2020/04/0051-should-test.org][should-test]] ([[https://twitter.com/svetlyak40wt/status/1254838764913950721][twitter]])
 
 
 ** March

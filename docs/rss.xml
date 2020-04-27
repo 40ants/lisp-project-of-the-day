@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>should-test</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0051-should-test.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>literate-lisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html</link>
             <description> )</description>
@@ -126,16 +131,6 @@ each with its own compiler policies:
             <title>buildnode</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0032-buildnode.html</link>
             <description> (</description>
-        </item>
-        <item>
-            <title>lispqr</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0031-lispqr.html</link>
-            <description>
-This small library is able to generate standard QR codes.
-
-It produces either a matrix, which you can render on your own:
-
-</description>
         </item>
     </channel>
 </rss>
