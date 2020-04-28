@@ -1,0 +1,121 @@
+* beast :games:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+Today's overview is about the Beast. This is a small library, written
+by [[https://twitter.com/stevelosh][@stevelosh]] for describing a game world.
+
+Game world is full of different entities. Each entity has it a type and
+characteristics or aspects.
+
+"Beast" is a simple wrapper over CLOS, which allows you to define
+aspects and to mix them when defining a new entity type.
+
+Here is a nice example from projects README:
+
+#+BEGIN_SRC lisp
+
+(define-aspect throwable accuracy damage)
+(define-aspect edible nutrition-value)
+
+(define-entity dart (throwable))
+(define-entity cheese (edible))
+(define-entity pie (throwable edible))
+
+(define-system rot-food ((e edible))
+  (decf (edible/nutrition-value e))
+  (when (zerop (edible/nutrition-value e))
+    (destroy-entity e)))
+
+(defparameter *steel-dart* 
+  (create-entity 'dart
+    :throwable/accuracy 0.9
+    :throwable/damage 10))
+
+(defparameter *hunk-of-swiss*
+  (create-entity 'cheese
+    :edible/nutrition-value 50))
+
+(defparameter *banana-cream-pie*
+  (create-entity 'pie
+    :throwable/accuracy 0.3
+    :throwable/damage 5
+    :edible/nutrition-value 30))
+
+#+END_SRC
+
+Macro ~(beast:define-aspect throwable accuracy damage)~ is expanded into
+such class-definition:
+
+#+BEGIN_SRC lisp
+
+(progn
+ (defclass throwable nil
+           ((throwable/accuracy :accessor throwable/accuracy :initarg
+             :throwable/accuracy)
+            (throwable/damage :accessor throwable/damage :initarg
+             :throwable/damage)))
+ (defun throwable? (beast::object) (typep beast::object 'throwable))
+ (beast::initialize-aspect-index 'throwable)
+ (find-class 'throwable))
+
+#+END_SRC
+
+Macro ~(beast:define-entity pie (throwable edible))~ also transformed into
+a class which inherits all aspects and also has a class-level slot with
+a list of aspects:
+
+#+BEGIN_SRC lisp
+
+(progn
+ (defclass pie (beast:entity throwable edible)
+           ((beast::%beast/aspects :allocation :class :initform
+             '(throwable edible))))
+ (defun pie? (beast::object) (typep beast::object 'pie))
+ (find-class 'pie))
+
+#+END_SRC
+
+Function ~create-entity~ not only creates a CLOS instance but also adds
+it to special indexes of entities of this type and entities having
+these aspects.
+
+Macro ~define-system~ defines two functions:
+
+#+BEGIN_SRC lisp
+
+(progn
+  (declaim
+   (ftype (function ((and beast:entity edible)) (values null &optional))
+          rot-food)
+   (notinline rot-food))
+ 
+  (defun rot-food (e)
+    (decf (edible/nutrition-value e))
+    (when (zerop (edible/nutrition-value e)) (beast:destroy-entity e))
+    nil)
+  
+  (defun run-rot-food ()
+    (let ((#:argument-indexes1011 (gethash 'rot-food beast::*system-index*)))
+      (loop :for #:entity1012 :being :the beast::hash-values :of (first
+                                                                  #:argument-indexes1011)
+            :do (locally
+                    (declare (type (and beast:entity edible) #:entity1012))
+                  (rot-food #:entity1012)))))
+  (beast::initialize-system-index 'rot-food #'rot-food '((e edible)))
+  'rot-food)
+
+#+END_SRC
+
+So, this macro defines a code which will be applied to all "edible"
+objects in the game.
+
+I think Beast is the great library for defining game objects!
+
+You can find more information about this library in its [[https://docs.stevelosh.com/beast/usage/][great documentation]].

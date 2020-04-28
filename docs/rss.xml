@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>beast</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0052-beast.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>should-test</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0051-should-test.html</link>
             <description> )</description>
@@ -126,11 +131,6 @@ each with its own compiler policies:
             <title>trivialib.type-unify</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html</link>
             <description> |</description>
-        </item>
-        <item>
-            <title>buildnode</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0032-buildnode.html</link>
-            <description> (</description>
         </item>
     </channel>
 </rss>
