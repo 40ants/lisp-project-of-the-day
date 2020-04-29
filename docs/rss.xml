@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-locale</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0053-cl-locale.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>beast</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0052-beast.html</link>
             <description> )</description>
@@ -125,11 +130,6 @@ each with its own compiler policies:
         <item>
             <title>cl-progress-bar</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0034-cl-progress-bar.html</link>
-            <description> |</description>
-        </item>
-        <item>
-            <title>trivialib.type-unify</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html</link>
             <description> |</description>
         </item>
     </channel>
