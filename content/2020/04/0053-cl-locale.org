@@ -1,0 +1,52 @@
+* cl-locale :ui:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This project will help you to internationalize your application.
+Seems, it does not use files in ~gettext~ format, but you might define
+translations in a lispy way:
+
+#+BEGIN_SRC lisp
+POFTHEDAY> (cl-locale:define-dictionary hello
+             (:en-US '(("Hello World!" . "Hello World!")))
+             (:ru-RU '(("Hello World!" . "Привет Мир!"))))
+
+POFTHEDAY> (cl-locale:i18n "Hello World!")
+"Hello World!"
+
+;; Now I'll switch locale to Russian
+POFTHEDAY> (setf cl-locale:*locale*
+                 :ru-ru)
+:RU-RU
+
+POFTHEDAY> (cl-locale:i18n "Hello World!")
+"Привет Мир!"
+POFTHEDAY> 
+
+;; Also, a special syntax can be used:
+POFTHEDAY> (cl-locale:enable-locale-syntax)
+
+POFTHEDAY> #i"Hello World!"
+"Привет Мир!"
+
+#+END_SRC
+
+Also, translation can be stored in a separate Lisp file.
+
+This library does not support an important feature - pluralization.
+
+Pluralization depends on a language rules. For example in Russian it will be:
+
+0 яблок
+1 яблоко
+2 яблока
+5 яблок
+
+I hope, [[https://twitter.com/nitro_idiot][@nitro_idiot]] will be able to add pluralization, or somebody will
+contribute this  feature!
