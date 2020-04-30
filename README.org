@@ -32,6 +32,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 27 April - [[content/2020/04/0051-should-test.org][should-test]] ([[https://twitter.com/svetlyak40wt/status/1254838764913950721][twitter]])
 - 28 April - [[content/2020/04/0052-beast.org][beast]] ([[https://twitter.com/svetlyak40wt/status/1255227547379531777][twitter]])
 - 29 April - [[content/2020/04/0053-cl-locale.org][cl-locale]] ([[https://twitter.com/svetlyak40wt/status/1255599103255420933][twitter]])
+- 30 April - [[content/2020/04/0054-hu.dwim.def.org][hu.dwim.def]]
 
 
 

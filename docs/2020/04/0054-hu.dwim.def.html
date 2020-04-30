@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>hu.dwim.def</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   :)</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:(</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:|</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      :(</td></tr></table><p>Today I want to review this library because it is used in other <code>hu.dwim.*</code> libraries. Understading how does <code>hu.dwim.def</code> works will help to read other libraries code.</p>
+<p>The main concept of the <code>hu.dwim.def</code> is the <code>definer</code>. Definer has a name and a function which is used to macroexpand the code.</p>
+<p>This is how usual definition can be used and what it expands to:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def function foo ()
+             (format nil &quot;Hello from ~A!&quot;
+                     hu.dwim.def:-this-function/name-))
+-&gt; (defun foo ()
+     (symbol-macrolet ((-this-function/name- &#039;foo))
+       (format nil &quot;Hello from ~A!&quot;
+               -this-function/name-)))
+
+POFTHEDAY&gt; (foo)
+&quot;Hello from FOO!&quot;</code></pre><p>As you can see, this macro expands into a usual function definition, plus a <code>symbol-macrolet</code>, useful to refer to a current function name.</p>
+<p>When definer is called, a number of options can be passed. Options allow to tune optimization settings and export rules.</p>
+<p>Option "o" adds declaration to maximize performance:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def (function o) foo ()
+             (format nil &quot;Hello World!&quot;))
+-&gt; (locally
+       (declare (optimize (speed 3) (debug 0) (safety 2)))
+     (defun foo ()
+       (format nil &quot;Hello World!&quot;)))</code></pre><p>Options "d" adds an opposite declaration to make debugging easier:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def (function d) foo ()
+             (format nil &quot;Hello World!&quot;))
+
+-&gt; (progn
+     (declaim (notinline foo))
+     (locally
+         (declare (optimize (speed 0) (debug 3)))
+       (defun foo ()
+         (format nil &quot;Hello World!&quot;))))</code></pre><p>Also, these declaration depends on the value of the <code>hu.dwim.asdf:*load-as-production?*</code> variable. When it is nil, then "o" option will lead to these two declarations:</p>
+<ul><li><code>(declaim (notinline foo))</code></li><li><code>(declare (optimize (speed 0) (debug 1)))</code></li></ul>
+<p>and "d" option will generate:</p>
+<ul><li><code>(declaim (notinline foo))</code></li><li><code>(declare (optimize (speed 0) (debug 3)))</code></li></ul>
+<p>This way, functions will be inlined only when compiled for production.</p>
+<p>There is a separate option "i" to add <code>(declaim (inline foo))</code> declaration. But it works only when <code>hu.dwim.asdf:*load-as-production?*</code> is <code>nil</code> and debug is turned off.</p>
+<p>On SBCL debug level is also controlled by a level, declaimed in the REPL. To have a reproducable results you'll need to evaluate: <code>(declaim (optimize (debug 0)))</code> otherwise a <code>notinline</code> declaration will be added.</p>
+<p>Another cool option is "e". It will export the function, class or other defined entity:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def (function e) foo ()
+             (format nil &quot;Hello World!&quot;))
+-&gt; (progn
+     (eval-when (:compile-toplevel :load-toplevel :execute)
+       (export &#039;foo))
+     (defun foo ()
+       (format nil &quot;Hello World!&quot;)))</code></pre><p>Also, a class's slots can be exported automatically:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def (class ea) user ()
+             ((name :reader get-name)
+              (email :reader get-email)))
+-&gt; (progn
+     (export &#039;user)
+     (export &#039;(get-name get-email))
+     (defclass user ()
+       ((name :reader get-name)
+        (email :reader get-email))))</code></pre><p>Isn't this amazing? But what is really cool, it that these options will also work with your own custom definers.</p>
+<p>Here is how to transform a macro generating a function into a definer:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defmacro blah (name &amp;body body)
+             `(defun ,name ()
+                (format nil &quot;A function ~S was called&quot;
+                        &#039;,name)
+                ,@body))
+
+POFTHEDAY&gt; (blah &#039;me)
+-&gt; (defun &#039;me ()
+     (format nil &quot;A function ~S was called&quot; me))
+
+;; Now we&#039;ll make from a usual macro a new definer:
+
+POFTHEDAY&gt; (def (definer :available-flags &quot;eodi&quot;) blah ()
+             (hu.dwim.def::function-like-definer blah))
+
+POFTHEDAY&gt; (def (blah eoi) me)
+-&gt; (progn
+     (declaim (inline me))
+     (locally
+         (declare (optimize (speed 3) (debug 0) (safety 2)))
+       (eval-when (:compile-toplevel :load-toplevel :execute)
+         (export &#039;me))
+       (defun me ()
+         (format nil &quot;A function ~S was called&quot; &#039;me))))</code></pre><p>Also, you might write a definer with a body. These special variables will be available during the macro-expansion:</p>
+<ul><li><code>hu.dwim.def:-definer-</code></li><li><code>hu.dwim.def:-whole-</code></li><li><code>hu.dwim.def:-options-</code></li><li><code>hu.dwim.def:-environment-</code></li></ul>
+<p>We can define an experimental definer to see what is accessable during macro-expansion:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (def (definer :available-flags &quot;doe&quot;) guts ()
+             (format t &quot;hu.dwim.def:-definer- = ~A~%&quot;
+                     -definer-)
+             (format t &quot;hu.dwim.def:-options- = ~A~%&quot;
+                     -options-)
+             (format t &quot;hu.dwim.def:-whole- = ~A~%&quot;
+                     -whole-)
+             (format t &quot;hu.dwim.def:-environment- = ~A~%&quot;
+                     -environment-)
+             `(progn))
+
+POFTHEDAY&gt; (def (guts de :any-other &#039;option))
+hu.dwim.def:-definer- = #&lt;definer GUTS&gt;
+hu.dwim.def:-options- = (EXPORT T DEBUG T ANY-OTHER &#039;OPTION)
+hu.dwim.def:-whole- = (DEF (GUTS DE ANY-OTHER &#039;OPTION))
+hu.dwim.def:-environment- = #&lt;NULL-LEXENV&gt;
+NIL</code></pre><p>As you can see, any values can be passed into the definer besides builtin flag and you might implement whatever logic you want.</p>
+<p>Final great thing I want to tell you about definers is that there is a registry of them. This makes all definers are easily discoverable.</p>
+<p>Well, not so easy because you need to digg into some internals:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (loop for definer being the hash-values
+                   of hu.dwim.def::*definers*
+                 for name = (hu.dwim.def::name-of definer)
+                 for doc = (when (slot-boundp definer
+                                              &#039;hu.dwim.def::documentation)
+                             (hu.dwim.def::documentation-of definer))
+                 unless doc
+                   count 1 into undocumented
+                 when doc
+                 do (format t &quot;~A -&gt; ~S~2%&quot;
+                            name doc)
+                 finally (when (&gt; undocumented 0)
+                           (format t &quot;~2&amp;Also, there are ~A undocumented definers.~%&quot;
+                                   undocumented)))
+
+CLASS -&gt; &quot;Example that exports all the class name and all the readers, writers and slot names:
+    (def (class eas) foo (bar baz)
+     ((slot1 :reader readerr)
+      (slot2 :writer writerr :accessor accessorr))
+     (:metaclass fofofo))&quot;
+
+CONDITION -&gt; &quot;See the CLASS definer.&quot;
+
+CONSTANT -&gt; &quot;Use like: (def (constant e :test #&#039;string=) alma \&quot;korte\&quot;)
+             test defaults to equal.&quot;
+
+SPECIAL-VARIABLE -&gt; &quot;Uses defvar/defparameter based on whether a
+                     value was provided or not, and accepts
+                    :documentation definer parameter
+                     for value-less defvars.&quot;
+
+PRINT-OBJECT -&gt; &quot;Define a PRINT-OBJECT method using PRINT-UNREADABLE-OBJECT.
+  An example:
+  (def print-object parenscript-dispatcher ; could be (parenscript-dispatcher :identity nil)
+    (when (cachep self)
+      (princ \&quot;cached\&quot;)
+      (princ \&quot; \&quot;))
+    (princ (parenscript-file self)))&quot;
+
+WITH-MACRO -&gt; &quot;(def with-macro with-foo (arg1 arg2)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo arg1 arg2
+     (...))&quot;
+
+WITH-MACRO* -&gt; &quot;(def with-macro* with-foo (arg1 arg2 &amp;key alma)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo (arg1 arg2 :alma alma)
+     (...))&quot;
+
+GUTS -&gt; &quot;This definer shows debug information about environment
+         where is expanded.&quot;
+
+
+Also, there are 33 undocumented definers.</code></pre><p>To conclude, <code>hu.dwim.def</code> is a great library now I'll use it in my projects!</p>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

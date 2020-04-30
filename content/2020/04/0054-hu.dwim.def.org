@@ -1,0 +1,265 @@
+* hu.dwim.def
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+Today I want to review this library because it is used in other
+~hu.dwim.*~ libraries. Understading how does ~hu.dwim.def~ works will help
+to read other libraries code.
+
+The main concept of the ~hu.dwim.def~ is the ~definer~. Definer has a name
+and a function which is used to macroexpand the code.
+
+This is how usual definition can be used and what it expands to:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def function foo ()
+             (format nil "Hello from ~A!"
+                     hu.dwim.def:-this-function/name-))
+-> (defun foo ()
+     (symbol-macrolet ((-this-function/name- 'foo))
+       (format nil "Hello from ~A!"
+               -this-function/name-)))
+
+POFTHEDAY> (foo)
+"Hello from FOO!"
+  
+#+END_SRC
+
+As you can see, this macro expands into a usual function definition,
+plus a ~symbol-macrolet~, useful to refer to a current function name.
+
+When definer is called, a number of options can be passed. Options allow
+to tune optimization settings and export rules.
+
+Option "o" adds declaration to maximize performance:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def (function o) foo ()
+             (format nil "Hello World!"))
+-> (locally
+       (declare (optimize (speed 3) (debug 0) (safety 2)))
+     (defun foo ()
+       (format nil "Hello World!")))
+
+#+END_SRC
+
+Options "d" adds an opposite declaration to make debugging easier:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def (function d) foo ()
+             (format nil "Hello World!"))
+
+-> (progn
+     (declaim (notinline foo))
+     (locally
+         (declare (optimize (speed 0) (debug 3)))
+       (defun foo ()
+         (format nil "Hello World!"))))
+
+#+END_SRC
+
+Also, these declaration depends on the value of the
+~hu.dwim.asdf:*load-as-production?*~ variable. When it is nil, then "o"
+option will lead to these two declarations:
+
+- ~(declaim (notinline foo))~
+- ~(declare (optimize (speed 0) (debug 1)))~
+
+and "d" option will generate:
+
+- ~(declaim (notinline foo))~
+- ~(declare (optimize (speed 0) (debug 3)))~
+
+This way, functions will be inlined only when compiled for production.
+
+There is a separate option "i" to add ~(declaim (inline foo))~
+declaration. But it works only when ~hu.dwim.asdf:*load-as-production?*~
+is ~nil~ and debug is turned off.
+
+On SBCL debug level is also controlled by a level, declaimed in the
+REPL. To have a reproducable results you'll need to evaluate:
+~(declaim (optimize (debug 0)))~ otherwise a ~notinline~ declaration will be
+added.
+
+Another cool option is "e". It will export the function, class or other
+defined entity:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def (function e) foo ()
+             (format nil "Hello World!"))
+-> (progn
+     (eval-when (:compile-toplevel :load-toplevel :execute)
+       (export 'foo))
+     (defun foo ()
+       (format nil "Hello World!")))
+
+#+END_SRC
+
+Also, a class's slots can be exported automatically:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def (class ea) user ()
+             ((name :reader get-name)
+              (email :reader get-email)))
+-> (progn
+     (export 'user)
+     (export '(get-name get-email))
+     (defclass user ()
+       ((name :reader get-name)
+        (email :reader get-email))))
+
+#+END_SRC
+
+Isn't this amazing? But what is really cool, it that these options will
+also work with your own custom definers.
+
+Here is how to transform a macro generating a function into a definer:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (defmacro blah (name &body body)
+             `(defun ,name ()
+                (format nil "A function ~S was called"
+                        ',name)
+                ,@body))
+
+POFTHEDAY> (blah 'me)
+-> (defun 'me ()
+     (format nil "A function ~S was called" me))
+
+;; Now we'll make from a usual macro a new definer:
+
+POFTHEDAY> (def (definer :available-flags "eodi") blah ()
+             (hu.dwim.def::function-like-definer blah))
+
+POFTHEDAY> (def (blah eoi) me)
+-> (progn
+     (declaim (inline me))
+     (locally
+         (declare (optimize (speed 3) (debug 0) (safety 2)))
+       (eval-when (:compile-toplevel :load-toplevel :execute)
+         (export 'me))
+       (defun me ()
+         (format nil "A function ~S was called" 'me))))
+
+#+END_SRC
+
+Also, you might write a definer with a body. These special variables
+will be available during the macro-expansion:
+
+- ~hu.dwim.def:-definer-~
+- ~hu.dwim.def:-whole-~
+- ~hu.dwim.def:-options-~
+- ~hu.dwim.def:-environment-~
+
+We can define an experimental definer to see what is accessable during
+macro-expansion:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (def (definer :available-flags "doe") guts ()
+             (format t "hu.dwim.def:-definer- = ~A~%"
+                     -definer-)
+             (format t "hu.dwim.def:-options- = ~A~%"
+                     -options-)
+             (format t "hu.dwim.def:-whole- = ~A~%"
+                     -whole-)
+             (format t "hu.dwim.def:-environment- = ~A~%"
+                     -environment-)
+             `(progn))
+
+POFTHEDAY> (def (guts de :any-other 'option))
+hu.dwim.def:-definer- = #<definer GUTS>
+hu.dwim.def:-options- = (EXPORT T DEBUG T ANY-OTHER 'OPTION)
+hu.dwim.def:-whole- = (DEF (GUTS DE ANY-OTHER 'OPTION))
+hu.dwim.def:-environment- = #<NULL-LEXENV>
+NIL
+
+#+END_SRC
+
+As you can see, any values can be passed into the definer besides
+builtin flag and you might implement whatever logic you want.
+
+Final great thing I want to tell you about definers is that there is a
+registry of them. This makes all definers are easily discoverable.
+
+Well, not so easy because you need to digg into some internals:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (loop for definer being the hash-values
+                   of hu.dwim.def::*definers*
+                 for name = (hu.dwim.def::name-of definer)
+                 for doc = (when (slot-boundp definer
+                                              'hu.dwim.def::documentation)
+                             (hu.dwim.def::documentation-of definer))
+                 unless doc
+                   count 1 into undocumented
+                 when doc
+                 do (format t "~A -> ~S~2%"
+                            name doc)
+                 finally (when (> undocumented 0)
+                           (format t "~2&Also, there are ~A undocumented definers.~%"
+                                   undocumented)))
+
+CLASS -> "Example that exports all the class name and all the readers, writers and slot names:
+    (def (class eas) foo (bar baz)
+     ((slot1 :reader readerr)
+      (slot2 :writer writerr :accessor accessorr))
+     (:metaclass fofofo))"
+
+CONDITION -> "See the CLASS definer."
+
+CONSTANT -> "Use like: (def (constant e :test #'string=) alma \"korte\")
+             test defaults to equal."
+
+SPECIAL-VARIABLE -> "Uses defvar/defparameter based on whether a
+                     value was provided or not, and accepts
+                    :documentation definer parameter
+                     for value-less defvars."
+
+PRINT-OBJECT -> "Define a PRINT-OBJECT method using PRINT-UNREADABLE-OBJECT.
+  An example:
+  (def print-object parenscript-dispatcher ; could be (parenscript-dispatcher :identity nil)
+    (when (cachep self)
+      (princ \"cached\")
+      (princ \" \"))
+    (princ (parenscript-file self)))"
+
+WITH-MACRO -> "(def with-macro with-foo (arg1 arg2)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo arg1 arg2
+     (...))"
+
+WITH-MACRO* -> "(def with-macro* with-foo (arg1 arg2 &key alma)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo (arg1 arg2 :alma alma)
+     (...))"
+
+GUTS -> "This definer shows debug information about environment
+         where is expanded."
+
+
+Also, there are 33 undocumented definers.
+#+END_SRC
+
+To conclude, ~hu.dwim.def~ is a great library now I'll use it in my projects!
