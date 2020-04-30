@@ -34,9 +34,6 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 29 April - [[content/2020/04/0053-cl-locale.org][cl-locale]] ([[https://twitter.com/svetlyak40wt/status/1255599103255420933][twitter]])
 - 30 April - [[content/2020/04/0054-hu.dwim.def.org][hu.dwim.def]] ([[https://twitter.com/svetlyak40wt/status/1255941098905755649][twitter]])
 
-
-
-
 ** March
 - 07 March – [[content/2020/03/0000-cl-mpg123.org][cl-mpg123]] ([[https://twitter.com/svetlyak40wt/status/1236275871989878784][twitter]])
 - 08 March – [[content/2020/03/0001-rate-monotonic.org][rate-monotonic]] ([[https://twitter.com/svetlyak40wt/status/1236551575159607296][twitter]])
@@ -335,7 +332,8 @@ it is, etc. These properties have grades:
            (cl-org-mode::property-node.property node)))
      (:td :style "padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD"
           (cl-who:esc
-           (cl-org-mode::property-node.value node))))))
+           (smile->unicode
+            (cl-org-mode::property-node.value node)))))))
 
 #+END_SRC
 
