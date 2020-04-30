@@ -32,7 +32,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 27 April - [[content/2020/04/0051-should-test.org][should-test]] ([[https://twitter.com/svetlyak40wt/status/1254838764913950721][twitter]])
 - 28 April - [[content/2020/04/0052-beast.org][beast]] ([[https://twitter.com/svetlyak40wt/status/1255227547379531777][twitter]])
 - 29 April - [[content/2020/04/0053-cl-locale.org][cl-locale]] ([[https://twitter.com/svetlyak40wt/status/1255599103255420933][twitter]])
-- 30 April - [[content/2020/04/0054-hu.dwim.def.org][hu.dwim.def]]
+- 30 April - [[content/2020/04/0054-hu.dwim.def.org][hu.dwim.def]] ([[https://twitter.com/svetlyak40wt/status/1255941098905755649][twitter]])
 
 
 
@@ -310,15 +310,22 @@ it is, etc. These properties have grades:
   dont cover all functionality
 - :( the project lack of this category at all.
 
-#+BEGIN_SRC lisp 
+#+BEGIN_SRC lisp
+
+(defun smile->unicode (text)
+  (arrows:->>
+      text
+    (str:replace-all ":)" "😀")
+    (str:replace-all ":|" "🤨")
+    (str:replace-all ":(" "🥺")))
 
 (defmethod render-node ((node cl-org-mode::properties-node) stream)
   (cl-who:with-html-output (stream)
     (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;"
-     (mapcar
-      (lambda (item)
-        (render-node item stream))
-      (cl-org-mode::node.children node)))))
+            (mapcar
+             (lambda (item)
+               (render-node item stream))
+             (cl-org-mode::node.children node)))))
 
 (defmethod render-node ((node cl-org-mode::property-node) stream)
   (cl-who:with-html-output (stream)

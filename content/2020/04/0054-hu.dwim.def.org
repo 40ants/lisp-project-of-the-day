@@ -9,11 +9,11 @@
 :END:
 
 Today I want to review this library because it is used in other
-~hu.dwim.*~ libraries. Understading how does ~hu.dwim.def~ works will help
+~hu.dwim.*~ libraries. Understanding how does ~hu.dwim.def~ works will help
 to read other libraries code.
 
 The main concept of the ~hu.dwim.def~ is the ~definer~. Definer has a name
-and a function which is used to macroexpand the code.
+and a function which is used to macro-expand the code.
 
 This is how usual definition can be used and what it expands to:
 
@@ -36,7 +36,7 @@ As you can see, this macro expands into a usual function definition,
 plus a ~symbol-macrolet~, useful to refer to a current function name.
 
 When definer is called, a number of options can be passed. Options allow
-to tune optimization settings and export rules.
+tuning optimization settings and export rules.
 
 Option "o" adds declaration to maximize performance:
 

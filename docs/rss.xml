@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>hu.dwim.def</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0054-hu.dwim.def.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>cl-locale</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0053-cl-locale.html</link>
             <description> )</description>
@@ -125,11 +130,6 @@ each with its own compiler policies:
         <item>
             <title>trivial-mmap</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0035-trivial-mmap.html</link>
-            <description> |</description>
-        </item>
-        <item>
-            <title>cl-progress-bar</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0034-cl-progress-bar.html</link>
             <description> |</description>
         </item>
     </channel>

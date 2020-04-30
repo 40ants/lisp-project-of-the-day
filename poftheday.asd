@@ -12,5 +12,6 @@
                "alexandria"
                "xml-emitter"
                "rutils"
-               "doplus")
+               "doplus"
+               "arrows")
   :components ((:org "readme")))
