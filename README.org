@@ -2,6 +2,8 @@
 Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 * 2020
+** May
+- 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]]
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
 - 02 April - [[content/2020/04/0026-periods.org][periods]] ([[https://twitter.com/svetlyak40wt/status/1245693772316528641][twitter]])

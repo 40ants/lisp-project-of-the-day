@@ -1,0 +1,45 @@
+* cl-heredoc :io:readtable:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This module implements a syntax to read string literals in [[https://en.wikipedia.org/wiki/Here_document][heredoc]]
+style. Such way of reading is also supported in some other languages.
+
+Heredoc allows you to define a string literal where any symbols can be
+used:
+
+#+BEGIN_SRC lisp
+
+POFTHEDAY> (set-dispatch-macro-character
+            #\# #\>
+            #'cl-heredoc:read-heredoc)
+
+POFTHEDAY> #>some stop sequence>And now I can
+use any characters even different quotes:
+
+- '
+- "
+some stop sequence
+
+;; result is:
+
+"And now I can
+use any characters even different quotes:
+
+- '
+- \"
+"
+
+#+END_SRC
+
+With ~cl-heredoc~ you can write anything you want without escaping. This
+might be useful in some cases.
+
+Also, it exports a function ~read-until-match~ which might be used to read
+from a string until a given subsequence.
