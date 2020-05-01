@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-heredoc</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>hu.dwim.def</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0054-hu.dwim.def.html</link>
             <description> (</description>
@@ -126,11 +131,6 @@ each with its own compiler policies:
             <title>mtlisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0036-mtlisp.html</link>
             <description> (</description>
-        </item>
-        <item>
-            <title>trivial-mmap</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0035-trivial-mmap.html</link>
-            <description> |</description>
         </item>
     </channel>
 </rss>
