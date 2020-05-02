@@ -26,7 +26,7 @@ POFTHEDAY> (super-let foo
 
 #+end_src
 
-But what if we want to indent it like this?
+But what if we want Emacs to indent it like this?
 
 #+begin_src lisp
 
@@ -57,7 +57,7 @@ POFTHEDAY> (super-let blah
 #+end_src
 
 I have an advice for you. If you are using ~SLY~, it might cache
-indentation rules. If you've defined a rule but dont see effect, call
+indentation rules. When you've defined a rule but don't see an effect, call
 ~(slynk:update-indentation-information)~ in the REPL.
 
 Now let's try to define a more complex indentation rule. Yesterday I
@@ -76,12 +76,6 @@ wrote such macro for running Genetic Algorithm:
 
 ;; After that you might run it like this:
 
-#+END_SRC
-
-Without any rules, this macro is indented like this:
-
-#+begin_src lisp
-
 (run-ga (((x 0 10)
           (y -10 10)
           (z '(:foo :bar :bazz)))
@@ -95,10 +89,13 @@ Without any rules, this macro is indented like this:
             (:bazz 1000))
            (+ x y))))
 
-#+end_src
+#+END_SRC
+
+As you can see, without special rules, these algorithm parameters are hard to
+distinguish from the genom definition (the first argument).
 
 But what if we want to separate keyword arguments visually and to make
-it to look like this?
+this form look like this?
 
 #+begin_src lisp
 
@@ -117,7 +114,7 @@ it to look like this?
 
 #+end_src
 
-Then we might to define a following rule:
+Then we might define the following rule:
 
 #+begin_src lisp
 
@@ -128,16 +125,16 @@ POFTHEDAY> (trivial-indent:define-indentation
 #+end_src
 
 It says, that ~run-ga~ macro has a list-like first argument. Keyword
-~&whole &lambda~ tells that first item of this list whould be indented as
+~&whole &lambda~ tells that first item of this list would be indented as
 a regular lambda-list.
 
 Following ~&rest -4~ tells Emacs to deindent rest items of the first list.
 
-And finally ~&body~ keyword says to handle rest of the macro arguments
+And finally, ~&body~ keyword says to handle the rest of the macro arguments
 like a function's body.
 
 There is also ability to define a custom function which will decide how
-to indent a form. But I didn't used this feature yet.
+to indent a form. But I didn't use this feature yet.
 
 You can read detail about the structure of indentation rules in
 [[https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248][this Emacs docstring]].

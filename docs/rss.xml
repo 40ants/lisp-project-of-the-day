@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-indent</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0056-trivial-indent.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>cl-heredoc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</link>
             <description> (</description>
@@ -126,11 +131,6 @@ each with its own compiler policies:
             <title>deploy</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0037-deploy.html</link>
             <description> )</description>
-        </item>
-        <item>
-            <title>mtlisp</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0036-mtlisp.html</link>
-            <description> (</description>
         </item>
     </channel>
 </rss>

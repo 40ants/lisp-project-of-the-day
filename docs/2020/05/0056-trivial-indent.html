@@ -31,7 +31,7 @@
 POFTHEDAY&gt; (super-let foo
                100500
              (format nil &quot;Foo is ~A&quot; foo))
-&quot;Foo is 100500&quot;</code></pre><p>But what if we want to indent it like this?</p>
+&quot;Foo is 100500&quot;</code></pre><p>But what if we want Emacs to indent it like this?</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (super-let foo
                       100500
              (format nil &quot;Foo is ~A&quot; foo))
@@ -46,7 +46,7 @@ POFTHEDAY&gt; (trivial-indent:define-indentation super-let
 POFTHEDAY&gt; (super-let blah
                       &#039;minor
              (format nil &quot;blah -&gt; ~A&quot; blah))
-&quot;blah -&gt; MINOR&quot;</code></pre><p>I have an advice for you. If you are using <code>SLY</code>, it might cache indentation rules. If you've defined a rule but dont see effect, call <code>(slynk:update-indentation-information)</code> in the REPL.</p>
+&quot;blah -&gt; MINOR&quot;</code></pre><p>I have an advice for you. If you are using <code>SLY</code>, it might cache indentation rules. When you've defined a rule but don't see an effect, call <code>(slynk:update-indentation-information)</code> in the REPL.</p>
 <p>Now let's try to define a more complex indentation rule. Yesterday I wrote such macro for running Genetic Algorithm:</p>
 <pre><code class=' lisp'>(def macro run-ga ((genome &amp;key (population-size 100)
                                 (max-iterations 1000)
@@ -57,8 +57,9 @@ POFTHEDAY&gt; (super-let blah
     (unless genome
       ...)))
 
-;; After that you might run it like this:</code></pre><p>Without any rules, this macro is indented like this:</p>
-<pre><code class=' lisp'>(run-ga (((x 0 10)
+;; After that you might run it like this:
+
+(run-ga (((x 0 10)
           (y -10 10)
           (z &#039;(:foo :bar :bazz)))
          :max-iterations 100
@@ -69,7 +70,8 @@ POFTHEDAY&gt; (super-let blah
             (:foo 10)
             (:bar 100)
             (:bazz 1000))
-           (+ x y))))</code></pre><p>But what if we want to separate keyword arguments visually and to make it to look like this?</p>
+           (+ x y))))</code></pre><p>As you can see, without special rules, these algorithm parameters are hard to distinguish from the genom definition (the first argument).</p>
+<p>But what if we want to separate keyword arguments visually and to make this form look like this?</p>
 <pre><code class=' lisp'>(run-ga (((x 0 10)
           (y -10 10)s
           (z &#039;(:foo :bar :bazz)))
@@ -81,13 +83,13 @@ POFTHEDAY&gt; (super-let blah
             (:foo 10)
             (:bar 100)
             (:bazz 1000))
-           (+ x y))))</code></pre><p>Then we might to define a following rule:</p>
+           (+ x y))))</code></pre><p>Then we might define the following rule:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (trivial-indent:define-indentation
                genetic-algorithm:run-ga
-               ((&amp;whole &amp;lambda &amp;rest -4) &amp;body))</code></pre><p>It says, that <code>run-ga</code> macro has a list-like first argument. Keyword <code>&whole &lambda</code> tells that first item of this list whould be indented as a regular lambda-list.</p>
+               ((&amp;whole &amp;lambda &amp;rest -4) &amp;body))</code></pre><p>It says, that <code>run-ga</code> macro has a list-like first argument. Keyword <code>&whole &lambda</code> tells that first item of this list would be indented as a regular lambda-list.</p>
 <p>Following <code>&rest -4</code> tells Emacs to deindent rest items of the first list.</p>
-<p>And finally <code>&body</code> keyword says to handle rest of the macro arguments like a function's body.</p>
-<p>There is also ability to define a custom function which will decide how to indent a form. But I didn't used this feature yet.</p>
+<p>And finally, <code>&body</code> keyword says to handle the rest of the macro arguments like a function's body.</p>
+<p>There is also ability to define a custom function which will decide how to indent a form. But I didn't use this feature yet.</p>
 <p>You can read detail about the structure of indentation rules in <a href="https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248">this Emacs docstring</a>.</p>
 </div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
   </body>
