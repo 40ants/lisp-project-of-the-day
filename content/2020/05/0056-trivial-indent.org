@@ -1,0 +1,143 @@
+* trivial-indent :ide:editor:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This is another great library by [[https://twitter.com/shinmera][@shinmera]]. It is a portability layer
+for defining indentation rules for both SLIME and [[http://joaotavora.github.io/sly/#A-SLY-tour-for-SLIME-users][SLY]].
+
+Let's pretend we have a macro:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmacro super-let (name value &body body)
+             `(let ((,name ,value))
+                ,@body))
+
+POFTHEDAY> (super-let foo
+               100500
+             (format nil "Foo is ~A" foo))
+"Foo is 100500"
+
+#+end_src
+
+But what if we want to indent it like this?
+
+#+begin_src lisp
+
+POFTHEDAY> (super-let foo
+                      100500
+             (format nil "Foo is ~A" foo))
+"Foo is 100500"
+
+#+end_src
+
+Then we can set indentation rule, and ~trivial-indent~ will make it work
+for both SLIME and SLY:
+
+#+begin_src lisp
+
+;; This rule says: indent first two arguments
+;; with 11 spaces if they are on their own line.
+;; And other arguments indent like usual function's body.
+POFTHEDAY> (trivial-indent:define-indentation super-let
+               (11 11 &body))
+
+;; And now all super-let form will be indented according to this rule.
+POFTHEDAY> (super-let blah
+                      'minor
+             (format nil "blah -> ~A" blah))
+"blah -> MINOR"
+
+#+end_src
+
+I have an advice for you. If you are using ~SLY~, it might cache
+indentation rules. If you've defined a rule but dont see effect, call
+~(slynk:update-indentation-information)~ in the REPL.
+
+Now let's try to define a more complex indentation rule. Yesterday I
+wrote such macro for running Genetic Algorithm:
+
+#+BEGIN_SRC lisp
+
+(def macro run-ga ((genome &key (population-size 100)
+                                (max-iterations 1000)
+                                (survive-ratio 0.5))
+                   &body fitness-code)
+  (let ((var-names (get-var-names genome)))
+    
+    (unless genome
+      ...)))
+
+;; After that you might run it like this:
+
+#+END_SRC
+
+Without any rules, this macro is indented like this:
+
+#+begin_src lisp
+
+(run-ga (((x 0 10)
+          (y -10 10)
+          (z '(:foo :bar :bazz)))
+         :max-iterations 100
+         :survive-ratio 0.2)
+  
+  ;; Our fitness-function
+  (abs (- (ecase z
+            (:foo 10)
+            (:bar 100)
+            (:bazz 1000))
+           (+ x y))))
+
+#+end_src
+
+But what if we want to separate keyword arguments visually and to make
+it to look like this?
+
+#+begin_src lisp
+
+(run-ga (((x 0 10)
+          (y -10 10)s
+          (z '(:foo :bar :bazz)))
+    :max-iterations 100
+    :survive-ratio 0.2)
+  
+  ;; Our fitness-function
+  (abs (- (ecase z
+            (:foo 10)
+            (:bar 100)
+            (:bazz 1000))
+           (+ x y))))
+
+#+end_src
+
+Then we might to define a following rule:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-indent:define-indentation
+               genetic-algorithm:run-ga
+               ((&whole &lambda &rest -4) &body))
+
+#+end_src
+
+It says, that ~run-ga~ macro has a list-like first argument. Keyword
+~&whole &lambda~ tells that first item of this list whould be indented as
+a regular lambda-list.
+
+Following ~&rest -4~ tells Emacs to deindent rest items of the first list.
+
+And finally ~&body~ keyword says to handle rest of the macro arguments
+like a function's body.
+
+There is also ability to define a custom function which will decide how
+to indent a form. But I didn't used this feature yet.
+
+You can read detail about the structure of indentation rules in
+[[https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248][this Emacs docstring]].

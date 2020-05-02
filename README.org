@@ -4,6 +4,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 * 2020
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
+- 02 May - [[content/2020/05/0056-trivial-indent.org][trivial-indent]]
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
 - 02 April - [[content/2020/04/0026-periods.org][periods]] ([[https://twitter.com/svetlyak40wt/status/1245693772316528641][twitter]])
@@ -153,7 +154,7 @@ with cl-org-mode:
 
 ** Rendering org-mode to HTML
 
-***  A page skeleton
+*** A page skeleton
 For each page we need a skeleton with header, footer and necessary
 Bootstrap styles.
 
@@ -234,7 +235,7 @@ that:
                                  :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png")))))))))))
 
 #+END_SRC
-***  Generation of separate pages for articles
+*** Generation of separate pages for articles
 
 When source files are collected, we need to render them to HTML inside
 the "docs" folder. Github will use content of this folder, to serve the
@@ -525,7 +526,7 @@ Now it is time to write a code which will render all org mode files into HTML:
   
 #+END_SRC
 
-***  Writing RSS feed
+*** Writing RSS feed
 
 We want to show in RSS only posts, published at Twitter. This
 information can be extracted from the README.org, because there I'm
@@ -597,7 +598,7 @@ those, having a link to the twitter.
 
 #+END_SRC
 
-***  Generating index page
+*** Generating index page
 
 On index page we want to output a list of all articles.
 Probably later, we'll want to print only the latest and to create a tags
@@ -683,7 +684,7 @@ We'll use few helpers to create urls and titles for the index page:
 
 #+END_SRC
 
-***  Main function to render the whole site
+*** Main function to render the whole site
 
 Also, we need a entry-point function which will do all the job - read
 files and write html:
@@ -702,8 +703,7 @@ files and write html:
 
 
 ** Some utilities
-
-***  Org-mode helpers
+*** Org-mode helpers
 
 #+BEGIN_SRC lisp
 
@@ -721,7 +721,32 @@ files and write html:
 
 #+END_SRC
 
-***  Converting pathnames to strings
+*** A hack to make cl-org-mode work with lowercased begin_src
+
+    #+begin_src lisp
+
+    (defclass lowercased-src-node (cl-org-mode::src-node)
+             ()
+             (:default-initargs 
+              :opening-delimiter "#+begin_src"
+              :closing-delimiter (format nil "~%#+end_src")
+              :text nil
+              :include-end-node nil))
+    
+    (defmethod cl-org-mode::node-dispatchers ((node cl-org-mode::org-node))
+      (or cl-org-mode::*dispatchers* 
+          (mapcar #'make-instance '(lowercased-src-node
+                                    cl-org-mode::src-node
+                                    cl-org-mode::properties-node
+                                    cl-org-mode::outline-node))))
+
+#+end_src
+
+[[https://common-lisp.net/project/cl-org-mode/][Cl-org-mode]] from the Quicklisp is a 10 years old library which
+[[https://gitlab.common-lisp.net/cl-org-mode/cl-org-mode][seems unmaintained]]. Probably it is better to move to a library I've
+found [[https://github.com/deepfire/cl-org-mode][on the GitHub]] or to [[https://github.com/Ferada/cl-org-mode-parser][this library]].
+
+*** Converting pathnames to strings
 
 To work with files we will use [[content/2020/03/0010-ppath.org][ppath]]. This library is able to make
 relative path. However, it operates with strings, not pathnames.
