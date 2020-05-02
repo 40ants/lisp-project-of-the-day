@@ -817,58 +817,16 @@ files, and extracting their ":defsystem-depends-on".
 * Good candidates for review
 - a bunch of hu.dwim.* systems seems can be very interesting. We can
   make "A Week of DWIM.HU"!
+
+  - defclass-star - a more clever defclass
+  - serializer - flexible and fast object serialization/deserialization
+  - stefil - a test framework that just doesn't get in the way
+  - computed-class - functional reactive programming for classes, local variables, etc.
+  - quasi-quote - efficient templating
+  - rdbms - database access (mostly for Postgres)
+  - perec - persistent CLOS
+  - web-server
+  -logger
 - https://github.com/ruricolist/vernacular - interesting system to
   extend Lisp with other syntax
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
-
-ASDF extensions:
-
-#+BEGIN_SRC text
-
-hu.dwim.asdf - 150  +
-prove-asdf - 133    ?
-asdf-encodings - 29 +
-cffi-grovel - 27    +
-qt-libs - 22        ?
-asdf-package-system - 16
-iolib.asdf - 13     + interesting way to muffle sb-int:package-at-variance condition (https://github.com/sionescu/iolib/blame/master/src/base/asdf.lisp, http://www.sbcl.org/manual/#Package-Variance)
-trivial-package-manager - 12 +
-iolib.conf - 11
-trivial-features - 10        +
-bodge-blobs-support - 9      +
-com.google.base - 7          * - надо выяснить, как используется
-cffi/c2ffi - 6
-qtools - 5
-prove - 4
-cl-mpi-asdf-integration - 3
-protobuf - 3
-simplet-asdf - 3 (test runner)
-asdf - 3
-iolib.grovel - 3
-cl-test-more - 3
-asdf-finalizers - 2          *
-deploy - 2                   *
-gendl-asdf - 2
-literate-lisp - 2            +
-iolib.base - 2
-modularize - 2               +
-cacau-asdf - 2
-overlord - 1
-cl-protobufs - 1
-quickutil-client-management - 1
-eco - 1
-paren-files - 1
-asdf-dependency-grovel - 1
-asdf-linguist - 1            *
-zacl - 1
-closure-template - 1
-f2cl-asdf - 1
-fiveam - 1
-bytecurry.asdf-ext - 1
-clos-fixtures - 1
-rte - 1 (regular-type-expression)  ?
-ci-utils-features - 1
-cffi-toolchain - 1
-wild-package-inferred-system - 1
-
-#+END_SRC
