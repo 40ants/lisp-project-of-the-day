@@ -8,7 +8,7 @@
 :CI:       :(
 :END:
 
-This small library make debugging easier when you are using many
+This small library makes debugging easier when you are using many
 anonymous functions. With ~pretty-functions~ you can give names to your
 lambdas.
 
@@ -48,6 +48,10 @@ With ~pretty-function~ we should see the name instead of ~LAMBDA~:
 
 POFTHEDAY> (pretty-function:enable-pretty-function-printing)
 
+POFTHEDAY> (foo (pretty-function:named-lambda bar-caller ()
+                  (bar)))
+
+->
 Hello World!
    [Condition of type SIMPLE-ERROR]
 
@@ -59,8 +63,9 @@ Restarts:
 Backtrace:
  0: (BAR)
  1: ((LAMBDA ()))
- 2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #<NULL-LEXENV>)
- 3: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))
+ 2: (FOO #<FUNCTION (LAMBDA NIL) {2253906B}>)
+ 3: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #<NULL-LEXENV>)
+ 4: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))
 
 #+end_src
 
@@ -68,7 +73,7 @@ However, it does not work. Probably, because ~SLY~ turns off
 ~*pretty-print*~ when rendering the traceback. At least, it does not work
 in SBCL.
 
-The same result we'll get if request a backtrace as a list:
+Almost the same result we'll get if request a backtrace as a list:
 
 #+begin_src lisp
 
@@ -89,14 +94,14 @@ POFTHEDAY> (block test
 
 #+end_src
 
-Named function has it's name only when it is rendered as function's
+Named function has its name only when it is rendered as function's
 argument. But anyway, it is useful.
 
 Probably, it will work better on other supported implementations:
 Allegro, Clisp, CMU, Lispworks or MCL.
 
 More complex example uses another macro - ~named-lambda*~. It allows to
-use arbitrary form to return a current name of a lambda function:
+use of arbitrary form to return a current name of a lambda function:
 
 #+begin_src lisp
 
@@ -125,8 +130,8 @@ POFTHEDAY> *f*
 
 #+end_src
 
-You might want to make a shorter name like ~#<counter=1>~, then you need
-to use lower level macro ~with-function-printer~:
+You might want to make a shorter name like ~<counter=1>~, then you need
+to use lower-level macro ~with-function-printer~:
 
 #+begin_src lisp
 
@@ -150,5 +155,5 @@ POFTHEDAY> *f*
 
 #+end_src
 
-Of cause, with Lisp you always can write your own syntax sugar around
+Of cause, with Lisp, you always can write your own syntax sugar around
 this macro.
