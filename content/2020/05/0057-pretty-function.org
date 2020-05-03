@@ -1,0 +1,154 @@
+* pretty-function :utils:debugging:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This small library make debugging easier when you are using many
+anonymous functions. With ~pretty-functions~ you can give names to your
+lambdas.
+
+Here is a traceback you'll have with ordinal lambda:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun bar ()
+             (error "Hello World!"))
+
+POFTHEDAY> (defun foo (func)
+             (funcall func))
+
+POFTHEDAY> (foo (lambda ()
+                  (bar)))
+
+->
+Hello World!
+   [Condition of type SIMPLE-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY mREPL evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#<THREAD "sly-channel-1-mrepl-remote-1" RUNNING {1003785853}>)
+
+Backtrace:
+ 0: (BAR)
+ 1: ((LAMBDA ()))
+ 2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (LAMBDA NIL (BAR))) #A<NULL-LEXENV>)
+ 3: (EVAL (FOO (LAMBDA NIL (BAR))))
+
+#+end_src
+
+With ~pretty-function~ we should see the name instead of ~LAMBDA~:
+
+#+begin_src lisp
+
+POFTHEDAY> (pretty-function:enable-pretty-function-printing)
+
+Hello World!
+   [Condition of type SIMPLE-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY mREPL evaluation request.
+ 1: [*ABORT] Return to SLY's top level.
+ 2: [ABORT] abort thread (#<THREAD "sly-channel-1-mrepl-remote-1" RUNNING {100394D853}>)
+
+Backtrace:
+ 0: (BAR)
+ 1: ((LAMBDA ()))
+ 2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #<NULL-LEXENV>)
+ 3: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))
+
+#+end_src
+
+However, it does not work. Probably, because ~SLY~ turns off
+~*pretty-print*~ when rendering the traceback. At least, it does not work
+in SBCL.
+
+The same result we'll get if request a backtrace as a list:
+
+#+begin_src lisp
+
+POFTHEDAY> (block test
+               (handler-bind ((error (lambda (c)
+                                       (return-from test
+                                         (sb-debug:backtrace-as-list 7)))))
+                 (foo (pretty-function:named-lambda bar-caller ()
+                        (bar)))))
+
+(((FLET "H0" :IN TEST) #<unused argument>)
+ (SB-KERNEL::%SIGNAL #<SIMPLE-ERROR "Hello World!" {10050B8763}>)
+ (ERROR "Hello World!")
+ (BAR)
+ ((LAMBDA () :IN TEST))
+ (FOO #<named-lambda BAR-CALLER>)
+ ((LAMBDA ())))
+
+#+end_src
+
+Named function has it's name only when it is rendered as function's
+argument. But anyway, it is useful.
+
+Probably, it will work better on other supported implementations:
+Allegro, Clisp, CMU, Lispworks or MCL.
+
+More complex example uses another macro - ~named-lambda*~. It allows to
+use arbitrary form to return a current name of a lambda function:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *f*
+             (let ((n 0))
+               (pretty-function:named-lambda*
+                   ;; a form to return a description
+                   (format nil "counter=~A" n)
+                   () ;; arguments
+                 (incf n))))
+
+POFTHEDAY> *f*
+#<named-lambda counter=0>
+
+POFTHEDAY> (funcall *f*)
+1
+
+POFTHEDAY> *f*
+#<named-lambda counter=1>
+
+POFTHEDAY> (funcall *f*)
+2
+
+POFTHEDAY> *f*
+#<named-lambda counter=2>
+
+#+end_src
+
+You might want to make a shorter name like ~#<counter=1>~, then you need
+to use lower level macro ~with-function-printer~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *f*
+             (let ((n 0))
+               (pretty-function:with-function-printer
+                   ;; A lambda to wriite a description
+                   (lambda (s) (format s "#<counter=~A>" n))
+                 ;; A lambda to do a real job
+                 (lambda ()
+                   (incf n)))))
+
+POFTHEDAY> *f*
+#<counter=0>
+
+POFTHEDAY> (funcall *f*)
+1
+
+POFTHEDAY> *f*
+#<counter=1>
+
+#+end_src
+
+Of cause, with Lisp you always can write your own syntax sugar around
+this macro.
