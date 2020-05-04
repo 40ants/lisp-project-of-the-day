@@ -830,6 +830,7 @@ files, and extracting their ":defsystem-depends-on".
   - perec - persistent CLOS
   - web-server
   -logger
+- there are many interesting ~darts.lib.*~ libraries [[https://github.com/deterministic-arts?tab=repositories][on the GitHub]].
 - https://github.com/ruricolist/vernacular - interesting system to
   extend Lisp with other syntax
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
