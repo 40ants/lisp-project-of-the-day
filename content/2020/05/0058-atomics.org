@@ -1,0 +1,42 @@
+* atomics :threading:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This is a portability library for access to atomic operation primitives
+such as ~compare-and-swap~, ~atomic-incf~ and ~atomic-decf~.
+
+Atomic operations are particularly useful for implementing lockless
+algorithms.
+
+Here is an example of using compare and swap under SBCL:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((foo (list 1 2 3 4)))
+             (atomics:cas (car foo)
+                          1
+                          42)
+             foo)
+
+-> (LET ((FOO (LIST 1 2 3 4)))
+     (LET ((#:OLD0 1))
+       (EQ #:OLD0
+           (LET ((#:CONS1 FOO))
+             (LET ((#:OLD2 #:OLD0))
+               (LET ((#:NEW3 42))
+                 (SB-KERNEL:%COMPARE-AND-SWAP-CAR #:CONS1
+                                                  #:OLD2
+                                                  #:NEW3))))))
+     FOO)
+
+(42 2 3 4)
+
+#+end_src
+
+This library, as all [[https://twitter.com/shinmera][@shinmera's]] libraries, has a [[https://shinmera.github.io/atomics/][good documentation]].
