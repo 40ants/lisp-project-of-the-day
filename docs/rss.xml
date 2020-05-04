@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>atomics</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0058-atomics.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>pretty-function</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0057-pretty-function.html</link>
             <description> (</description>
@@ -126,11 +131,6 @@ To check how it works, we create a simple system with three components
 each with its own compiler policies:
 
 </description>
-        </item>
-        <item>
-            <title>asdf-linguist</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0038-asdf-linguist.html</link>
-            <description> (</description>
         </item>
     </channel>
 </rss>

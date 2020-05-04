@@ -6,7 +6,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
 - 02 May - [[content/2020/05/0056-trivial-indent.org][trivial-indent]] ([[https://twitter.com/svetlyak40wt/status/1256668072422899713][twitter]])
 - 03 May - [[content/2020/05/0057-pretty-function.org][pretty-function]] ([[https://twitter.com/svetlyak40wt/status/1257048413427978241][twitter]])
-- 04 May - [[2020/05/0058-atomics.org][atomics]]
+- 04 May - [[2020/05/0058-atomics.org][atomics]] ([[https://twitter.com/svetlyak40wt/status/1257279361348239360][twitter]])
 
 
 ** April

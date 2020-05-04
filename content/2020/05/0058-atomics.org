@@ -39,4 +39,6 @@ POFTHEDAY> (let ((foo (list 1 2 3 4)))
 
 #+end_src
 
-This library, as all [[https://twitter.com/shinmera][@shinmera's]] libraries, has a [[https://shinmera.github.io/atomics/][good documentation]].
+"atomics", like all [[https://twitter.com/shinmera][@shinmera's]] libraries, has a [[https://shinmera.github.io/atomics/][good documentation]]
+where you can find details on support for atomics operations in
+different CL implementations.
