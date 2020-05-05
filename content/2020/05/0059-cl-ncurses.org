@@ -8,9 +8,9 @@
 :CI:       :(
 :END:
 
-This library is a binding to NCurses. It allows to create windowing
-interfaces for console. With ncurses you can print to any place of the
-screen, change colors and probably some other awesome things.
+This library is binding to NCurses. It allows for creating windowing
+interfaces for the console. With NCurses you can print to any place of the
+screen, change colors and probably do some other awesome things.
 
 I took few examples from original NCurses documentation:
 
@@ -48,6 +48,10 @@ First example just wait for any key and print this key in bold:
 Second example a little bit complex. It uses fetches the size of the
 terminal and prints "Hello Lisp Word!" in the center. After that, it
 draws a border using pseudographics:
+
+[[../../media/0059/ncurses-hello.png]]
+
+Here is the code:
 
 #+begin_src lisp
 
