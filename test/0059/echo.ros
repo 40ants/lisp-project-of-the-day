@@ -1,0 +1,36 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  (ql:quickload '(cl-ncurses) :silent t))
+
+(defpackage :ros.script.echo
+  (:use :cl :cl-ncurses))
+(in-package :ros.script.echo)
+
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (initscr)
+  (raw)
+  (keypad *stdscr* 1)
+  (noecho)
+  (printw "Type any character to see it in bold:
+")
+  (let ((ch (getch)))
+    (cond
+      ((= ch 265)
+       (printw "F1 Key pressed"))
+      (t
+       (printw "The pressed key is ")
+       (attron a_bold)
+       (printw (format nil "~A~%" (code-char ch)))
+       (attroff a_bold)))
+    (refresh)
+    (getch)
+    (endwin)))
+
+;;; vim: set ft=lisp lisp:

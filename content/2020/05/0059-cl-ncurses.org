@@ -1,0 +1,114 @@
+* cl-ncurses :console:ui:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :|
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is a binding to NCurses. It allows to create windowing
+interfaces for console. With ncurses you can print to any place of the
+screen, change colors and probably some other awesome things.
+
+I took few examples from original NCurses documentation:
+
+https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html
+
+It was pretty straightforward to port them to Common Lisp.
+
+First example just wait for any key and print this key in bold:
+
+#+begin_src lisp
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (initscr)
+  (raw)
+  (keypad *stdscr* 1)
+  (noecho)
+  (printw "Type any character to see it in bold:
+")
+  (let ((ch (getch)))
+    (cond
+      ((= ch 265)
+       (printw "F1 Key pressed"))
+      (t
+       (printw "The pressed key is ")
+       (attron a_bold)
+       (printw (format nil "~A~%" (code-char ch)))
+       (attroff a_bold)))
+    (refresh)
+    (getch)
+    (endwin)))
+
+#+end_src
+
+Second example a little bit complex. It uses fetches the size of the
+terminal and prints "Hello Lisp Word!" in the center. After that, it
+draws a border using pseudographics:
+
+#+begin_src lisp
+
+(defun main (&rest argv)
+  "This example is based on:
+   https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/windows.html"
+  (declare (ignorable argv))
+  (initscr)
+  (start-color)
+  (init-pair 1
+             color_red
+             color_black)
+
+  (let ((text "Hello Lisp World!"))
+    (multiple-value-bind (screen-height screen-width)
+        (get-maxyx *stdscr*)
+      (let* ((text-len (length text))
+             (box-width (+ text-len 4))
+             (box-height 5)
+             (box-x (round (/ (- screen-width box-width)
+                              2)))
+             (box-y (round (/ (- screen-height box-height)
+                              2)))
+             (plus (char-code #\+))
+             (h-line (char-code #\-))
+             (v-line (char-code #\|)))
+
+        (attron (color-pair 1))
+
+        ;; It's time to print a text in the center of the screen:
+        (mvprintw (+ box-y 2) (+ box-x 2) text)
+        
+        ;; Now we'll draw a border around the box.
+        ;; Horizontal lines:
+        (mvhline box-y box-x
+                 h-line box-width)
+        (mvhline (+ box-y (1- box-height)) box-x
+                 h-line box-width)
+        ;; Vertical lines:
+        (mvvline box-y box-x
+                 v-line box-height)
+        (mvvline box-y (+ box-x (1- box-width))
+                 v-line box-height)
+        ;; And corners
+        (mvaddch box-y box-x
+                 plus)
+        (mvaddch box-y (+ box-x (1- box-width))
+                 plus)
+        (mvaddch (+ box-y (1- box-height))
+                 (+ box-x (1- box-width))
+                 plus)
+        (mvaddch (+ box-y (1- box-height)) box-x
+                 plus)
+        (move 0 0))))
+
+  ;; Wait for key press
+  (getch)
+  (endwin))
+
+#+end_src
+
+Full examples are available here:
+
+That is it. If you need an interactive interface in the console, use cl-ncurses!
