@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>clawk</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library provides a DSL for text processing in a way like <code>awk</code> does. For those who aren't familar with it, AWK is a language for text processing.</p>
+<p>AWK searches reads lines, splits them into the fields and applies some pattern-matching to them.</p>
+<p>CLAWK allows to solve similar tasks in Lisp.</p>
+<p>It does not have documentation but there are some examples, based on examples from this AWK book from 1988:</p>
+<p><img style="max-width: 100%" src="../../media/0060/awk-book.png"/></p>
+<p>All examples use file <code>emp.data</code> as an input:</p>
+<pre><code class=' text'>Beth    4.00    0
+Dan     3.75    0
+Kathy   4.00    10
+Mark    5.00    20
+Mary    5.50    22
+Suzie   4.25    18</code></pre><p>First example is equivalent to:</p>
+<pre><code class=' bash'>$ awk &#039;$3 &gt; 0 {print $1, $2 * $3}&#039; emp.data
+Kathy 40
+Mark 100
+Mary 121
+Suzie 76.5</code></pre><p>It counts salary for each employee:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (for-file-lines (&quot;docs/media/0060/emp.data&quot;)
+              (with-fields ((name payrate hours))
+                 (when ($&gt; hours 0)
+                    ($print name ($* payrate hours)))))
+
+Kathy 40.0 
+Mark 100.0 
+Mary 121.0 
+Suzie 76.5</code></pre><p>This code is more semantic because we used a normal names for the fields. However, you can use $1, $2, $3 if you with as well.</p>
+<p>Above example is expanded into such code:</p>
+<pre><code class=' lisp'>(with-open-file (#:g1 &quot;docs/media/0060/emp.data&quot;
+                      :direction :input
+                      :element-type &#039;character
+                      :if-does-not-exist :error)
+  (let ((#:g1 #:g1))
+    (when (eq #:g1 &#039;t)
+      (setq #:g1 *standard-input*))
+    (unless (null #:g1)
+      (let ((*curfile* nil)
+            (*curline* &quot;&quot;)
+            (*fnr* -1))
+        (macrolet ((clawk::next ()
+                     &#039;(throw #:g2)))
+          (prog (#:g4)
+           #:g2
+            (setq #:g4 (read-line #:g1 nil :eof))
+            (unless (eq #:g4 :eof)
+              (setq *curline* #:g4
+                    $0 #:g4)
+              (incf *nr*)
+              (incf *fnr*)
+              (catch &#039;#:g2
+                (let* ((#:g3 (split nil (clawk::fs)))
+                       (*nf* (length #:g3)))
+                  (declare (special *nf*))
+                  (destructuring-bind
+                      (name payrate hours)
+                      #:g3
+                    (when ($&gt; hours 0)
+                      ($print name ($* payrate hours))))))
+              (go #:g2))))))))</code></pre><p>This code reads and parses file, tracks some variables like row number, fields count and more. And calls your code.</p>
+<p>You can find more examples in this file:</p>
+<p><a href="https://github.com/sharplispers/clawk/blob/master/clawktest.lisp">https://github.com/sharplispers/clawk/blob/master/clawktest.lisp</a></p>
+<p>For me, CLAWK seems a nice tool to process files line by line from Common Lisp.</p>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
