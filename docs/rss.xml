@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-ncurses</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>atomics</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0058-atomics.html</link>
             <description> )</description>
@@ -107,28 +112,6 @@ This transformation happens during macro-expansion step.
 
 As an example of this technique, &quot;asdf-finalizers&quot; contains a system
 &quot;list-of&quot; which defines a custom type &quot;list-of&quot;:
-
-</description>
-        </item>
-        <item>
-            <title>com.google.base</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0039-com.google.base.html</link>
-            <description>
-Today&apos;s Common Lisp Project of the Day is a library, written by Robert
-Brown, one of the authors of Google&apos;s Common Lisp Style Guide.
-
-The library I&apos;m talking about is &quot;com.google.base&quot;.
-
-It contains a simple asdf extension and some helpers for code
-optimization.
-
-The extension gives you the ability to tell that some ASDF
-system&apos;s component should be compiled with maximum speed. Also, it is
-able to manage how fast and unsafe this code should be when you are
-compiling it for development or production.
-
-To check how it works, we create a simple system with three components
-each with its own compiler policies:
 
 </description>
         </item>
