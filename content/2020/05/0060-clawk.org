@@ -8,14 +8,14 @@
 :CI:       :(
 :END:
 
-This library provides a DSL for text processing in a way like ~awk~
-does. For those who aren't familar with it, AWK is a language for text
+This library provides a DSL for text processing in a way as AWK
+does. For those who aren't familiar with it, AWK is a language for text
 processing.
 
-AWK searches reads lines, splits them into the fields and applies some
+AWK reads lines, splits them into the fields and applies some
 pattern-matching to them.
 
-CLAWK allows to solve similar tasks in Lisp.
+CLAWK allows forOB solving similar tasks in Lisp.
 
 It does not have documentation but there are some examples, based on
 examples from this AWK book from 1988:
@@ -35,7 +35,7 @@ Suzie   4.25    18
 
 #+end_src
 
-First example is equivalent to:
+An example I want to show you is equivalent to:
 
 #+begin_src bash
 
@@ -47,7 +47,9 @@ Suzie 76.5
 
 #+end_src
 
-It counts salary for each employee:
+It counts the salary for each employee.
+
+Here is Common Lisp version which uses CLAWK:
 
 #+begin_src lisp
 
@@ -63,8 +65,8 @@ Suzie 76.5
 
 #+end_src
 
-This code is more semantic because we used a normal names for the
-fields. However, you can use $1, $2, $3 if you with as well.
+This code is more semantic because we used named fields. However, you
+can use $1, $2, $3 if you with as well.
 
 Above example is expanded into such code:
 
@@ -104,8 +106,8 @@ Above example is expanded into such code:
 
 #+end_src
 
-This code reads and parses file, tracks some variables like row number,
-fields count and more. And calls your code.
+This code reads and parses the file, tracks some variables like row number,
+fields count and more. And calls your code to further processing.
 
 You can find more examples in this file:
 
