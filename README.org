@@ -6,9 +6,10 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
 - 02 May - [[content/2020/05/0056-trivial-indent.org][trivial-indent]] ([[https://twitter.com/svetlyak40wt/status/1256668072422899713][twitter]])
 - 03 May - [[content/2020/05/0057-pretty-function.org][pretty-function]] ([[https://twitter.com/svetlyak40wt/status/1257048413427978241][twitter]])
-- 04 May - [[2020/05/0058-atomics.org][atomics]] ([[https://twitter.com/svetlyak40wt/status/1257279361348239360][twitter]])
+- 04 May - [[content/2020/05/0058-atomics.org][atomics]] ([[https://twitter.com/svetlyak40wt/status/1257279361348239360][twitter]])
 - 05 May - [[content/2020/05/0059-cl-ncurses.org][cl-ncurses]] ([[https://twitter.com/svetlyak40wt/status/1257769475002322945][twitter]])
 - 06 May - [[content/2020/05/0060-clawk.org][clawk]] ([[https://twitter.com/svetlyak40wt/status/1258113663128518660][twitter]])
+- 07 May - [[content/2020/05/0061-cl-charms.org][cl-charms]]
 
 
 ** April
@@ -28,7 +29,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 14 April - [[content/2020/04/0038-asdf-linguist.org][asdf-linguist]] ([[https://twitter.com/svetlyak40wt/status/1250125216447152128][twitter]])
 - 15 April - [[content/2020/04/0039-com.google.base.org][com.google.base]] ([[https://twitter.com/svetlyak40wt/status/1250523505382363137][twitter]])
 - 16 April - [[content/2020/04/0040-asdf-finalizers.org][asdf-finalizers]] ([[https://twitter.com/svetlyak40wt/status/1250840036184113155][twitter]])
-- 17 April - [[contents/2020/04/0041-bodge-blobs-support.org][bodge-blobs-support]] ([[https://twitter.com/svetlyak40wt/status/1251183079072432129][twitter]])
+- 17 April - [[content/2020/04/0041-bodge-blobs-support.org][bodge-blobs-support]] ([[https://twitter.com/svetlyak40wt/status/1251183079072432129][twitter]])
 - 18 April - [[content/2020/04/0042-trivial-package-manager.org][trivial-package-manager]] ([[https://twitter.com/svetlyak40wt/status/1251518621165248512][twitter]])
 - 19 April - [[content/2020/04/0043-hu.dwim.asdf.org][hu.dwim.asdf]] ([[https://twitter.com/svetlyak40wt/status/1251946744356777991][twitter]])
 - 20 April - [[content/2020/04/0044-hu.dwim.walker.org][hu.dwim.walker]] ([[https://twitter.com/svetlyak40wt/status/1252332579526709249][twitter]])

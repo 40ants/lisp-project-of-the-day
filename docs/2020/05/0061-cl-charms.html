@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-charms
+    </title>
+    <link rel='alternate' href='/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body><div class='container'><div class='row'><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-charms</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-charms</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F928;</td></tr></table><p>Two days ago I <a href="http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html">reviewed the cl-ncurses</a>. <code>CL-Charms</code> is also a binding to <code>ncurses</code>, but uses more universal and portable <a href="https://common-lisp.net/project/cffi/manual/html_node/">CFFI</a> instead of <a href="http://quickdocs.org/uffi/">UFFI</a>.</p>
+<p>By the way, LEM (Common Lisp Emacs) uses <code>cl-charms</code> for it's console backend.</p>
+<p><code>CL-Charms</code> provides a high level API besides a low level. I've ported my previos <code>echo</code> program to it:</p>
+<pre><code class=' lisp'>(defun main (&amp;rest argv)
+  (declare (ignorable argv))
+  (with-curses ()
+    (enable-raw-input)
+    (enable-extra-keys *standard-window*)
+    (disable-echoing)
+
+    (write-string-at-cursor *standard-window*
+                            &quot;Type any character to see it in bold:
+&quot;)
+
+    (let ((ch (get-char *standard-window*)))
+
+      (cond
+        ((eql ch (code-char 265))
+         (write-string-at-cursor *standard-window*
+                                 &quot;F1 Key pressed&quot;))
+        (t
+         (write-string-at-cursor *standard-window*
+                                 &quot;The pressed key is &quot;)
+
+         (cl-charms/low-level:attron cl-charms/low-level:a_bold)
+         (write-string-at-cursor *standard-window*
+                                 (format nil &quot;~A~%&quot; ch))
+         (cl-charms/low-level:attroff cl-charms/low-level:a_bold)))
+      
+
+      (get-char *standard-window*))))</code></pre><p>Interesting that <code>cl-charms/low-level</code> package can be used as a drop-in replacement for <code>cl-ncurses</code> and my second example worked without any changes except a change in the <code>use</code> clause.</p>
+<h1>A few words about portability</h1><h1>CL-NCURSES</h1><p>I must admit, that working with such kind of bindings can be problematic. For example, I haven't any problems using neither <code>cl-ncurses</code> nor <code>cl-charms</code> on OSX, but there was a problem with starting an example program on Ubuntu Bionic.</p>
+<p>On Ubuntu <code>cl-ncurses</code> is unable to find <code>libncurses.so</code> and you have to load it manually like that:</p>
+<pre><code class=' lisp'>;; These paths are harcoded in the cl-ncurses:
+(defvar *ncurses-search-paths*
+  #-win32&#039;(&quot;/usr/local/lib64/&quot; &quot;/usr/local/lib/&quot; &quot;/lib64/&quot; &quot;/lib/&quot; &quot;/usr/lib64/&quot; &quot;/usr/lib/&quot;)
+  #+win32&#039;(&quot;/users/jacob/src/pdc31dll/&quot;))
+
+;; On Ubuntu Bionic you have to add this
+;; before cl-ncurses initscr call:
+(uffi:load-foreign-library &quot;/lib/x86_64-linux-gnu/libncurses.so.5.9&quot;
+                           :module &quot;cl-ncurses&quot;)</code></pre><h1>CL-CHARMS</h1><p><code>CL-Charms</code> has another problem. It requires the <code>libncurses5-dev</code> package to be installed on Ubuntu. Without that, it has problem when compiling the CFFI Grovel's files:</p>
+<pre><code class=' lisp'>; cc -o /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o -c -g -Wall -Wundef -Wsign-compare -Wpointer-arith -O3 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wunused-parameter -fno-omit-frame-pointer -momit-leaf-frame-pointer -fno-pie -fPIC -I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/ /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c
+/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c:6:10: fatal error: ncurses.h: No such file or directory
+ #include &lt;ncurses.h&gt;
+          ^~~~~~~~~~~
+compilation terminated.
+Unhandled CFFI-GROVEL:GROVEL-ERROR in thread #&lt;error printing a SB-THREAD:THREAD: #&lt;PRINT-NOT-READABLE {10042938A3}&gt;&gt;: Subprocess #&lt;UIOP/LAUNCH-PROGRAM::PROCESS-INFO {100428DCF3}&gt;
+ with command (&quot;cc&quot; &quot;-o&quot; &quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o&quot; &quot;-c&quot; &quot;-g&quot; &quot;-Wall&quot; &quot;-Wundef&quot; &quot;-Wsign-compare&quot; &quot;-Wpointer-arith&quot; &quot;-O3&quot; &quot;-D_LARGEFILE_SOURCE&quot; &quot;-D_LARGEFILE64_SOURCE&quot; &quot;-D_FILE_OFFSET_BITS=64&quot; &quot;-Wunused-parameter&quot; &quot;-fno-omit-frame-pointer&quot; &quot;-momit-leaf-frame-pointer&quot; &quot;-fno-pie&quot; &quot;-fPIC&quot; &quot;-I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/&quot; &quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c&quot;)
+ exited with error code 1
+
+Backtrace for: #&lt;SB-THREAD:THREAD &quot;main thread&quot; RUNNING {10004F04C3}&gt;
+0: (SB-DEBUG::DEBUGGER-DISABLED-HOOK #&lt;CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; {1004291F73}&gt; #&lt;unused argument&gt; :QUIT T)
+1: (SB-DEBUG::RUN-HOOK *INVOKE-DEBUGGER-HOOK* #&lt;CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; {1004291F73}&gt;)
+2: (INVOKE-DEBUGGER #&lt;CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; {1004291F73}&gt;)
+3: (ERROR CFFI-GROVEL:GROVEL-ERROR :FORMAT-CONTROL &quot;~a&quot; :FORMAT-ARGUMENTS (#&lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&gt;))
+4: (CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; #&lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&gt;)
+5: ((FLET &quot;THUNK&quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))</code></pre><h1>Possible Solution?</h1><p>Probably, <a href="https://twitter.com/borodust">@borodust</a>'s <a href="https://github.com/borodust/claw">claw</a> and <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html">bodge-blobs-support</a> can solve these issues?</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
