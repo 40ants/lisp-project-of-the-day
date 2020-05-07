@@ -195,7 +195,7 @@ that:
               (:head
                (:meta :charset "utf-8")
                ,@(when title
-                   `((:title ,title)))
+                   `((:title (cl-who:esc ,title))))
                (:link :rel "alternate"
                       :href "/lisp-project-of-the-day/rss.xml"
                       :type "application/rss+xml")
@@ -522,13 +522,25 @@ Now it is time to write a code which will render all org mode files into HTML:
   (call-render-for-all-children file stream))
 
 (defun render-file (file)
-  (let ((filename (make-output-filename file)))
+  (let ((filename (make-output-filename file))
+        (title (get-title file)))
     (ensure-directories-exist filename)
-    
+
     (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-      (app-page (stream :index-uri "../../index.html")
+      (app-page (stream :index-uri "../../index.html"
+                        :title title)
         (cl-who:with-html-output (stream)
-          (render-node file stream))))))
+          (render-node file stream)
+          (write-string "
+<script src=\"https://utteranc.es/client.js\"
+        repo=\"40ants/lisp-project-of-the-day\"
+        issue-term=\"title\"
+        label=\"comments\"
+        theme=\"github-light\"
+        crossorigin=\"anonymous\"
+        async>
+</script>
+" stream))))))
   
 #+END_SRC
 
