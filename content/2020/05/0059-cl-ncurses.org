@@ -115,4 +115,6 @@ Here is the code:
 
 Full examples are available here:
 
+https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059
+
 That is it. If you need an interactive interface in the console, use cl-ncurses!
