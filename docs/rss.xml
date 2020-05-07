@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-charms</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html</link>
+            <description> (</description>
+        </item>
+        <item>
             <title>clawk</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0060-clawk.html</link>
             <description> (</description>
@@ -99,11 +104,6 @@
             <title>trivial-package-manager</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0042-trivial-package-manager.html</link>
             <description> |</description>
-        </item>
-        <item>
-            <title>bodge-blobs-support</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html</link>
-            <description> (</description>
         </item>
     </channel>
 </rss>

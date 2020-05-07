@@ -13,8 +13,8 @@ Two days ago I [[http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurs
 
 By the way, LEM (Common Lisp Emacs) uses ~cl-charms~ for it's console backend.
 
-~CL-Charms~ provides a high level API besides a low level. I've ported my
-previos ~echo~ program to it:
+~CL-Charms~ provides a high-level API besides a low level. I've ported my
+previous ~echo~ program to it:
 
 #+begin_src lisp
 
@@ -51,7 +51,7 @@ previos ~echo~ program to it:
 
 Interesting that ~cl-charms/low-level~ package can be used as a drop-in
 replacement for ~cl-ncurses~ and my second example worked
-without any changes except a change in the ~use~ clause.
+without any changes except a change [[https://github.com/40ants/lisp-project-of-the-day/blob/master/test/0061/window.ros#L11-L12][in the use clause]].
 
 ** A few words about portability
 
