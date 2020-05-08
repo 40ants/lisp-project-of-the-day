@@ -11,7 +11,7 @@
 This strange library replaces standard ~cl:ed~ function with a new one,
 which executes editor specified in the ~EDITOR~ environment variable.
 
-This does not work from SLY, so I had to run a raw REPL:
+It does not work from SLY, so I had to run a raw REPL:
 
 #+begin_src lisp
 
@@ -52,11 +52,14 @@ file's content and evaluate the lisp code:
 #+begin_src lisp
 
  * (magic-ed:magic-ed "/tmp/foo" :output :string)
+ ...
+ HERE Vim WAS STARTED AND I EDITED THE FILE
+ ...
  "(format t \"Blah~%\")
  "
  *
 
 #+end_src
 
-Does somebody can tell me when this could be useful if you can just use
+Can somebody tell me when this could be useful if you can just use
 Emacs and SLIME?

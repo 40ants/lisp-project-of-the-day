@@ -10,7 +10,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 05 May - [[content/2020/05/0059-cl-ncurses.org][cl-ncurses]] ([[https://twitter.com/svetlyak40wt/status/1257769475002322945][twitter]])
 - 06 May - [[content/2020/05/0060-clawk.org][clawk]] ([[https://twitter.com/svetlyak40wt/status/1258113663128518660][twitter]])
 - 07 May - [[content/2020/05/0061-cl-charms.org][cl-charms]] ([[https://twitter.com/svetlyak40wt/status/1258483627530346496][twitter]])
-- 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]]
+- 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]] ([[https://twitter.com/svetlyak40wt/status/1258841379582738436][twitter]])
 
 
 ** April
