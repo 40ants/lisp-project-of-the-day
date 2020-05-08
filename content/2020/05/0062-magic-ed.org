@@ -1,0 +1,62 @@
+* magic-ed :ide:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This strange library replaces standard ~cl:ed~ function with a new one,
+which executes editor specified in the ~EDITOR~ environment variable.
+
+This does not work from SLY, so I had to run a raw REPL:
+
+#+begin_src lisp
+
+ * sb-ext:*ed-functions*
+ NIL
+ * (cl:ed "qlfile")
+
+ debugger invoked on a SB-INT:EXTENSION-FAILURE in thread
+ #<THREAD "main thread" RUNNING {1000518083}>:
+   Don't know how to ED qlfile
+ See also:
+   The SBCL Manual, Variable *ED-FUNCTIONS*
+
+ Type HELP for debugger help, or (SB-EXT:EXIT) to exit from SBCL.
+
+ restarts (invokable by number or by possibly-abbreviated name):
+   0: [ABORT] Exit debugger, returning to top level.
+
+ (ED "qlfile")
+ 0] ^D
+ * (ql:quickload :magic-ed)
+ To load "magic-ed":
+   Load 1 ASDF system:
+     magic-ed
+ ; Loading "magic-ed"
+
+ (:MAGIC-ED)
+ * sb-ext:*ed-functions*
+ (MAGIC-ED:ED-EDITOR)
+ * (cl:ed "qlfile")
+ T
+
+#+end_src
+
+Also, this library provides a function ~magic-ed~ which is able to return
+file's content and evaluate the lisp code:
+
+#+begin_src lisp
+
+ * (magic-ed:magic-ed "/tmp/foo" :output :string)
+ "(format t \"Blah~%\")
+ "
+ *
+
+#+end_src
+
+Does somebody can tell me when this could be useful if you can just use
+Emacs and SLIME?
