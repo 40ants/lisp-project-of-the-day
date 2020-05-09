@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>asdf-viz</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>magic-ed</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0062-magic-ed.html</link>
             <description> )</description>
@@ -98,11 +103,6 @@
         <item>
             <title>hu.dwim.walker</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0044-hu.dwim.walker.html</link>
-            <description> (</description>
-        </item>
-        <item>
-            <title>hu.dwim.asdf</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0043-hu.dwim.asdf.html</link>
             <description> (</description>
         </item>
     </channel>

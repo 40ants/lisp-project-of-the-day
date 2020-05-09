@@ -34,13 +34,14 @@ POFTHEDAY&gt; (asdf-viz:visualize-asdf-hierarchy
             &quot;docs/media/0063/systems.png&quot;
             (list (asdf:find-system :poftheday)))</code></pre><p>Here is the result:</p>
 <p><img style="max-width: 100%" src="../../media/0063/systems.png"/></p>
-<p>Interestingly, <code>asdf-viz</code> not only can draw a system's dependencies, but also class hierarchies and call graphs.</p>
+<p>Interestingly, <code>asdf-viz</code> not only can draw a system's dependencies but also class hierarchies and call graphs.</p>
 <p>Here is a small example, how to render a class hierarchy:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (asdf-viz.class-hierarchy:visualize-class-hierarchy
             &quot;docs/media/0063/classes.png&quot;
-            (list &#039;cl-org-mode::node))</code></pre><p>And this is resulting graph:</p>
+            (list &#039;cl-org-mode::node))</code></pre><p>And this is the resulting graph:</p>
 <p><img style="max-width: 100%" src="../../media/0063/classes.png"/></p>
-<p>I think it might be useful to integrate <code>asdf-viz</code> into IDE. Probably Emacs in might show graphs in a separate buffer.</p>
+<p>I think it might be useful to integrate <code>asdf-viz</code> into IDE.</p>
+<p>Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE is able to do this?</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

@@ -33,7 +33,7 @@ Here is the result:
 
 [[../../media/0063/systems.png]]
 
-Interestingly, ~asdf-viz~ not only can draw a system's dependencies, but
+Interestingly, ~asdf-viz~ not only can draw a system's dependencies but
 also class hierarchies and call graphs.
 
 Here is a small example, how to render a class hierarchy:
@@ -46,9 +46,11 @@ POFTHEDAY> (asdf-viz.class-hierarchy:visualize-class-hierarchy
 
 #+end_src
 
-And this is resulting graph:
+And this is the resulting graph:
 
 [[../../media/0063/classes.png]]
 
-I think it might be useful to integrate ~asdf-viz~ into IDE. Probably
-Emacs in might show graphs in a separate buffer.
+I think it might be useful to integrate ~asdf-viz~ into IDE.
+
+Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE
+is able to do this?
