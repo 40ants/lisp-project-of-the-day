@@ -11,7 +11,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 06 May - [[content/2020/05/0060-clawk.org][clawk]] ([[https://twitter.com/svetlyak40wt/status/1258113663128518660][twitter]])
 - 07 May - [[content/2020/05/0061-cl-charms.org][cl-charms]] ([[https://twitter.com/svetlyak40wt/status/1258483627530346496][twitter]])
 - 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]] ([[https://twitter.com/svetlyak40wt/status/1258841379582738436][twitter]])
-
+- 09 May - [[content/2020/05/0063-asdf-viz.org][asdf-viz]]
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])

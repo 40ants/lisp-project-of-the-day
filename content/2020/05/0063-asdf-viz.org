@@ -1,0 +1,54 @@
+* asdf-viz :asdf:ide:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+Today I decided it will be more interesting to investigate Lisp systems
+which I already have as dependencies of my projects. That is why I've
+remembered about ~asdf-viz~.
+
+~ASDF-VIZ~ is able to render a graph of ASDF systems. It can be installed
+as Unix scripts using [[https://github.com/roswell/roswell][Roswell]] or used from the REPL.
+
+Also, you'll need a [[https://www.graphviz.org/][Graphviz]] program installed.
+
+Now we'll render a graph of all dependencies of the ~poftheday~ system:
+
+#+begin_src lisp
+
+POFTHEDAY> (setf cl-dot:*dot-path* "/usr/local/bin/dot")
+
+POFTHEDAY> (asdf-viz:visualize-asdf-hierarchy
+            "docs/media/0063/systems.png"
+            (list (asdf:find-system :poftheday)))
+
+#+end_src
+
+Here is the result:
+
+[[../../media/0063/systems.png]]
+
+Interestingly, ~asdf-viz~ not only can draw a system's dependencies, but
+also class hierarchies and call graphs.
+
+Here is a small example, how to render a class hierarchy:
+
+#+begin_src lisp
+
+POFTHEDAY> (asdf-viz.class-hierarchy:visualize-class-hierarchy
+            "docs/media/0063/classes.png"
+            (list 'cl-org-mode::node))
+
+#+end_src
+
+And this is resulting graph:
+
+[[../../media/0063/classes.png]]
+
+I think it might be useful to integrate ~asdf-viz~ into IDE. Probably
+Emacs in might show graphs in a separate buffer.
