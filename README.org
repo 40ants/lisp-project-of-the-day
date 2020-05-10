@@ -12,6 +12,9 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 07 May - [[content/2020/05/0061-cl-charms.org][cl-charms]] ([[https://twitter.com/svetlyak40wt/status/1258483627530346496][twitter]])
 - 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]] ([[https://twitter.com/svetlyak40wt/status/1258841379582738436][twitter]])
 - 09 May - [[content/2020/05/0063-asdf-viz.org][asdf-viz]] ([[https://twitter.com/svetlyak40wt/status/1259217595699466241][twitter]])
+- 10 May - [[content/2020/05/0064-xml-emitter.org][xml-emitter]]
+- 11 May - rutils
+- 12 May - str
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])

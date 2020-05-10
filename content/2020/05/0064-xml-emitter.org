@@ -1,0 +1,76 @@
+* xml-emitter :web:xml:rss:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :|
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This library can be used to generate XML. You can use it for outputting
+any XML, but I use it's builtin helpers to generate RSS feed.
+
+Here is how to generate RSS feed in Common Lisp:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-output-to-string (s)
+             (xml-emitter:with-rss2 (s :encoding "utf-8")
+               (xml-emitter:rss-channel-header "Common Lisp Project of the Day" 
+                                               "https://poftheday.org")
+               (xml-emitter:rss-item "First post"
+                                     :description "Hello World"
+                                     :category "lisp")))
+
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<rss version=\"2.0\">
+    <channel>
+        <title>Common Lisp Project of the Day</title>
+        <link>https://poftheday.org</link>
+        <generator>xml-emitter</generator>
+        <language>en-us</language>
+        <item>
+            <title>First post</title>
+            <description>Hello World</description>
+            <category>lisp</category>
+        </item>
+    </channel>
+</rss>"
+
+#+end_src
+
+Of cause, you easily can generate any XML as well:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-output-to-string (s)
+             (xml-emitter:with-xml-output (s)
+               (xml-emitter:with-tag ("address-book")
+                 (xml-emitter:with-tag ("contact")
+                   (xml-emitter:emit-simple-tags
+                    :name "Bob"
+                    :email "bob@perkins.com"
+                    :note "My friend."))
+                 (xml-emitter:with-tag ("contact")
+                   (xml-emitter:emit-simple-tags
+                    :name "Mary"
+                    :twitter "https://twitter.com/mary")))))
+
+"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>
+<address-book>
+    <contact>
+        <name>Bob</name>
+        <email>bob@perkins.com</email>
+        <note>My friend.</note>
+    </contact>
+    <contact>
+        <name>Mary</name>
+        <twitter>https://twitter.com/mary</twitter>
+    </contact>
+</address-book>"
+
+#+end_src
+
+Please, note that support for [[https://www.w3schools.com/xml/xml_namespaces.asp][XML namespaces]] is very limited. You can
+only specify a namespace for some tags. Namespace prefixes are not supported.

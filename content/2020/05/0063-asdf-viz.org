@@ -54,3 +54,5 @@ I think it might be useful to integrate ~asdf-viz~ into IDE.
 
 Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE
 is able to do this?
+
+P.S. – next system will be chosen from the dependencies of the ~poftheday~ system.
