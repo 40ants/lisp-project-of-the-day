@@ -9,7 +9,7 @@
 :END:
 
 This library can be used to generate XML. You can use it for outputting
-any XML, but I use it's builtin helpers to generate RSS feed.
+any XML, but I use its builtin helpers to generate RSS feed.
 
 Here is how to generate RSS feed in Common Lisp:
 

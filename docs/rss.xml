@@ -6,6 +6,11 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>xml-emitter</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html</link>
+            <description> )</description>
+        </item>
+        <item>
             <title>asdf-viz</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html</link>
             <description> )</description>
@@ -98,11 +103,6 @@
         <item>
             <title>cl-lexer</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0045-cl-lexer.html</link>
-            <description> (</description>
-        </item>
-        <item>
-            <title>hu.dwim.walker</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0044-hu.dwim.walker.html</link>
             <description> (</description>
         </item>
     </channel>
