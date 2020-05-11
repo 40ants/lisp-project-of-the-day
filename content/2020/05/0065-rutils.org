@@ -1,0 +1,47 @@
+* rutils :utils:readtable:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Rutils translated as Radical Utilities. It is a collection of many
+useful utilities. Some of the utilities can be found in other
+libraries, for example arrow macro or short notation for lambdas.
+
+There is interesting [[https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md][document]] which describes why ~rutils~ is so
+radical. In short - it provides reader macro for hash tables and
+short aliases for many common lisp operators and generic accessors. 
+
+Previosly I didn't digg into the ~rutils~ documentation and used only a
+few functions to work with lists. But now I found a [[https://github.com/vseloved/rutils/blob/master/docs/tutorial.md][great tutorial]]
+covering most ~rutils~ features. I recommend you to spend few evenings
+reading it and trying different code samples.
+
+Here is a small example which demonstrates how hash table syntax and
+generic accessors work:
+
+#+begin_src lisp
+
+POFTHEDAY> (named-readtables:in-readtable rutils:rutils-readtable)
+
+POFTHEDAY> (import 'rutils:?)
+
+POFTHEDAY> (let ((obj #h(:foo '(1 2 3))))
+             (? obj :foo 1))
+2
+
+;; It also works with curly braces:
+POFTHEDAY> (let ((obj #{:foo '(1 2 3)}))
+             (? obj :foo 1))
+2
+
+#+end_src
+
+Here a question mark is an abbreviation for ~rutils:generic-elt~ generic
+and you can define custom method to access different kinds of containers.
+
+I definitely will try to use more of ~rutils~ in my code now.

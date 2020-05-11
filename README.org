@@ -13,7 +13,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]] ([[https://twitter.com/svetlyak40wt/status/1258841379582738436][twitter]])
 - 09 May - [[content/2020/05/0063-asdf-viz.org][asdf-viz]] ([[https://twitter.com/svetlyak40wt/status/1259217595699466241][twitter]])
 - 10 May - [[content/2020/05/0064-xml-emitter.org][xml-emitter]] ([[https://twitter.com/svetlyak40wt/status/1259503402230390784][twitter]])
-- 11 May - rutils
+- 11 May - [[content/2020/05/0065-rutils.org][rutils]]
 - 12 May - str
 
 ** April
