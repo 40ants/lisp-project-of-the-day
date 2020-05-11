@@ -873,3 +873,5 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/ruricolist/vernacular - interesting system to
   extend Lisp with other syntax
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
+* Thanks
+  In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
