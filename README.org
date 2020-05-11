@@ -13,7 +13,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 08 May - [[content/2020/05/0062-magic-ed.org][magic-ed]] ([[https://twitter.com/svetlyak40wt/status/1258841379582738436][twitter]])
 - 09 May - [[content/2020/05/0063-asdf-viz.org][asdf-viz]] ([[https://twitter.com/svetlyak40wt/status/1259217595699466241][twitter]])
 - 10 May - [[content/2020/05/0064-xml-emitter.org][xml-emitter]] ([[https://twitter.com/svetlyak40wt/status/1259503402230390784][twitter]])
-- 11 May - [[content/2020/05/0065-rutils.org][rutils]]
+- 11 May - [[content/2020/05/0065-rutils.org][rutils]] ([[https://twitter.com/svetlyak40wt/status/1259893019131682824][twitter]])
 - 12 May - str
 
 ** April
@@ -289,6 +289,16 @@ for the :doplus library. It was described [[content/2020/03/0013-poftheday.org][
 
 #+END_SRC
 
+I'll need to render HTML in two modes. First one - for the web page, and
+second - for RSS feed. For RSS feed I need to omit the first H1 header
+and a table of properties.
+
+#+BEGIN_SRC lisp
+
+(defvar *rss-mode* nil)
+
+#+END_SRC
+
 Org mode file can contain nodes of different types, we will render them
 using this generic function:
 
@@ -306,8 +316,19 @@ H1, H2, etc:
 
 (defmethod render-node ((node cl-org-mode::outline-node) stream)
   (cl-who:with-html-output (stream)
-    (:h1 (cl-who:esc (remove-tags
-                      (cl-org-mode::node.heading node)))))
+    ;; First node is a title
+    (let ((level (1- (length (cl-org-mode::node.heading-level-indicator node)))))
+      (ecase level
+        (1 (unless *rss-mode*
+             (cl-who:htm
+              (:h1 (cl-who:esc (remove-tags
+                                (cl-org-mode::node.heading node)))))))
+        (2 (cl-who:htm
+            (:h2 (cl-who:esc (remove-tags
+                              (cl-org-mode::node.heading node))))))
+        (3 (cl-who:htm
+            (:h3 (cl-who:esc (remove-tags
+                              (cl-org-mode::node.heading node)))))))))
   (call-render-for-all-children node stream))
 
 #+END_SRC
@@ -331,12 +352,13 @@ it is, etc. These properties have grades:
     (str:replace-all ":(" "🥺")))
 
 (defmethod render-node ((node cl-org-mode::properties-node) stream)
-  (cl-who:with-html-output (stream)
-    (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;"
-            (mapcar
-             (lambda (item)
-               (render-node item stream))
-             (cl-org-mode::node.children node)))))
+  (unless *rss-mode*
+    (cl-who:with-html-output (stream)
+      (:table :style "position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;"
+              (mapcar
+               (lambda (item)
+                 (render-node item stream))
+               (cl-org-mode::node.children node))))))
 
 (defmethod render-node ((node cl-org-mode::property-node) stream)
   (cl-who:with-html-output (stream)
@@ -730,17 +752,12 @@ files and write html:
 
 #+BEGIN_SRC lisp
 
-(defun get-first-text-node (file)
-  "We'll use this function to get an article description for the readme"
-  (doplus:do+ (for node (in-nodes file))
-    (when (typep node 'cl-org-mode::text-node)
-      (return-from get-first-text-node node))))
-
-
 (defun make-description (file)
-  (replace-org-mode-markup-with-html
-   (cl-org-mode::node.text
-    (get-first-text-node file))))
+  (let ((*rss-mode* t))
+    (with-output-to-string (s)
+      (write-string "<![CDATA[" s)
+      (render-node file s)
+      (write-string "]]>" s))))
 
 #+END_SRC
 

@@ -85,7 +85,7 @@ WITH-PROGRESS-BAR names a macro:
      However, top level with-progress-bar should
      contain correct steps-count.
   Source file: /Users/art/poftheday/.qlot/...</code></pre><p>I think this is inconvenient. What do you think about this way of keeping documentation for the code?</p>
-<h1>Update on code documentation</h1><p>What if somebody create an extended defun macro which will make it possible to combine type annotations and documentation like that:</p>
+<h2>Update on code documentation</h2><p>What if somebody create an extended defun macro which will make it possible to combine type annotations and documentation like that:</p>
 <pre><code class=' lisp'>(defun* update ((unit-count (integer 1 *)
                             &quot;How many steps has been finished?&quot;)
                 &amp;optional

@@ -6,104 +6,1172 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>rutils</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html</link>
+            <description>&lt;![CDATA[&lt;p&gt;Rutils translated as Radical Utilities. It is a collection of many useful utilities. Some of the utilities can be found in other libraries, for example, arrow macro or short notation for lambdas.&lt;/p&gt;
+&lt;p&gt;There is an interesting &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md&quot;&gt;document&lt;/a&gt; which describes why &lt;code&gt;rutils&lt;/code&gt; is so radical. In short - it provides a reader macro for hash tables and short aliases for many common lisp operators and generic accessors. &lt;/p&gt;
+&lt;p&gt;Previously I didn&apos;t dig into the &lt;code&gt;rutils&lt;/code&gt; documentation and used only a few functions to work with lists. But now I found a &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/tutorial.md&quot;&gt;great tutorial&lt;/a&gt; covering most &lt;code&gt;rutils&lt;/code&gt; features. I recommend you to spend few evenings reading it and trying different code samples.&lt;/p&gt;
+&lt;p&gt;Here is a small example which demonstrates how hash table syntax and generic accessors work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:in-readtable rutils:rutils-readtable)
+
+POFTHEDAY&amp;gt; (import &amp;#039;rutils:?)
+
+POFTHEDAY&amp;gt; (let ((obj #h(:foo &amp;#039;(1 2 3))))
+             (? obj :foo 1))
+2
+
+;; It also works with curly braces:
+POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
+             (? obj :foo 1))
+2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here a question mark is an abbreviation for &lt;code&gt;rutils:generic-elt&lt;/code&gt; generic and you can define a custom method to access different kinds of containers.&lt;/p&gt;
+&lt;p&gt;I definitely will try to use more of &lt;code&gt;rutils&lt;/code&gt; in my code now.&lt;/p&gt;
+]]&gt;</description>
+        </item>
+        <item>
             <title>xml-emitter</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This library can be used to generate XML. You can use it for outputting any XML, but I use its builtin helpers to generate RSS feed.&lt;/p&gt;
+&lt;p&gt;Here is how to generate RSS feed in Common Lisp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-output-to-string (s)
+             (xml-emitter:with-rss2 (s :encoding &amp;quot;utf-8&amp;quot;)
+               (xml-emitter:rss-channel-header &amp;quot;Common Lisp Project of the Day&amp;quot; 
+                                               &amp;quot;https://poftheday.org&amp;quot;)
+               (xml-emitter:rss-item &amp;quot;First post&amp;quot;
+                                     :description &amp;quot;Hello World&amp;quot;
+                                     :category &amp;quot;lisp&amp;quot;)))
+
+&amp;quot;&amp;lt;?xml version=\&amp;quot;1.0\&amp;quot; encoding=\&amp;quot;utf-8\&amp;quot;?&amp;gt;
+&amp;lt;rss version=\&amp;quot;2.0\&amp;quot;&amp;gt;
+    &amp;lt;channel&amp;gt;
+        &amp;lt;title&amp;gt;Common Lisp Project of the Day&amp;lt;/title&amp;gt;
+        &amp;lt;link&amp;gt;https://poftheday.org&amp;lt;/link&amp;gt;
+        &amp;lt;generator&amp;gt;xml-emitter&amp;lt;/generator&amp;gt;
+        &amp;lt;language&amp;gt;en-us&amp;lt;/language&amp;gt;
+        &amp;lt;item&amp;gt;
+            &amp;lt;title&amp;gt;First post&amp;lt;/title&amp;gt;
+            &amp;lt;description&amp;gt;Hello World&amp;lt;/description&amp;gt;
+            &amp;lt;category&amp;gt;lisp&amp;lt;/category&amp;gt;
+        &amp;lt;/item&amp;gt;
+    &amp;lt;/channel&amp;gt;
+&amp;lt;/rss&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, you easily can generate any XML as well:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-output-to-string (s)
+             (xml-emitter:with-xml-output (s)
+               (xml-emitter:with-tag (&amp;quot;address-book&amp;quot;)
+                 (xml-emitter:with-tag (&amp;quot;contact&amp;quot;)
+                   (xml-emitter:emit-simple-tags
+                    :name &amp;quot;Bob&amp;quot;
+                    :email &amp;quot;bob@perkins.com&amp;quot;
+                    :note &amp;quot;My friend.&amp;quot;))
+                 (xml-emitter:with-tag (&amp;quot;contact&amp;quot;)
+                   (xml-emitter:emit-simple-tags
+                    :name &amp;quot;Mary&amp;quot;
+                    :twitter &amp;quot;https://twitter.com/mary&amp;quot;)))))
+
+&amp;quot;&amp;lt;?xml version=\&amp;quot;1.0\&amp;quot; encoding=\&amp;quot;ISO-8859-1\&amp;quot;?&amp;gt;
+&amp;lt;address-book&amp;gt;
+    &amp;lt;contact&amp;gt;
+        &amp;lt;name&amp;gt;Bob&amp;lt;/name&amp;gt;
+        &amp;lt;email&amp;gt;bob@perkins.com&amp;lt;/email&amp;gt;
+        &amp;lt;note&amp;gt;My friend.&amp;lt;/note&amp;gt;
+    &amp;lt;/contact&amp;gt;
+    &amp;lt;contact&amp;gt;
+        &amp;lt;name&amp;gt;Mary&amp;lt;/name&amp;gt;
+        &amp;lt;twitter&amp;gt;https://twitter.com/mary&amp;lt;/twitter&amp;gt;
+    &amp;lt;/contact&amp;gt;
+&amp;lt;/address-book&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Please, note that support for &lt;a href=&quot;https://www.w3schools.com/xml/xml_namespaces.asp&quot;&gt;XML namespaces&lt;/a&gt; is very limited. You can only specify a namespace for some tags. Namespace prefixes are not supported.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>asdf-viz</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;Today I decided it will be more interesting to investigate Lisp systems which I already have as dependencies of my projects. That is why I&apos;ve remembered about &lt;code&gt;asdf-viz&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ASDF-VIZ&lt;/code&gt; is able to render a graph of ASDF systems. It can be installed as Unix scripts using &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt; or used from the REPL.&lt;/p&gt;
+&lt;p&gt;Also, you&apos;ll need a &lt;a href=&quot;https://www.graphviz.org/&quot;&gt;Graphviz&lt;/a&gt; program installed.&lt;/p&gt;
+&lt;p&gt;Now we&apos;ll render a graph of all dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (setf cl-dot:*dot-path* &amp;quot;/usr/local/bin/dot&amp;quot;)
+
+POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
+            &amp;quot;docs/media/0063/systems.png&amp;quot;
+            (list (asdf:find-system :poftheday)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0063/systems.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Interestingly, &lt;code&gt;asdf-viz&lt;/code&gt; not only can draw a system&apos;s dependencies but also class hierarchies and call graphs.&lt;/p&gt;
+&lt;p&gt;Here is a small example, how to render a class hierarchy:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf-viz.class-hierarchy:visualize-class-hierarchy
+            &amp;quot;docs/media/0063/classes.png&amp;quot;
+            (list &amp;#039;cl-org-mode::node))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this is the resulting graph:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0063/classes.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;I think it might be useful to integrate &lt;code&gt;asdf-viz&lt;/code&gt; into IDE.&lt;/p&gt;
+&lt;p&gt;Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE is able to do this?&lt;/p&gt;
+&lt;p&gt;P.S. – next system will be chosen from the dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>magic-ed</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0062-magic-ed.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This strange library replaces standard &lt;code&gt;cl:ed&lt;/code&gt; function with a new one, which executes editor specified in the &lt;code&gt;EDITOR&lt;/code&gt; environment variable.&lt;/p&gt;
+&lt;p&gt;It does not work from SLY, so I had to run a raw REPL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;* sb-ext:*ed-functions*
+ NIL
+ * (cl:ed &amp;quot;qlfile&amp;quot;)
+
+ debugger invoked on a SB-INT:EXTENSION-FAILURE in thread
+ #&amp;lt;THREAD &amp;quot;main thread&amp;quot; RUNNING {1000518083}&amp;gt;:
+   Don&amp;#039;t know how to ED qlfile
+ See also:
+   The SBCL Manual, Variable *ED-FUNCTIONS*
+
+ Type HELP for debugger help, or (SB-EXT:EXIT) to exit from SBCL.
+
+ restarts (invokable by number or by possibly-abbreviated name):
+   0: [ABORT] Exit debugger, returning to top level.
+
+ (ED &amp;quot;qlfile&amp;quot;)
+ 0] ^D
+ * (ql:quickload :magic-ed)
+ To load &amp;quot;magic-ed&amp;quot;:
+   Load 1 ASDF system:
+     magic-ed
+ ; Loading &amp;quot;magic-ed&amp;quot;
+
+ (:MAGIC-ED)
+ * sb-ext:*ed-functions*
+ (MAGIC-ED:ED-EDITOR)
+ * (cl:ed &amp;quot;qlfile&amp;quot;)
+ T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, this library provides a function &lt;code&gt;magic-ed&lt;/code&gt; which is able to return file&apos;s content and evaluate the lisp code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;* (magic-ed:magic-ed &amp;quot;/tmp/foo&amp;quot; :output :string)
+ ...
+ HERE Vim WAS STARTED AND I EDITED THE FILE
+ ...
+ &amp;quot;(format t \&amp;quot;Blah~%\&amp;quot;)
+ &amp;quot;
+ *&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Can somebody tell me when this could be useful if you can just use Emacs and SLIME?&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>cl-charms</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;Two days ago I &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;reviewed the cl-ncurses&lt;/a&gt;. &lt;code&gt;CL-Charms&lt;/code&gt; is also a binding to &lt;code&gt;ncurses&lt;/code&gt;, but uses more universal and portable &lt;a href=&quot;https://common-lisp.net/project/cffi/manual/html_node/&quot;&gt;CFFI&lt;/a&gt; instead of &lt;a href=&quot;http://quickdocs.org/uffi/&quot;&gt;UFFI&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;By the way, LEM (Common Lisp Emacs) uses &lt;code&gt;cl-charms&lt;/code&gt; for it&apos;s console backend.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;CL-Charms&lt;/code&gt; provides a high-level API besides a low level. I&apos;ve ported my previous &lt;code&gt;echo&lt;/code&gt; program to it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
+  (declare (ignorable argv))
+  (with-curses ()
+    (enable-raw-input)
+    (enable-extra-keys *standard-window*)
+    (disable-echoing)
+
+    (write-string-at-cursor *standard-window*
+                            &amp;quot;Type any character to see it in bold:
+&amp;quot;)
+
+    (let ((ch (get-char *standard-window*)))
+
+      (cond
+        ((eql ch (code-char 265))
+         (write-string-at-cursor *standard-window*
+                                 &amp;quot;F1 Key pressed&amp;quot;))
+        (t
+         (write-string-at-cursor *standard-window*
+                                 &amp;quot;The pressed key is &amp;quot;)
+
+         (cl-charms/low-level:attron cl-charms/low-level:a_bold)
+         (write-string-at-cursor *standard-window*
+                                 (format nil &amp;quot;~A~%&amp;quot; ch))
+         (cl-charms/low-level:attroff cl-charms/low-level:a_bold)))
+      
+
+      (get-char *standard-window*))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Interesting that &lt;code&gt;cl-charms/low-level&lt;/code&gt; package can be used as a drop-in replacement for &lt;code&gt;cl-ncurses&lt;/code&gt; and my second example worked without any changes except a change &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/test/0061/window.ros#L11-L12&quot;&gt;in the use clause&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;A few words about portability&lt;/h2&gt;&lt;h3&gt;CL-NCURSES&lt;/h3&gt;&lt;p&gt;I must admit, that working with such kind of bindings can be problematic. For example, I haven&apos;t any problems using neither &lt;code&gt;cl-ncurses&lt;/code&gt; nor &lt;code&gt;cl-charms&lt;/code&gt; on OSX, but there was a problem with starting an example program on Ubuntu Bionic.&lt;/p&gt;
+&lt;p&gt;On Ubuntu &lt;code&gt;cl-ncurses&lt;/code&gt; is unable to find &lt;code&gt;libncurses.so&lt;/code&gt; and you have to load it manually like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; These paths are harcoded in the cl-ncurses:
+(defvar *ncurses-search-paths*
+  #-win32&amp;#039;(&amp;quot;/usr/local/lib64/&amp;quot; &amp;quot;/usr/local/lib/&amp;quot; &amp;quot;/lib64/&amp;quot; &amp;quot;/lib/&amp;quot; &amp;quot;/usr/lib64/&amp;quot; &amp;quot;/usr/lib/&amp;quot;)
+  #+win32&amp;#039;(&amp;quot;/users/jacob/src/pdc31dll/&amp;quot;))
+
+;; On Ubuntu Bionic you have to add this
+;; before cl-ncurses initscr call:
+(uffi:load-foreign-library &amp;quot;/lib/x86_64-linux-gnu/libncurses.so.5.9&amp;quot;
+                           :module &amp;quot;cl-ncurses&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;h3&gt;CL-CHARMS&lt;/h3&gt;&lt;p&gt;&lt;code&gt;CL-Charms&lt;/code&gt; has another problem. It requires the &lt;code&gt;libncurses5-dev&lt;/code&gt; package to be installed on Ubuntu. Without that, it has problem when compiling the CFFI Grovel&apos;s files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;; cc -o /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o -c -g -Wall -Wundef -Wsign-compare -Wpointer-arith -O3 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wunused-parameter -fno-omit-frame-pointer -momit-leaf-frame-pointer -fno-pie -fPIC -I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/ /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c
+/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c:6:10: fatal error: ncurses.h: No such file or directory
+ #include &amp;lt;ncurses.h&amp;gt;
+          ^~~~~~~~~~~
+compilation terminated.
+Unhandled CFFI-GROVEL:GROVEL-ERROR in thread #&amp;lt;error printing a SB-THREAD:THREAD: #&amp;lt;PRINT-NOT-READABLE {10042938A3}&amp;gt;&amp;gt;: Subprocess #&amp;lt;UIOP/LAUNCH-PROGRAM::PROCESS-INFO {100428DCF3}&amp;gt;
+ with command (&amp;quot;cc&amp;quot; &amp;quot;-o&amp;quot; &amp;quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o&amp;quot; &amp;quot;-c&amp;quot; &amp;quot;-g&amp;quot; &amp;quot;-Wall&amp;quot; &amp;quot;-Wundef&amp;quot; &amp;quot;-Wsign-compare&amp;quot; &amp;quot;-Wpointer-arith&amp;quot; &amp;quot;-O3&amp;quot; &amp;quot;-D_LARGEFILE_SOURCE&amp;quot; &amp;quot;-D_LARGEFILE64_SOURCE&amp;quot; &amp;quot;-D_FILE_OFFSET_BITS=64&amp;quot; &amp;quot;-Wunused-parameter&amp;quot; &amp;quot;-fno-omit-frame-pointer&amp;quot; &amp;quot;-momit-leaf-frame-pointer&amp;quot; &amp;quot;-fno-pie&amp;quot; &amp;quot;-fPIC&amp;quot; &amp;quot;-I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/&amp;quot; &amp;quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c&amp;quot;)
+ exited with error code 1
+
+Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;main thread&amp;quot; RUNNING {10004F04C3}&amp;gt;
+0: (SB-DEBUG::DEBUGGER-DISABLED-HOOK #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt; #&amp;lt;unused argument&amp;gt; :QUIT T)
+1: (SB-DEBUG::RUN-HOOK *INVOKE-DEBUGGER-HOOK* #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt;)
+2: (INVOKE-DEBUGGER #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt;)
+3: (ERROR CFFI-GROVEL:GROVEL-ERROR :FORMAT-CONTROL &amp;quot;~a&amp;quot; :FORMAT-ARGUMENTS (#&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;))
+4: (CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; #&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;)
+5: ((FLET &amp;quot;THUNK&amp;quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))&lt;/code&gt;&lt;/pre&gt;&lt;h3&gt;Possible Solution?&lt;/h3&gt;&lt;p&gt;Probably, &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s &lt;a href=&quot;https://github.com/borodust/claw&quot;&gt;claw&lt;/a&gt; and &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html&quot;&gt;bodge-blobs-support&lt;/a&gt; can solve these issues?&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>clawk</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0060-clawk.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This library provides a DSL for text processing in a way as AWK does. For those who aren&apos;t familiar with it, AWK is a language for text processing.&lt;/p&gt;
+&lt;p&gt;AWK reads lines, splits them into the fields and applies some pattern-matching to them.&lt;/p&gt;
+&lt;p&gt;CLAWK allows forOB solving similar tasks in Lisp.&lt;/p&gt;
+&lt;p&gt;It does not have documentation but there are some examples, based on examples from this AWK book from 1988:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0060/awk-book.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;All examples use file &lt;code&gt;emp.data&lt;/code&gt; as an input:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; text&apos;&gt;Beth    4.00    0
+Dan     3.75    0
+Kathy   4.00    10
+Mark    5.00    20
+Mary    5.50    22
+Suzie   4.25    18&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;An example I want to show you is equivalent to:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;$ awk &amp;#039;$3 &amp;gt; 0 {print $1, $2 * $3}&amp;#039; emp.data
+Kathy 40
+Mark 100
+Mary 121
+Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It counts the salary for each employee.&lt;/p&gt;
+&lt;p&gt;Here is Common Lisp version which uses CLAWK:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (for-file-lines (&amp;quot;docs/media/0060/emp.data&amp;quot;)
+              (with-fields ((name payrate hours))
+                 (when ($&amp;gt; hours 0)
+                    ($print name ($* payrate hours)))))
+
+Kathy 40.0 
+Mark 100.0 
+Mary 121.0 
+Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because we used named fields. However, you can use $1, $2, $3 if you with as well.&lt;/p&gt;
+&lt;p&gt;Above example is expanded into such code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(with-open-file (#:g1 &amp;quot;docs/media/0060/emp.data&amp;quot;
+                      :direction :input
+                      :element-type &amp;#039;character
+                      :if-does-not-exist :error)
+  (let ((#:g1 #:g1))
+    (when (eq #:g1 &amp;#039;t)
+      (setq #:g1 *standard-input*))
+    (unless (null #:g1)
+      (let ((*curfile* nil)
+            (*curline* &amp;quot;&amp;quot;)
+            (*fnr* -1))
+        (macrolet ((clawk::next ()
+                     &amp;#039;(throw #:g2)))
+          (prog (#:g4)
+           #:g2
+            (setq #:g4 (read-line #:g1 nil :eof))
+            (unless (eq #:g4 :eof)
+              (setq *curline* #:g4
+                    $0 #:g4)
+              (incf *nr*)
+              (incf *fnr*)
+              (catch &amp;#039;#:g2
+                (let* ((#:g3 (split nil (clawk::fs)))
+                       (*nf* (length #:g3)))
+                  (declare (special *nf*))
+                  (destructuring-bind
+                      (name payrate hours)
+                      #:g3
+                    (when ($&amp;gt; hours 0)
+                      ($print name ($* payrate hours))))))
+              (go #:g2))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code reads and parses the file, tracks some variables like row number, fields count and more. And calls your code to further processing.&lt;/p&gt;
+&lt;p&gt;You can find more examples in this file:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&quot;&gt;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For me, CLAWK seems a nice tool to process files line by line from Common Lisp.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>cl-ncurses</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This library is binding to NCurses. It allows for creating windowing interfaces for the console. With NCurses you can print to any place of the screen, change colors and probably do some other awesome things.&lt;/p&gt;
+&lt;p&gt;I took a few examples from the original NCurses documentation:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&quot;&gt;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;It was pretty straightforward to port them to Common Lisp.&lt;/p&gt;
+&lt;p&gt;The first example just wait for any key and print this key in bold:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
+  (declare (ignorable argv))
+  (initscr)
+  (raw)
+  (keypad *stdscr* 1)
+  (noecho)
+  (printw &amp;quot;Type any character to see it in bold:
+&amp;quot;)
+  (let ((ch (getch)))
+    (cond
+      ((= ch 265)
+       (printw &amp;quot;F1 Key pressed&amp;quot;))
+      (t
+       (printw &amp;quot;The pressed key is &amp;quot;)
+       (attron a_bold)
+       (printw (format nil &amp;quot;~A~%&amp;quot; (code-char ch)))
+       (attroff a_bold)))
+    (refresh)
+    (getch)
+    (endwin)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Second example a little bit complex. It uses fetches the size of the terminal and prints &quot;Hello Lisp Word!&quot; in the centre. After that, it draws a border using pseudographics:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0059/ncurses-hello.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Here is the code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
+  &amp;quot;This example is based on:
+   https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/windows.html&amp;quot;
+  (declare (ignorable argv))
+  (initscr)
+  (start-color)
+  (init-pair 1
+             color_red
+             color_black)
+
+  (let ((text &amp;quot;Hello Lisp World!&amp;quot;))
+    (multiple-value-bind (screen-height screen-width)
+        (get-maxyx *stdscr*)
+      (let* ((text-len (length text))
+             (box-width (+ text-len 4))
+             (box-height 5)
+             (box-x (round (/ (- screen-width box-width)
+                              2)))
+             (box-y (round (/ (- screen-height box-height)
+                              2)))
+             (plus (char-code #\+))
+             (h-line (char-code #\-))
+             (v-line (char-code #\|)))
+
+        (attron (color-pair 1))
+
+        ;; It&amp;#039;s time to print a text in the center of the screen:
+        (mvprintw (+ box-y 2) (+ box-x 2) text)
+        
+        ;; Now we&amp;#039;ll draw a border around the box.
+        ;; Horizontal lines:
+        (mvhline box-y box-x
+                 h-line box-width)
+        (mvhline (+ box-y (1- box-height)) box-x
+                 h-line box-width)
+        ;; Vertical lines:
+        (mvvline box-y box-x
+                 v-line box-height)
+        (mvvline box-y (+ box-x (1- box-width))
+                 v-line box-height)
+        ;; And corners
+        (mvaddch box-y box-x
+                 plus)
+        (mvaddch box-y (+ box-x (1- box-width))
+                 plus)
+        (mvaddch (+ box-y (1- box-height))
+                 (+ box-x (1- box-width))
+                 plus)
+        (mvaddch (+ box-y (1- box-height)) box-x
+                 plus)
+        (move 0 0))))
+
+  ;; Wait for key press
+  (getch)
+  (endwin))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Full examples are available here:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&quot;&gt;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;That is it. If you need an interactive interface in the console, use cl-ncurses!&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>atomics</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0058-atomics.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This is a portability library for access to atomic operation primitives such as &lt;code&gt;compare-and-swap&lt;/code&gt;, &lt;code&gt;atomic-incf&lt;/code&gt; and &lt;code&gt;atomic-decf&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Atomic operations are particularly useful for implementing lockless algorithms.&lt;/p&gt;
+&lt;p&gt;Here is an example of using compare and swap under SBCL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((foo (list 1 2 3 4)))
+             (atomics:cas (car foo)
+                          1
+                          42)
+             foo)
+
+-&amp;gt; (LET ((FOO (LIST 1 2 3 4)))
+     (LET ((#:OLD0 1))
+       (EQ #:OLD0
+           (LET ((#:CONS1 FOO))
+             (LET ((#:OLD2 #:OLD0))
+               (LET ((#:NEW3 42))
+                 (SB-KERNEL:%COMPARE-AND-SWAP-CAR #:CONS1
+                                                  #:OLD2
+                                                  #:NEW3))))))
+     FOO)
+
+(42 2 3 4)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&quot;atomics&quot;, like all &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&apos;s&lt;/a&gt; libraries, has a &lt;a href=&quot;https://shinmera.github.io/atomics/&quot;&gt;good documentation&lt;/a&gt; where you can find details on support for atomics operations in different CL implementations.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>pretty-function</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0057-pretty-function.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This small library makes debugging easier when you are using many anonymous functions. With &lt;code&gt;pretty-functions&lt;/code&gt; you can give names to your lambdas.&lt;/p&gt;
+&lt;p&gt;Here is a traceback you&apos;ll have with ordinal lambda:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun bar ()
+             (error &amp;quot;Hello World!&amp;quot;))
+
+POFTHEDAY&amp;gt; (defun foo (func)
+             (funcall func))
+
+POFTHEDAY&amp;gt; (foo (lambda ()
+                  (bar)))
+
+-&amp;gt;
+Hello World!
+   [Condition of type SIMPLE-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY mREPL evaluation request.
+ 1: [*ABORT] Return to SLY&amp;#039;s top level.
+ 2: [ABORT] abort thread (#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003785853}&amp;gt;)
+
+Backtrace:
+ 0: (BAR)
+ 1: ((LAMBDA ()))
+ 2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (LAMBDA NIL (BAR))) #A&amp;lt;NULL-LEXENV&amp;gt;)
+ 3: (EVAL (FOO (LAMBDA NIL (BAR))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;pretty-function&lt;/code&gt; we should see the name instead of &lt;code&gt;LAMBDA&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (pretty-function:enable-pretty-function-printing)
+
+POFTHEDAY&amp;gt; (foo (pretty-function:named-lambda bar-caller ()
+                  (bar)))
+
+-&amp;gt;
+Hello World!
+   [Condition of type SIMPLE-ERROR]
+
+Restarts:
+ 0: [RETRY] Retry SLY mREPL evaluation request.
+ 1: [*ABORT] Return to SLY&amp;#039;s top level.
+ 2: [ABORT] abort thread (#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {100394D853}&amp;gt;)
+
+Backtrace:
+ 0: (BAR)
+ 1: ((LAMBDA ()))
+ 2: (FOO #&amp;lt;FUNCTION (LAMBDA NIL) {2253906B}&amp;gt;)
+ 3: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #&amp;lt;NULL-LEXENV&amp;gt;)
+ 4: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, it does not work. Probably, because &lt;code&gt;SLY&lt;/code&gt; turns off &lt;code&gt;*pretty-print*&lt;/code&gt; when rendering the traceback. At least, it does not work in SBCL.&lt;/p&gt;
+&lt;p&gt;Almost the same result we&apos;ll get if request a backtrace as a list:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (block test
+               (handler-bind ((error (lambda (c)
+                                       (return-from test
+                                         (sb-debug:backtrace-as-list 7)))))
+                 (foo (pretty-function:named-lambda bar-caller ()
+                        (bar)))))
+
+(((FLET &amp;quot;H0&amp;quot; :IN TEST) #&amp;lt;unused argument&amp;gt;)
+ (SB-KERNEL::%SIGNAL #&amp;lt;SIMPLE-ERROR &amp;quot;Hello World!&amp;quot; {10050B8763}&amp;gt;)
+ (ERROR &amp;quot;Hello World!&amp;quot;)
+ (BAR)
+ ((LAMBDA () :IN TEST))
+ (FOO #&amp;lt;named-lambda BAR-CALLER&amp;gt;)
+ ((LAMBDA ())))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Named function has its name only when it is rendered as function&apos;s argument. But anyway, it is useful.&lt;/p&gt;
+&lt;p&gt;Probably, it will work better on other supported implementations: Allegro, Clisp, CMU, Lispworks or MCL.&lt;/p&gt;
+&lt;p&gt;More complex example uses another macro - &lt;code&gt;named-lambda*&lt;/code&gt;. It allows to use of arbitrary form to return a current name of a lambda function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *f*
+             (let ((n 0))
+               (pretty-function:named-lambda*
+                   ;; a form to return a description
+                   (format nil &amp;quot;counter=~A&amp;quot; n)
+                   () ;; arguments
+                 (incf n))))
+
+POFTHEDAY&amp;gt; *f*
+#&amp;lt;named-lambda counter=0&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *f*)
+1
+
+POFTHEDAY&amp;gt; *f*
+#&amp;lt;named-lambda counter=1&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *f*)
+2
+
+POFTHEDAY&amp;gt; *f*
+#&amp;lt;named-lambda counter=2&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You might want to make a shorter name like &lt;code&gt;&lt;counter=1&gt;&lt;/code&gt;, then you need to use lower-level macro &lt;code&gt;with-function-printer&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *f*
+             (let ((n 0))
+               (pretty-function:with-function-printer
+                   ;; A lambda to wriite a description
+                   (lambda (s) (format s &amp;quot;#&amp;lt;counter=~A&amp;gt;&amp;quot; n))
+                 ;; A lambda to do a real job
+                 (lambda ()
+                   (incf n)))))
+
+POFTHEDAY&amp;gt; *f*
+#&amp;lt;counter=0&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *f*)
+1
+
+POFTHEDAY&amp;gt; *f*
+#&amp;lt;counter=1&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, with Lisp, you always can write your own syntax sugar around this macro.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>trivial-indent</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0056-trivial-indent.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This is another great library by &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;. It is a portability layer for defining indentation rules for both SLIME and &lt;a href=&quot;http://joaotavora.github.io/sly/#A-SLY-tour-for-SLIME-users&quot;&gt;SLY&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let&apos;s pretend we have a macro:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro super-let (name value &amp;amp;body body)
+             `(let ((,name ,value))
+                ,@body))
+
+POFTHEDAY&amp;gt; (super-let foo
+               100500
+             (format nil &amp;quot;Foo is ~A&amp;quot; foo))
+&amp;quot;Foo is 100500&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if we want Emacs to indent it like this?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (super-let foo
+                      100500
+             (format nil &amp;quot;Foo is ~A&amp;quot; foo))
+&amp;quot;Foo is 100500&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then we can set indentation rule, and &lt;code&gt;trivial-indent&lt;/code&gt; will make it work for both SLIME and SLY:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This rule says: indent first two arguments
+;; with 11 spaces if they are on their own line.
+;; And other arguments indent like usual function&amp;#039;s body.
+POFTHEDAY&amp;gt; (trivial-indent:define-indentation super-let
+               (11 11 &amp;amp;body))
+
+;; And now all super-let form will be indented according to this rule.
+POFTHEDAY&amp;gt; (super-let blah
+                      &amp;#039;minor
+             (format nil &amp;quot;blah -&amp;gt; ~A&amp;quot; blah))
+&amp;quot;blah -&amp;gt; MINOR&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I have an advice for you. If you are using &lt;code&gt;SLY&lt;/code&gt;, it might cache indentation rules. When you&apos;ve defined a rule but don&apos;t see an effect, call &lt;code&gt;(slynk:update-indentation-information)&lt;/code&gt; in the REPL.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s try to define a more complex indentation rule. Yesterday I wrote such macro for running Genetic Algorithm:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(def macro run-ga ((genome &amp;amp;key (population-size 100)
+                                (max-iterations 1000)
+                                (survive-ratio 0.5))
+                   &amp;amp;body fitness-code)
+  (let ((var-names (get-var-names genome)))
+    
+    (unless genome
+      ...)))
+
+;; After that you might run it like this:
+
+(run-ga (((x 0 10)
+          (y -10 10)
+          (z &amp;#039;(:foo :bar :bazz)))
+         :max-iterations 100
+         :survive-ratio 0.2)
+  
+  ;; Our fitness-function
+  (abs (- (ecase z
+            (:foo 10)
+            (:bar 100)
+            (:bazz 1000))
+           (+ x y))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, without special rules, these algorithm parameters are hard to distinguish from the genom definition (the first argument).&lt;/p&gt;
+&lt;p&gt;But what if we want to separate keyword arguments visually and to make this form look like this?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(run-ga (((x 0 10)
+          (y -10 10)s
+          (z &amp;#039;(:foo :bar :bazz)))
+    :max-iterations 100
+    :survive-ratio 0.2)
+  
+  ;; Our fitness-function
+  (abs (- (ecase z
+            (:foo 10)
+            (:bar 100)
+            (:bazz 1000))
+           (+ x y))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then we might define the following rule:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-indent:define-indentation
+               genetic-algorithm:run-ga
+               ((&amp;amp;whole &amp;amp;lambda &amp;amp;rest -4) &amp;amp;body))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It says, that &lt;code&gt;run-ga&lt;/code&gt; macro has a list-like first argument. Keyword &lt;code&gt;&amp;whole &amp;lambda&lt;/code&gt; tells that first item of this list would be indented as a regular lambda-list.&lt;/p&gt;
+&lt;p&gt;Following &lt;code&gt;&amp;rest -4&lt;/code&gt; tells Emacs to deindent rest items of the first list.&lt;/p&gt;
+&lt;p&gt;And finally, &lt;code&gt;&amp;body&lt;/code&gt; keyword says to handle the rest of the macro arguments like a function&apos;s body.&lt;/p&gt;
+&lt;p&gt;There is also ability to define a custom function which will decide how to indent a form. But I didn&apos;t use this feature yet.&lt;/p&gt;
+&lt;p&gt;You can read detail about the structure of indentation rules in &lt;a href=&quot;https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248&quot;&gt;this Emacs docstring&lt;/a&gt;.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>cl-heredoc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This module implements a syntax to read string literals in &lt;a href=&quot;https://en.wikipedia.org/wiki/Here_document&quot;&gt;heredoc&lt;/a&gt; style. Such way of reading is also supported in some other languages.&lt;/p&gt;
+&lt;p&gt;Heredoc allows you to define a string literal where any symbols can be used:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (set-dispatch-macro-character
+            #\# #\&amp;gt;
+            #&amp;#039;cl-heredoc:read-heredoc)
+
+POFTHEDAY&amp;gt; #&amp;gt;some stop sequence&amp;gt;And now I can
+use any characters even different quotes:
+
+- &amp;#039;
+- &amp;quot;
+some stop sequence
+
+;; result is:
+
+&amp;quot;And now I can
+use any characters even different quotes:
+
+- &amp;#039;
+- \&amp;quot;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-heredoc&lt;/code&gt; you can write anything you want without escaping. This might be useful in some cases.&lt;/p&gt;
+&lt;p&gt;Also, it exports a function &lt;code&gt;read-until-match&lt;/code&gt; which might be used to read from a string until a given subsequence.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>hu.dwim.def</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0054-hu.dwim.def.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;Today I want to review this library because it is used in other &lt;code&gt;hu.dwim.*&lt;/code&gt; libraries. Understanding how does &lt;code&gt;hu.dwim.def&lt;/code&gt; works will help to read other libraries code.&lt;/p&gt;
+&lt;p&gt;The main concept of the &lt;code&gt;hu.dwim.def&lt;/code&gt; is the &lt;code&gt;definer&lt;/code&gt;. Definer has a name and a function which is used to macro-expand the code.&lt;/p&gt;
+&lt;p&gt;This is how usual definition can be used and what it expands to:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def function foo ()
+             (format nil &amp;quot;Hello from ~A!&amp;quot;
+                     hu.dwim.def:-this-function/name-))
+-&amp;gt; (defun foo ()
+     (symbol-macrolet ((-this-function/name- &amp;#039;foo))
+       (format nil &amp;quot;Hello from ~A!&amp;quot;
+               -this-function/name-)))
+
+POFTHEDAY&amp;gt; (foo)
+&amp;quot;Hello from FOO!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, this macro expands into a usual function definition, plus a &lt;code&gt;symbol-macrolet&lt;/code&gt;, useful to refer to a current function name.&lt;/p&gt;
+&lt;p&gt;When definer is called, a number of options can be passed. Options allow tuning optimization settings and export rules.&lt;/p&gt;
+&lt;p&gt;Option &quot;o&quot; adds declaration to maximize performance:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function o) foo ()
+             (format nil &amp;quot;Hello World!&amp;quot;))
+-&amp;gt; (locally
+       (declare (optimize (speed 3) (debug 0) (safety 2)))
+     (defun foo ()
+       (format nil &amp;quot;Hello World!&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Options &quot;d&quot; adds an opposite declaration to make debugging easier:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function d) foo ()
+             (format nil &amp;quot;Hello World!&amp;quot;))
+
+-&amp;gt; (progn
+     (declaim (notinline foo))
+     (locally
+         (declare (optimize (speed 0) (debug 3)))
+       (defun foo ()
+         (format nil &amp;quot;Hello World!&amp;quot;))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, these declaration depends on the value of the &lt;code&gt;hu.dwim.asdf:*load-as-production?*&lt;/code&gt; variable. When it is nil, then &quot;o&quot; option will lead to these two declarations:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;(declaim (notinline foo))&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;(declare (optimize (speed 0) (debug 1)))&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;and &quot;d&quot; option will generate:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;(declaim (notinline foo))&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;(declare (optimize (speed 0) (debug 3)))&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;This way, functions will be inlined only when compiled for production.&lt;/p&gt;
+&lt;p&gt;There is a separate option &quot;i&quot; to add &lt;code&gt;(declaim (inline foo))&lt;/code&gt; declaration. But it works only when &lt;code&gt;hu.dwim.asdf:*load-as-production?*&lt;/code&gt; is &lt;code&gt;nil&lt;/code&gt; and debug is turned off.&lt;/p&gt;
+&lt;p&gt;On SBCL debug level is also controlled by a level, declaimed in the REPL. To have a reproducable results you&apos;ll need to evaluate: &lt;code&gt;(declaim (optimize (debug 0)))&lt;/code&gt; otherwise a &lt;code&gt;notinline&lt;/code&gt; declaration will be added.&lt;/p&gt;
+&lt;p&gt;Another cool option is &quot;e&quot;. It will export the function, class or other defined entity:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function e) foo ()
+             (format nil &amp;quot;Hello World!&amp;quot;))
+-&amp;gt; (progn
+     (eval-when (:compile-toplevel :load-toplevel :execute)
+       (export &amp;#039;foo))
+     (defun foo ()
+       (format nil &amp;quot;Hello World!&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, a class&apos;s slots can be exported automatically:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (class ea) user ()
+             ((name :reader get-name)
+              (email :reader get-email)))
+-&amp;gt; (progn
+     (export &amp;#039;user)
+     (export &amp;#039;(get-name get-email))
+     (defclass user ()
+       ((name :reader get-name)
+        (email :reader get-email))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Isn&apos;t this amazing? But what is really cool, it that these options will also work with your own custom definers.&lt;/p&gt;
+&lt;p&gt;Here is how to transform a macro generating a function into a definer:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro blah (name &amp;amp;body body)
+             `(defun ,name ()
+                (format nil &amp;quot;A function ~S was called&amp;quot;
+                        &amp;#039;,name)
+                ,@body))
+
+POFTHEDAY&amp;gt; (blah &amp;#039;me)
+-&amp;gt; (defun &amp;#039;me ()
+     (format nil &amp;quot;A function ~S was called&amp;quot; me))
+
+;; Now we&amp;#039;ll make from a usual macro a new definer:
+
+POFTHEDAY&amp;gt; (def (definer :available-flags &amp;quot;eodi&amp;quot;) blah ()
+             (hu.dwim.def::function-like-definer blah))
+
+POFTHEDAY&amp;gt; (def (blah eoi) me)
+-&amp;gt; (progn
+     (declaim (inline me))
+     (locally
+         (declare (optimize (speed 3) (debug 0) (safety 2)))
+       (eval-when (:compile-toplevel :load-toplevel :execute)
+         (export &amp;#039;me))
+       (defun me ()
+         (format nil &amp;quot;A function ~S was called&amp;quot; &amp;#039;me))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you might write a definer with a body. These special variables will be available during the macro-expansion:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-definer-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-whole-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-options-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-environment-&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;We can define an experimental definer to see what is accessable during macro-expansion:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (definer :available-flags &amp;quot;doe&amp;quot;) guts ()
+             (format t &amp;quot;hu.dwim.def:-definer- = ~A~%&amp;quot;
+                     -definer-)
+             (format t &amp;quot;hu.dwim.def:-options- = ~A~%&amp;quot;
+                     -options-)
+             (format t &amp;quot;hu.dwim.def:-whole- = ~A~%&amp;quot;
+                     -whole-)
+             (format t &amp;quot;hu.dwim.def:-environment- = ~A~%&amp;quot;
+                     -environment-)
+             `(progn))
+
+POFTHEDAY&amp;gt; (def (guts de :any-other &amp;#039;option))
+hu.dwim.def:-definer- = #&amp;lt;definer GUTS&amp;gt;
+hu.dwim.def:-options- = (EXPORT T DEBUG T ANY-OTHER &amp;#039;OPTION)
+hu.dwim.def:-whole- = (DEF (GUTS DE ANY-OTHER &amp;#039;OPTION))
+hu.dwim.def:-environment- = #&amp;lt;NULL-LEXENV&amp;gt;
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, any values can be passed into the definer besides builtin flag and you might implement whatever logic you want.&lt;/p&gt;
+&lt;p&gt;Final great thing I want to tell you about definers is that there is a registry of them. This makes all definers are easily discoverable.&lt;/p&gt;
+&lt;p&gt;Well, not so easy because you need to digg into some internals:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (loop for definer being the hash-values
+                   of hu.dwim.def::*definers*
+                 for name = (hu.dwim.def::name-of definer)
+                 for doc = (when (slot-boundp definer
+                                              &amp;#039;hu.dwim.def::documentation)
+                             (hu.dwim.def::documentation-of definer))
+                 unless doc
+                   count 1 into undocumented
+                 when doc
+                 do (format t &amp;quot;~A -&amp;gt; ~S~2%&amp;quot;
+                            name doc)
+                 finally (when (&amp;gt; undocumented 0)
+                           (format t &amp;quot;~2&amp;amp;Also, there are ~A undocumented definers.~%&amp;quot;
+                                   undocumented)))
+
+CLASS -&amp;gt; &amp;quot;Example that exports all the class name and all the readers, writers and slot names:
+    (def (class eas) foo (bar baz)
+     ((slot1 :reader readerr)
+      (slot2 :writer writerr :accessor accessorr))
+     (:metaclass fofofo))&amp;quot;
+
+CONDITION -&amp;gt; &amp;quot;See the CLASS definer.&amp;quot;
+
+CONSTANT -&amp;gt; &amp;quot;Use like: (def (constant e :test #&amp;#039;string=) alma \&amp;quot;korte\&amp;quot;)
+             test defaults to equal.&amp;quot;
+
+SPECIAL-VARIABLE -&amp;gt; &amp;quot;Uses defvar/defparameter based on whether a
+                     value was provided or not, and accepts
+                    :documentation definer parameter
+                     for value-less defvars.&amp;quot;
+
+PRINT-OBJECT -&amp;gt; &amp;quot;Define a PRINT-OBJECT method using PRINT-UNREADABLE-OBJECT.
+  An example:
+  (def print-object parenscript-dispatcher ; could be (parenscript-dispatcher :identity nil)
+    (when (cachep self)
+      (princ \&amp;quot;cached\&amp;quot;)
+      (princ \&amp;quot; \&amp;quot;))
+    (princ (parenscript-file self)))&amp;quot;
+
+WITH-MACRO -&amp;gt; &amp;quot;(def with-macro with-foo (arg1 arg2)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo arg1 arg2
+     (...))&amp;quot;
+
+WITH-MACRO* -&amp;gt; &amp;quot;(def with-macro* with-foo (arg1 arg2 &amp;amp;key alma)
+     (let ((*zyz* 42)
+           (local 43))
+       (do something)
+       (-body- local)))
+   Example:
+   (with-foo (arg1 arg2 :alma alma)
+     (...))&amp;quot;
+
+GUTS -&amp;gt; &amp;quot;This definer shows debug information about environment
+         where is expanded.&amp;quot;
+
+
+Also, there are 33 undocumented definers.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To conclude, &lt;code&gt;hu.dwim.def&lt;/code&gt; is a great library now I&apos;ll use it in my projects!&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>cl-locale</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0053-cl-locale.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This project will help you to internationalize your application. Seems, it does not use files in &lt;code&gt;gettext&lt;/code&gt; format, but you might define translations in a lispy way:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-locale:define-dictionary hello
+             (:en-US &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;Hello World!&amp;quot;)))
+             (:ru-RU &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;))))
+
+POFTHEDAY&amp;gt; (cl-locale:i18n &amp;quot;Hello World!&amp;quot;)
+&amp;quot;Hello World!&amp;quot;
+
+;; Now I&amp;#039;ll switch locale to Russian
+POFTHEDAY&amp;gt; (setf cl-locale:*locale*
+                 :ru-ru)
+:RU-RU
+
+POFTHEDAY&amp;gt; (cl-locale:i18n &amp;quot;Hello World!&amp;quot;)
+&amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;
+POFTHEDAY&amp;gt; 
+
+;; Also, a special syntax can be used:
+POFTHEDAY&amp;gt; (cl-locale:enable-locale-syntax)
+
+POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
+&amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, translations can be stored in separate Lisp files.&lt;/p&gt;
+&lt;p&gt;This library does not support an important feature - pluralization.&lt;/p&gt;
+&lt;p&gt;Pluralization depends on language rules. For example in Russian it will be:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;0 яблок&lt;/li&gt;&lt;li&gt;1 яблоко&lt;/li&gt;&lt;li&gt;2 яблока&lt;/li&gt;&lt;li&gt;5 яблок&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;I hope, &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;@nitro_idiot&lt;/a&gt; will be able to add pluralization, or somebody will implement this feature!&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>beast</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0052-beast.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;Today&apos;s overview is about the Beast. This is a small library, written by &lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; for describing a game world.&lt;/p&gt;
+&lt;p&gt;Game world is full of different entities. Each entity has it a type and characteristics or aspects.&lt;/p&gt;
+&lt;p&gt;&quot;Beast&quot; is a simple wrapper over CLOS, which allows you to define aspects and to mix them when defining a new entity type.&lt;/p&gt;
+&lt;p&gt;Here is a nice example from projects README:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(define-aspect throwable accuracy damage)
+(define-aspect edible nutrition-value)
+
+(define-entity dart (throwable))
+(define-entity cheese (edible))
+(define-entity pie (throwable edible))
+
+(define-system rot-food ((e edible))
+  (decf (edible/nutrition-value e))
+  (when (zerop (edible/nutrition-value e))
+    (destroy-entity e)))
+
+(defparameter *steel-dart* 
+  (create-entity &amp;#039;dart
+    :throwable/accuracy 0.9
+    :throwable/damage 10))
+
+(defparameter *hunk-of-swiss*
+  (create-entity &amp;#039;cheese
+    :edible/nutrition-value 50))
+
+(defparameter *banana-cream-pie*
+  (create-entity &amp;#039;pie
+    :throwable/accuracy 0.3
+    :throwable/damage 5
+    :edible/nutrition-value 30))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Macro &lt;code&gt;(beast:define-aspect throwable accuracy damage)&lt;/code&gt; is expanded into such class-definition:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
+ (defclass throwable nil
+           ((throwable/accuracy :accessor throwable/accuracy :initarg
+             :throwable/accuracy)
+            (throwable/damage :accessor throwable/damage :initarg
+             :throwable/damage)))
+ (defun throwable? (beast::object) (typep beast::object &amp;#039;throwable))
+ (beast::initialize-aspect-index &amp;#039;throwable)
+ (find-class &amp;#039;throwable))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Macro &lt;code&gt;(beast:define-entity pie (throwable edible))&lt;/code&gt; also transformed into a class which inherits all aspects and also has a class-level slot with a list of aspects:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
+ (defclass pie (beast:entity throwable edible)
+           ((beast::%beast/aspects :allocation :class :initform
+             &amp;#039;(throwable edible))))
+ (defun pie? (beast::object) (typep beast::object &amp;#039;pie))
+ (find-class &amp;#039;pie))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Function &lt;code&gt;create-entity&lt;/code&gt; not only creates a CLOS instance but also adds it to special indexes of entities of this type and entities having these aspects.&lt;/p&gt;
+&lt;p&gt;Macro &lt;code&gt;define-system&lt;/code&gt; defines two functions:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
+  (declaim
+   (ftype (function ((and beast:entity edible)) (values null &amp;amp;optional))
+          rot-food)
+   (notinline rot-food))
+ 
+  (defun rot-food (e)
+    (decf (edible/nutrition-value e))
+    (when (zerop (edible/nutrition-value e)) (beast:destroy-entity e))
+    nil)
+  
+  (defun run-rot-food ()
+    (let ((#:argument-indexes1011 (gethash &amp;#039;rot-food beast::*system-index*)))
+      (loop :for #:entity1012 :being :the beast::hash-values :of (first
+                                                                  #:argument-indexes1011)
+            :do (locally
+                    (declare (type (and beast:entity edible) #:entity1012))
+                  (rot-food #:entity1012)))))
+  (beast::initialize-system-index &amp;#039;rot-food #&amp;#039;rot-food &amp;#039;((e edible)))
+  &amp;#039;rot-food)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, this macro defines a code which will be applied to all &quot;edible&quot; objects in the game.&lt;/p&gt;
+&lt;p&gt;I think Beast is the great library for defining game objects!&lt;/p&gt;
+&lt;p&gt;You can find more information about this library in its &lt;a href=&quot;https://docs.stevelosh.com/beast/usage/&quot;&gt;great documentation&lt;/a&gt;.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>should-test</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0051-should-test.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This is yet another testing framework written by &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt;. It is interesting because provides a protocol to define new kinds of assertions.&lt;/p&gt;
+&lt;p&gt;Here is a simple example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun plus-100 (x)
+             (+ x x))
+
+POFTHEDAY&amp;gt; (st:deftest test-plus-100 ()
+             (st:should be = 200 (plus-100 100))
+             (st:should be = 150 (plus-100 50))
+             (st:should signal &amp;#039;error (plus-100 &amp;quot;blah&amp;quot;)))
+
+;; Now let&amp;#039;s run the tests in the current package:
+POFTHEDAY&amp;gt; (st:test)
+
+Test TEST-PLUS-100: 
+(PLUS-100 50) FAIL
+expect: 150
+actual: 100
+(PLUS-100 blah) FAIL
+expect: (QUOTE ERROR)
+actual: #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;blah&amp;quot;&amp;gt;
+  FAILED
+
+NIL
+#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {1006D9D273}&amp;gt;
+#&amp;lt;HASH-TABLE :TEST EQL :COUNT 0 {1006D9D553}&amp;gt;
+
+;; Second value is a hash with thrown exceptions:
+POFTHEDAY&amp;gt; (alexandria:hash-table-alist #v116:1)
+((TEST-PLUS-100 #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;blah&amp;quot;&amp;gt; (100)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s try to extend this library with a custom check which will assert that float value more or less than expected no more than specified delta:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This method defines a new assertion:
+POFTHEDAY&amp;gt; (defmethod st:should-check ((key (eql :be-within)) delta fn &amp;amp;rest expected)
+             (assert (= (length expected)
+                        1))
+             (let* ((result (funcall fn))
+                    (real-difference (abs (- result
+                                              (first expected)))))
+               (or (&amp;lt;= real-difference delta)
+                   (values nil
+                           (list :result result
+                                 :delta real-difference)))))
+
+;; This is the fake function we are going to test:
+POFTHEDAY&amp;gt; (defun kind-of-random ()
+             0.323)
+
+POFTHEDAY&amp;gt; (st:deftest test-within ()
+             (st:should be-within 0.01 0.35
+                        (kind-of-random)))
+
+POFTHEDAY&amp;gt; (st:test)
+Test TEST-WITHIN: 
+(KIND-OF-RANDOM) FAIL
+expect: 0.35
+actual: :RESULT 0.323 :DELTA 0.02699998
+  FAILED
+
+;; Now we will fix the &amp;quot;error&amp;quot;
+POFTHEDAY&amp;gt; (defun kind-of-random ()
+             0.345)
+
+POFTHEDAY&amp;gt; (st:test)
+Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not convenient to define a test predicate this way, because I didn&apos;t have control of assertion syntax. It always should be like &quot;name test expected form&quot;.&lt;/p&gt;
+&lt;p&gt;In my case I have a 0.01 delta in place of the test, which is not semantic at all and form completion in SLY does not help me to understand what does &quot;should&quot; macro expect if the first argument is &quot;be-within&quot;.&lt;/p&gt;
+&lt;p&gt;But this is is relatively young test framework :)&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>literate-lisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;During the week of ASDF extensions I didn&apos;t tell you about this library, however I&apos;m using it to render #poftheday site. But preparing the yesterday post about &lt;code&gt;print-html&lt;/code&gt; I found it is written in Literate Programming Style.&lt;/p&gt;
+&lt;p&gt;But &lt;code&gt;print-html&lt;/code&gt; is written in org-mode file which was preprocessed and transformed into usual lisp file. Literate-lisp is an ASDF extension which allows you to load &lt;code&gt;org-mode&lt;/code&gt; as usual lisp files.&lt;/p&gt;
+&lt;p&gt;All that you need to do is to write &lt;code&gt;:defsystem-depends-on (&quot;literate-lisp&quot;)&lt;/code&gt; in the system definition file and to use &lt;code&gt;:org&lt;/code&gt; type for components.&lt;/p&gt;
+&lt;p&gt;Here is the content of my ASD file:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(asdf:defsystem &amp;quot;poftheday&amp;quot;
+  :author &amp;quot;Alexander Artemenko &amp;lt;svetlyak.40wt@gmail.com&amp;gt;&amp;quot;
+  :serial t
+  :defsystem-depends-on (&amp;quot;literate-lisp&amp;quot;)
+  :depends-on (&amp;quot;cl-org-mode&amp;quot;
+               &amp;quot;cl-bootstrap&amp;quot;
+               &amp;quot;cl-fad&amp;quot;
+               &amp;quot;str&amp;quot;
+               &amp;quot;cl-ppcre&amp;quot;
+               &amp;quot;cl-who&amp;quot;
+               &amp;quot;ppath&amp;quot;
+               &amp;quot;alexandria&amp;quot;
+               &amp;quot;xml-emitter&amp;quot;
+               &amp;quot;rutils&amp;quot;
+               &amp;quot;doplus&amp;quot;)
+  ;; This component type is defined by
+  ;; literate-lisp system:
+  :components ((:org &amp;quot;readme&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;My &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org&quot;&gt;README.org&lt;/a&gt; is a usual org-mode file with &lt;code&gt;lisp&lt;/code&gt; code blocks in it. Literate-lisp system defines a custom reader which skips all file content except code blocks and loads them into lisp image.&lt;/p&gt;
+&lt;p&gt;When used with &lt;a href=&quot;https://github.com/polymode/poly-org&quot;&gt;poly-org&lt;/a&gt; mode, this allows having convenient Lisp code navigation and shortcuts right inside the org-mode file. I can hit &lt;code&gt;C-c C-c&lt;/code&gt; to evaluate functions, etc.&lt;/p&gt;
+&lt;p&gt;So, if you wanted to try Literate Programming, then Jintao Xu&apos;s literate-lisp is the best way to go!&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>print-html</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html</link>
-            <description> )</description>
+            <description>&lt;![CDATA[&lt;p&gt;This is an HTML generator. This library is similar to cl-who or spinneret, but with two interesting differences.&lt;/p&gt;
+&lt;p&gt;The first distinction is that &lt;code&gt;print-html&lt;/code&gt; is written in the literate programmings style and have very succinct code which can be read in 5-10 minutes.&lt;/p&gt;
+&lt;p&gt;The second distinction is that &lt;code&gt;print-html&lt;/code&gt; is based on generics and you can define a method to print some classes into HTML.&lt;/p&gt;
+&lt;p&gt;Let&apos;s try this!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (print-html:print-html-to-string
+            (print-html:html
+              (:article
+               ((:section :class &amp;quot;intro&amp;quot;)
+                (:p &amp;quot;Hello Lisp World!&amp;quot;)))))
+&amp;quot;&amp;lt;article&amp;gt;
+&amp;lt;section class=\&amp;quot;intro\&amp;quot;&amp;gt;
+&amp;lt;p&amp;gt;Hello Lisp World!&amp;lt;/p&amp;gt;
+&amp;lt;/section&amp;gt;
+&amp;lt;/article&amp;gt;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now I&apos;ll create a class of user which can be serialized into HTML:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This is our buisiness logic:
+POFTHEDAY&amp;gt; (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY&amp;gt; (defparameter *user*
+             (make-instance &amp;#039;user
+                            :name &amp;quot;Sponge Bob&amp;quot;))
+
+POFTHEDAY&amp;gt; (defun get-profile-uri (user)
+             (format nil &amp;quot;/user/~A&amp;quot;
+                     (get-name user)))
+
+;; Here is the method to transform business logic
+;; object into its HTML representation.
+POFTHEDAY&amp;gt; (defmethod print-html:render ((user user))
+             (print-html:html
+               ((:a :href (get-profile-uri user))
+                (get-name user))))
+
+;; Note, it returns HTML nodes, not 
+POFTHEDAY&amp;gt; (print-html:render *user*)
+(#S(PRINT-HTML::TAG
+    :NAME :A
+    :ATTRS (:HREF &amp;quot;/user/Sponge Bob&amp;quot;)
+    :CHILDREN (&amp;quot;Sponge Bob&amp;quot;)))
+
+;; Now we can use this kind of objects
+;; directly when rendering HTML pages:
+POFTHEDAY&amp;gt; (print-html:print-html-to-string
+            (print-html:html
+              (:article
+               ((:section :class &amp;quot;intro&amp;quot;)
+                (:p &amp;quot;Hello&amp;quot;
+                    *user*)))))
+&amp;quot;&amp;lt;article&amp;gt;
+&amp;lt;section class=\&amp;quot;intro\&amp;quot;&amp;gt;
+&amp;lt;p&amp;gt;Hello
+&amp;lt;a href=\&amp;quot;/user/Sponge Bob\&amp;quot;&amp;gt;Sponge Bob&amp;lt;/a&amp;gt;
+&amp;lt;/p&amp;gt;
+&amp;lt;/section&amp;gt;
+&amp;lt;/article&amp;gt;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems this is an interesting approach to render HTML. What do you think?&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>find-port</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0048-find-port.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This small utility library allows you to find an open network port or to probe if the  port is open.&lt;/p&gt;
+&lt;p&gt;It is useful when you need to start a server on some free port in a given range:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (find-port:find-port :min 4005)
+4005 (12 bits, #xFA5)
+
+;; Now we&amp;#039;ll start the netcat process
+;; to listen on the 4005 port
+POFTHEDAY&amp;gt; (bt:make-thread
+            (lambda ()
+              (uiop:run-program
+               &amp;quot;nc -l 127.0.0.1 4005&amp;quot;)))
+#&amp;lt;SB-THREAD:THREAD &amp;quot;Anonymous thread&amp;quot; RUNNING {10050A25F3}&amp;gt;
+
+;; Port 4005 is taken now:
+POFTHEDAY&amp;gt; (find-port:find-port :min 4005)
+4006 (12 bits, #xFA6)
+
+;; This function can be used to check if the port is taken:
+POFTHEDAY&amp;gt; (find-port:port-open-p 4005)
+NIL
+POFTHEDAY&amp;gt; (find-port:port-open-p 4006)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Beware, this library considered port is taken only when this port is opened by another process. This is because it uses &lt;code&gt;:reuse-address&lt;/code&gt; argument when checking if the port is opened:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(usocket:socket-listen interface port
+                       :reuse-address t)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for this Friday. I have to spend some time with my family. Have a nice weekend!&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>constantfold</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0047-constantfold.html</link>
-            <description> |</description>
+            <description>&lt;![CDATA[&lt;p&gt;This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some calculations into the compile-time.&lt;/p&gt;
+&lt;p&gt;Constant folding is a cool thing when smart compiler simplifies expressions in compile-time if some parts of the expression are known.&lt;/p&gt;
+&lt;p&gt;For example, when you will write &lt;code&gt;(* (+ 1 3) 3600)&lt;/code&gt;, SBCL will simplify it to a &lt;code&gt;14400&lt;/code&gt; constant during compilation of the lisp file.&lt;/p&gt;
+&lt;p&gt;Library &lt;code&gt;constantfold&lt;/code&gt; allows you to define rules for constant folding for custom data structures:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defstruct point2d
+             (x 0)
+             (y 0))
+
+POFTHEDAY&amp;gt; (defun point2d-add-2 (left right)
+             (make-point2d
+              :x (+ (point2d-x left)
+                    (point2d-x right))
+              :y (+ (point2d-y left)
+                    (point2d-y right))))
+
+POFTHEDAY&amp;gt; (defun point2d-add (&amp;amp;rest args)
+             (reduce #&amp;#039;point2d-add-2 args))
+
+;; These calls will define macro with same name
+;; as functions:
+POFTHEDAY&amp;gt; (constantfold:constantfold
+            make-point2d
+            :copier copy-point2d)
+
+POFTHEDAY&amp;gt; (constantfold:constantfold
+            point2d-add
+            :copier copy-point2d
+            :commutative t
+            :associative t)
+
+;; And foldable arguments will be folded into a constant:
+POFTHEDAY&amp;gt; (macroexpand-dammit
+            &amp;#039;(point2d-add (make-point2d :x 1 :y 2)
+                          (make-point2d :x 3 :y 4)))
+(COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When some values are not known at compile-time, they are left unfolded:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (macroexpand-dammit
+            &amp;#039;(defun add-offset (x y)
+              (point2d-add (make-point2d :x 1 :y 2)
+                           (make-point2d :x x :y y)
+                           (make-point2d :x 3 :y 4))))
+(DEFUN ADD-OFFSET (X Y)
+  (POINT2D-ADD
+   ;; This is the result of folding two points into one:
+   (COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))
+   ;; And this is the point with unknown X and Y:
+   (MAKE-POINT2D :X X :Y Y)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To look at how does it work  in the whild, you might write &lt;code&gt;NumCL&lt;/code&gt;&apos;s code. This library uses &lt;code&gt;constantfold&lt;/code&gt; to &lt;a href=&quot;https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp&quot;&gt;mark functions&lt;/a&gt; which work with numbers to make constant folding work for them.&lt;/p&gt;
+]]&gt;</description>
         </item>
         <item>
             <title>arrows</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0046-arrows.html</link>
-            <description> |</description>
-        </item>
-        <item>
-            <title>cl-lexer</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0045-cl-lexer.html</link>
-            <description> (</description>
+            <description>&lt;![CDATA[&lt;p&gt;This library is inspired by Clojure and implements threading macros. They are useful when you need to chain some calls, passing result from one call to another.&lt;/p&gt;
+&lt;p&gt;There are two other CL libraries similar to &lt;code&gt;arrows&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;cl-arrows&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;arrow-macros&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;but &lt;code&gt;arrows&lt;/code&gt; have more features.&lt;/p&gt;
+&lt;p&gt;Here is an example of two simples arrows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt; (list :foo
+                            (list :bar
+                                  (list
+                                   (list 1 2 3)
+                                   (list &amp;#039;a &amp;#039;b &amp;#039;c))))
+             (getf :foo)
+             (getf :bar)
+             (arrows:-&amp;gt;&amp;gt; (mapcar #&amp;#039;reverse)))
+((3 2 1) (C B A))
+
+;; The code above is translated into:
+POFTHEDAY&amp;gt; (mapcar #&amp;#039;reverse
+                   (getf
+                    (getf
+                     (list :foo
+                           (list :bar
+                                 (list (list 1 2 3)
+                                       (list &amp;#039;a &amp;#039;b &amp;#039;c))))
+                     :foo)
+                    :bar))
+((3 2 1) (C B A))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also &lt;code&gt;-&gt;&gt;&lt;/code&gt; which adds an argument to the end, and &lt;code&gt;-&gt;*&lt;/code&gt; which uses the last form as an initial value. They could be used in tandem like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt;&amp;gt; &amp;#039;((:foo . ((:bar . 8))))
+             (assoc :foo)
+             cdr
+             (assoc :bar)
+             cdr
+             (arrows:-&amp;gt;*
+              (mod 3)
+              (expt 2)))
+4 (3 bits, #x4, #o4, #b100)
+
+;; Real operations will be:
+;; (expt (mod 8 3)
+;;       2)
+;; and here is the full macroexpansion:
+
+POFTHEDAY&amp;gt; (expt
+            (mod
+             (cdr (assoc :bar
+               (cdr (assoc :foo
+                           &amp;#039;((:foo (:bar . 8)))))))
+             3)
+            2)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting macro is &lt;code&gt;as-&gt;&lt;/code&gt;. It creates a lexical binding and a variable can be used in any place of the nested code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt; &amp;#039;(:foo (:bar 15))
+             (getf :foo)
+             (getf :bar)
+             (arrows:as-&amp;gt; $
+                 (progn
+                   (format t &amp;quot;Var value: ~A~%&amp;quot; $)
+                   $))
+             (/ 75))
+Var value: 15
+1/5 (0.2, 20%)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few other interesting types of arrows. Go, read about them in the &lt;a href=&quot;https://gitlab.com/Harleqin/arrows&quot;&gt;documentation&lt;/a&gt;!&lt;/p&gt;
+]]&gt;</description>
         </item>
     </channel>
 </rss>

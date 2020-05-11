@@ -55,7 +55,7 @@
       
 
       (get-char *standard-window*))))</code></pre><p>Interesting that <code>cl-charms/low-level</code> package can be used as a drop-in replacement for <code>cl-ncurses</code> and my second example worked without any changes except a change <a href="https://github.com/40ants/lisp-project-of-the-day/blob/master/test/0061/window.ros#L11-L12">in the use clause</a>.</p>
-<h1>A few words about portability</h1><h1>CL-NCURSES</h1><p>I must admit, that working with such kind of bindings can be problematic. For example, I haven't any problems using neither <code>cl-ncurses</code> nor <code>cl-charms</code> on OSX, but there was a problem with starting an example program on Ubuntu Bionic.</p>
+<h2>A few words about portability</h2><h3>CL-NCURSES</h3><p>I must admit, that working with such kind of bindings can be problematic. For example, I haven't any problems using neither <code>cl-ncurses</code> nor <code>cl-charms</code> on OSX, but there was a problem with starting an example program on Ubuntu Bionic.</p>
 <p>On Ubuntu <code>cl-ncurses</code> is unable to find <code>libncurses.so</code> and you have to load it manually like that:</p>
 <pre><code class=' lisp'>;; These paths are harcoded in the cl-ncurses:
 (defvar *ncurses-search-paths*
@@ -65,7 +65,7 @@
 ;; On Ubuntu Bionic you have to add this
 ;; before cl-ncurses initscr call:
 (uffi:load-foreign-library &quot;/lib/x86_64-linux-gnu/libncurses.so.5.9&quot;
-                           :module &quot;cl-ncurses&quot;)</code></pre><h1>CL-CHARMS</h1><p><code>CL-Charms</code> has another problem. It requires the <code>libncurses5-dev</code> package to be installed on Ubuntu. Without that, it has problem when compiling the CFFI Grovel's files:</p>
+                           :module &quot;cl-ncurses&quot;)</code></pre><h3>CL-CHARMS</h3><p><code>CL-Charms</code> has another problem. It requires the <code>libncurses5-dev</code> package to be installed on Ubuntu. Without that, it has problem when compiling the CFFI Grovel's files:</p>
 <pre><code class=' lisp'>; cc -o /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o -c -g -Wall -Wundef -Wsign-compare -Wpointer-arith -O3 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wunused-parameter -fno-omit-frame-pointer -momit-leaf-frame-pointer -fno-pie -fPIC -I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/ /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c
 /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c:6:10: fatal error: ncurses.h: No such file or directory
  #include &lt;ncurses.h&gt;
@@ -81,7 +81,7 @@ Backtrace for: #&lt;SB-THREAD:THREAD &quot;main thread&quot; RUNNING {10004F04C3
 2: (INVOKE-DEBUGGER #&lt;CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; {1004291F73}&gt;)
 3: (ERROR CFFI-GROVEL:GROVEL-ERROR :FORMAT-CONTROL &quot;~a&quot; :FORMAT-ARGUMENTS (#&lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&gt;))
 4: (CFFI-GROVEL:GROVEL-ERROR &quot;~a&quot; #&lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&gt;)
-5: ((FLET &quot;THUNK&quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))</code></pre><h1>Possible Solution?</h1><p>Probably, <a href="https://twitter.com/borodust">@borodust</a>'s <a href="https://github.com/borodust/claw">claw</a> and <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html">bodge-blobs-support</a> can solve these issues?</p>
+5: ((FLET &quot;THUNK&quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))</code></pre><h3>Possible Solution?</h3><p>Probably, <a href="https://twitter.com/borodust">@borodust</a>'s <a href="https://github.com/borodust/claw">claw</a> and <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html">bodge-blobs-support</a> can solve these issues?</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

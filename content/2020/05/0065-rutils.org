@@ -10,13 +10,13 @@
 
 Rutils translated as Radical Utilities. It is a collection of many
 useful utilities. Some of the utilities can be found in other
-libraries, for example arrow macro or short notation for lambdas.
+libraries, for example, arrow macro or short notation for lambdas.
 
-There is interesting [[https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md][document]] which describes why ~rutils~ is so
-radical. In short - it provides reader macro for hash tables and
+There is an interesting [[https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md][document]] which describes why ~rutils~ is so
+radical. In short - it provides a reader macro for hash tables and
 short aliases for many common lisp operators and generic accessors. 
 
-Previosly I didn't digg into the ~rutils~ documentation and used only a
+Previously I didn't dig into the ~rutils~ documentation and used only a
 few functions to work with lists. But now I found a [[https://github.com/vseloved/rutils/blob/master/docs/tutorial.md][great tutorial]]
 covering most ~rutils~ features. I recommend you to spend few evenings
 reading it and trying different code samples.
@@ -42,6 +42,6 @@ POFTHEDAY> (let ((obj #{:foo '(1 2 3)}))
 #+end_src
 
 Here a question mark is an abbreviation for ~rutils:generic-elt~ generic
-and you can define custom method to access different kinds of containers.
+and you can define a custom method to access different kinds of containers.
 
 I definitely will try to use more of ~rutils~ in my code now.
