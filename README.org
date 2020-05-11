@@ -202,7 +202,7 @@ that:
                ,@(when title
                    `((:title (cl-who:esc ,title))))
                (:link :rel "alternate"
-                      :href "/lisp-project-of-the-day/rss.xml"
+                      :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
                       :type "application/rss+xml")
                ,*google-code*
                (:link
