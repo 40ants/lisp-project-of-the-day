@@ -755,9 +755,7 @@ files and write html:
 (defun make-description (file)
   (let ((*rss-mode* t))
     (with-output-to-string (s)
-      (write-string "<![CDATA[" s)
-      (render-node file s)
-      (write-string "]]>" s))))
+      (render-node file s))))
 
 #+END_SRC
 

@@ -8,7 +8,7 @@
         <item>
             <title>rutils</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;Rutils translated as Radical Utilities. It is a collection of many useful utilities. Some of the utilities can be found in other libraries, for example, arrow macro or short notation for lambdas.&lt;/p&gt;
+            <description>&lt;p&gt;Rutils translated as Radical Utilities. It is a collection of many useful utilities. Some of the utilities can be found in other libraries, for example, arrow macro or short notation for lambdas.&lt;/p&gt;
 &lt;p&gt;There is an interesting &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md&quot;&gt;document&lt;/a&gt; which describes why &lt;code&gt;rutils&lt;/code&gt; is so radical. In short - it provides a reader macro for hash tables and short aliases for many common lisp operators and generic accessors. &lt;/p&gt;
 &lt;p&gt;Previously I didn&apos;t dig into the &lt;code&gt;rutils&lt;/code&gt; documentation and used only a few functions to work with lists. But now I found a &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/tutorial.md&quot;&gt;great tutorial&lt;/a&gt; covering most &lt;code&gt;rutils&lt;/code&gt; features. I recommend you to spend few evenings reading it and trying different code samples.&lt;/p&gt;
 &lt;p&gt;Here is a small example which demonstrates how hash table syntax and generic accessors work:&lt;/p&gt;
@@ -25,12 +25,12 @@ POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
              (? obj :foo 1))
 2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here a question mark is an abbreviation for &lt;code&gt;rutils:generic-elt&lt;/code&gt; generic and you can define a custom method to access different kinds of containers.&lt;/p&gt;
 &lt;p&gt;I definitely will try to use more of &lt;code&gt;rutils&lt;/code&gt; in my code now.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>xml-emitter</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This library can be used to generate XML. You can use it for outputting any XML, but I use its builtin helpers to generate RSS feed.&lt;/p&gt;
+            <description>&lt;p&gt;This library can be used to generate XML. You can use it for outputting any XML, but I use its builtin helpers to generate RSS feed.&lt;/p&gt;
 &lt;p&gt;Here is how to generate RSS feed in Common Lisp:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-output-to-string (s)
              (xml-emitter:with-rss2 (s :encoding &amp;quot;utf-8&amp;quot;)
@@ -79,12 +79,12 @@ POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
         &amp;lt;twitter&amp;gt;https://twitter.com/mary&amp;lt;/twitter&amp;gt;
     &amp;lt;/contact&amp;gt;
 &amp;lt;/address-book&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Please, note that support for &lt;a href=&quot;https://www.w3schools.com/xml/xml_namespaces.asp&quot;&gt;XML namespaces&lt;/a&gt; is very limited. You can only specify a namespace for some tags. Namespace prefixes are not supported.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>asdf-viz</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;Today I decided it will be more interesting to investigate Lisp systems which I already have as dependencies of my projects. That is why I&apos;ve remembered about &lt;code&gt;asdf-viz&lt;/code&gt;.&lt;/p&gt;
+            <description>&lt;p&gt;Today I decided it will be more interesting to investigate Lisp systems which I already have as dependencies of my projects. That is why I&apos;ve remembered about &lt;code&gt;asdf-viz&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;ASDF-VIZ&lt;/code&gt; is able to render a graph of ASDF systems. It can be installed as Unix scripts using &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt; or used from the REPL.&lt;/p&gt;
 &lt;p&gt;Also, you&apos;ll need a &lt;a href=&quot;https://www.graphviz.org/&quot;&gt;Graphviz&lt;/a&gt; program installed.&lt;/p&gt;
 &lt;p&gt;Now we&apos;ll render a graph of all dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system:&lt;/p&gt;
@@ -103,12 +103,12 @@ POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
 &lt;p&gt;I think it might be useful to integrate &lt;code&gt;asdf-viz&lt;/code&gt; into IDE.&lt;/p&gt;
 &lt;p&gt;Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE is able to do this?&lt;/p&gt;
 &lt;p&gt;P.S. – next system will be chosen from the dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>magic-ed</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0062-magic-ed.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This strange library replaces standard &lt;code&gt;cl:ed&lt;/code&gt; function with a new one, which executes editor specified in the &lt;code&gt;EDITOR&lt;/code&gt; environment variable.&lt;/p&gt;
+            <description>&lt;p&gt;This strange library replaces standard &lt;code&gt;cl:ed&lt;/code&gt; function with a new one, which executes editor specified in the &lt;code&gt;EDITOR&lt;/code&gt; environment variable.&lt;/p&gt;
 &lt;p&gt;It does not work from SLY, so I had to run a raw REPL:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;* sb-ext:*ed-functions*
  NIL
@@ -145,12 +145,12 @@ POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
  &amp;quot;(format t \&amp;quot;Blah~%\&amp;quot;)
  &amp;quot;
  *&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Can somebody tell me when this could be useful if you can just use Emacs and SLIME?&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>cl-charms</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;Two days ago I &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;reviewed the cl-ncurses&lt;/a&gt;. &lt;code&gt;CL-Charms&lt;/code&gt; is also a binding to &lt;code&gt;ncurses&lt;/code&gt;, but uses more universal and portable &lt;a href=&quot;https://common-lisp.net/project/cffi/manual/html_node/&quot;&gt;CFFI&lt;/a&gt; instead of &lt;a href=&quot;http://quickdocs.org/uffi/&quot;&gt;UFFI&lt;/a&gt;.&lt;/p&gt;
+            <description>&lt;p&gt;Two days ago I &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;reviewed the cl-ncurses&lt;/a&gt;. &lt;code&gt;CL-Charms&lt;/code&gt; is also a binding to &lt;code&gt;ncurses&lt;/code&gt;, but uses more universal and portable &lt;a href=&quot;https://common-lisp.net/project/cffi/manual/html_node/&quot;&gt;CFFI&lt;/a&gt; instead of &lt;a href=&quot;http://quickdocs.org/uffi/&quot;&gt;UFFI&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;By the way, LEM (Common Lisp Emacs) uses &lt;code&gt;cl-charms&lt;/code&gt; for it&apos;s console backend.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;CL-Charms&lt;/code&gt; provides a high-level API besides a low level. I&apos;ve ported my previous &lt;code&gt;echo&lt;/code&gt; program to it:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
@@ -208,12 +208,12 @@ Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;main thread&amp;quot; RUNNING
 3: (ERROR CFFI-GROVEL:GROVEL-ERROR :FORMAT-CONTROL &amp;quot;~a&amp;quot; :FORMAT-ARGUMENTS (#&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;))
 4: (CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; #&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;)
 5: ((FLET &amp;quot;THUNK&amp;quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))&lt;/code&gt;&lt;/pre&gt;&lt;h3&gt;Possible Solution?&lt;/h3&gt;&lt;p&gt;Probably, &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s &lt;a href=&quot;https://github.com/borodust/claw&quot;&gt;claw&lt;/a&gt; and &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html&quot;&gt;bodge-blobs-support&lt;/a&gt; can solve these issues?&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>clawk</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0060-clawk.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This library provides a DSL for text processing in a way as AWK does. For those who aren&apos;t familiar with it, AWK is a language for text processing.&lt;/p&gt;
+            <description>&lt;p&gt;This library provides a DSL for text processing in a way as AWK does. For those who aren&apos;t familiar with it, AWK is a language for text processing.&lt;/p&gt;
 &lt;p&gt;AWK reads lines, splits them into the fields and applies some pattern-matching to them.&lt;/p&gt;
 &lt;p&gt;CLAWK allows forOB solving similar tasks in Lisp.&lt;/p&gt;
 &lt;p&gt;It does not have documentation but there are some examples, based on examples from this AWK book from 1988:&lt;/p&gt;
@@ -275,12 +275,12 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
 &lt;p&gt;You can find more examples in this file:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&quot;&gt;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;For me, CLAWK seems a nice tool to process files line by line from Common Lisp.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>cl-ncurses</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This library is binding to NCurses. It allows for creating windowing interfaces for the console. With NCurses you can print to any place of the screen, change colors and probably do some other awesome things.&lt;/p&gt;
+            <description>&lt;p&gt;This library is binding to NCurses. It allows for creating windowing interfaces for the console. With NCurses you can print to any place of the screen, change colors and probably do some other awesome things.&lt;/p&gt;
 &lt;p&gt;I took a few examples from the original NCurses documentation:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&quot;&gt;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;It was pretty straightforward to port them to Common Lisp.&lt;/p&gt;
@@ -364,12 +364,12 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
   (endwin))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Full examples are available here:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&quot;&gt;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;That is it. If you need an interactive interface in the console, use cl-ncurses!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>atomics</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0058-atomics.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This is a portability library for access to atomic operation primitives such as &lt;code&gt;compare-and-swap&lt;/code&gt;, &lt;code&gt;atomic-incf&lt;/code&gt; and &lt;code&gt;atomic-decf&lt;/code&gt;.&lt;/p&gt;
+            <description>&lt;p&gt;This is a portability library for access to atomic operation primitives such as &lt;code&gt;compare-and-swap&lt;/code&gt;, &lt;code&gt;atomic-incf&lt;/code&gt; and &lt;code&gt;atomic-decf&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Atomic operations are particularly useful for implementing lockless algorithms.&lt;/p&gt;
 &lt;p&gt;Here is an example of using compare and swap under SBCL:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((foo (list 1 2 3 4)))
@@ -390,12 +390,12 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
      FOO)
 
 (42 2 3 4)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&quot;atomics&quot;, like all &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&apos;s&lt;/a&gt; libraries, has a &lt;a href=&quot;https://shinmera.github.io/atomics/&quot;&gt;good documentation&lt;/a&gt; where you can find details on support for atomics operations in different CL implementations.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>pretty-function</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0057-pretty-function.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This small library makes debugging easier when you are using many anonymous functions. With &lt;code&gt;pretty-functions&lt;/code&gt; you can give names to your lambdas.&lt;/p&gt;
+            <description>&lt;p&gt;This small library makes debugging easier when you are using many anonymous functions. With &lt;code&gt;pretty-functions&lt;/code&gt; you can give names to your lambdas.&lt;/p&gt;
 &lt;p&gt;Here is a traceback you&apos;ll have with ordinal lambda:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun bar ()
              (error &amp;quot;Hello World!&amp;quot;))
@@ -496,12 +496,12 @@ POFTHEDAY&amp;gt; (funcall *f*)
 
 POFTHEDAY&amp;gt; *f*
 #&amp;lt;counter=1&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, with Lisp, you always can write your own syntax sugar around this macro.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>trivial-indent</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0056-trivial-indent.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This is another great library by &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;. It is a portability layer for defining indentation rules for both SLIME and &lt;a href=&quot;http://joaotavora.github.io/sly/#A-SLY-tour-for-SLIME-users&quot;&gt;SLY&lt;/a&gt;.&lt;/p&gt;
+            <description>&lt;p&gt;This is another great library by &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;. It is a portability layer for defining indentation rules for both SLIME and &lt;a href=&quot;http://joaotavora.github.io/sly/#A-SLY-tour-for-SLIME-users&quot;&gt;SLY&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Let&apos;s pretend we have a macro:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro super-let (name value &amp;amp;body body)
              `(let ((,name ,value))
@@ -570,12 +570,12 @@ POFTHEDAY&amp;gt; (super-let blah
 &lt;p&gt;And finally, &lt;code&gt;&amp;body&lt;/code&gt; keyword says to handle the rest of the macro arguments like a function&apos;s body.&lt;/p&gt;
 &lt;p&gt;There is also ability to define a custom function which will decide how to indent a form. But I didn&apos;t use this feature yet.&lt;/p&gt;
 &lt;p&gt;You can read detail about the structure of indentation rules in &lt;a href=&quot;https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248&quot;&gt;this Emacs docstring&lt;/a&gt;.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>cl-heredoc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This module implements a syntax to read string literals in &lt;a href=&quot;https://en.wikipedia.org/wiki/Here_document&quot;&gt;heredoc&lt;/a&gt; style. Such way of reading is also supported in some other languages.&lt;/p&gt;
+            <description>&lt;p&gt;This module implements a syntax to read string literals in &lt;a href=&quot;https://en.wikipedia.org/wiki/Here_document&quot;&gt;heredoc&lt;/a&gt; style. Such way of reading is also supported in some other languages.&lt;/p&gt;
 &lt;p&gt;Heredoc allows you to define a string literal where any symbols can be used:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (set-dispatch-macro-character
             #\# #\&amp;gt;
@@ -597,12 +597,12 @@ use any characters even different quotes:
 - \&amp;quot;
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-heredoc&lt;/code&gt; you can write anything you want without escaping. This might be useful in some cases.&lt;/p&gt;
 &lt;p&gt;Also, it exports a function &lt;code&gt;read-until-match&lt;/code&gt; which might be used to read from a string until a given subsequence.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>hu.dwim.def</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0054-hu.dwim.def.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;Today I want to review this library because it is used in other &lt;code&gt;hu.dwim.*&lt;/code&gt; libraries. Understanding how does &lt;code&gt;hu.dwim.def&lt;/code&gt; works will help to read other libraries code.&lt;/p&gt;
+            <description>&lt;p&gt;Today I want to review this library because it is used in other &lt;code&gt;hu.dwim.*&lt;/code&gt; libraries. Understanding how does &lt;code&gt;hu.dwim.def&lt;/code&gt; works will help to read other libraries code.&lt;/p&gt;
 &lt;p&gt;The main concept of the &lt;code&gt;hu.dwim.def&lt;/code&gt; is the &lt;code&gt;definer&lt;/code&gt;. Definer has a name and a function which is used to macro-expand the code.&lt;/p&gt;
 &lt;p&gt;This is how usual definition can be used and what it expands to:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def function foo ()
@@ -763,12 +763,12 @@ GUTS -&amp;gt; &amp;quot;This definer shows debug information about environment
 
 
 Also, there are 33 undocumented definers.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To conclude, &lt;code&gt;hu.dwim.def&lt;/code&gt; is a great library now I&apos;ll use it in my projects!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>cl-locale</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0053-cl-locale.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This project will help you to internationalize your application. Seems, it does not use files in &lt;code&gt;gettext&lt;/code&gt; format, but you might define translations in a lispy way:&lt;/p&gt;
+            <description>&lt;p&gt;This project will help you to internationalize your application. Seems, it does not use files in &lt;code&gt;gettext&lt;/code&gt; format, but you might define translations in a lispy way:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-locale:define-dictionary hello
              (:en-US &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;Hello World!&amp;quot;)))
              (:ru-RU &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;))))
@@ -794,12 +794,12 @@ POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
 &lt;p&gt;Pluralization depends on language rules. For example in Russian it will be:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;0 яблок&lt;/li&gt;&lt;li&gt;1 яблоко&lt;/li&gt;&lt;li&gt;2 яблока&lt;/li&gt;&lt;li&gt;5 яблок&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;I hope, &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;@nitro_idiot&lt;/a&gt; will be able to add pluralization, or somebody will implement this feature!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>beast</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0052-beast.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;Today&apos;s overview is about the Beast. This is a small library, written by &lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; for describing a game world.&lt;/p&gt;
+            <description>&lt;p&gt;Today&apos;s overview is about the Beast. This is a small library, written by &lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; for describing a game world.&lt;/p&gt;
 &lt;p&gt;Game world is full of different entities. Each entity has it a type and characteristics or aspects.&lt;/p&gt;
 &lt;p&gt;&quot;Beast&quot; is a simple wrapper over CLOS, which allows you to define aspects and to mix them when defining a new entity type.&lt;/p&gt;
 &lt;p&gt;Here is a nice example from projects README:&lt;/p&gt;
@@ -867,12 +867,12 @@ POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
   &amp;#039;rot-food)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, this macro defines a code which will be applied to all &quot;edible&quot; objects in the game.&lt;/p&gt;
 &lt;p&gt;I think Beast is the great library for defining game objects!&lt;/p&gt;
 &lt;p&gt;You can find more information about this library in its &lt;a href=&quot;https://docs.stevelosh.com/beast/usage/&quot;&gt;great documentation&lt;/a&gt;.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>should-test</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0051-should-test.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This is yet another testing framework written by &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt;. It is interesting because provides a protocol to define new kinds of assertions.&lt;/p&gt;
+            <description>&lt;p&gt;This is yet another testing framework written by &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt;. It is interesting because provides a protocol to define new kinds of assertions.&lt;/p&gt;
 &lt;p&gt;Here is a simple example:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun plus-100 (x)
              (+ x x))
@@ -936,12 +936,12 @@ POFTHEDAY&amp;gt; (st:test)
 Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not convenient to define a test predicate this way, because I didn&apos;t have control of assertion syntax. It always should be like &quot;name test expected form&quot;.&lt;/p&gt;
 &lt;p&gt;In my case I have a 0.01 delta in place of the test, which is not semantic at all and form completion in SLY does not help me to understand what does &quot;should&quot; macro expect if the first argument is &quot;be-within&quot;.&lt;/p&gt;
 &lt;p&gt;But this is is relatively young test framework :)&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>literate-lisp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;During the week of ASDF extensions I didn&apos;t tell you about this library, however I&apos;m using it to render #poftheday site. But preparing the yesterday post about &lt;code&gt;print-html&lt;/code&gt; I found it is written in Literate Programming Style.&lt;/p&gt;
+            <description>&lt;p&gt;During the week of ASDF extensions I didn&apos;t tell you about this library, however I&apos;m using it to render #poftheday site. But preparing the yesterday post about &lt;code&gt;print-html&lt;/code&gt; I found it is written in Literate Programming Style.&lt;/p&gt;
 &lt;p&gt;But &lt;code&gt;print-html&lt;/code&gt; is written in org-mode file which was preprocessed and transformed into usual lisp file. Literate-lisp is an ASDF extension which allows you to load &lt;code&gt;org-mode&lt;/code&gt; as usual lisp files.&lt;/p&gt;
 &lt;p&gt;All that you need to do is to write &lt;code&gt;:defsystem-depends-on (&quot;literate-lisp&quot;)&lt;/code&gt; in the system definition file and to use &lt;code&gt;:org&lt;/code&gt; type for components.&lt;/p&gt;
 &lt;p&gt;Here is the content of my ASD file:&lt;/p&gt;
@@ -965,12 +965,12 @@ Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not 
   :components ((:org &amp;quot;readme&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;My &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org&quot;&gt;README.org&lt;/a&gt; is a usual org-mode file with &lt;code&gt;lisp&lt;/code&gt; code blocks in it. Literate-lisp system defines a custom reader which skips all file content except code blocks and loads them into lisp image.&lt;/p&gt;
 &lt;p&gt;When used with &lt;a href=&quot;https://github.com/polymode/poly-org&quot;&gt;poly-org&lt;/a&gt; mode, this allows having convenient Lisp code navigation and shortcuts right inside the org-mode file. I can hit &lt;code&gt;C-c C-c&lt;/code&gt; to evaluate functions, etc.&lt;/p&gt;
 &lt;p&gt;So, if you wanted to try Literate Programming, then Jintao Xu&apos;s literate-lisp is the best way to go!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>print-html</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This is an HTML generator. This library is similar to cl-who or spinneret, but with two interesting differences.&lt;/p&gt;
+            <description>&lt;p&gt;This is an HTML generator. This library is similar to cl-who or spinneret, but with two interesting differences.&lt;/p&gt;
 &lt;p&gt;The first distinction is that &lt;code&gt;print-html&lt;/code&gt; is written in the literate programmings style and have very succinct code which can be read in 5-10 minutes.&lt;/p&gt;
 &lt;p&gt;The second distinction is that &lt;code&gt;print-html&lt;/code&gt; is based on generics and you can define a method to print some classes into HTML.&lt;/p&gt;
 &lt;p&gt;Let&apos;s try this!&lt;/p&gt;
@@ -1028,12 +1028,12 @@ POFTHEDAY&amp;gt; (print-html:print-html-to-string
 &amp;lt;/section&amp;gt;
 &amp;lt;/article&amp;gt;
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems this is an interesting approach to render HTML. What do you think?&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>find-port</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0048-find-port.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This small utility library allows you to find an open network port or to probe if the  port is open.&lt;/p&gt;
+            <description>&lt;p&gt;This small utility library allows you to find an open network port or to probe if the  port is open.&lt;/p&gt;
 &lt;p&gt;It is useful when you need to start a server on some free port in a given range:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (find-port:find-port :min 4005)
 4005 (12 bits, #xFA5)
@@ -1057,12 +1057,12 @@ POFTHEDAY&amp;gt; (find-port:port-open-p 4006)
 T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Beware, this library considered port is taken only when this port is opened by another process. This is because it uses &lt;code&gt;:reuse-address&lt;/code&gt; argument when checking if the port is opened:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(usocket:socket-listen interface port
                        :reuse-address t)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for this Friday. I have to spend some time with my family. Have a nice weekend!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>constantfold</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0047-constantfold.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some calculations into the compile-time.&lt;/p&gt;
+            <description>&lt;p&gt;This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some calculations into the compile-time.&lt;/p&gt;
 &lt;p&gt;Constant folding is a cool thing when smart compiler simplifies expressions in compile-time if some parts of the expression are known.&lt;/p&gt;
 &lt;p&gt;For example, when you will write &lt;code&gt;(* (+ 1 3) 3600)&lt;/code&gt;, SBCL will simplify it to a &lt;code&gt;14400&lt;/code&gt; constant during compilation of the lisp file.&lt;/p&gt;
 &lt;p&gt;Library &lt;code&gt;constantfold&lt;/code&gt; allows you to define rules for constant folding for custom data structures:&lt;/p&gt;
@@ -1108,12 +1108,12 @@ POFTHEDAY&amp;gt; (macroexpand-dammit
    (COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))
    ;; And this is the point with unknown X and Y:
    (MAKE-POINT2D :X X :Y Y)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To look at how does it work  in the whild, you might write &lt;code&gt;NumCL&lt;/code&gt;&apos;s code. This library uses &lt;code&gt;constantfold&lt;/code&gt; to &lt;a href=&quot;https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp&quot;&gt;mark functions&lt;/a&gt; which work with numbers to make constant folding work for them.&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
         <item>
             <title>arrows</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/04/0046-arrows.html</link>
-            <description>&lt;![CDATA[&lt;p&gt;This library is inspired by Clojure and implements threading macros. They are useful when you need to chain some calls, passing result from one call to another.&lt;/p&gt;
+            <description>&lt;p&gt;This library is inspired by Clojure and implements threading macros. They are useful when you need to chain some calls, passing result from one call to another.&lt;/p&gt;
 &lt;p&gt;There are two other CL libraries similar to &lt;code&gt;arrows&lt;/code&gt;:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;&lt;code&gt;cl-arrows&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;arrow-macros&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;but &lt;code&gt;arrows&lt;/code&gt; have more features.&lt;/p&gt;
@@ -1171,7 +1171,7 @@ POFTHEDAY&amp;gt; (expt
              (/ 75))
 Var value: 15
 1/5 (0.2, 20%)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few other interesting types of arrows. Go, read about them in the &lt;a href=&quot;https://gitlab.com/Harleqin/arrows&quot;&gt;documentation&lt;/a&gt;!&lt;/p&gt;
-]]&gt;</description>
+</description>
         </item>
     </channel>
 </rss>
