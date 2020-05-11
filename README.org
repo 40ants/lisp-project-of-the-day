@@ -218,6 +218,10 @@ that:
               (:body 
                (cl-bootstrap:bs-container ()
                  (cl-bootstrap:bs-row
+                   (:a :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
+                       :style "display: block; float: right;"
+                       (:img :alt "RSS Feed"
+                             :src "http://40ants.com/lisp-project-of-the-day/media/images/rss.png"))
                    (:header
                     (:h1 :style "text-align: center"
                          ,@site-title)
