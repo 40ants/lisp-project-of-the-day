@@ -6,6 +6,45 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>str</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0066-str.html</link>
+            <description>&lt;p&gt;This is a single purpose utility library. Before switching to the &lt;code&gt;str&lt;/code&gt;, I used &lt;code&gt;cl-strings&lt;/code&gt;, but &lt;code&gt;str&lt;/code&gt; library is more consistent.&lt;/p&gt;
+&lt;p&gt;I like that unlike standard functions, &lt;code&gt;str&lt;/code&gt; is able to work with chars and strings as delimiter:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (str:split #\Space
+                      &amp;quot;Foo bar bazz&amp;quot;)
+(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)
+
+POFTHEDAY&amp;gt; (str:split &amp;quot; &amp;quot;
+                      &amp;quot;Foo bar bazz&amp;quot;)
+(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)
+
+;; Also it is able to skip empty strings:
+POFTHEDAY&amp;gt; (str:split &amp;quot; &amp;quot;
+                      &amp;quot;Foo   bar   bazz&amp;quot;)
+(&amp;quot;Foo&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot; &amp;quot;bazz&amp;quot;)
+
+POFTHEDAY&amp;gt; (str:split-omit-nulls &amp;quot; &amp;quot;
+                      &amp;quot;Foo   bar   bazz&amp;quot;)
+(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Parameter ordering can seem a little strange at first glance, but they&apos;ve made this way to make it easier to &lt;code&gt;curry&lt;/code&gt; functions.&lt;/p&gt;
+&lt;p&gt;For example, if we have a multiline text and want to put ellipsis at the end of string longer than X, we might do:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *text* &amp;quot;
+This line is much longer than we need.
+This one is also too long.
+
+I can&amp;#039;t belive!
+&amp;quot;&amp;quot;&amp;quot;)
+
+POFTHEDAY&amp;gt; (str:unlines
+            (mapcar (alexandria:curry #&amp;#039;str:shorten 20)
+                    (str:lines *text*)))
+&amp;quot;
+This line is much...
+This one is also ...
+
+I can&amp;#039;t belive!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;BTW &lt;code&gt;str&lt;/code&gt; has very &lt;a href=&quot;https://vindarel.github.io/cl-str/&quot;&gt;cool documentation&lt;/a&gt;. I&apos;d like to have such docs for other CL libraries.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>rutils</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html</link>
             <description>&lt;p&gt;Rutils translated as Radical Utilities. It is a collection of many useful utilities. Some of the utilities can be found in other libraries, for example, arrow macro or short notation for lambdas.&lt;/p&gt;
@@ -1108,69 +1147,6 @@ POFTHEDAY&amp;gt; (macroexpand-dammit
    (COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))
    ;; And this is the point with unknown X and Y:
    (MAKE-POINT2D :X X :Y Y)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To look at how does it work  in the whild, you might write &lt;code&gt;NumCL&lt;/code&gt;&apos;s code. This library uses &lt;code&gt;constantfold&lt;/code&gt; to &lt;a href=&quot;https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp&quot;&gt;mark functions&lt;/a&gt; which work with numbers to make constant folding work for them.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>arrows</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0046-arrows.html</link>
-            <description>&lt;p&gt;This library is inspired by Clojure and implements threading macros. They are useful when you need to chain some calls, passing result from one call to another.&lt;/p&gt;
-&lt;p&gt;There are two other CL libraries similar to &lt;code&gt;arrows&lt;/code&gt;:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;code&gt;cl-arrows&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;arrow-macros&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;but &lt;code&gt;arrows&lt;/code&gt; have more features.&lt;/p&gt;
-&lt;p&gt;Here is an example of two simples arrows:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt; (list :foo
-                            (list :bar
-                                  (list
-                                   (list 1 2 3)
-                                   (list &amp;#039;a &amp;#039;b &amp;#039;c))))
-             (getf :foo)
-             (getf :bar)
-             (arrows:-&amp;gt;&amp;gt; (mapcar #&amp;#039;reverse)))
-((3 2 1) (C B A))
-
-;; The code above is translated into:
-POFTHEDAY&amp;gt; (mapcar #&amp;#039;reverse
-                   (getf
-                    (getf
-                     (list :foo
-                           (list :bar
-                                 (list (list 1 2 3)
-                                       (list &amp;#039;a &amp;#039;b &amp;#039;c))))
-                     :foo)
-                    :bar))
-((3 2 1) (C B A))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also &lt;code&gt;-&gt;&gt;&lt;/code&gt; which adds an argument to the end, and &lt;code&gt;-&gt;*&lt;/code&gt; which uses the last form as an initial value. They could be used in tandem like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt;&amp;gt; &amp;#039;((:foo . ((:bar . 8))))
-             (assoc :foo)
-             cdr
-             (assoc :bar)
-             cdr
-             (arrows:-&amp;gt;*
-              (mod 3)
-              (expt 2)))
-4 (3 bits, #x4, #o4, #b100)
-
-;; Real operations will be:
-;; (expt (mod 8 3)
-;;       2)
-;; and here is the full macroexpansion:
-
-POFTHEDAY&amp;gt; (expt
-            (mod
-             (cdr (assoc :bar
-               (cdr (assoc :foo
-                           &amp;#039;((:foo (:bar . 8)))))))
-             3)
-            2)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting macro is &lt;code&gt;as-&gt;&lt;/code&gt;. It creates a lexical binding and a variable can be used in any place of the nested code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (arrows:-&amp;gt; &amp;#039;(:foo (:bar 15))
-             (getf :foo)
-             (getf :bar)
-             (arrows:as-&amp;gt; $
-                 (progn
-                   (format t &amp;quot;Var value: ~A~%&amp;quot; $)
-                   $))
-             (/ 75))
-Var value: 15
-1/5 (0.2, 20%)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few other interesting types of arrows. Go, read about them in the &lt;a href=&quot;https://gitlab.com/Harleqin/arrows&quot;&gt;documentation&lt;/a&gt;!&lt;/p&gt;
 </description>
         </item>
     </channel>

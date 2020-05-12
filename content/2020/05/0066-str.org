@@ -1,0 +1,66 @@
+* str :utils:text:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This is a single purpose utility library. Before switching to the ~str~, I
+used ~cl-strings~, but ~str~ library is more consistent.
+
+I like that unlike standard functions, ~str~ is able to work with chars
+and strings as delimiter:
+
+#+begin_src lisp
+
+POFTHEDAY> (str:split #\Space
+                      "Foo bar bazz")
+("Foo" "bar" "bazz")
+
+POFTHEDAY> (str:split " "
+                      "Foo bar bazz")
+("Foo" "bar" "bazz")
+
+;; Also it is able to skip empty strings:
+POFTHEDAY> (str:split " "
+                      "Foo   bar   bazz")
+("Foo" "" "" "bar" "" "" "bazz")
+
+POFTHEDAY> (str:split-omit-nulls " "
+                      "Foo   bar   bazz")
+("Foo" "bar" "bazz")
+
+#+end_src
+
+Parameter ordering can seem a little strange at first glance, but
+they've made this way to make it easier to ~curry~ functions.
+
+For example, if we have a multiline text and want to put ellipsis at the
+end of string longer than X, we might do:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *text* "
+This line is much longer than we need.
+This one is also too long.
+
+I can't belive!
+""")
+
+POFTHEDAY> (str:unlines
+            (mapcar (alexandria:curry #'str:shorten 20)
+                    (str:lines *text*)))
+"
+This line is much...
+This one is also ...
+
+I can't belive!"
+
+#+end_src
+
+BTW ~str~ has very [[https://vindarel.github.io/cl-str/][cool documentation]]. I'd like to have such docs for
+other CL libraries.
+
