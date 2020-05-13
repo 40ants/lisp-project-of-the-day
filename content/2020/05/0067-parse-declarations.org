@@ -86,3 +86,15 @@ POFTHEDAY> (custom-let* ((a 1)
 
 As you can see, our single declaration form was torn apart and each
 part placed into the correct place inside nested ~lets~. Great!
+
+** How does it work
+
+There are three phases:
+
+- ~parse-declarations~ parses whole body passed to the ~custom-let*~ and
+  extracts forms related to type declarations. It stores them in a
+  special ~env~ object.
+- ~filter-declaration-env~ allows us to select only declarations related
+  to the needed variable.
+- ~build-declarations~ transforms one or many ~env~ objects into the lists
+  of symbols so that they can be used for the macro-expansion.

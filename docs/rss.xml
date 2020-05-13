@@ -57,6 +57,8 @@ POFTHEDAY&amp;gt; (defmacro custom-let* (bindings &amp;amp;body body &amp;amp;en
   (let ((b (* a 0.01)))
     (declare (type single-float b))
     (locally (list a b))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, our single declaration form was torn apart and each part placed into the correct place inside nested &lt;code&gt;lets&lt;/code&gt;. Great!&lt;/p&gt;
+&lt;h2&gt;How does it work&lt;/h2&gt;&lt;p&gt;There are three phases:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;parse-declarations&lt;/code&gt; parses whole body passed to the &lt;code&gt;custom-let*&lt;/code&gt; and   extracts forms related to type declarations. It stores them in a   special &lt;code&gt;env&lt;/code&gt; object.&lt;/li&gt;&lt;li&gt;&lt;code&gt;filter-declaration-env&lt;/code&gt; allows us to select only declarations related   to the needed variable.&lt;/li&gt;&lt;li&gt;&lt;code&gt;build-declarations&lt;/code&gt; transforms one or many &lt;code&gt;env&lt;/code&gt; objects into the lists   of symbols so that they can be used for the macro-expansion.&lt;/li&gt;&lt;/ul&gt;
 </description>
         </item>
         <item>

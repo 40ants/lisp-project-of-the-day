@@ -73,6 +73,8 @@ POFTHEDAY&gt; (defmacro custom-let* (bindings &amp;body body &amp;environment ma
   (let ((b (* a 0.01)))
     (declare (type single-float b))
     (locally (list a b))))</code></pre><p>As you can see, our single declaration form was torn apart and each part placed into the correct place inside nested <code>lets</code>. Great!</p>
+<h2>How does it work</h2><p>There are three phases:</p>
+<ul><li><code>parse-declarations</code> parses whole body passed to the <code>custom-let*</code> and   extracts forms related to type declarations. It stores them in a   special <code>env</code> object.</li><li><code>filter-declaration-env</code> allows us to select only declarations related   to the needed variable.</li><li><code>build-declarations</code> transforms one or many <code>env</code> objects into the lists   of symbols so that they can be used for the macro-expansion.</li></ul>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
