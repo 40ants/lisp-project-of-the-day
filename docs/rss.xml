@@ -6,6 +6,60 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>parse-declarations</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html</link>
+            <description>&lt;p&gt;This library provides advanced facilities to work with declaration forms and can be useful for writing macroses.&lt;/p&gt;
+&lt;p&gt;I wasn&apos;t able to imagine a good enough example, but luckily, this library has &lt;a href=&quot;https://common-lisp.net/project/parse-declarations/manual/html_node/Examples.html#Examples&quot;&gt;great documentation&lt;/a&gt; and I stole this example from it.&lt;/p&gt;
+&lt;p&gt;It is an analogue of the standard &lt;code&gt;let*&lt;/code&gt; form which expands into multiple &lt;code&gt;let&lt;/code&gt; forms. Maybe you know, &lt;code&gt;let*&lt;/code&gt; can have declarations inside. But to process them correctly, you need to place a declaration related to each variable into its own &lt;code&gt;let&lt;/code&gt; form.&lt;/p&gt;
+&lt;p&gt;Here is how this can be done with &lt;code&gt;parse-declarations&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; System and package names are different:
+POFTHEDAY&amp;gt; (ql:quickload :parse-declarations-1.0)
+
+POFTHEDAY&amp;gt; (import &amp;#039;(tcr.parse-declarations-1.0::parse-body
+                     tcr.parse-declarations-1.0:filter-declaration-env
+                     tcr.parse-declarations-1.0:build-declarations
+                     tcr.parse-declarations-1.0:check-declaration-env
+                     tcr.parse-declarations-1.0:parse-declarations))
+
+POFTHEDAY&amp;gt; (defmacro custom-let* (bindings &amp;amp;body body &amp;amp;environment macro-env)
+    (flet ((normalize-binding (binding)
+             (cond ((symbolp binding)    `(,binding nil))
+                   ((null (cdr binding)) `(,(car binding) nil))
+                   (t binding))))
+      (multiple-value-bind (real-body decls) (parse-body body :documentation nil)
+        (let ((decl-env (parse-declarations decls macro-env)))
+          (check-declaration-env decl-env :unknown-allowed nil :warn-only t)
+          (labels ((generate-nested-lets (bindings &amp;amp;optional used-binding-names)
+                     (if (null bindings)
+                         `(locally
+                              ,@(build-declarations &amp;#039;declare
+                                  (filter-declaration-env decl-env :include :free)
+                                  (filter-declaration-env decl-env :include :bound
+                                                          :not-affecting used-binding-names))
+                            ,@real-body)
+                         (destructuring-bind ((var value) . more-bindings) bindings
+                           `(let ((,var ,value))
+                              ,@(build-declarations &amp;#039;declare
+                                  (filter-declaration-env decl-env :affecting `(,var)))
+                              ,(generate-nested-lets more-bindings (cons var used-binding-names)))))))
+            (generate-nested-lets (mapcar #&amp;#039;normalize-binding bindings)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention that &lt;code&gt;parse-body&lt;/code&gt; function is intentionally is not exported to not conflict with &lt;code&gt;alexandria:parse-body&lt;/code&gt;. Author considered that many lispers do import all alexandria&apos;s symbols into their packages.&lt;/p&gt;
+&lt;p&gt;By the way, Alexandria implements only a simple version of the &lt;code&gt;parse-body&lt;/code&gt; function and does not support all advanced features of &lt;code&gt;parse-declarations&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;But let&apos;s see how our macro will expand!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (custom-let* ((a 1)
+                         (b (* a 0.01)))
+             (declare (type fixnum a)
+                      (type single-float b))
+             (list a b))
+
+;; It expands to -&amp;gt;
+(let ((a 1))
+  (declare (type fixnum a))
+  (let ((b (* a 0.01)))
+    (declare (type single-float b))
+    (locally (list a b))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, our single declaration form was torn apart and each part placed into the correct place inside nested &lt;code&gt;lets&lt;/code&gt;. Great!&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>str</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0066-str.html</link>
             <description>&lt;p&gt;This is a single purpose utility library. Before switching to the &lt;code&gt;str&lt;/code&gt;, I used &lt;code&gt;cl-strings&lt;/code&gt;, but &lt;code&gt;str&lt;/code&gt; library is more consistent.&lt;/p&gt;
@@ -1096,57 +1150,6 @@ POFTHEDAY&amp;gt; (find-port:port-open-p 4006)
 T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Beware, this library considered port is taken only when this port is opened by another process. This is because it uses &lt;code&gt;:reuse-address&lt;/code&gt; argument when checking if the port is opened:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(usocket:socket-listen interface port
                        :reuse-address t)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for this Friday. I have to spend some time with my family. Have a nice weekend!&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>constantfold</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0047-constantfold.html</link>
-            <description>&lt;p&gt;This is an interesting library by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt;, which allows moving some calculations into the compile-time.&lt;/p&gt;
-&lt;p&gt;Constant folding is a cool thing when smart compiler simplifies expressions in compile-time if some parts of the expression are known.&lt;/p&gt;
-&lt;p&gt;For example, when you will write &lt;code&gt;(* (+ 1 3) 3600)&lt;/code&gt;, SBCL will simplify it to a &lt;code&gt;14400&lt;/code&gt; constant during compilation of the lisp file.&lt;/p&gt;
-&lt;p&gt;Library &lt;code&gt;constantfold&lt;/code&gt; allows you to define rules for constant folding for custom data structures:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defstruct point2d
-             (x 0)
-             (y 0))
-
-POFTHEDAY&amp;gt; (defun point2d-add-2 (left right)
-             (make-point2d
-              :x (+ (point2d-x left)
-                    (point2d-x right))
-              :y (+ (point2d-y left)
-                    (point2d-y right))))
-
-POFTHEDAY&amp;gt; (defun point2d-add (&amp;amp;rest args)
-             (reduce #&amp;#039;point2d-add-2 args))
-
-;; These calls will define macro with same name
-;; as functions:
-POFTHEDAY&amp;gt; (constantfold:constantfold
-            make-point2d
-            :copier copy-point2d)
-
-POFTHEDAY&amp;gt; (constantfold:constantfold
-            point2d-add
-            :copier copy-point2d
-            :commutative t
-            :associative t)
-
-;; And foldable arguments will be folded into a constant:
-POFTHEDAY&amp;gt; (macroexpand-dammit
-            &amp;#039;(point2d-add (make-point2d :x 1 :y 2)
-                          (make-point2d :x 3 :y 4)))
-(COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When some values are not known at compile-time, they are left unfolded:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (macroexpand-dammit
-            &amp;#039;(defun add-offset (x y)
-              (point2d-add (make-point2d :x 1 :y 2)
-                           (make-point2d :x x :y y)
-                           (make-point2d :x 3 :y 4))))
-(DEFUN ADD-OFFSET (X Y)
-  (POINT2D-ADD
-   ;; This is the result of folding two points into one:
-   (COPY-POINT2D &amp;#039;#S(POINT2D :X 4 :Y 6))
-   ;; And this is the point with unknown X and Y:
-   (MAKE-POINT2D :X X :Y Y)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To look at how does it work  in the whild, you might write &lt;code&gt;NumCL&lt;/code&gt;&apos;s code. This library uses &lt;code&gt;constantfold&lt;/code&gt; to &lt;a href=&quot;https://github.com/numcl/numcl/blob/dcdb81ef773e1d8384a9fd90e0973fbf474d2556/src/1type.lisp&quot;&gt;mark functions&lt;/a&gt; which work with numbers to make constant folding work for them.&lt;/p&gt;
 </description>
         </item>
     </channel>

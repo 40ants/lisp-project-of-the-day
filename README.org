@@ -15,7 +15,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 10 May - [[content/2020/05/0064-xml-emitter.org][xml-emitter]] ([[https://twitter.com/svetlyak40wt/status/1259503402230390784][twitter]])
 - 11 May - [[content/2020/05/0065-rutils.org][rutils]] ([[https://twitter.com/svetlyak40wt/status/1259893019131682824][twitter]])
 - 12 May - [[content/2020/05/0066-str.org][str]] ([[https://twitter.com/svetlyak40wt/status/1260279004067749888][twitter]])
-- 13 May - [[content/2020/05/0067-parse-declarations.org][parse-declarations]]
+- 13 May - [[content/2020/05/0067-parse-declarations.org][parse-declarations]] ([[https://twitter.com/svetlyak40wt/status/1260645157289881600][twitter]])
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])

@@ -14,10 +14,10 @@ and can be useful for writing macroses.
 I wasn't able to imagine a good enough example, but luckily, this
 library has [[https://common-lisp.net/project/parse-declarations/manual/html_node/Examples.html#Examples][great documentation]] and I stole this example from it.
 
-It is an analog of the standard ~let*~ form which expands into a multiple
-~let~ forms. May be you know, ~let*~ can have a declarations inside. But to
+It is an analogue of the standard ~let*~ form which expands into multiple
+~let~ forms. Maybe you know, ~let*~ can have declarations inside. But to
 process them correctly, you need to place a declaration related to each
-variable into it's own ~let~ form.
+variable into its own ~let~ form.
 
 Here is how this can be done with ~parse-declarations~:
 
@@ -69,12 +69,11 @@ But let's see how our macro will expand!
 
 #+begin_src lisp
 
-(custom-let* ((a 1)
-              (b (* a 0.01)))
-  (declare (type fixnum a)
-           (type single-float b))
-  (list a b))
-
+POFTHEDAY> (custom-let* ((a 1)
+                         (b (* a 0.01)))
+             (declare (type fixnum a)
+                      (type single-float b))
+             (list a b))
 
 ;; It expands to ->
 (let ((a 1))
@@ -85,5 +84,5 @@ But let's see how our macro will expand!
 
 #+end_src
 
-As you can see, our single declaration form was teared apart and each
+As you can see, our single declaration form was torn apart and each
 part placed into the correct place inside nested ~lets~. Great!
