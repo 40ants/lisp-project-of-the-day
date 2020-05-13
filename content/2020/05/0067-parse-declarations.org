@@ -1,0 +1,89 @@
+* parse-declarations :macro:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library provides advanced facilities to work with declaration forms
+and can be useful for writing macroses.
+
+I wasn't able to imagine a good enough example, but luckily, this
+library has [[https://common-lisp.net/project/parse-declarations/manual/html_node/Examples.html#Examples][great documentation]] and I stole this example from it.
+
+It is an analog of the standard ~let*~ form which expands into a multiple
+~let~ forms. May be you know, ~let*~ can have a declarations inside. But to
+process them correctly, you need to place a declaration related to each
+variable into it's own ~let~ form.
+
+Here is how this can be done with ~parse-declarations~:
+
+#+begin_src lisp
+
+;; System and package names are different:
+POFTHEDAY> (ql:quickload :parse-declarations-1.0)
+
+POFTHEDAY> (import '(tcr.parse-declarations-1.0::parse-body
+                     tcr.parse-declarations-1.0:filter-declaration-env
+                     tcr.parse-declarations-1.0:build-declarations
+                     tcr.parse-declarations-1.0:check-declaration-env
+                     tcr.parse-declarations-1.0:parse-declarations))
+
+POFTHEDAY> (defmacro custom-let* (bindings &body body &environment macro-env)
+    (flet ((normalize-binding (binding)
+             (cond ((symbolp binding)    `(,binding nil))
+                   ((null (cdr binding)) `(,(car binding) nil))
+                   (t binding))))
+      (multiple-value-bind (real-body decls) (parse-body body :documentation nil)
+        (let ((decl-env (parse-declarations decls macro-env)))
+          (check-declaration-env decl-env :unknown-allowed nil :warn-only t)
+          (labels ((generate-nested-lets (bindings &optional used-binding-names)
+                     (if (null bindings)
+                         `(locally
+                              ,@(build-declarations 'declare
+                                  (filter-declaration-env decl-env :include :free)
+                                  (filter-declaration-env decl-env :include :bound
+                                                          :not-affecting used-binding-names))
+                            ,@real-body)
+                         (destructuring-bind ((var value) . more-bindings) bindings
+                           `(let ((,var ,value))
+                              ,@(build-declarations 'declare
+                                  (filter-declaration-env decl-env :affecting `(,var)))
+                              ,(generate-nested-lets more-bindings (cons var used-binding-names)))))))
+            (generate-nested-lets (mapcar #'normalize-binding bindings)))))))
+
+#+end_src
+
+Pay attention that ~parse-body~ function is intentionally is not exported
+to not conflict with ~alexandria:parse-body~. Author considered that many
+lispers do import all alexandria's symbols into their packages.
+
+By the way, Alexandria implements only a simple version of the
+~parse-body~ function and does not support all advanced features of
+~parse-declarations~.
+
+But let's see how our macro will expand!
+
+#+begin_src lisp
+
+(custom-let* ((a 1)
+              (b (* a 0.01)))
+  (declare (type fixnum a)
+           (type single-float b))
+  (list a b))
+
+
+;; It expands to ->
+(let ((a 1))
+  (declare (type fixnum a))
+  (let ((b (* a 0.01)))
+    (declare (type single-float b))
+    (locally (list a b))))
+
+#+end_src
+
+As you can see, our single declaration form was teared apart and each
+part placed into the correct place inside nested ~lets~. Great!
