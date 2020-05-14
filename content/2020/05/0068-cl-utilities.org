@@ -1,0 +1,98 @@
+* cl-utilities :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a yet another utilities library. It is used by only a single
+~poftheday~'s dependency - ~xml-emitter~, [[http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html][reviewed]] on 10 May.
+
+Amount of tools in this toolbox is not very large and mostly covered by
+more popular libs.
+
+For example, it has a macro for item collection. For example, this macro
+can be useful to collect hash key value pairs into an alist. But this
+facility is also available from UIOP:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((the-hash #h(:foo "bar"
+                              :blah "minor")))
+             (cl-utilities:collecting
+               (maphash
+                (lambda (key value)
+                  (cl-utilities:collect
+                      (cons key value)))
+                the-hash)))
+((:FOO . "bar") (:BLAH . "minor"))
+
+;; Here is the similar code using UIOP
+POFTHEDAY> (let ((the-hash #h(:foo "bar"
+                              :blah "minor")))
+             (uiop:while-collecting (collect)
+               (maphash
+                (lambda (key value)
+                  (collect (cons key value)))
+                the-hash)))
+((:FOO . "bar") (:BLAH . "minor"))
+
+#+end_src
+
+But UIOP is more powerful allows you to collect many types of items
+simultaneosly. For example, we might want to collect keys and values
+into the separate lists:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((the-hash #h(:foo "bar"
+                              :blah "minor")))
+             (uiop:while-collecting (collect-key collect-value)
+               (maphash
+                (lambda (key value)
+                  (collect-key key)
+                  (collect-value value))
+                the-hash)))
+(:FOO :BLAH)
+("bar" "minor")
+
+#+end_src
+
+An interesting feature is a function ~read-delimited~. It can be useful to
+read chars from the stream into a limited buffer:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-input-from-string (stream "The string
+with multiple
+lines.")
+             (let ((buffer (str:repeat 10 " ")))
+               (loop for num-chars = (cl-utilities:read-delimited
+                                      buffer
+                                      stream)
+                     while (not (zerop num-chars))
+                     do (format t "~A chars were read~%"
+                                num-chars)
+                        (format t "Buffer: ~A~2%"
+                                (str:substring 0 num-chars
+                                               buffer)))))
+10 chars were read
+Buffer: The string
+
+10 chars were read
+Buffer: with multi
+
+2 chars were read
+Buffer: le
+
+6 chars were read
+Buffer: lines.
+
+#+end_src
+
+Probably this facility is also implemented by more popular utility
+library?
+
