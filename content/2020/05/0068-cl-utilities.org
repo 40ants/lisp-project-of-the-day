@@ -43,7 +43,7 @@ POFTHEDAY> (let ((the-hash #h(:foo "bar"
 #+end_src
 
 But UIOP is more powerful allows you to collect many types of items
-simultaneosly. For example, we might want to collect keys and values
+simultaneously. For example, we might want to collect keys and values
 into the separate lists:
 
 #+begin_src lisp
@@ -93,6 +93,6 @@ Buffer: lines.
 
 #+end_src
 
-Probably this facility is also implemented by more popular utility
+Probably this facility is also covered by more popular utility
 library?
 

@@ -45,7 +45,7 @@ POFTHEDAY&gt; (let ((the-hash #h(:foo &quot;bar&quot;
                 (lambda (key value)
                   (collect (cons key value)))
                 the-hash)))
-((:FOO . &quot;bar&quot;) (:BLAH . &quot;minor&quot;))</code></pre><p>But UIOP is more powerful allows you to collect many types of items simultaneosly. For example, we might want to collect keys and values into the separate lists:</p>
+((:FOO . &quot;bar&quot;) (:BLAH . &quot;minor&quot;))</code></pre><p>But UIOP is more powerful allows you to collect many types of items simultaneously. For example, we might want to collect keys and values into the separate lists:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash #h(:foo &quot;bar&quot;
                               :blah &quot;minor&quot;)))
              (uiop:while-collecting (collect-key collect-value)
@@ -79,7 +79,7 @@ Buffer: with multi
 Buffer: le
 
 6 chars were read
-Buffer: lines.</code></pre><p>Probably this facility is also implemented by more popular utility library?</p>
+Buffer: lines.</code></pre><p>Probably this facility is also covered by more popular utility library?</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
