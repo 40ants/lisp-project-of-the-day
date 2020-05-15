@@ -1,0 +1,182 @@
+* osicat :system:utils:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :)
+:END:
+
+This is a library, created by [[https://twitter.com/nsiivola][@nsiivola]]. It is well suited if you need
+to call [[https://en.wikipedia.org/wiki/POSIX][POSIX]] API. ~Osicat~ has outdated documentation but it is has
+docstring and the code is well structured.
+
+Using ~osicat~, you can work with files and make other system call.
+
+Here is an example how you can get information about files:
+
+#+begin_src lisp
+
+POFTHEDAY> (osicat:file-kind "/tmp")
+:SYMBOLIC-LINK
+
+POFTHEDAY> (osicat:read-link "/tmp")
+#P"private/tmp"
+
+POFTHEDAY> (osicat:file-permissions "/tmp")
+(:USER-READ :USER-WRITE :USER-EXEC :GROUP-READ
+ :GROUP-WRITE :GROUP-EXEC :OTHER-READ
+ :OTHER-WRITE :OTHER-EXEC :STICKY)
+
+#+end_src
+
+I've never used ~osicat~ before, but preparing this review, I noticed it
+has a functions to make such system calls like ~open~, ~read~, ~close~ and I
+wondered if it will be faster to implement such a handy operation like
+reading lines from a file.
+
+So, let's compare performance of the native Common Lisp streams and raw
+POSIX calls when we want to read all lines of the large log file.
+
+I have a 26M log file ~/var/log/install.log~ on my disk.
+
+As a baseline, we'll take the performance of the ~uiop:read-file-lines~:
+
+#+begin_src lisp
+
+POFTHEDAY> (time
+            (length
+             (uiop:read-file-lines *filename*)))
+Evaluation took:
+  0.610 seconds of real time
+  0.610132 seconds of total run time (0.549502 user, 0.060630 system)
+  [ Run times consist of 0.119 seconds GC time, and 0.492 seconds non-GC time. ]
+  100.00% CPU
+  1,346,441,256 processor cycles
+  300,767,776 bytes consed
+  
+76560 ;; This is the number of lines
+
+#+end_src
+
+Here is how we can open file and read a piece into the buffer, using
+POSIX system calls:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *filename* "/var/log/install.log")
+
+POFTHEDAY> (defparameter *fd* (osicat-posix:open *filename*
+                                                 osicat-posix::o-rdonly))
+
+POFTHEDAY> (cffi:with-foreign-pointer-as-string ((buf buf-size) 1024)
+             (osicat-posix:read *fd* buf buf-size))
+"Feb 25 09:58:02 localhost opendirectoryd[231]: opendirectoryd (build 692.000) launched - installer mode
+Feb 25 09:58:02 localhost opendirectoryd[231]: [default] Failed to open file <private> [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Initialize trigger support
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file <private> [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file <private> [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] created endpoint for mach service 'com.apple.private.opendirectoryd.rpc'
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC 'reset_cache' for service 'com.apple.private.opendirectoryd.rpc'
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC 'reset_online' for service 'com.apple.private.opendirectoryd.rpc'
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re"
+
+#+end_src
+
+But we want to read a string, separated by new lines. In this scenario,
+code will be a more complex:
+
+#+begin_src lisp
+
+(defun read-lines (filename &key (separator #\Newline))
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+  
+  (let ((fd (osicat-posix:open filename
+                               osicat-posix::o-rdonly))
+        (current-string "")
+        (separator (char-code separator)))
+    (uiop:while-collecting (collect-string)
+      (unwind-protect
+           (cffi:with-foreign-pointer (buf 1024 buf-size)
+             (flet ((collect-lines (num-bytes)
+                      (loop with begin of-type fixnum = 0
+                            for offset of-type fixnum from 0 below num-bytes
+                            for char = (cffi:mem-ref buf :unsigned-char offset)
+                            
+                            when (= char separator)
+                              do (let ((part (cffi:foreign-string-to-lisp
+                                              buf
+                                              :offset begin
+                                              :count (- offset begin))))
+                                   (setf begin (1+ offset))
+                                   
+                                   (cond ((zerop (length current-string))
+                                          (collect-string part))
+                                         (t
+                                          (collect-string
+                                           (concatenate 'string part))
+                                          (setf current-string ""))))
+                            finally (unless (= offset num-bytes)
+                                      (setf current-string
+                                            (concatenate 'string
+                                                         current-string
+                                                         (cffi:foreign-string-to-lisp
+                                                          buf
+                                                          :offset begin
+                                                          :count (- offset begin))))))))
+               (loop for num-bytes of-type fixnum = (osicat-posix:read fd buf buf-size)
+                     while (not (zerop num-bytes))
+                     do (collect-lines num-bytes)
+                     finally (when (not (zerop (length current-string)))
+                               (collect-string current-string))))))
+        (osicat-posix:close fd))))
+
+#+end_src
+
+I tried to put proper type declarations, and performance is 2.3 times faster
+than ~uiop:read-file-lines~:
+
+#+begin_src lisp
+
+POFTHEDAY> (time (length (read-lines *filename*)))
+Evaluation took:
+  0.233 seconds of real time
+  0.232355 seconds of total run time (0.203830 user, 0.028525 system)
+  [ Run times consist of 0.036 seconds GC time, and 0.197 seconds non-GC time. ]
+  99.57% CPU
+  514,348,582 processor cycles
+  87,868,848 bytes consed
+  
+76560
+  
+#+end_src
+
+Now the sad part of this story. If we compare performance with such
+interpreted language as Python, then Python will be 4.5 times faster
+than my optimized function :(
+
+#+begin_src python
+
+In [1]: def read_lines(filename):
+   ...:     l = []
+   ...:     with open(filename) as f:
+   ...:         for line in f:
+   ...:             l.append(line)
+   ...:     return l
+
+In [2]: def count_lines(filename):
+   ...:     return len(read_lines(filename))
+
+In [3]: %timeit count_lines("/var/log/install.log")
+55.5 ms ± 3.94 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+
+#+end_src
+
+I tried to extract UTF-8 decoder from the [[https://github.com/cl-babel/babel][Babel]] into a single function,
+but it's internals too complex, to finish this task in one evening.
+
+If somebody knows fast Common Lisp implementation of the UTF-8 decoder,
+let me know and I'll update my article with new code. Probably
+~trivial-utf-8:utf-8-bytes-to-string~ will do the job if I'll modify it to
+read bytes from the alien pointer?
