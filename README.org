@@ -217,7 +217,11 @@ that:
                (:link :rel "stylesheet"
                       :href "../../highlight/styles/tomorrow-night.css")
                (:script :src "../../highlight/highlight.pack.js")
-               (:script "hljs.initHighlightingOnLoad();"))
+               (:script "hljs.initHighlightingOnLoad();")
+               (:style "
+.tags .label {margin-right: 1em}
+.posts tr {line-height: 1.7em}
+"))
               (:body 
                (cl-bootstrap:bs-container ()
                  (cl-bootstrap:bs-row
@@ -267,14 +271,20 @@ node of org-mode file:
 (defun remove-tags (title)
   (cl-ppcre:regex-replace-all " *:.*:$" title ""))
 
+(defun extract-tags (title)
+  (declare (type simple-string title))
+  (when (find #\: title :test #'char=)
+    (str:split #\:
+               (cl-ppcre:regex-replace-all ".*?:(.*):$" title "\\1"))))
 
 (defun get-title (file)
-  ;; Title can ends with tags, we need to remove them
-  ;; before returning the value
-  (remove-tags
-   (cl-org-mode::node.heading
-    (cl-org-mode::node.next-node
-     (get-root file)))))
+  ;; Title can ends with tags, we need to extract them
+  ;; and return as a second value.   
+  (let ((full-title (cl-org-mode::node.heading
+                     (cl-org-mode::node.next-node
+                      (get-root file)))))
+    (values (remove-tags full-title)
+            (extract-tags full-title))))
 
 #+END_SRC
 
@@ -673,12 +683,12 @@ We'll use few helpers to create urls and titles for the index page:
 
 
 (defun get-title-for-index (file)
-  (let* ((title (get-title file))
-         (filename (get-filename file))
-         (splitted (ppath:split filename))
-         (only-file (cdr splitted))
-         (number (first (str:split #\- only-file))))
-    (values title number)))
+  (rutils:with ((title tags (get-title file))
+                (filename (get-filename file))
+                (splitted (ppath:split filename))
+                (only-file (cdr splitted))
+                (number (first (str:split #\- only-file))))
+    (values title number tags)))
 
 #+END_SRC
 
@@ -695,24 +705,33 @@ We'll use few helpers to create urls and titles for the index page:
                        :test #'string-equal))))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
         (app-page (stream)
-          (:section :style " margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
+          (:section :style "margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
                     (:h3 :style "margin-left: 1.6em"
                          "Latest post")
-                    (:ul :style "list-style: none;"
+                    (:table :class "posts"
                      (loop for file in (reverse files)
                            for url = (get-uri file)
-                           do (multiple-value-bind (title number)
-                                  (get-title-for-index file)
-                                
-                                (unless (string-equal number
-                                                      "draft")
-                                  (cl-who:with-html-output (stream)
-                                    (:li (:span :style "font-weight: bold; margin-right: 0.7em"
-                                                (cl-who:esc (format nil "#~A" number)))
-                                         (:a :href url
-                                             (cl-who:esc title))
-                                         (when (is-not-published file)
-                                           (cl-who:str " (draft)"))))))))))))
+                           do (cl-who:htm
+                               (:tr
+                                (multiple-value-bind (title number tags)
+                                    (get-title-for-index file)
+                                  
+                                  (unless (string-equal number
+                                                        "draft")
+                                    (cl-who:with-html-output (stream)
+                                      (:td :style "font-weight: bold; padding-right: 0.7em"
+                                           (cl-who:esc (format nil "#~A" number)))
+                                      
+                                      (:td (:a :href url
+                                           (cl-who:esc title)))
+
+                                      (:td :class "tags"
+                                           (loop for tag in tags
+                                                 do (cl-bootstrap:bs-label ()
+                                                      (cl-who:esc tag)))
+                                           (when (is-not-published file)
+                                             (cl-bootstrap:bs-label-danger
+                                               (cl-who:str "draft")))))))))))))))
     (values)))
 
 #+END_SRC
