@@ -6,6 +6,121 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>osicat</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0069-osicat.html</link>
+            <description>&lt;p&gt;This is a library, created by &lt;a href=&quot;https://twitter.com/nsiivola&quot;&gt;@nsiivola&lt;/a&gt;. It is well suited if you need to call &lt;a href=&quot;https://en.wikipedia.org/wiki/POSIX&quot;&gt;POSIX&lt;/a&gt; API. &lt;code&gt;Osicat&lt;/code&gt; has outdated documentation but it is has docstring and the code is well structured.&lt;/p&gt;
+&lt;p&gt;Using &lt;code&gt;osicat&lt;/code&gt;, you can work with files and make other system calls.&lt;/p&gt;
+&lt;p&gt;Here is an example of how you can get information about files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (osicat:file-kind &amp;quot;/tmp&amp;quot;)
+:SYMBOLIC-LINK
+
+POFTHEDAY&amp;gt; (osicat:read-link &amp;quot;/tmp&amp;quot;)
+#P&amp;quot;private/tmp&amp;quot;
+
+POFTHEDAY&amp;gt; (osicat:file-permissions &amp;quot;/tmp&amp;quot;)
+(:USER-READ :USER-WRITE :USER-EXEC :GROUP-READ
+ :GROUP-WRITE :GROUP-EXEC :OTHER-READ
+ :OTHER-WRITE :OTHER-EXEC :STICKY)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ve never used &lt;code&gt;osicat&lt;/code&gt; before. When preparing this review, I noticed it has functions to make such system calls like &lt;code&gt;open&lt;/code&gt;, &lt;code&gt;read&lt;/code&gt;, &lt;code&gt;close&lt;/code&gt; and I wondered if it will be faster to implement such a handy operation like reading lines from a file using these calls instead of streams.&lt;/p&gt;
+&lt;p&gt;So, let&apos;s compare the performance of the native Common Lisp streams and raw POSIX calls when we want to read all lines of the large log file.&lt;/p&gt;
+&lt;p&gt;I have a 26M log file &lt;code&gt;/var/log/install.log&lt;/code&gt; on my disk.&lt;/p&gt;
+&lt;p&gt;As a baseline, we&apos;ll take the performance of the &lt;code&gt;uiop:read-file-lines&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (time
+            (length
+             (uiop:read-file-lines *filename*)))
+Evaluation took:
+  0.610 seconds of real time
+  0.610132 seconds of total run time (0.549502 user, 0.060630 system)
+  [ Run times consist of 0.119 seconds GC time, and 0.492 seconds non-GC time. ]
+  100.00% CPU
+  1,346,441,256 processor cycles
+  300,767,776 bytes consed
+  
+76560 ;; This is the number of lines&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can open a file and read a piece into the buffer, using POSIX system calls:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *filename* &amp;quot;/var/log/install.log&amp;quot;)
+
+POFTHEDAY&amp;gt; (defparameter *fd* (osicat-posix:open *filename*
+                                                 osicat-posix::o-rdonly))
+
+POFTHEDAY&amp;gt; (cffi:with-foreign-pointer-as-string ((buf buf-size) 1024)
+             (osicat-posix:read *fd* buf buf-size))
+&amp;quot;Feb 25 09:58:02 localhost opendirectoryd[231]: opendirectoryd (build 692.000) launched - installer mode
+Feb 25 09:58:02 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Initialize trigger support
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
+Feb 25 09:58:03 localhost opendirectoryd[231]: [default] created endpoint for mach service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &amp;#039;reset_cache&amp;#039; for service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &amp;#039;reset_online&amp;#039; for service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But we want to read a string, separated by newlines. In this scenario, code will be more complex:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun read-lines (filename &amp;amp;key (separator #\Newline))
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+  
+  (let ((fd (osicat-posix:open filename
+                               osicat-posix::o-rdonly))
+        (current-string &amp;quot;&amp;quot;)
+        (separator (char-code separator)))
+    (uiop:while-collecting (collect-string)
+      (unwind-protect
+           (cffi:with-foreign-pointer (buf 1024 buf-size)
+             (flet ((collect-lines (num-bytes)
+                      (loop with begin of-type fixnum = 0
+                            for offset of-type fixnum from 0 below num-bytes
+                            for char = (cffi:mem-ref buf :unsigned-char offset)
+                            
+                            when (= char separator)
+                              do (let ((part (cffi:foreign-string-to-lisp
+                                              buf
+                                              :offset begin
+                                              :count (- offset begin))))
+                                   (setf begin (1+ offset))
+                                   
+                                   (cond ((zerop (length current-string))
+                                          (collect-string part))
+                                         (t
+                                          (collect-string
+                                           (concatenate &amp;#039;string part))
+                                          (setf current-string &amp;quot;&amp;quot;))))
+                            finally (unless (= offset num-bytes)
+                                      (setf current-string
+                                            (concatenate &amp;#039;string
+                                                         current-string
+                                                         (cffi:foreign-string-to-lisp
+                                                          buf
+                                                          :offset begin
+                                                          :count (- offset begin))))))))
+               (loop for num-bytes of-type fixnum = (osicat-posix:read fd buf buf-size)
+                     while (not (zerop num-bytes))
+                     do (collect-lines num-bytes)
+                     finally (when (not (zerop (length current-string)))
+                               (collect-string current-string))))))
+        (osicat-posix:close fd))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I tried to put proper type declarations, and performance is 2.3 times faster than &lt;code&gt;uiop:read-file-lines&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (time (length (read-lines *filename*)))
+Evaluation took:
+  0.233 seconds of real time
+  0.232355 seconds of total run time (0.203830 user, 0.028525 system)
+  [ Run times consist of 0.036 seconds GC time, and 0.197 seconds non-GC time. ]
+  99.57% CPU
+  514,348,582 processor cycles
+  87,868,848 bytes consed
+  
+76560&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now the sad part of this story. If we compare performance with such interpreted language as Python, then Python will be 4.5 times faster than my optimized function :(&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;In [1]: def read_lines(filename):
+   ...:     l = []
+   ...:     with open(filename) as f:
+   ...:         for line in f:
+   ...:             l.append(line)
+   ...:     return l
+
+In [2]: def count_lines(filename):
+   ...:     return len(read_lines(filename))
+
+In [3]: %timeit count_lines(&amp;quot;/var/log/install.log&amp;quot;)
+55.5 ms &amp;#xB1; 3.94 ms per loop (mean &amp;#xB1; std. dev. of 7 runs, 10 loops each)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;CFFI uses &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; to convert bytes to string but makes few unnecessary calls.&lt;/p&gt;
+&lt;p&gt;I tried to extract UTF-8 decoder from the &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; into a single function, but it&apos;s internals too complex, to finish this task in one evening.&lt;/p&gt;
+&lt;p&gt;If somebody knows fast Common Lisp implementation of the UTF-8 decoder, let me know and I&apos;ll update my article with new code. Probably &lt;code&gt;trivial-utf-8:utf-8-bytes-to-string&lt;/code&gt; will do the job if I&apos;ll modify it to read bytes from the alien pointer?&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>cl-utilities</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html</link>
             <description>&lt;p&gt;This is a yet another utilities library. It is used by only a single &lt;code&gt;poftheday&lt;/code&gt;&apos;s dependency - &lt;code&gt;xml-emitter&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html&quot;&gt;reviewed&lt;/a&gt; on 10 May.&lt;/p&gt;
@@ -1121,69 +1236,6 @@ Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not 
   :components ((:org &amp;quot;readme&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;My &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org&quot;&gt;README.org&lt;/a&gt; is a usual org-mode file with &lt;code&gt;lisp&lt;/code&gt; code blocks in it. Literate-lisp system defines a custom reader which skips all file content except code blocks and loads them into lisp image.&lt;/p&gt;
 &lt;p&gt;When used with &lt;a href=&quot;https://github.com/polymode/poly-org&quot;&gt;poly-org&lt;/a&gt; mode, this allows having convenient Lisp code navigation and shortcuts right inside the org-mode file. I can hit &lt;code&gt;C-c C-c&lt;/code&gt; to evaluate functions, etc.&lt;/p&gt;
 &lt;p&gt;So, if you wanted to try Literate Programming, then Jintao Xu&apos;s literate-lisp is the best way to go!&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>print-html</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html</link>
-            <description>&lt;p&gt;This is an HTML generator. This library is similar to cl-who or spinneret, but with two interesting differences.&lt;/p&gt;
-&lt;p&gt;The first distinction is that &lt;code&gt;print-html&lt;/code&gt; is written in the literate programmings style and have very succinct code which can be read in 5-10 minutes.&lt;/p&gt;
-&lt;p&gt;The second distinction is that &lt;code&gt;print-html&lt;/code&gt; is based on generics and you can define a method to print some classes into HTML.&lt;/p&gt;
-&lt;p&gt;Let&apos;s try this!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (print-html:print-html-to-string
-            (print-html:html
-              (:article
-               ((:section :class &amp;quot;intro&amp;quot;)
-                (:p &amp;quot;Hello Lisp World!&amp;quot;)))))
-&amp;quot;&amp;lt;article&amp;gt;
-&amp;lt;section class=\&amp;quot;intro\&amp;quot;&amp;gt;
-&amp;lt;p&amp;gt;Hello Lisp World!&amp;lt;/p&amp;gt;
-&amp;lt;/section&amp;gt;
-&amp;lt;/article&amp;gt;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now I&apos;ll create a class of user which can be serialized into HTML:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This is our buisiness logic:
-POFTHEDAY&amp;gt; (defclass user ()
-             ((name :initarg :name
-                    :reader get-name)))
-
-POFTHEDAY&amp;gt; (defparameter *user*
-             (make-instance &amp;#039;user
-                            :name &amp;quot;Sponge Bob&amp;quot;))
-
-POFTHEDAY&amp;gt; (defun get-profile-uri (user)
-             (format nil &amp;quot;/user/~A&amp;quot;
-                     (get-name user)))
-
-;; Here is the method to transform business logic
-;; object into its HTML representation.
-POFTHEDAY&amp;gt; (defmethod print-html:render ((user user))
-             (print-html:html
-               ((:a :href (get-profile-uri user))
-                (get-name user))))
-
-;; Note, it returns HTML nodes, not 
-POFTHEDAY&amp;gt; (print-html:render *user*)
-(#S(PRINT-HTML::TAG
-    :NAME :A
-    :ATTRS (:HREF &amp;quot;/user/Sponge Bob&amp;quot;)
-    :CHILDREN (&amp;quot;Sponge Bob&amp;quot;)))
-
-;; Now we can use this kind of objects
-;; directly when rendering HTML pages:
-POFTHEDAY&amp;gt; (print-html:print-html-to-string
-            (print-html:html
-              (:article
-               ((:section :class &amp;quot;intro&amp;quot;)
-                (:p &amp;quot;Hello&amp;quot;
-                    *user*)))))
-&amp;quot;&amp;lt;article&amp;gt;
-&amp;lt;section class=\&amp;quot;intro\&amp;quot;&amp;gt;
-&amp;lt;p&amp;gt;Hello
-&amp;lt;a href=\&amp;quot;/user/Sponge Bob\&amp;quot;&amp;gt;Sponge Bob&amp;lt;/a&amp;gt;
-&amp;lt;/p&amp;gt;
-&amp;lt;/section&amp;gt;
-&amp;lt;/article&amp;gt;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems this is an interesting approach to render HTML. What do you think?&lt;/p&gt;
 </description>
         </item>
     </channel>

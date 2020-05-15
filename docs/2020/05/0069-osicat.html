@@ -25,8 +25,8 @@
     </script>
   </head>
   <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>osicat</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>osicat</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This is a library, created by <a href="https://twitter.com/nsiivola">@nsiivola</a>. It is well suited if you need to call <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> API. <code>Osicat</code> has outdated documentation but it is has docstring and the code is well structured.</p>
-<p>Using <code>osicat</code>, you can work with files and make other system call.</p>
-<p>Here is an example how you can get information about files:</p>
+<p>Using <code>osicat</code>, you can work with files and make other system calls.</p>
+<p>Here is an example of how you can get information about files:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (osicat:file-kind &quot;/tmp&quot;)
 :SYMBOLIC-LINK
 
@@ -36,8 +36,8 @@ POFTHEDAY&gt; (osicat:read-link &quot;/tmp&quot;)
 POFTHEDAY&gt; (osicat:file-permissions &quot;/tmp&quot;)
 (:USER-READ :USER-WRITE :USER-EXEC :GROUP-READ
  :GROUP-WRITE :GROUP-EXEC :OTHER-READ
- :OTHER-WRITE :OTHER-EXEC :STICKY)</code></pre><p>I've never used <code>osicat</code> before, but preparing this review, I noticed it has a functions to make such system calls like <code>open</code>, <code>read</code>, <code>close</code> and I wondered if it will be faster to implement such a handy operation like reading lines from a file.</p>
-<p>So, let's compare performance of the native Common Lisp streams and raw POSIX calls when we want to read all lines of the large log file.</p>
+ :OTHER-WRITE :OTHER-EXEC :STICKY)</code></pre><p>I've never used <code>osicat</code> before. When preparing this review, I noticed it has functions to make such system calls like <code>open</code>, <code>read</code>, <code>close</code> and I wondered if it will be faster to implement such a handy operation like reading lines from a file using these calls instead of streams.</p>
+<p>So, let's compare the performance of the native Common Lisp streams and raw POSIX calls when we want to read all lines of the large log file.</p>
 <p>I have a 26M log file <code>/var/log/install.log</code> on my disk.</p>
 <p>As a baseline, we'll take the performance of the <code>uiop:read-file-lines</code>:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (time
@@ -51,7 +51,7 @@ Evaluation took:
   1,346,441,256 processor cycles
   300,767,776 bytes consed
   
-76560 ;; This is the number of lines</code></pre><p>Here is how we can open file and read a piece into the buffer, using POSIX system calls:</p>
+76560 ;; This is the number of lines</code></pre><p>Here is how we can open a file and read a piece into the buffer, using POSIX system calls:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (defvar *filename* &quot;/var/log/install.log&quot;)
 
 POFTHEDAY&gt; (defparameter *fd* (osicat-posix:open *filename*
@@ -67,7 +67,7 @@ Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file &lt
 Feb 25 09:58:03 localhost opendirectoryd[231]: [default] created endpoint for mach service &#039;com.apple.private.opendirectoryd.rpc&#039;
 Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &#039;reset_cache&#039; for service &#039;com.apple.private.opendirectoryd.rpc&#039;
 Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &#039;reset_online&#039; for service &#039;com.apple.private.opendirectoryd.rpc&#039;
-Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re&quot;</code></pre><p>But we want to read a string, separated by new lines. In this scenario, code will be a more complex:</p>
+Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re&quot;</code></pre><p>But we want to read a string, separated by newlines. In this scenario, code will be more complex:</p>
 <pre><code class=' lisp'>(defun read-lines (filename &amp;key (separator #\Newline))
   (declare (optimize (speed 3) (debug 0) (safety 0))
   
@@ -131,7 +131,8 @@ In [2]: def count_lines(filename):
    ...:     return len(read_lines(filename))
 
 In [3]: %timeit count_lines(&quot;/var/log/install.log&quot;)
-55.5 ms &#xB1; 3.94 ms per loop (mean &#xB1; std. dev. of 7 runs, 10 loops each)</code></pre><p>I tried to extract UTF-8 decoder from the <a href="https://github.com/cl-babel/babel">Babel</a> into a single function, but it's internals too complex, to finish this task in one evening.</p>
+55.5 ms &#xB1; 3.94 ms per loop (mean &#xB1; std. dev. of 7 runs, 10 loops each)</code></pre><p>CFFI uses <a href="https://github.com/cl-babel/babel">Babel</a> to convert bytes to string but makes few unnecessary calls.</p>
+<p>I tried to extract UTF-8 decoder from the <a href="https://github.com/cl-babel/babel">Babel</a> into a single function, but it's internals too complex, to finish this task in one evening.</p>
 <p>If somebody knows fast Common Lisp implementation of the UTF-8 decoder, let me know and I'll update my article with new code. Probably <code>trivial-utf-8:utf-8-bytes-to-string</code> will do the job if I'll modify it to read bytes from the alien pointer?</p>
 
 <script src="https://utteranc.es/client.js"

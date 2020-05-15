@@ -12,9 +12,9 @@ This is a library, created by [[https://twitter.com/nsiivola][@nsiivola]]. It is
 to call [[https://en.wikipedia.org/wiki/POSIX][POSIX]] API. ~Osicat~ has outdated documentation but it is has
 docstring and the code is well structured.
 
-Using ~osicat~, you can work with files and make other system call.
+Using ~osicat~, you can work with files and make other system calls.
 
-Here is an example how you can get information about files:
+Here is an example of how you can get information about files:
 
 #+begin_src lisp
 
@@ -31,12 +31,12 @@ POFTHEDAY> (osicat:file-permissions "/tmp")
 
 #+end_src
 
-I've never used ~osicat~ before, but preparing this review, I noticed it
-has a functions to make such system calls like ~open~, ~read~, ~close~ and I
+I've never used ~osicat~ before. When preparing this review, I noticed it
+has functions to make such system calls like ~open~, ~read~, ~close~ and I
 wondered if it will be faster to implement such a handy operation like
-reading lines from a file.
+reading lines from a file using these calls instead of streams.
 
-So, let's compare performance of the native Common Lisp streams and raw
+So, let's compare the performance of the native Common Lisp streams and raw
 POSIX calls when we want to read all lines of the large log file.
 
 I have a 26M log file ~/var/log/install.log~ on my disk.
@@ -60,7 +60,7 @@ Evaluation took:
 
 #+end_src
 
-Here is how we can open file and read a piece into the buffer, using
+Here is how we can open a file and read a piece into the buffer, using
 POSIX system calls:
 
 #+begin_src lisp
@@ -84,8 +84,8 @@ Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re"
 
 #+end_src
 
-But we want to read a string, separated by new lines. In this scenario,
-code will be a more complex:
+But we want to read a string, separated by newlines. In this scenario,
+code will be more complex:
 
 #+begin_src lisp
 
@@ -172,6 +172,8 @@ In [3]: %timeit count_lines("/var/log/install.log")
 55.5 ms ± 3.94 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
 
 #+end_src
+
+CFFI uses [[https://github.com/cl-babel/babel][Babel]] to convert bytes to string but makes few unnecessary calls.
 
 I tried to extract UTF-8 decoder from the [[https://github.com/cl-babel/babel][Babel]] into a single function,
 but it's internals too complex, to finish this task in one evening.
