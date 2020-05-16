@@ -139,13 +139,14 @@ In [3]: %timeit count_lines(&quot;/var/log/install.log&quot;)
 55.5 ms &#xB1; 3.94 ms per loop (mean &#xB1; std. dev. of 7 runs, 10 loops each)</code></pre><p>CFFI uses <a href="https://github.com/cl-babel/babel">Babel</a> to convert bytes to string but makes few unnecessary calls.</p>
 <p>I tried to extract UTF-8 decoder from the <a href="https://github.com/cl-babel/babel">Babel</a> into a single function, but it's internals too complex, to finish this task in one evening.</p>
 <p>If somebody knows fast Common Lisp implementation of the UTF-8 decoder, let me know and I'll update my article with new code. Probably <code>trivial-utf-8:utf-8-bytes-to-string</code> will do the job if I'll modify it to read bytes from the alien pointer?</p>
-<h2>Update</h2><p>I've runned the code under a SBCL's statistical profiler and build this flamegraph:</p>
+<h2>Update 1</h2><p>I've runned the code under a SBCL's statistical profiler and build this flamegraph:</p>
 <p><img style="max-width: 100%" src="../../media/0069/read-lines-flamegraph.png"/></p>
 <p>It shows that:</p>
 <ul><li>50% of time wasted in my function read-line</li><li>10% is utf-8  decoding</li><li>40% – in a "read" syscall.</li></ul>
 <p>This is strange, because when I remove all code which converts utf-8 and just reads whole file piece by piece it takes 25-30ms only.</p>
 <p>This can be improved if I'll use 10kb buffer instead of 1kb. In this case reading will take 7ms.</p>
 <p>Also, I found that the most consing occur in the <code>cffi:foreign-string-to-lisp</code> call.</p>
+<h2>Update 2</h2><p><a href="https://twitter.com/luismbo">@luismbo</a> <a href="https://twitter.com/luismbo/status/1261738185203298306">found</a> that CPython uses a <a href="https://github.com/python/cpython/blob/a1d12bb1197d9335fcb62aad7fb0df56098197ac/Objects/unicodeobject.c#L4549">shortcut trick</a> to not decode string if it consists of ASCII characters. That is why it can be more performant than my Common Lisp <code>read-lines</code> function.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

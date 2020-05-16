@@ -183,7 +183,7 @@ let me know and I'll update my article with new code. Probably
 ~trivial-utf-8:utf-8-bytes-to-string~ will do the job if I'll modify it to
 read bytes from the alien pointer?
 
-** Update
+** Update 1
 
 I've runned the code under a SBCL's statistical profiler and build this
 flamegraph:
@@ -204,3 +204,9 @@ case reading will take 7ms.
 
 Also, I found that the most consing occur in the
 ~cffi:foreign-string-to-lisp~ call.
+
+** Update 2
+
+[[https://twitter.com/luismbo][@luismbo]] [[https://twitter.com/luismbo/status/1261738185203298306][found]] that CPython uses a [[https://github.com/python/cpython/blob/a1d12bb1197d9335fcb62aad7fb0df56098197ac/Objects/unicodeobject.c#L4549][shortcut trick]] to not decode string if it
+consists of ASCII characters. That is why it can be more performant than
+my Common Lisp ~read-lines~ function.
