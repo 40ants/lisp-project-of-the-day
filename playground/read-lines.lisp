@@ -1,13 +1,25 @@
-(defpackage #:fast-read-lines
-  (:use #:cl))
-(in-package fast-read-lines)
+(in-package poftheday)
 
 
 ;; This is experimental code for #0069 post.
 
+(defun read-file-1 (filename &key (separator #\Newline))
+  (declare (optimize (speed 3) (debug 0) (safety 1)))
+  
+  (let ((fd (osicat-posix:open filename
+                               osicat-posix::o-rdonly))
+        (current-string "")
+        (separator (char-code separator)))
+    (unwind-protect
+         (cffi:with-foreign-pointer (buf (* 1024 10) buf-size)
+           (loop for num-bytes of-type fixnum = (osicat-posix:read fd buf buf-size)
+                 while (not (zerop num-bytes))
+                 summing 1))
+      (osicat-posix:close fd))))
 
-(defun read-lines (filename &key (separator #\Newline))
-  (declare (optimize (speed 3) (debug 0) (safety 0)))
+
+(defun read-lines-1 (filename &key (separator #\Newline))
+  (declare (optimize (speed 3) (debug 0) (safety 1)))
   
   (let ((fd (osicat-posix:open filename
                                osicat-posix::o-rdonly))
@@ -15,7 +27,7 @@
         (separator (char-code separator)))
     (uiop:while-collecting (collect-string)
       (unwind-protect
-           (cffi:with-foreign-pointer (buf 1024 buf-size)
+           (cffi:with-foreign-pointer (buf (* 1024 10) buf-size)
              (flet ((collect-lines (num-bytes)
                       (loop with begin of-type fixnum = 0
                             for offset of-type fixnum from 0 below num-bytes
@@ -24,14 +36,15 @@
                             when (= char separator)
                               do (let ((part (cffi:foreign-string-to-lisp buf
                                                                           :offset begin
-                                                                          :count (- offset begin))))
+                                                                          :count (- offset begin)
+                                                                          :encoding :utf-8)))
                                    (setf begin (1+ offset))
                                      
                                    (cond ((zerop (length current-string))
                                           (collect-string part))
                                          (t
                                           (collect-string
-                                           (concatenate 'string part))
+                                           (concatenate 'string current-string part))
                                           (setf current-string ""))))
                             finally (unless (= offset num-bytes)
                                       (setf current-string
@@ -40,7 +53,8 @@
                                                          (cffi:foreign-string-to-lisp
                                                           buf
                                                           :offset begin
-                                                          :count (- offset begin))))))))
+                                                          :count (- offset begin)
+                                                          :encoding :utf-8)))))))
                (loop for num-bytes of-type fixnum = (osicat-posix:read fd buf buf-size)
                      while (not (zerop num-bytes))
                      do (collect-lines num-bytes)
@@ -50,17 +64,17 @@
         (osicat-posix:close fd)))))
 
 
+
 (defun make-utf-8-decoder ()
   "Copy at most COUNT bytes from POINTER plus OFFSET encoded in
 ENCODING into a Lisp string and return it.  If POINTER is a null
 pointer, NIL is returned."
-  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (declare (optimize (speed 3) (debug 0) (safety 1)))
   
   (let* ((mapping (cffi::lookup-mapping cffi::*foreign-string-mappings* :utf-8))
          (max-chars (1- array-total-size-limit))
          (decoder (babel-encodings:decoder mapping))
          (code-point-counter (babel-encodings:code-point-counter mapping)))
-    (describe decoder)
     (lambda (pointer offset count)
       (declare (optimize (speed 3) (debug 0) (safety 0)))
       (declare (type fixnum offset count))
@@ -72,7 +86,9 @@ pointer, NIL is returned."
           string)))))
 
 
-(defun optimized-read-lines (filename &key (separator #\Newline))
+(defun read-lines-2 (filename &key (separator #\Newline))
+  "This version moves out out the loop few Babel's calls, creates a decoder
+   and funcall it in the loop."
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   
   (let ((fd (osicat-posix:open filename
@@ -92,7 +108,7 @@ pointer, NIL is returned."
                             when (= char separator)
                               do (let ((part (funcall utf8-decoder
                                                       buf
-                                                      begin
+B                                                      begin
                                                       (- offset begin))))
                                    (setf begin (1+ offset))
                                      
@@ -100,7 +116,9 @@ pointer, NIL is returned."
                                           (collect-string part))
                                          (t
                                           (collect-string
-                                           (concatenate 'string part))
+                                           (concatenate 'string
+                                                        current-string
+                                                        part))
                                           (setf current-string ""))))
                             finally (unless (= offset num-bytes)
                                       (setf current-string
@@ -118,6 +136,155 @@ pointer, NIL is returned."
              )
         (osicat-posix:close fd)))))
 
+
+;;
+
+(defun read-lines-3 (filename)
+  "A version suggested by Luís Oliveira (https://twitter.com/luismbo):
+   https://twitter.com/luismbo/status/1261635583799169025"
+  (with-open-file (in filename)
+    (loop for line = (read-line in nil nil)
+          while line
+          collect line)))
+
+
+;; This code is by christophejunke
+;; https://gist.github.com/christophejunke/a0458d87ff7bd48c344c8deeade9c767
+;;
+;; * not much faster.
+;; * if I have to copy strings then it slower.
+;; * It does not decode from utf-8 to lisp characters.
+
+(defparameter *max-line-size* 65536)
+(defparameter *default-buffer-size* 16384)
+
+(declaim (inline map-lines-on-shared-buffer))
+
+
+(define-condition internal-buffer-overflow (error)
+  ((buffer :reader internal-buffer-overflow/buffer :initarg :buffer)
+   (variable :reader internal-buffer-overflow/variable  :initarg :variable)
+   (size :reader internal-buffer-overflow/size :initarg :size)))
+
+
+(defun map-lines-on-shared-buffer
+    (stream function &key (buffer-size *default-buffer-size*))
+  "Call FUNCTION for each line read from STREAM, using an internal buffer.
+FUNCTION should accept a single argument, a string which content is
+only available while the callback is processing it. The same
+underlying buffer is used for successive invocations of FUNCTION."
+  (check-type stream stream)
+  (check-type function (or function symbol))
+  (check-type buffer-size fixnum)
+  (when (symbolp function)
+    (setf function (symbol-function function)))
+  (let ((view (make-array 0
+                          :element-type 'character
+                          :adjustable t))
+        (buffer (make-array buffer-size :element-type 'character))
+        (buffer-start 0) ;; where to start filling the buffer from stream
+        (buffer-end 0)   ;; where buffer filling from stream ended
+        (start 0)        ;; start of current line within buffer (w.r.t. #\newline)
+        (end 0))         ;; end of current line within buffer
+    (declare (type function function)
+             (type string buffer)
+             (type fixnum buffer-end buffer-start start end)
+             (dynamic-extent buffer-end buffer-start start end))
+    (flet ((callback (start end)
+             (funcall function
+                      (adjust-array view
+                                    (- end start)
+                                    :displaced-to buffer
+                                    :displaced-index-offset start))))
+      (declare (inline callback))
+      (block nil
+        (tagbody
+
+         :buffer
+
+           ;; Fill buffer with characters from the stream. When
+           ;; nothing is read, we can exit the state machine. It is
+           ;; however still possible that there are are characters
+           ;; left between position zero and buffer-start: if so,
+           ;; process that region with the callback function.
+
+           (setf buffer-end
+                 (read-sequence buffer stream :start buffer-start))
+           (when (= buffer-end buffer-start)
+             (when (plusp buffer-start)
+               (callback 0 buffer-start))
+             (return))
+
+         :next-line
+
+           ;; Try to find the end of line. If we reach the end of the
+           ;; buffer, go instead to :COPY, which shifts the content on
+           ;; the "left" to make room for more characters to buffer.
+
+           (setf end
+                 (or (position #\newline
+                               buffer
+                               :test #'char=
+                               :start start
+                               :end buffer-end)
+                     (go :copy)))
+
+           ;; The whole line fits in the buffer, from start to end.
+           (callback start end)
+           (setf start (1+ end))
+           (go :next-line)
+
+         :copy
+
+           ;; not enough room, copy the latest line fragment (the one
+           ;; being currently read) at the beginning of the buffer. If
+           ;; we already are at the beginning (ZEROP START), then we
+           ;; try to extend to buffer instead.
+
+           (when (zerop start)
+             (go :extend))
+
+           (replace buffer buffer :start2 start :end2 buffer-end)
+           (setf buffer-start (- buffer-end start))
+           (setf start 0)
+
+           ;; We shifted the current line on the left, because we did
+           ;; not yet found a newline. Buffer more characters.
+           (go :buffer)
+
+         :extend
+
+           (let ((size (array-total-size buffer)))
+             (setf  buffer
+                    (adjust-array
+                     buffer
+                     (if (>= size *max-line-size*)
+                         (restart-case
+                             (error 'internal-buffer-overflow
+                                    :buffer buffer
+                                    :variable '*max-line-size*
+                                    :size size)
+                           (ignore ()
+                             :report "Ignore the limit and extend the buffer."
+                             (* size 2)))
+                         (min *max-line-size* (* size 2)))))
+             (setf buffer-start size)
+             (go :buffer)))))))
+
+
+(defun read-lines-4 (filename)
+  (with-open-file (in filename)
+    (uiop:while-collecting (collect-string)
+      (map-lines-on-shared-buffer
+       in
+       (lambda (s)
+         (collect-string (copy-seq s)))))))
+
+
+
+;; ======================================
+;; The code below is not finished yet.
+;; ======================================
 
 (declaim (ftype (function (cffi:foreign-pointer
                            fixnum

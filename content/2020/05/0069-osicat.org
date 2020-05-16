@@ -182,3 +182,25 @@ If somebody knows fast Common Lisp implementation of the UTF-8 decoder,
 let me know and I'll update my article with new code. Probably
 ~trivial-utf-8:utf-8-bytes-to-string~ will do the job if I'll modify it to
 read bytes from the alien pointer?
+
+** Update
+
+I've runned the code under a SBCL's statistical profiler and build this
+flamegraph:
+
+[[../../media/0069/read-lines-flamegraph.png]]
+
+It shows that:
+
+- 50% of time wasted in my function read-line
+- 10% is utf-8  decoding
+- 40% – in a "read" syscall.
+
+This is strange, because when I remove all code which converts utf-8 and
+just reads whole file piece by piece it takes 25-30ms only.
+
+This can be improved if I'll use 10kb buffer instead of 1kb. In this
+case reading will take 7ms.
+
+Also, I found that the most consing occur in the
+~cffi:foreign-string-to-lisp~ call.
