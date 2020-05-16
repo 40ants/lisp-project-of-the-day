@@ -56,7 +56,20 @@ POFTHEDAY&amp;gt; (split-sequence:split-sequence-if
               *tokens*)
 ((&amp;lt;WORD Bob&amp;gt;) (&amp;lt;WORD loves&amp;gt;) (&amp;lt;WORD Alice&amp;gt;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, a library &lt;code&gt;cl-utilities&lt;/code&gt;, reviewed &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html&quot;&gt;two days ago&lt;/a&gt;, and &lt;code&gt;rutils&lt;/code&gt;, reviewed at &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html&quot;&gt;the start of the week&lt;/a&gt;, are also include these splitting functions, but code is different. Probably this is because &lt;code&gt;split-sequence&lt;/code&gt; evolved since it was copied into  &lt;code&gt;cl-utilities&lt;/code&gt; and &lt;code&gt;rutils&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;This simple &lt;a href=&quot;https://ultralisp.org/search/?query=symbol%3Asplit-sequence-if&quot;&gt;search query&lt;/a&gt; on Ultralisp.org shows that this functionality is also available in some other Common Lisp libraries.&lt;/p&gt;
-&lt;h2&gt;Update&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/fwoaroof/status/1261736998412271616&quot;&gt;@fwoaroof&lt;/a&gt; gave me a &lt;a href=&quot;https://github.com/fiddlerwoaroof/fwoar.lisputils/blob/master/string-utils/split.lisp&quot;&gt;link to the split function&lt;/a&gt;, optimized to work with very long (&gt; 1G) strings.&lt;/p&gt;
+&lt;h2&gt;Update 1&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/fwoaroof/status/1261736998412271616&quot;&gt;@fwoaroof&lt;/a&gt; gave me a &lt;a href=&quot;https://github.com/fiddlerwoaroof/fwoar.lisputils/blob/master/string-utils/split.lisp&quot;&gt;link to the split function&lt;/a&gt;, optimized to work with very long (&gt; 1G) strings.&lt;/p&gt;
+&lt;h2&gt;Update 2&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; &lt;a href=&quot;https://twitter.com/stevelosh/status/1261749896656424967&quot;&gt;sent me a code&lt;/a&gt; which uses &lt;code&gt;split-sequence&lt;/code&gt; to make an iterator:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun spliterator (delimiter sequence &amp;amp;key (test #&amp;#039;eql) (key #&amp;#039;identity))
+  (let ((start 0)
+        (length (length sequence)))
+    (lambda ()
+      (if (= start length)
+          (values nil nil)
+          (multiple-value-bind (next end)
+              (split-sequence:split-sequence delimiter sequence
+                                             :count 1 :start start
+                                             :key key :test test)
+            (setf start end)
+            (values (first next) t))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Thank you, Steve!&lt;/p&gt;
 </description>
         </item>
         <item>
