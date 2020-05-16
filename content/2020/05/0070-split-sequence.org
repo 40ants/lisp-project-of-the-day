@@ -1,0 +1,86 @@
+* split-sequence :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+
+#+begin_src lisp
+
+POFTHEDAY> (split-sequence:split-sequence
+            #\Space
+            "Bob loves Alice!")
+("Bob" "loves" "Alice!")
+16
+
+#+end_src
+
+It is also is able to split only N times, split from the and remove
+empty subsequences:
+
+#+begin_src lisp
+
+POFTHEDAY> (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0))
+(#(1 2 3 4) #(5 6 7) #(8 9) #())
+
+POFTHEDAY> (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0)
+            :remove-empty-subseqs t)
+(#(1 2 3 4) #(5 6 7) #(8 9))
+
+POFTHEDAY> (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0)
+            :remove-empty-subseqs t
+            :from-end t
+            :count 1)
+(#(8 9))
+
+#+end_src
+
+There are also ~split-sequence-if~ and ~split-sequence-if-not~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defstruct word text)
+POFTHEDAY> (defstruct white-space)
+
+POFTHEDAY> (defmethod print-object ((obj word) stream)
+             (format stream "<WORD ~A>" (word-text obj)))
+
+POFTHEDAY> (defmethod print-object ((obj white-space) stream)
+             (format stream "<SPACE>"))
+
+POFTHEDAY> (defparameter *tokens*
+             (list (make-word :text "Bob")
+                   (make-white-space)
+                   (make-word :text "loves")
+                   (make-white-space)
+                   (make-word :text "Alice")))
+(<WORD Bob> <SPACE> <WORD loves> <SPACE> <WORD Alice>)
+
+POFTHEDAY> (split-sequence:split-sequence-if
+            (lambda (item)
+              (typep item 'white-space))
+              *tokens*)
+((<WORD Bob>) (<WORD loves>) (<WORD Alice>))
+
+#+end_src
+
+By the way, a library ~cl-utilities~, reviewed [[http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html][two days ago]], and ~rutils~,
+reviewed at [[http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html][the start of the week]], are also include these splitting
+functions, but code is different. Probably this is because
+~split-sequence~ evolved since it was copied into  ~cl-utilities~ and
+~rutils~.
+
+This simple [[https://ultralisp.org/search/?query=symbol%3Asplit-sequence-if][search query]] on Ultralisp.org shows that this functionality
+is also available in some other Common Lisp libraries.
+
+

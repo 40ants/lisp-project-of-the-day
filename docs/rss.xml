@@ -118,6 +118,13 @@ In [3]: %timeit count_lines(&amp;quot;/var/log/install.log&amp;quot;)
 55.5 ms &amp;#xB1; 3.94 ms per loop (mean &amp;#xB1; std. dev. of 7 runs, 10 loops each)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;CFFI uses &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; to convert bytes to string but makes few unnecessary calls.&lt;/p&gt;
 &lt;p&gt;I tried to extract UTF-8 decoder from the &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; into a single function, but it&apos;s internals too complex, to finish this task in one evening.&lt;/p&gt;
 &lt;p&gt;If somebody knows fast Common Lisp implementation of the UTF-8 decoder, let me know and I&apos;ll update my article with new code. Probably &lt;code&gt;trivial-utf-8:utf-8-bytes-to-string&lt;/code&gt; will do the job if I&apos;ll modify it to read bytes from the alien pointer?&lt;/p&gt;
+&lt;h2&gt;Update&lt;/h2&gt;&lt;p&gt;I&apos;ve runned the code under a SBCL&apos;s statistical profiler and build this flamegraph:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0069/read-lines-flamegraph.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;It shows that:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;50% of time wasted in my function read-line&lt;/li&gt;&lt;li&gt;10% is utf-8  decoding&lt;/li&gt;&lt;li&gt;40% – in a &quot;read&quot; syscall.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;This is strange, because when I remove all code which converts utf-8 and just reads whole file piece by piece it takes 25-30ms only.&lt;/p&gt;
+&lt;p&gt;This can be improved if I&apos;ll use 10kb buffer instead of 1kb. In this case reading will take 7ms.&lt;/p&gt;
+&lt;p&gt;Also, I found that the most consing occur in the &lt;code&gt;cffi:foreign-string-to-lisp&lt;/code&gt; call.&lt;/p&gt;
 </description>
         </item>
         <item>
