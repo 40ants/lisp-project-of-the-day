@@ -6,6 +6,60 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>split-sequence</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0070-split-sequence.html</link>
+            <description>&lt;p&gt;This is the utility library with a single purpose – to split, dissect, cut, cleave and partition sequences.&lt;/p&gt;
+&lt;p&gt;In the simplest form it is:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (split-sequence:split-sequence
+            #\Space
+            &amp;quot;Bob loves Alice!&amp;quot;)
+(&amp;quot;Bob&amp;quot; &amp;quot;loves&amp;quot; &amp;quot;Alice!&amp;quot;)
+16&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also is able to split only N times, split from the and to remove empty subsequences:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0))
+(#(1 2 3 4) #(5 6 7) #(8 9) #())
+
+POFTHEDAY&amp;gt; (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0)
+            :remove-empty-subseqs t)
+(#(1 2 3 4) #(5 6 7) #(8 9))
+
+POFTHEDAY&amp;gt; (split-sequence:split-sequence
+            0
+            #(1 2 3 4 0 5 6 7 0 8 9 0)
+            :remove-empty-subseqs t
+            :from-end t
+            :count 1)
+(#(8 9))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also &lt;code&gt;split-sequence-if&lt;/code&gt; and &lt;code&gt;split-sequence-if-not&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defstruct word text)
+POFTHEDAY&amp;gt; (defstruct white-space)
+
+POFTHEDAY&amp;gt; (defmethod print-object ((obj word) stream)
+             (format stream &amp;quot;&amp;lt;WORD ~A&amp;gt;&amp;quot; (word-text obj)))
+
+POFTHEDAY&amp;gt; (defmethod print-object ((obj white-space) stream)
+             (format stream &amp;quot;&amp;lt;SPACE&amp;gt;&amp;quot;))
+
+POFTHEDAY&amp;gt; (defparameter *tokens*
+             (list (make-word :text &amp;quot;Bob&amp;quot;)
+                   (make-white-space)
+                   (make-word :text &amp;quot;loves&amp;quot;)
+                   (make-white-space)
+                   (make-word :text &amp;quot;Alice&amp;quot;)))
+(&amp;lt;WORD Bob&amp;gt; &amp;lt;SPACE&amp;gt; &amp;lt;WORD loves&amp;gt; &amp;lt;SPACE&amp;gt; &amp;lt;WORD Alice&amp;gt;)
+
+POFTHEDAY&amp;gt; (split-sequence:split-sequence-if
+            (lambda (item)
+              (typep item &amp;#039;white-space))
+              *tokens*)
+((&amp;lt;WORD Bob&amp;gt;) (&amp;lt;WORD loves&amp;gt;) (&amp;lt;WORD Alice&amp;gt;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, a library &lt;code&gt;cl-utilities&lt;/code&gt;, reviewed &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html&quot;&gt;two days ago&lt;/a&gt;, and &lt;code&gt;rutils&lt;/code&gt;, reviewed at &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html&quot;&gt;the start of the week&lt;/a&gt;, are also include these splitting functions, but code is different. Probably this is because &lt;code&gt;split-sequence&lt;/code&gt; evolved since it was copied into  &lt;code&gt;cl-utilities&lt;/code&gt; and &lt;code&gt;rutils&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;This simple &lt;a href=&quot;https://ultralisp.org/search/?query=symbol%3Asplit-sequence-if&quot;&gt;search query&lt;/a&gt; on Ultralisp.org shows that this functionality is also available in some other Common Lisp libraries.&lt;/p&gt;
+&lt;h2&gt;Update&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/fwoaroof/status/1261736998412271616&quot;&gt;@fwoaroof&lt;/a&gt; gave me a &lt;a href=&quot;https://github.com/fiddlerwoaroof/fwoar.lisputils/blob/master/string-utils/split.lisp&quot;&gt;link to the split function&lt;/a&gt;, optimized to work with very long (&gt; 1G) strings.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>osicat</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0069-osicat.html</link>
             <description>&lt;p&gt;This is a library, created by &lt;a href=&quot;https://twitter.com/nsiivola&quot;&gt;@nsiivola&lt;/a&gt;. It is well suited if you need to call &lt;a href=&quot;https://en.wikipedia.org/wiki/POSIX&quot;&gt;POSIX&lt;/a&gt; API. &lt;code&gt;Osicat&lt;/code&gt; has outdated documentation but it is has docstring and the code is well structured.&lt;/p&gt;
@@ -1214,35 +1268,6 @@ POFTHEDAY&amp;gt; (st:test)
 Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not convenient to define a test predicate this way, because I didn&apos;t have control of assertion syntax. It always should be like &quot;name test expected form&quot;.&lt;/p&gt;
 &lt;p&gt;In my case I have a 0.01 delta in place of the test, which is not semantic at all and form completion in SLY does not help me to understand what does &quot;should&quot; macro expect if the first argument is &quot;be-within&quot;.&lt;/p&gt;
 &lt;p&gt;But this is is relatively young test framework :)&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>literate-lisp</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html</link>
-            <description>&lt;p&gt;During the week of ASDF extensions I didn&apos;t tell you about this library, however I&apos;m using it to render #poftheday site. But preparing the yesterday post about &lt;code&gt;print-html&lt;/code&gt; I found it is written in Literate Programming Style.&lt;/p&gt;
-&lt;p&gt;But &lt;code&gt;print-html&lt;/code&gt; is written in org-mode file which was preprocessed and transformed into usual lisp file. Literate-lisp is an ASDF extension which allows you to load &lt;code&gt;org-mode&lt;/code&gt; as usual lisp files.&lt;/p&gt;
-&lt;p&gt;All that you need to do is to write &lt;code&gt;:defsystem-depends-on (&quot;literate-lisp&quot;)&lt;/code&gt; in the system definition file and to use &lt;code&gt;:org&lt;/code&gt; type for components.&lt;/p&gt;
-&lt;p&gt;Here is the content of my ASD file:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(asdf:defsystem &amp;quot;poftheday&amp;quot;
-  :author &amp;quot;Alexander Artemenko &amp;lt;svetlyak.40wt@gmail.com&amp;gt;&amp;quot;
-  :serial t
-  :defsystem-depends-on (&amp;quot;literate-lisp&amp;quot;)
-  :depends-on (&amp;quot;cl-org-mode&amp;quot;
-               &amp;quot;cl-bootstrap&amp;quot;
-               &amp;quot;cl-fad&amp;quot;
-               &amp;quot;str&amp;quot;
-               &amp;quot;cl-ppcre&amp;quot;
-               &amp;quot;cl-who&amp;quot;
-               &amp;quot;ppath&amp;quot;
-               &amp;quot;alexandria&amp;quot;
-               &amp;quot;xml-emitter&amp;quot;
-               &amp;quot;rutils&amp;quot;
-               &amp;quot;doplus&amp;quot;)
-  ;; This component type is defined by
-  ;; literate-lisp system:
-  :components ((:org &amp;quot;readme&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;My &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/README.org&quot;&gt;README.org&lt;/a&gt; is a usual org-mode file with &lt;code&gt;lisp&lt;/code&gt; code blocks in it. Literate-lisp system defines a custom reader which skips all file content except code blocks and loads them into lisp image.&lt;/p&gt;
-&lt;p&gt;When used with &lt;a href=&quot;https://github.com/polymode/poly-org&quot;&gt;poly-org&lt;/a&gt; mode, this allows having convenient Lisp code navigation and shortcuts right inside the org-mode file. I can hit &lt;code&gt;C-c C-c&lt;/code&gt; to evaluate functions, etc.&lt;/p&gt;
-&lt;p&gt;So, if you wanted to try Literate Programming, then Jintao Xu&apos;s literate-lisp is the best way to go!&lt;/p&gt;
 </description>
         </item>
     </channel>
