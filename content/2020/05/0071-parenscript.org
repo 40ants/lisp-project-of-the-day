@@ -1,0 +1,237 @@
+* parenscript :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Parenscript is the CL's answer to the [[https://clojurescript.org/][ClojureScript]]. It makes possible
+to write client-side code in Lisp and compile it to the Javascript for
+running in the Browser.
+
+I used Parenscript in one application, based on Electron and Weblocks.
+
+Here is a [[https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184][piece of real code]] which uses Parenscript to define a
+client-side code. This code allows to switch between different contacts
+using shortcuts. It uses ~jQuery~ to access ~DOM~ elements:
+
+#+begin_src lisp
+
+(weblocks-parenscript:make-dependency
+ (let ((numbers-are-visible nil))
+   
+   ;; With this code we give user ability to press Alt+1, Alt+2,...
+   ;; to select one of first 10 contacts in the list.
+   (setf (@ document onkeydown)
+         (lambda (e)
+           (let ((code (@ e "keyCode"))
+                 (numbers (j-query ".contact-list__contact-number")))
+             ((@ console log) "Key down with code:" code)
+             
+             (cond
+               ((= code 18)
+                ((@ numbers show))
+                (setf numbers-are-visible t))
+               ((and (>= 57 code 48))
+                ;; If user presed 0, then we'l consider it a 10.
+                (when (= code 48)
+                  (setf code (+ code 10)))
+                
+                (let ((contact-number (- code 48)))
+                  ((@ console log)
+                   "Selecting contact" contact-number)
+                  ;; jQuery("#contact-0 a").click()
+                  ((@ (j-query (+ "#contact-" contact-number " a"))
+                      click))))))))
+   
+   (setf (@ document onkeyup)
+         (lambda (e)
+           (let ((code (@ e "keyCode"))
+                 (numbers (j-query ".contact-list__contact-number")))
+             ((@ console log) "Key up with code:" code)
+             
+             (cond
+               ((= code 18)
+                ((@ numbers hide))
+                (setf numbers-are-visible nil)))))))
+#+end_src
+
+There are two ways of using Parenscript:
+
+1) You can manually compile a ~s-exp~ into Javascript.
+2) You can use it as an ASDF extension to compile some components
+   automatically. But this will require use of additional system
+   [[https://github.com/gonzojive/paren-files][paren-files]]. We'll review it later.
+
+Let's investigate the first way by definingg a simple JS function which
+sums two numbers and shows the result in Web Inspector's console:
+
+#+begin_src lisp
+
+POFTHEDAY> (import '(parenscript:ps
+                     parenscript:@))
+
+POFTHEDAY> (ps
+             (+ 1 2))
+"1 + 2;"
+
+POFTHEDAY> (ps
+             (defun foo (a b)
+               (+ a b)))
+"function foo(a, b) {
+    return a + b;
+};"
+
+POFTHEDAY> (ps
+             (defun foo (a b)
+               ((@ console log)
+                 (+ a b))))
+"function foo(a, b) {
+    __PS_MV_REG = [];
+    return console.log(a + b);
+};"
+
+#+end_src
+
+As you might notice, instead of dot notation, Parenscript uses a ~@~
+macro.
+
+Parenscript supports a subset of ~loop~ macro:
+
+#+begin_src lisp
+
+POFTHEDAY> (ps
+             (loop :with collection =  '(1 2 3)
+                   :for i :in collection
+                   :do ((@ console log)
+                       i)))
+"(function () {
+    var collection = [1, 2, 3];
+    var _js8 = collection.length;
+    for (var _js7 = 0; _js7 < _js8; _js7 += 1) {
+        var i = collection[_js7];
+        console.log(i);
+    };
+})();"
+
+#+end_src
+
+And also it allows you to write custom macroses which will expand into
+the Javascript Code!
+
+There are few ways to define macroses for Parenscript here is one of
+them. We'll define a macro in Common Lisp code and then will call this
+macro from Parenscript:
+
+#+begin_src lisp
+
+POFTHEDAY> (ps:defpsmacro awhen (test &body body)
+             `(let ((it ,test))
+                (when it
+                  ,@body)))
+
+POFTHEDAY> (ps
+             (let ((some-var 100500))
+               (awhen (= some-var 42)
+                 ((@ console log)
+                  "Some var is" it))))
+"(function () {
+    var someVar = 100500;
+    var it = someVar === 42;
+    __PS_MV_REG = [];
+    return it ? console.log('Some var is', it) : null;
+})();"
+
+#+end_src
+
+You can also reuse existing Lisp macro in Parenscript. In the next
+example I'll how you how to reuse anaphoric ~if~ from ~rutils~:
+
+#+begin_src lisp
+
+;; First, let's eval our form in Common Lisp
+POFTHEDAY> (rutils:aif (= 1 2)
+              (list :status :ok
+                    :result rutils:it)
+              (list :status :fail
+                    :result rutils:it))
+(:STATUS :FAIL :RESULT NIL)
+
+;; By default it will not work:
+POFTHEDAY> (ps
+             (rutils:aif (= 1 2)
+                (list :status :ok
+                      :result it)
+                (list :status :fail
+                      :result it)))
+"aif(1 === 2,
+     ['status', 'ok', 'result', it],
+     ['status', 'fail', 'result', it]);"
+
+;; But we can import the macro:
+
+POFTHEDAY> (ps:import-macros-from-lisp
+            'rutils:aif)
+
+POFTHEDAY> (ps
+             (rutils:aif (= 1 2)
+                (list :status :ok
+                      :result it)
+                (list :status :fail
+                      :result it)))
+"(function () {
+    var it = 1 === 2;
+    return it ? ['status', 'ok', 'result', it]
+              : ['status', 'fail', 'result', it];
+})();"
+
+#+end_src
+
+There is also a built-in support for HTML rendering. Parenscript
+supports [[https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md][Allegro HTMLGen DSL]]:
+
+#+begin_src lisp
+
+POFTHEDAY> (ps
+             (defun render-link (user)
+               (ps:ps-html
+                ((:a :href (+ "https://foo.bar/"
+                               (get-nickname user)))
+                 (get-name user)))))
+"function renderLink(user) {
+    __PS_MV_REG = [];
+    return ['<a href=\\\"',
+            'https://foo.bar/' + getNickname(user),
+            '\\\">',
+             getName(user),
+            '</a>'].join('');
+};"
+
+#+end_src
+
+And [[https://edicl.github.io/cl-who/][CL-WHO]]:
+
+#+begin_src lisp
+
+POFTHEDAY> (ps
+             (defun render-link (user)
+               (ps:who-ps-html
+                (:a :href (+ "https://foo.bar/"
+                              (get-nickname user))
+                 (get-name user)))))
+"function renderLink(user) {
+    __PS_MV_REG = [];
+    return ['<a href=\\\"',
+            'https://foo.bar/' + getNickname(user),
+            '\\\">',
+             getName(user),
+            '</a>'].join('');
+};"
+
+#+end_src
+
+With Parenscript you can create a client-side applications or a code for
+running on Node.js. All of this, using Common Lisp power. Isn't it cool?
