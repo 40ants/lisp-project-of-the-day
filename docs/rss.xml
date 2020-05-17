@@ -6,6 +6,172 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>parenscript</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html</link>
+            <description>&lt;p&gt;Parenscript is the CL&apos;s answer to the &lt;a href=&quot;https://clojurescript.org/&quot;&gt;ClojureScript&lt;/a&gt;. It makes possible to write client-side code in Lisp and compile it to the Javascript for running in the Browser.&lt;/p&gt;
+&lt;p&gt;I used Parenscript in one application, based on Electron and Weblocks.&lt;/p&gt;
+&lt;p&gt;Here is a &lt;a href=&quot;https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184&quot;&gt;piece of real code&lt;/a&gt; which uses Parenscript to define a client-side code. This code allows switching between different contacts using shortcuts. It uses &lt;code&gt;jQuery&lt;/code&gt; to access &lt;code&gt;DOM&lt;/code&gt; elements:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(weblocks-parenscript:make-dependency
+ (let ((numbers-are-visible nil))
+   
+   ;; With this code we give user ability to press Alt+1, Alt+2,...
+   ;; to select one of first 10 contacts in the list.
+   (setf (@ document onkeydown)
+         (lambda (e)
+           (let ((code (@ e &amp;quot;keyCode&amp;quot;))
+                 (numbers (j-query &amp;quot;.contact-list__contact-number&amp;quot;)))
+             ((@ console log) &amp;quot;Key down with code:&amp;quot; code)
+             
+             (cond
+               ((= code 18)
+                ((@ numbers show))
+                (setf numbers-are-visible t))
+               ((and (&amp;gt;= 57 code 48))
+                ;; If user presed 0, then we&amp;#039;l consider it a 10.
+                (when (= code 48)
+                  (setf code (+ code 10)))
+                
+                (let ((contact-number (- code 48)))
+                  ((@ console log)
+                   &amp;quot;Selecting contact&amp;quot; contact-number)
+                  ;; jQuery(&amp;quot;#contact-0 a&amp;quot;).click()
+                  ((@ (j-query (+ &amp;quot;#contact-&amp;quot; contact-number &amp;quot; a&amp;quot;))
+                      click))))))))
+   
+   (setf (@ document onkeyup)
+         (lambda (e)
+           (let ((code (@ e &amp;quot;keyCode&amp;quot;))
+                 (numbers (j-query &amp;quot;.contact-list__contact-number&amp;quot;)))
+             ((@ console log) &amp;quot;Key up with code:&amp;quot; code)
+             
+             (cond
+               ((= code 18)
+                ((@ numbers hide))
+                (setf numbers-are-visible nil)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are two ways of using Parenscript:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;You can manually compile a &lt;code&gt;s-exp&lt;/code&gt; into Javascript.&lt;/li&gt;&lt;li&gt;You can use it as an ASDF extension to compile some components   automatically. But this will require the use of additional system   &lt;a href=&quot;https://github.com/gonzojive/paren-files&quot;&gt;paren-files&lt;/a&gt;. We&apos;ll review it later.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Let&apos;s investigate the first way by defining a simple JS function which sums two numbers and shows the result in Web Inspector&apos;s console:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (import &amp;#039;(parenscript:ps
+                     parenscript:@))
+
+POFTHEDAY&amp;gt; (ps
+             (+ 1 2))
+&amp;quot;1 + 2;&amp;quot;
+
+POFTHEDAY&amp;gt; (ps
+             (defun foo (a b)
+               (+ a b)))
+&amp;quot;function foo(a, b) {
+    return a + b;
+};&amp;quot;
+
+POFTHEDAY&amp;gt; (ps
+             (defun foo (a b)
+               ((@ console log)
+                 (+ a b))))
+&amp;quot;function foo(a, b) {
+    __PS_MV_REG = [];
+    return console.log(a + b);
+};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you might notice, instead of dot notation, Parenscript uses a &lt;code&gt;@&lt;/code&gt; macro.&lt;/p&gt;
+&lt;p&gt;Parenscript supports a subset of &lt;code&gt;loop&lt;/code&gt; macro:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
+             (loop :with collection =  &amp;#039;(1 2 3)
+                   :for i :in collection
+                   :do ((@ console log)
+                       i)))
+&amp;quot;(function () {
+    var collection = [1, 2, 3];
+    var _js8 = collection.length;
+    for (var _js7 = 0; _js7 &amp;lt; _js8; _js7 += 1) {
+        var i = collection[_js7];
+        console.log(i);
+    };
+})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And also it allows you to write custom macroses which will expand into the Javascript Code!&lt;/p&gt;
+&lt;p&gt;There are few ways to define macroses for Parenscript here is one of them. We&apos;ll define a macro in Common Lisp code and then will call this macro from Parenscript:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps:defpsmacro awhen (test &amp;amp;body body)
+             `(let ((it ,test))
+                (when it
+                  ,@body)))
+
+POFTHEDAY&amp;gt; (ps
+             (let ((some-var 100500))
+               (awhen (= some-var 42)
+                 ((@ console log)
+                  &amp;quot;Some var is&amp;quot; it))))
+&amp;quot;(function () {
+    var someVar = 100500;
+    var it = someVar === 42;
+    __PS_MV_REG = [];
+    return it ? console.log(&amp;#039;Some var is&amp;#039;, it) : null;
+})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Rewriting macro for Parenscript is not a fan. Why you should do this if macro already exists for Common Lisp?&lt;/p&gt;
+&lt;p&gt;You shouldn&apos;t!&lt;/p&gt;
+&lt;p&gt;Import existing Lisp macro into the Parenscript!&lt;/p&gt;
+&lt;p&gt;In the next example, I&apos;ll show you how to reuse anaphoric &lt;code&gt;if&lt;/code&gt; from &lt;code&gt;rutils&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First, let&amp;#039;s eval our form in Common Lisp
+POFTHEDAY&amp;gt; (rutils:aif (= 1 2)
+              (list :status :ok
+                    :result rutils:it)
+              (list :status :fail
+                    :result rutils:it))
+(:STATUS :FAIL :RESULT NIL)
+
+;; By default it will not work:
+POFTHEDAY&amp;gt; (ps
+             (rutils:aif (= 1 2)
+                (list :status :ok
+                      :result it)
+                (list :status :fail
+                      :result it)))
+&amp;quot;aif(1 === 2,
+     [&amp;#039;status&amp;#039;, &amp;#039;ok&amp;#039;, &amp;#039;result&amp;#039;, it],
+     [&amp;#039;status&amp;#039;, &amp;#039;fail&amp;#039;, &amp;#039;result&amp;#039;, it]);&amp;quot;
+
+;; But we can import the macro:
+
+POFTHEDAY&amp;gt; (ps:import-macros-from-lisp
+            &amp;#039;rutils:aif)
+
+POFTHEDAY&amp;gt; (ps
+             (rutils:aif (= 1 2)
+                (list :status :ok
+                      :result it)
+                (list :status :fail
+                      :result it)))
+&amp;quot;(function () {
+    var it = 1 === 2;
+    return it ? [&amp;#039;status&amp;#039;, &amp;#039;ok&amp;#039;, &amp;#039;result&amp;#039;, it]
+              : [&amp;#039;status&amp;#039;, &amp;#039;fail&amp;#039;, &amp;#039;result&amp;#039;, it];
+})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also built-in support for HTML rendering. Parenscript supports &lt;a href=&quot;https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md&quot;&gt;Allegro HTMLGen DSL&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
+             (defun render-link (user)
+               (ps:ps-html
+                ((:a :href (+ &amp;quot;https://foo.bar/&amp;quot;
+                               (get-nickname user)))
+                 (get-name user)))))
+&amp;quot;function renderLink(user) {
+    __PS_MV_REG = [];
+    return [&amp;#039;&amp;lt;a href=\\\&amp;quot;&amp;#039;,
+            &amp;#039;https://foo.bar/&amp;#039; + getNickname(user),
+            &amp;#039;\\\&amp;quot;&amp;gt;&amp;#039;,
+             getName(user),
+            &amp;#039;&amp;lt;/a&amp;gt;&amp;#039;].join(&amp;#039;&amp;#039;);
+};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And &lt;a href=&quot;https://edicl.github.io/cl-who/&quot;&gt;CL-WHO&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
+             (defun render-link (user)
+               (ps:who-ps-html
+                (:a :href (+ &amp;quot;https://foo.bar/&amp;quot;
+                              (get-nickname user))
+                 (get-name user)))))
+&amp;quot;function renderLink(user) {
+    __PS_MV_REG = [];
+    return [&amp;#039;&amp;lt;a href=\\\&amp;quot;&amp;#039;,
+            &amp;#039;https://foo.bar/&amp;#039; + getNickname(user),
+            &amp;#039;\\\&amp;quot;&amp;gt;&amp;#039;,
+             getName(user),
+            &amp;#039;&amp;lt;/a&amp;gt;&amp;#039;].join(&amp;#039;&amp;#039;);
+};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With Parenscript you can create client-side applications or code for running on Node.js. All of this, using Common Lisp power. Isn&apos;t it cool?&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>split-sequence</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0070-split-sequence.html</link>
             <description>&lt;p&gt;This is the utility library with a single purpose – to split, dissect, cut, cleave and partition sequences.&lt;/p&gt;
@@ -1213,75 +1379,6 @@ POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
   &amp;#039;rot-food)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, this macro defines a code which will be applied to all &quot;edible&quot; objects in the game.&lt;/p&gt;
 &lt;p&gt;I think Beast is the great library for defining game objects!&lt;/p&gt;
 &lt;p&gt;You can find more information about this library in its &lt;a href=&quot;https://docs.stevelosh.com/beast/usage/&quot;&gt;great documentation&lt;/a&gt;.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>should-test</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0051-should-test.html</link>
-            <description>&lt;p&gt;This is yet another testing framework written by &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt;. It is interesting because provides a protocol to define new kinds of assertions.&lt;/p&gt;
-&lt;p&gt;Here is a simple example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun plus-100 (x)
-             (+ x x))
-
-POFTHEDAY&amp;gt; (st:deftest test-plus-100 ()
-             (st:should be = 200 (plus-100 100))
-             (st:should be = 150 (plus-100 50))
-             (st:should signal &amp;#039;error (plus-100 &amp;quot;blah&amp;quot;)))
-
-;; Now let&amp;#039;s run the tests in the current package:
-POFTHEDAY&amp;gt; (st:test)
-
-Test TEST-PLUS-100: 
-(PLUS-100 50) FAIL
-expect: 150
-actual: 100
-(PLUS-100 blah) FAIL
-expect: (QUOTE ERROR)
-actual: #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;blah&amp;quot;&amp;gt;
-  FAILED
-
-NIL
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {1006D9D273}&amp;gt;
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 0 {1006D9D553}&amp;gt;
-
-;; Second value is a hash with thrown exceptions:
-POFTHEDAY&amp;gt; (alexandria:hash-table-alist #v116:1)
-((TEST-PLUS-100 #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;blah&amp;quot;&amp;gt; (100)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s try to extend this library with a custom check which will assert that float value more or less than expected no more than specified delta:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This method defines a new assertion:
-POFTHEDAY&amp;gt; (defmethod st:should-check ((key (eql :be-within)) delta fn &amp;amp;rest expected)
-             (assert (= (length expected)
-                        1))
-             (let* ((result (funcall fn))
-                    (real-difference (abs (- result
-                                              (first expected)))))
-               (or (&amp;lt;= real-difference delta)
-                   (values nil
-                           (list :result result
-                                 :delta real-difference)))))
-
-;; This is the fake function we are going to test:
-POFTHEDAY&amp;gt; (defun kind-of-random ()
-             0.323)
-
-POFTHEDAY&amp;gt; (st:deftest test-within ()
-             (st:should be-within 0.01 0.35
-                        (kind-of-random)))
-
-POFTHEDAY&amp;gt; (st:test)
-Test TEST-WITHIN: 
-(KIND-OF-RANDOM) FAIL
-expect: 0.35
-actual: :RESULT 0.323 :DELTA 0.02699998
-  FAILED
-
-;; Now we will fix the &amp;quot;error&amp;quot;
-POFTHEDAY&amp;gt; (defun kind-of-random ()
-             0.345)
-
-POFTHEDAY&amp;gt; (st:test)
-Test TEST-WITHIN:   OK&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On my taste, it was not convenient to define a test predicate this way, because I didn&apos;t have control of assertion syntax. It always should be like &quot;name test expected form&quot;.&lt;/p&gt;
-&lt;p&gt;In my case I have a 0.01 delta in place of the test, which is not semantic at all and form completion in SLY does not help me to understand what does &quot;should&quot; macro expect if the first argument is &quot;be-within&quot;.&lt;/p&gt;
-&lt;p&gt;But this is is relatively young test framework :)&lt;/p&gt;
 </description>
         </item>
     </channel>

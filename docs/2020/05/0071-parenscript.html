@@ -31,7 +31,7 @@
   </head>
   <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>parenscript</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>parenscript</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Parenscript is the CL's answer to the <a href="https://clojurescript.org/">ClojureScript</a>. It makes possible to write client-side code in Lisp and compile it to the Javascript for running in the Browser.</p>
 <p>I used Parenscript in one application, based on Electron and Weblocks.</p>
-<p>Here is a <a href="https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184">piece of real code</a> which uses Parenscript to define a client-side code. This code allows to switch between different contacts using shortcuts. It uses <code>jQuery</code> to access <code>DOM</code> elements:</p>
+<p>Here is a <a href="https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184">piece of real code</a> which uses Parenscript to define a client-side code. This code allows switching between different contacts using shortcuts. It uses <code>jQuery</code> to access <code>DOM</code> elements:</p>
 <pre><code class=' lisp'>(weblocks-parenscript:make-dependency
  (let ((numbers-are-visible nil))
    
@@ -69,8 +69,8 @@
                ((= code 18)
                 ((@ numbers hide))
                 (setf numbers-are-visible nil)))))))</code></pre><p>There are two ways of using Parenscript:</p>
-<p>1) You can manually compile a <code>s-exp</code> into Javascript. 2) You can use it as an ASDF extension to compile some components    automatically. But this will require use of additional system    <a href="https://github.com/gonzojive/paren-files">paren-files</a>. We'll review it later.</p>
-<p>Let's investigate the first way by definingg a simple JS function which sums two numbers and shows the result in Web Inspector's console:</p>
+<ul><li>You can manually compile a <code>s-exp</code> into Javascript.</li><li>You can use it as an ASDF extension to compile some components   automatically. But this will require the use of additional system   <a href="https://github.com/gonzojive/paren-files">paren-files</a>. We'll review it later.</li></ul>
+<p>Let's investigate the first way by defining a simple JS function which sums two numbers and shows the result in Web Inspector's console:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (import &#039;(parenscript:ps
                      parenscript:@))
 
@@ -123,7 +123,10 @@ POFTHEDAY&gt; (ps
     var it = someVar === 42;
     __PS_MV_REG = [];
     return it ? console.log(&#039;Some var is&#039;, it) : null;
-})();&quot;</code></pre><p>You can also reuse existing Lisp macro in Parenscript. In the next example I'll how you how to reuse anaphoric <code>if</code> from <code>rutils</code>:</p>
+})();&quot;</code></pre><p>Rewriting macro for Parenscript is not a fan. Why you should do this if macro already exists for Common Lisp?</p>
+<p>You shouldn't!</p>
+<p>Import existing Lisp macro into the Parenscript!</p>
+<p>In the next example, I'll show you how to reuse anaphoric <code>if</code> from <code>rutils</code>:</p>
 <pre><code class=' lisp'>;; First, let&#039;s eval our form in Common Lisp
 POFTHEDAY&gt; (rutils:aif (= 1 2)
               (list :status :ok
@@ -158,7 +161,7 @@ POFTHEDAY&gt; (ps
     var it = 1 === 2;
     return it ? [&#039;status&#039;, &#039;ok&#039;, &#039;result&#039;, it]
               : [&#039;status&#039;, &#039;fail&#039;, &#039;result&#039;, it];
-})();&quot;</code></pre><p>There is also a built-in support for HTML rendering. Parenscript supports <a href="https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md">Allegro HTMLGen DSL</a>:</p>
+})();&quot;</code></pre><p>There is also built-in support for HTML rendering. Parenscript supports <a href="https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md">Allegro HTMLGen DSL</a>:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (ps
              (defun render-link (user)
                (ps:ps-html
@@ -186,7 +189,7 @@ POFTHEDAY&gt; (ps
             &#039;\\\&quot;&gt;&#039;,
              getName(user),
             &#039;&lt;/a&gt;&#039;].join(&#039;&#039;);
-};&quot;</code></pre><p>With Parenscript you can create a client-side applications or a code for running on Node.js. All of this, using Common Lisp power. Isn't it cool?</p>
+};&quot;</code></pre><p>With Parenscript you can create client-side applications or code for running on Node.js. All of this, using Common Lisp power. Isn't it cool?</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

@@ -19,7 +19,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 14 May - [[content/2020/05/0068-cl-utilities.org][cl-utilities]] ([[https://twitter.com/svetlyak40wt/status/1261011829746274304][twitter]])
 - 15 May - [[content/2020/05/0069-osicat.org][osicat]] ([[https://twitter.com/svetlyak40wt/status/1261392055743311873][twitter]])
 - 16 May - [[content/2020/05/0070-split-sequence.org][split-sequence]] ([[https://twitter.com/svetlyak40wt/status/1261735950213943302][twitter]])
-- 17 May - [[content/2020/05/0071-parenscript.org][parenscript]]
+- 17 May - [[content/2020/05/0071-parenscript.org][parenscript]] ([[https://twitter.com/svetlyak40wt/status/1262100811640967169][twitter]])
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])

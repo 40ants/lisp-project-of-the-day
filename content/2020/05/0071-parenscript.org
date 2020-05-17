@@ -15,7 +15,7 @@ running in the Browser.
 I used Parenscript in one application, based on Electron and Weblocks.
 
 Here is a [[https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184][piece of real code]] which uses Parenscript to define a
-client-side code. This code allows to switch between different contacts
+client-side code. This code allows switching between different contacts
 using shortcuts. It uses ~jQuery~ to access ~DOM~ elements:
 
 #+begin_src lisp
@@ -61,12 +61,12 @@ using shortcuts. It uses ~jQuery~ to access ~DOM~ elements:
 
 There are two ways of using Parenscript:
 
-1) You can manually compile a ~s-exp~ into Javascript.
-2) You can use it as an ASDF extension to compile some components
-   automatically. But this will require use of additional system
-   [[https://github.com/gonzojive/paren-files][paren-files]]. We'll review it later.
+- You can manually compile a ~s-exp~ into Javascript.
+- You can use it as an ASDF extension to compile some components
+  automatically. But this will require the use of additional system
+  [[https://github.com/gonzojive/paren-files][paren-files]]. We'll review it later.
 
-Let's investigate the first way by definingg a simple JS function which
+Let's investigate the first way by defining a simple JS function which
 sums two numbers and shows the result in Web Inspector's console:
 
 #+begin_src lisp
@@ -147,8 +147,14 @@ POFTHEDAY> (ps
 
 #+end_src
 
-You can also reuse existing Lisp macro in Parenscript. In the next
-example I'll how you how to reuse anaphoric ~if~ from ~rutils~:
+Rewriting macro for Parenscript is not a fan. Why you should do this if
+macro already exists for Common Lisp?
+
+You shouldn't!
+
+Import existing Lisp macro into the Parenscript!
+
+In the next example, I'll show you how to reuse anaphoric ~if~ from ~rutils~:
 
 #+begin_src lisp
 
@@ -190,7 +196,7 @@ POFTHEDAY> (ps
 
 #+end_src
 
-There is also a built-in support for HTML rendering. Parenscript
+There is also built-in support for HTML rendering. Parenscript
 supports [[https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md][Allegro HTMLGen DSL]]:
 
 #+begin_src lisp
@@ -233,5 +239,5 @@ POFTHEDAY> (ps
 
 #+end_src
 
-With Parenscript you can create a client-side applications or a code for
+With Parenscript you can create client-side applications or code for
 running on Node.js. All of this, using Common Lisp power. Isn't it cool?
