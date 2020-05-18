@@ -1,0 +1,48 @@
+* plump :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Yesterday [[https://twitter.com/Shinmera][@Shinmera]] mentioned Plump in the [[https://twitter.com/XH004][XH004]]'s [[https://twitter.com/XH004/status/1261861964818440192][thread]] about
+performance optimization of it's new HTML parser. And I decided to
+review it.
+
+Plump is able to parse, modify and serialize a HTML back.
+
+Let's write a crawler to grab @shinmera's posts from the Twitter!
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *raw-html*
+              (dex:get "https://twitter.com/shinmera"))
+
+;; We need all divs with class "tweet-text"
+POFTHEDAY> (defvar *posts*
+             (remove-if-not (lambda (div)
+                              (str:containsp "tweet-text"
+                                             (plump:attribute div "class")))
+                            (plump:get-elements-by-tag-name *html* "p")))
+
+POFTHEDAY> (loop for post in (rutils:take 5 *posts*)
+                 for full-text = (plump:render-text post)
+                 for short-text = (str:shorten 40 full-text)
+                 do (format t "- ~A~2%" short-text))
+- 1478 Lighting sketch #onesies https:/...
+
+- Trust Level: Swiss A fridge with cool...
+
+- The arch.pic.twitter.com/gMamJfZ1r4
+
+- らくがきばかりアップしていたやつ、今度は動きます。週末にプロクリエイトで描...
+
+- Shit's broken. Will be back in a few ...
+
+#+end_src
+
+It is better to use Plump together with another @shimera's library -
+[[https://shinmera.github.io/CLSS/][clss]] but we'll play with it tomorrow :)
