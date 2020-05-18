@@ -6,6 +6,38 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>plump</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html</link>
+            <description>&lt;p&gt;Yesterday &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; mentioned Plump in the &lt;a href=&quot;https://twitter.com/XH004&quot;&gt;@XH004&lt;/a&gt;&apos;s &lt;a href=&quot;https://twitter.com/XH004/status/1261861964818440192&quot;&gt;thread&lt;/a&gt; about performance optimization of it&apos;s new HTML parser. And I decided to review it.&lt;/p&gt;
+&lt;p&gt;Plump is able to parse, modify and serialize an HTML back.&lt;/p&gt;
+&lt;p&gt;Let&apos;s write a crawler to grab @shinmera&apos;s posts from Twitter!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *raw-html*
+              (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
+
+;; We need all divs with class &amp;quot;tweet-text&amp;quot;
+POFTHEDAY&amp;gt; (defvar *posts*
+             (remove-if-not (lambda (div)
+                              (str:containsp &amp;quot;tweet-text&amp;quot;
+                                             (plump:attribute div &amp;quot;class&amp;quot;)))
+                            (plump:get-elements-by-tag-name *html* &amp;quot;p&amp;quot;)))
+
+POFTHEDAY&amp;gt; (loop for post in (rutils:take 5 *posts*)
+                 for full-text = (plump:render-text post)
+                 for short-text = (str:shorten 40 full-text)
+                 do (format t &amp;quot;- ~A~2%&amp;quot; short-text))
+- 1478 Lighting sketch #onesies https:/...
+
+- Trust Level: Swiss A fridge with cool...
+
+- The arch.pic.twitter.com/gMamJfZ1r4
+
+- &amp;#x3089;&amp;#x304F;&amp;#x304C;&amp;#x304D;&amp;#x3070;&amp;#x304B;&amp;#x308A;&amp;#x30A2;&amp;#x30C3;&amp;#x30D7;&amp;#x3057;&amp;#x3066;&amp;#x3044;&amp;#x305F;&amp;#x3084;&amp;#x3064;&amp;#x3001;&amp;#x4ECA;&amp;#x5EA6;&amp;#x306F;&amp;#x52D5;&amp;#x304D;&amp;#x307E;&amp;#x3059;&amp;#x3002;&amp;#x9031;&amp;#x672B;&amp;#x306B;&amp;#x30D7;&amp;#x30ED;&amp;#x30AF;&amp;#x30EA;&amp;#x30A8;&amp;#x30A4;&amp;#x30C8;&amp;#x3067;&amp;#x63CF;...
+
+- Shit&amp;#039;s broken. Will be back in a few ...&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library has more utils for HTML parsing. Read the documentation to learn more.&lt;/p&gt;
+&lt;p&gt;If you are going to write crawlers  in Common lisp, I recommend you to use Plump together with another @shimera&apos;s library - &lt;a href=&quot;https://shinmera.github.io/CLSS/&quot;&gt;clss&lt;/a&gt; but we&apos;ll play with it tomorrow :)&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>parenscript</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html</link>
             <description>&lt;p&gt;Parenscript is the CL&apos;s answer to the &lt;a href=&quot;https://clojurescript.org/&quot;&gt;ClojureScript&lt;/a&gt;. It makes possible to write client-side code in Lisp and compile it to the Javascript for running in the Browser.&lt;/p&gt;
@@ -1306,79 +1338,6 @@ POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
 &lt;p&gt;Pluralization depends on language rules. For example in Russian it will be:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;0 яблок&lt;/li&gt;&lt;li&gt;1 яблоко&lt;/li&gt;&lt;li&gt;2 яблока&lt;/li&gt;&lt;li&gt;5 яблок&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;I hope, &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;@nitro_idiot&lt;/a&gt; will be able to add pluralization, or somebody will implement this feature!&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>beast</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0052-beast.html</link>
-            <description>&lt;p&gt;Today&apos;s overview is about the Beast. This is a small library, written by &lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; for describing a game world.&lt;/p&gt;
-&lt;p&gt;Game world is full of different entities. Each entity has it a type and characteristics or aspects.&lt;/p&gt;
-&lt;p&gt;&quot;Beast&quot; is a simple wrapper over CLOS, which allows you to define aspects and to mix them when defining a new entity type.&lt;/p&gt;
-&lt;p&gt;Here is a nice example from projects README:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(define-aspect throwable accuracy damage)
-(define-aspect edible nutrition-value)
-
-(define-entity dart (throwable))
-(define-entity cheese (edible))
-(define-entity pie (throwable edible))
-
-(define-system rot-food ((e edible))
-  (decf (edible/nutrition-value e))
-  (when (zerop (edible/nutrition-value e))
-    (destroy-entity e)))
-
-(defparameter *steel-dart* 
-  (create-entity &amp;#039;dart
-    :throwable/accuracy 0.9
-    :throwable/damage 10))
-
-(defparameter *hunk-of-swiss*
-  (create-entity &amp;#039;cheese
-    :edible/nutrition-value 50))
-
-(defparameter *banana-cream-pie*
-  (create-entity &amp;#039;pie
-    :throwable/accuracy 0.3
-    :throwable/damage 5
-    :edible/nutrition-value 30))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Macro &lt;code&gt;(beast:define-aspect throwable accuracy damage)&lt;/code&gt; is expanded into such class-definition:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
- (defclass throwable nil
-           ((throwable/accuracy :accessor throwable/accuracy :initarg
-             :throwable/accuracy)
-            (throwable/damage :accessor throwable/damage :initarg
-             :throwable/damage)))
- (defun throwable? (beast::object) (typep beast::object &amp;#039;throwable))
- (beast::initialize-aspect-index &amp;#039;throwable)
- (find-class &amp;#039;throwable))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Macro &lt;code&gt;(beast:define-entity pie (throwable edible))&lt;/code&gt; also transformed into a class which inherits all aspects and also has a class-level slot with a list of aspects:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
- (defclass pie (beast:entity throwable edible)
-           ((beast::%beast/aspects :allocation :class :initform
-             &amp;#039;(throwable edible))))
- (defun pie? (beast::object) (typep beast::object &amp;#039;pie))
- (find-class &amp;#039;pie))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Function &lt;code&gt;create-entity&lt;/code&gt; not only creates a CLOS instance but also adds it to special indexes of entities of this type and entities having these aspects.&lt;/p&gt;
-&lt;p&gt;Macro &lt;code&gt;define-system&lt;/code&gt; defines two functions:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
-  (declaim
-   (ftype (function ((and beast:entity edible)) (values null &amp;amp;optional))
-          rot-food)
-   (notinline rot-food))
- 
-  (defun rot-food (e)
-    (decf (edible/nutrition-value e))
-    (when (zerop (edible/nutrition-value e)) (beast:destroy-entity e))
-    nil)
-  
-  (defun run-rot-food ()
-    (let ((#:argument-indexes1011 (gethash &amp;#039;rot-food beast::*system-index*)))
-      (loop :for #:entity1012 :being :the beast::hash-values :of (first
-                                                                  #:argument-indexes1011)
-            :do (locally
-                    (declare (type (and beast:entity edible) #:entity1012))
-                  (rot-food #:entity1012)))))
-  (beast::initialize-system-index &amp;#039;rot-food #&amp;#039;rot-food &amp;#039;((e edible)))
-  &amp;#039;rot-food)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, this macro defines a code which will be applied to all &quot;edible&quot; objects in the game.&lt;/p&gt;
-&lt;p&gt;I think Beast is the great library for defining game objects!&lt;/p&gt;
-&lt;p&gt;You can find more information about this library in its &lt;a href=&quot;https://docs.stevelosh.com/beast/usage/&quot;&gt;great documentation&lt;/a&gt;.&lt;/p&gt;
 </description>
         </item>
     </channel>

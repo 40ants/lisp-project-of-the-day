@@ -8,13 +8,13 @@
 :CI:       :(
 :END:
 
-Yesterday [[https://twitter.com/Shinmera][@Shinmera]] mentioned Plump in the [[https://twitter.com/XH004][XH004]]'s [[https://twitter.com/XH004/status/1261861964818440192][thread]] about
+Yesterday [[https://twitter.com/Shinmera][@Shinmera]] mentioned Plump in the [[https://twitter.com/XH004][@XH004]]'s [[https://twitter.com/XH004/status/1261861964818440192][thread]] about
 performance optimization of it's new HTML parser. And I decided to
 review it.
 
-Plump is able to parse, modify and serialize a HTML back.
+Plump is able to parse, modify and serialize an HTML back.
 
-Let's write a crawler to grab @shinmera's posts from the Twitter!
+Let's write a crawler to grab @shinmera's posts from Twitter!
 
 #+begin_src lisp
 
@@ -44,5 +44,9 @@ POFTHEDAY> (loop for post in (rutils:take 5 *posts*)
 
 #+end_src
 
-It is better to use Plump together with another @shimera's library -
-[[https://shinmera.github.io/CLSS/][clss]] but we'll play with it tomorrow :)
+This library has more utils for HTML parsing. Read the documentation to
+learn more.
+
+If you are going to write crawlers  in Common lisp, I recommend you to
+use Plump together with another @shimera's library - [[https://shinmera.github.io/CLSS/][clss]] but we'll play
+with it tomorrow :)
