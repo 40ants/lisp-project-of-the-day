@@ -77,8 +77,8 @@ POFTHEDAY> (plump:serialize * nil)
 
 #+end_src
 
-Sadly, documentation says only that it supports almost all CSS3
-selectors, but don't enumerate them. However we can learn this from
+Sadly, the documentation says only that it supports almost all CSS3
+selectors, but don't enumerate them. However, we can learn this from
 sources:
 
 #+begin_src lisp
@@ -93,4 +93,7 @@ POFTHEDAY> (rutils:hash-table-keys
 
 #+end_src
 
-Yesterday we'll learn about a more sofisticated tool for web scraping - lQuery.
+There is a ~clss:define-pseudo-selector~ macro which allows defining a
+custom pseudo-selector.
+
+Yesterday we'll learn about a more sophisticated tool for web scraping - lQuery.

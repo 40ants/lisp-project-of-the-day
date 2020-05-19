@@ -6,6 +6,70 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>clss</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html</link>
+            <description>&lt;p&gt;Today we continue to review web crawling tools from &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This review will be short because I&apos;ll reuse code from the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;previous post&lt;/a&gt; and improve it by replacing four lines with only one.&lt;/p&gt;
+&lt;p&gt;A system CLSS allows you to use CSS3 selectors when working with HTML nodes produced by &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;Plump&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Here is how we can improve our simple Twitter crawler:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *raw-html*
+             (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
+
+POFTHEDAY&amp;gt; (defvar *html* (plump:parse *raw-html*))
+
+           ;; Now I&amp;#039;ll replaced these lines
+           ;; with one clss:select call:
+           ;;
+           ;; (remove-if-not (lambda (div)
+           ;;                  (str:containsp &amp;quot;tweet-text&amp;quot;
+           ;;                                 (plump:attribute div &amp;quot;class&amp;quot;)))
+           ;;                (plump:get-elements-by-tag-name *html* &amp;quot;p&amp;quot;))
+POFTHEDAY&amp;gt; (defparameter *posts*
+             (clss:select &amp;quot;.tweet-text&amp;quot; *html*))
+
+POFTHEDAY&amp;gt; (type-of *posts*)
+(VECTOR T 40)
+
+POFTHEDAY&amp;gt; (loop repeat 5
+                 for post across *posts*
+                 for full-text = (plump:render-text post)
+                 for short-text = (str:shorten 40 full-text)
+                 do (format t &amp;quot;- ~A~2%&amp;quot; short-text))
+- Hi, I&amp;#039;m a #gamedev. My latest project...
+
+- &amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q
+
+- The logic of Splatoon.pic.twitter.com...
+
+- The AI is extremely rough still, but ...
+
+- pic.twitter.com/Cpvqytce5G&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As a bonus, I want to show you that &lt;code&gt;CLSS&lt;/code&gt; supports even pseudoclasses:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (plump:parse &amp;quot;
+&amp;lt;ul&amp;gt;
+  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Second item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;)
+#&amp;lt;PLUMP-DOM:ROOT {10031A93A3}&amp;gt;
+
+POFTHEDAY&amp;gt; (clss:select &amp;quot;li:first-child&amp;quot;
+                        *)
+#(#&amp;lt;PLUMP-DOM:ELEMENT li {100322C883}&amp;gt;)
+
+POFTHEDAY&amp;gt; (plump:serialize * nil)
+&amp;quot;&amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, the documentation says only that it supports almost all CSS3 selectors, but don&apos;t enumerate them. However, we can learn this from sources:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (rutils:hash-table-keys
+            clss::*pseudo-selectors*)
+(&amp;quot;ROOT&amp;quot; &amp;quot;NTH-CHILD&amp;quot; &amp;quot;NTH-LAST-CHILD&amp;quot; &amp;quot;NTH-OF-TYPE&amp;quot; &amp;quot;NTH-LAST-OF-TYPE&amp;quot;
+ &amp;quot;FIRST-CHILD&amp;quot; &amp;quot;LAST-CHILD&amp;quot; &amp;quot;FIRST-OF-TYPE&amp;quot; &amp;quot;LAST-OF-TYPE&amp;quot; &amp;quot;ONLY-CHILD&amp;quot;
+ &amp;quot;ONLY-OF-TYPE&amp;quot; &amp;quot;EMPTY&amp;quot; &amp;quot;LINK&amp;quot; &amp;quot;VISITED&amp;quot; &amp;quot;ACTIVE&amp;quot; &amp;quot;HOVER&amp;quot; &amp;quot;FOCUS&amp;quot; &amp;quot;TARGET&amp;quot;
+ &amp;quot;LANG&amp;quot; &amp;quot;ENABLED&amp;quot; &amp;quot;DISABLED&amp;quot; &amp;quot;CHECKED&amp;quot; &amp;quot;FIRST-LINE&amp;quot; &amp;quot;FIRST-LETTER&amp;quot; &amp;quot;BEFORE&amp;quot;
+ &amp;quot;AFTER&amp;quot; &amp;quot;WARNING&amp;quot; &amp;quot;NOT&amp;quot; &amp;quot;FIRST-ONLY&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is a &lt;code&gt;clss:define-pseudo-selector&lt;/code&gt; macro which allows defining a custom pseudo-selector.&lt;/p&gt;
+&lt;p&gt;Yesterday we&apos;ll learn about a more sophisticated tool for web scraping - lQuery.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>plump</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html</link>
             <description>&lt;p&gt;Yesterday &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; mentioned Plump in the &lt;a href=&quot;https://twitter.com/XH004&quot;&gt;@XH004&lt;/a&gt;&apos;s &lt;a href=&quot;https://twitter.com/XH004/status/1261861964818440192&quot;&gt;thread&lt;/a&gt; about performance optimization of it&apos;s new HTML parser. And I decided to review it.&lt;/p&gt;
@@ -1309,37 +1373,6 @@ GUTS -&amp;gt; &amp;quot;This definer shows debug information about environment
 
 
 Also, there are 33 undocumented definers.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To conclude, &lt;code&gt;hu.dwim.def&lt;/code&gt; is a great library now I&apos;ll use it in my projects!&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>cl-locale</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0053-cl-locale.html</link>
-            <description>&lt;p&gt;This project will help you to internationalize your application. Seems, it does not use files in &lt;code&gt;gettext&lt;/code&gt; format, but you might define translations in a lispy way:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-locale:define-dictionary hello
-             (:en-US &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;Hello World!&amp;quot;)))
-             (:ru-RU &amp;#039;((&amp;quot;Hello World!&amp;quot; . &amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;))))
-
-POFTHEDAY&amp;gt; (cl-locale:i18n &amp;quot;Hello World!&amp;quot;)
-&amp;quot;Hello World!&amp;quot;
-
-;; Now I&amp;#039;ll switch locale to Russian
-POFTHEDAY&amp;gt; (setf cl-locale:*locale*
-                 :ru-ru)
-:RU-RU
-
-POFTHEDAY&amp;gt; (cl-locale:i18n &amp;quot;Hello World!&amp;quot;)
-&amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;
-POFTHEDAY&amp;gt; 
-
-;; Also, a special syntax can be used:
-POFTHEDAY&amp;gt; (cl-locale:enable-locale-syntax)
-
-POFTHEDAY&amp;gt; #i&amp;quot;Hello World!&amp;quot;
-&amp;quot;&amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, translations can be stored in separate Lisp files.&lt;/p&gt;
-&lt;p&gt;This library does not support an important feature - pluralization.&lt;/p&gt;
-&lt;p&gt;Pluralization depends on language rules. For example in Russian it will be:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;0 яблок&lt;/li&gt;&lt;li&gt;1 яблоко&lt;/li&gt;&lt;li&gt;2 яблока&lt;/li&gt;&lt;li&gt;5 яблок&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;I hope, &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;@nitro_idiot&lt;/a&gt; will be able to add pluralization, or somebody will implement this feature!&lt;/p&gt;
 </description>
         </item>
     </channel>

@@ -21,7 +21,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 16 May - [[content/2020/05/0070-split-sequence.org][split-sequence]] ([[https://twitter.com/svetlyak40wt/status/1261735950213943302][twitter]])
 - 17 May - [[content/2020/05/0071-parenscript.org][parenscript]] ([[https://twitter.com/svetlyak40wt/status/1262100811640967169][twitter]])
 - 18 May - [[content/2020/05/0072-plump.org][plump]] ([[https://twitter.com/svetlyak40wt/status/1262443990021963777][twitter]])
-- 19 May - [[content/2020/05/0073-clss.org][clss]]
+- 19 May - [[content/2020/05/0073-clss.org][clss]] ([[https://twitter.com/svetlyak40wt/status/1262820171741265921][twitter]])
 - 20 May - lquery (пример: https://github.com/christophejunke/mfp/blob/master/mfp.lisp#L59)
 
 ** April
