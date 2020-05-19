@@ -21,6 +21,8 @@ Let's write a crawler to grab @shinmera's posts from Twitter!
 POFTHEDAY> (defvar *raw-html*
               (dex:get "https://twitter.com/shinmera"))
 
+POFTHEDAY> (defvar *html* (plump:parse *raw-html*))
+
 ;; We need all divs with class "tweet-text"
 POFTHEDAY> (defvar *posts*
              (remove-if-not (lambda (div)

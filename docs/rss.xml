@@ -14,6 +14,8 @@
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *raw-html*
               (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
 
+POFTHEDAY&amp;gt; (defvar *html* (plump:parse *raw-html*))
+
 ;; We need all divs with class &amp;quot;tweet-text&amp;quot;
 POFTHEDAY&amp;gt; (defvar *posts*
              (remove-if-not (lambda (div)

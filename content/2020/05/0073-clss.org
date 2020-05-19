@@ -1,0 +1,96 @@
+* clss :web:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+Today we continue to review web crawling tools from [[https://twitter.com/shinmera][@shinmera]].
+
+This review will be short because I'll reuse code from the
+[[http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html][previous post]] and improve it by replacing four lines with only one.
+
+A system CLSS allows you to use CSS3 selectors when working with HTML
+nodes produced by [[http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html][Plump]].
+
+Here is how we can improve our simple Twitter crawler:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *raw-html*
+             (dex:get "https://twitter.com/shinmera"))
+
+POFTHEDAY> (defvar *html* (plump:parse *raw-html*))
+
+           ;; Now I'll replaced these lines
+           ;; with one clss:select call:
+           ;;
+           ;; (remove-if-not (lambda (div)
+           ;;                  (str:containsp "tweet-text"
+           ;;                                 (plump:attribute div "class")))
+           ;;                (plump:get-elements-by-tag-name *html* "p"))
+POFTHEDAY> (defparameter *posts*
+             (clss:select ".tweet-text" *html*))
+
+POFTHEDAY> (type-of *posts*)
+(VECTOR T 40)
+
+POFTHEDAY> (loop repeat 5
+                 for post across *posts*
+                 for full-text = (plump:render-text post)
+                 for short-text = (str:shorten 40 full-text)
+                 do (format t "- ~A~2%" short-text))
+- Hi, I'm a #gamedev. My latest project...
+
+- いらっしゃいませ～！pic.twitter.com/wwaWDD6B3Q
+
+- The logic of Splatoon.pic.twitter.com...
+
+- The AI is extremely rough still, but ...
+
+- pic.twitter.com/Cpvqytce5G
+
+#+end_src
+
+As a bonus, I want to show you that ~CLSS~ supports even pseudoclasses:
+
+#+begin_src lisp
+
+POFTHEDAY> (plump:parse "
+<ul>
+  <li>First item</li>
+  <li>Second item</li>
+  <li>Third item</li>
+</ul>
+")
+#<PLUMP-DOM:ROOT {10031A93A3}>
+
+POFTHEDAY> (clss:select "li:first-child"
+                        *)
+#(#<PLUMP-DOM:ELEMENT li {100322C883}>)
+
+POFTHEDAY> (plump:serialize * nil)
+"<li>First item</li>"
+
+#+end_src
+
+Sadly, documentation says only that it supports almost all CSS3
+selectors, but don't enumerate them. However we can learn this from
+sources:
+
+#+begin_src lisp
+
+POFTHEDAY> (rutils:hash-table-keys
+            clss::*pseudo-selectors*)
+("ROOT" "NTH-CHILD" "NTH-LAST-CHILD" "NTH-OF-TYPE" "NTH-LAST-OF-TYPE"
+ "FIRST-CHILD" "LAST-CHILD" "FIRST-OF-TYPE" "LAST-OF-TYPE" "ONLY-CHILD"
+ "ONLY-OF-TYPE" "EMPTY" "LINK" "VISITED" "ACTIVE" "HOVER" "FOCUS" "TARGET"
+ "LANG" "ENABLED" "DISABLED" "CHECKED" "FIRST-LINE" "FIRST-LETTER" "BEFORE"
+ "AFTER" "WARNING" "NOT" "FIRST-ONLY")
+
+#+end_src
+
+Yesterday we'll learn about a more sofisticated tool for web scraping - lQuery.
