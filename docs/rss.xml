@@ -6,6 +6,43 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lquery</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0074-lquery.html</link>
+            <description>&lt;p&gt;Yesterday I&apos;ve &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html&quot;&gt;reviewed a library&lt;/a&gt; to apply CSS3 selectors to the HTML nodes, produced by &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;Plump&lt;/a&gt;. And this allowed making our Twitter crawler more concise.&lt;/p&gt;
+&lt;p&gt;lQuery will take it to the next stage because it makes possible to describe a whole HTML processing pipeline in a very declarative way:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:$ (initialize (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
+             &amp;quot;.tweet-text&amp;quot;
+             (render-text)
+             (map (alexandria:curry
+                   #&amp;#039;str:shorten 40))
+             (lt 5))
+#(&amp;quot;Hi, I&amp;#039;m a #gamedev. My latest project...&amp;quot;
+  &amp;quot;Aw thank you, here&amp;#039;s the whole story ...&amp;quot;
+  &amp;quot;&amp;#x96E8;&amp;#x6797;pic.twitter.com/BFwcd0AWSE&amp;quot;
+  &amp;quot;&amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q&amp;quot;
+  &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Each &quot;call&quot; here is a special function which is applied either to a set of &lt;code&gt;HTML&lt;/code&gt; nodes or to a single node in a set.&lt;/p&gt;
+&lt;p&gt;All &lt;code&gt;lquery&lt;/code&gt; functions are defined in the &lt;code&gt;lquery-funcs&lt;/code&gt; package and documented &lt;a href=&quot;https://shinmera.github.io/lquery/#PACKAGE%20LQUERY-FUNCS&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can add your own functions for data processing, using &lt;a href=&quot;https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-FUNCTION&quot;&gt;define-lquery-function&lt;/a&gt; and &lt;a href=&quot;https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-LIST-FUNCTION&quot;&gt;define-lquery-list-function&lt;/a&gt;. This can be useful if some operation is frequent. For example, let&apos;s write a function to make strings shorter!&lt;/p&gt;
+&lt;p&gt;First, we need to define lQuery function. It will process one node at a time:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:define-lquery-function shorten (text max-length)
+             (check-type text string)
+             (check-type max-length (integer 0 65535))
+             (str:shorten max-length text))
+
+LQUERY-FUNCS::SHORTEN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use it to make our web crawler even more beautiful!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:$ (initialize (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
+             &amp;quot;.tweet-text&amp;quot;
+             (render-text)
+             (shorten 40)
+             (lt 5))
+#(&amp;quot;Hi, I&amp;#039;m a #gamedev. My latest project...&amp;quot;
+  &amp;quot;Aw thank you, here&amp;#039;s the whole story ...&amp;quot;
+  &amp;quot;&amp;#x96E8;&amp;#x6797;pic.twitter.com/BFwcd0AWSE&amp;quot;
+  &amp;quot;&amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q&amp;quot;
+  &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other &lt;code&gt;define-*&lt;/code&gt; macros in &lt;code&gt;lquery&lt;/code&gt; as well. Read its documentation to learn more about how to extend it. It would be nice if &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@shinmera&lt;/a&gt; add more examples on how to extend &lt;code&gt;lquery&lt;/code&gt;!&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>clss</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html</link>
             <description>&lt;p&gt;Today we continue to review web crawling tools from &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;.&lt;/p&gt;
@@ -1207,172 +1244,6 @@ use any characters even different quotes:
 - \&amp;quot;
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-heredoc&lt;/code&gt; you can write anything you want without escaping. This might be useful in some cases.&lt;/p&gt;
 &lt;p&gt;Also, it exports a function &lt;code&gt;read-until-match&lt;/code&gt; which might be used to read from a string until a given subsequence.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>hu.dwim.def</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/04/0054-hu.dwim.def.html</link>
-            <description>&lt;p&gt;Today I want to review this library because it is used in other &lt;code&gt;hu.dwim.*&lt;/code&gt; libraries. Understanding how does &lt;code&gt;hu.dwim.def&lt;/code&gt; works will help to read other libraries code.&lt;/p&gt;
-&lt;p&gt;The main concept of the &lt;code&gt;hu.dwim.def&lt;/code&gt; is the &lt;code&gt;definer&lt;/code&gt;. Definer has a name and a function which is used to macro-expand the code.&lt;/p&gt;
-&lt;p&gt;This is how usual definition can be used and what it expands to:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def function foo ()
-             (format nil &amp;quot;Hello from ~A!&amp;quot;
-                     hu.dwim.def:-this-function/name-))
--&amp;gt; (defun foo ()
-     (symbol-macrolet ((-this-function/name- &amp;#039;foo))
-       (format nil &amp;quot;Hello from ~A!&amp;quot;
-               -this-function/name-)))
-
-POFTHEDAY&amp;gt; (foo)
-&amp;quot;Hello from FOO!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, this macro expands into a usual function definition, plus a &lt;code&gt;symbol-macrolet&lt;/code&gt;, useful to refer to a current function name.&lt;/p&gt;
-&lt;p&gt;When definer is called, a number of options can be passed. Options allow tuning optimization settings and export rules.&lt;/p&gt;
-&lt;p&gt;Option &quot;o&quot; adds declaration to maximize performance:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function o) foo ()
-             (format nil &amp;quot;Hello World!&amp;quot;))
--&amp;gt; (locally
-       (declare (optimize (speed 3) (debug 0) (safety 2)))
-     (defun foo ()
-       (format nil &amp;quot;Hello World!&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Options &quot;d&quot; adds an opposite declaration to make debugging easier:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function d) foo ()
-             (format nil &amp;quot;Hello World!&amp;quot;))
-
--&amp;gt; (progn
-     (declaim (notinline foo))
-     (locally
-         (declare (optimize (speed 0) (debug 3)))
-       (defun foo ()
-         (format nil &amp;quot;Hello World!&amp;quot;))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, these declaration depends on the value of the &lt;code&gt;hu.dwim.asdf:*load-as-production?*&lt;/code&gt; variable. When it is nil, then &quot;o&quot; option will lead to these two declarations:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;code&gt;(declaim (notinline foo))&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;(declare (optimize (speed 0) (debug 1)))&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;and &quot;d&quot; option will generate:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;code&gt;(declaim (notinline foo))&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;(declare (optimize (speed 0) (debug 3)))&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;This way, functions will be inlined only when compiled for production.&lt;/p&gt;
-&lt;p&gt;There is a separate option &quot;i&quot; to add &lt;code&gt;(declaim (inline foo))&lt;/code&gt; declaration. But it works only when &lt;code&gt;hu.dwim.asdf:*load-as-production?*&lt;/code&gt; is &lt;code&gt;nil&lt;/code&gt; and debug is turned off.&lt;/p&gt;
-&lt;p&gt;On SBCL debug level is also controlled by a level, declaimed in the REPL. To have a reproducable results you&apos;ll need to evaluate: &lt;code&gt;(declaim (optimize (debug 0)))&lt;/code&gt; otherwise a &lt;code&gt;notinline&lt;/code&gt; declaration will be added.&lt;/p&gt;
-&lt;p&gt;Another cool option is &quot;e&quot;. It will export the function, class or other defined entity:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (function e) foo ()
-             (format nil &amp;quot;Hello World!&amp;quot;))
--&amp;gt; (progn
-     (eval-when (:compile-toplevel :load-toplevel :execute)
-       (export &amp;#039;foo))
-     (defun foo ()
-       (format nil &amp;quot;Hello World!&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, a class&apos;s slots can be exported automatically:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (class ea) user ()
-             ((name :reader get-name)
-              (email :reader get-email)))
--&amp;gt; (progn
-     (export &amp;#039;user)
-     (export &amp;#039;(get-name get-email))
-     (defclass user ()
-       ((name :reader get-name)
-        (email :reader get-email))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Isn&apos;t this amazing? But what is really cool, it that these options will also work with your own custom definers.&lt;/p&gt;
-&lt;p&gt;Here is how to transform a macro generating a function into a definer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro blah (name &amp;amp;body body)
-             `(defun ,name ()
-                (format nil &amp;quot;A function ~S was called&amp;quot;
-                        &amp;#039;,name)
-                ,@body))
-
-POFTHEDAY&amp;gt; (blah &amp;#039;me)
--&amp;gt; (defun &amp;#039;me ()
-     (format nil &amp;quot;A function ~S was called&amp;quot; me))
-
-;; Now we&amp;#039;ll make from a usual macro a new definer:
-
-POFTHEDAY&amp;gt; (def (definer :available-flags &amp;quot;eodi&amp;quot;) blah ()
-             (hu.dwim.def::function-like-definer blah))
-
-POFTHEDAY&amp;gt; (def (blah eoi) me)
--&amp;gt; (progn
-     (declaim (inline me))
-     (locally
-         (declare (optimize (speed 3) (debug 0) (safety 2)))
-       (eval-when (:compile-toplevel :load-toplevel :execute)
-         (export &amp;#039;me))
-       (defun me ()
-         (format nil &amp;quot;A function ~S was called&amp;quot; &amp;#039;me))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you might write a definer with a body. These special variables will be available during the macro-expansion:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-definer-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-whole-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-options-&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;code&gt;hu.dwim.def:-environment-&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;We can define an experimental definer to see what is accessable during macro-expansion:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (def (definer :available-flags &amp;quot;doe&amp;quot;) guts ()
-             (format t &amp;quot;hu.dwim.def:-definer- = ~A~%&amp;quot;
-                     -definer-)
-             (format t &amp;quot;hu.dwim.def:-options- = ~A~%&amp;quot;
-                     -options-)
-             (format t &amp;quot;hu.dwim.def:-whole- = ~A~%&amp;quot;
-                     -whole-)
-             (format t &amp;quot;hu.dwim.def:-environment- = ~A~%&amp;quot;
-                     -environment-)
-             `(progn))
-
-POFTHEDAY&amp;gt; (def (guts de :any-other &amp;#039;option))
-hu.dwim.def:-definer- = #&amp;lt;definer GUTS&amp;gt;
-hu.dwim.def:-options- = (EXPORT T DEBUG T ANY-OTHER &amp;#039;OPTION)
-hu.dwim.def:-whole- = (DEF (GUTS DE ANY-OTHER &amp;#039;OPTION))
-hu.dwim.def:-environment- = #&amp;lt;NULL-LEXENV&amp;gt;
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, any values can be passed into the definer besides builtin flag and you might implement whatever logic you want.&lt;/p&gt;
-&lt;p&gt;Final great thing I want to tell you about definers is that there is a registry of them. This makes all definers are easily discoverable.&lt;/p&gt;
-&lt;p&gt;Well, not so easy because you need to digg into some internals:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (loop for definer being the hash-values
-                   of hu.dwim.def::*definers*
-                 for name = (hu.dwim.def::name-of definer)
-                 for doc = (when (slot-boundp definer
-                                              &amp;#039;hu.dwim.def::documentation)
-                             (hu.dwim.def::documentation-of definer))
-                 unless doc
-                   count 1 into undocumented
-                 when doc
-                 do (format t &amp;quot;~A -&amp;gt; ~S~2%&amp;quot;
-                            name doc)
-                 finally (when (&amp;gt; undocumented 0)
-                           (format t &amp;quot;~2&amp;amp;Also, there are ~A undocumented definers.~%&amp;quot;
-                                   undocumented)))
-
-CLASS -&amp;gt; &amp;quot;Example that exports all the class name and all the readers, writers and slot names:
-    (def (class eas) foo (bar baz)
-     ((slot1 :reader readerr)
-      (slot2 :writer writerr :accessor accessorr))
-     (:metaclass fofofo))&amp;quot;
-
-CONDITION -&amp;gt; &amp;quot;See the CLASS definer.&amp;quot;
-
-CONSTANT -&amp;gt; &amp;quot;Use like: (def (constant e :test #&amp;#039;string=) alma \&amp;quot;korte\&amp;quot;)
-             test defaults to equal.&amp;quot;
-
-SPECIAL-VARIABLE -&amp;gt; &amp;quot;Uses defvar/defparameter based on whether a
-                     value was provided or not, and accepts
-                    :documentation definer parameter
-                     for value-less defvars.&amp;quot;
-
-PRINT-OBJECT -&amp;gt; &amp;quot;Define a PRINT-OBJECT method using PRINT-UNREADABLE-OBJECT.
-  An example:
-  (def print-object parenscript-dispatcher ; could be (parenscript-dispatcher :identity nil)
-    (when (cachep self)
-      (princ \&amp;quot;cached\&amp;quot;)
-      (princ \&amp;quot; \&amp;quot;))
-    (princ (parenscript-file self)))&amp;quot;
-
-WITH-MACRO -&amp;gt; &amp;quot;(def with-macro with-foo (arg1 arg2)
-     (let ((*zyz* 42)
-           (local 43))
-       (do something)
-       (-body- local)))
-   Example:
-   (with-foo arg1 arg2
-     (...))&amp;quot;
-
-WITH-MACRO* -&amp;gt; &amp;quot;(def with-macro* with-foo (arg1 arg2 &amp;amp;key alma)
-     (let ((*zyz* 42)
-           (local 43))
-       (do something)
-       (-body- local)))
-   Example:
-   (with-foo (arg1 arg2 :alma alma)
-     (...))&amp;quot;
-
-GUTS -&amp;gt; &amp;quot;This definer shows debug information about environment
-         where is expanded.&amp;quot;
-
-
-Also, there are 33 undocumented definers.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To conclude, &lt;code&gt;hu.dwim.def&lt;/code&gt; is a great library now I&apos;ll use it in my projects!&lt;/p&gt;
 </description>
         </item>
     </channel>

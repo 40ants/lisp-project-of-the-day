@@ -12,7 +12,7 @@ Yesterday I've [[http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.htm
 nodes, produced by [[http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html][Plump]]. And this allowed making our Twitter crawler
 more concise.
 
-LQuery will take it to the next stage, because it make possible to
+lQuery will take it to the next stage because it makes possible to
 describe a whole HTML processing pipeline in a very declarative way:
 
 #+begin_src lisp
@@ -39,7 +39,7 @@ documented [[https://shinmera.github.io/lquery/#PACKAGE%20LQUERY-FUNCS][here]].
 
 You can add your own functions for data processing, using
 [[https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-FUNCTION][define-lquery-function]] and [[https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-LIST-FUNCTION][define-lquery-list-function]]. This can be
-useful if some operation is frequent. For example, lets write a function
+useful if some operation is frequent. For example, let's write a function
 to make strings shorter!
 
 First, we need to define lQuery function. It will process one node at a
@@ -56,7 +56,7 @@ LQUERY-FUNCS::SHORTEN
 
 #+end_src
 
-Now we can use it to make our web crawler even more beauteful!
+Now we can use it to make our web crawler even more beautiful!
 
 #+begin_src lisp
 
