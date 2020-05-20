@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>lquery
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {margin-right: 1em}
+.posts tr {line-height: 1.7em}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lquery</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lquery</h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Yesterday I've <a href="http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html">reviewed a library</a> to apply CSS3 selectors to the HTML nodes, produced by <a href="http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html">Plump</a>. And this allowed to make our Twitter crawler more concise.</p>
+<p>LQuery will take it to the next stage, because it make possible to describe a whole HTML processing pipeline in a very declarative way:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (lquery:$ (initialize (dex:get &quot;https://twitter.com/shinmera&quot;))
+             &quot;.tweet-text&quot;
+             (render-text)
+             (map (alexandria:curry
+                   #&#039;str:shorten 40))
+             (lt 5))
+#(&quot;Hi, I&#039;m a #gamedev. My latest project...&quot;
+  &quot;Aw thank you, here&#039;s the whole story ...&quot;
+  &quot;&#x96E8;&#x6797;pic.twitter.com/BFwcd0AWSE&quot;
+  &quot;&#x3044;&#x3089;&#x3063;&#x3057;&#x3083;&#x3044;&#x307E;&#x305B;&#xFF5E;&#xFF01;pic.twitter.com/wwaWDD6B3Q&quot;
+  &quot;The logic of Splatoon.pic.twitter.com...&quot;)</code></pre><p>Each "call" here is a special function which is applied either to a set of <code>HTML</code> nodes or to a single node in a set.</p>
+<p>All <code>lquery</code> functions are defined in the <code>lquery-funcs</code> package and documented <a href="https://shinmera.github.io/lquery/#PACKAGE%20LQUERY-FUNCS">here</a>.</p>
+<p>You can add your own functions for data processing, using <a href="https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-FUNCTION">define-lquery-function</a> and <a href="https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-LIST-FUNCTION">define-lquery-list-function</a>. This can be useful if some operation is frequent. For example, lets write a function to make strings shorter!</p>
+<p>First, we need to define lQuery function. It will process one node at a time:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (lquery:define-lquery-function shorten (text max-length)
+             (check-type text string)
+             (check-type max-length (integer 0 65535))
+             (str:shorten max-length text))
+
+LQUERY-FUNCS::SHORTEN</code></pre><p>Now we can use it to make our web crawler even more beauteful!</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (lquery:$ (initialize (dex:get &quot;https://twitter.com/shinmera&quot;))
+             &quot;.tweet-text&quot;
+             (render-text)
+             (shorten 40)
+             (lt 5))
+#(&quot;Hi, I&#039;m a #gamedev. My latest project...&quot;
+  &quot;Aw thank you, here&#039;s the whole story ...&quot;
+  &quot;&#x96E8;&#x6797;pic.twitter.com/BFwcd0AWSE&quot;
+  &quot;&#x3044;&#x3089;&#x3063;&#x3057;&#x3083;&#x3044;&#x307E;&#x305B;&#xFF5E;&#xFF01;pic.twitter.com/wwaWDD6B3Q&quot;
+  &quot;The logic of Splatoon.pic.twitter.com...&quot;)</code></pre><p>There are other <code>define-*</code> macros in <code>lquery</code> as well. Read its documentation to learn more about how to extend it. It would be nice if <a href="https://twitter.com/Shinmera">@shinmera</a> add more examples on how to extend <code>lquery</code>!</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

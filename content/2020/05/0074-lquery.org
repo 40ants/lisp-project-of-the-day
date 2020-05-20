@@ -1,0 +1,78 @@
+* lquery :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Yesterday I've [[http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html][reviewed a library]] to apply CSS3 selectors to the HTML
+nodes, produced by [[http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html][Plump]]. And this allowed making our Twitter crawler
+more concise.
+
+LQuery will take it to the next stage, because it make possible to
+describe a whole HTML processing pipeline in a very declarative way:
+
+#+begin_src lisp
+
+POFTHEDAY> (lquery:$ (initialize (dex:get "https://twitter.com/shinmera"))
+             ".tweet-text"
+             (render-text)
+             (map (alexandria:curry
+                   #'str:shorten 40))
+             (lt 5))
+#("Hi, I'm a #gamedev. My latest project..."
+  "Aw thank you, here's the whole story ..."
+  "雨林pic.twitter.com/BFwcd0AWSE"
+  "いらっしゃいませ～！pic.twitter.com/wwaWDD6B3Q"
+  "The logic of Splatoon.pic.twitter.com...")
+
+#+end_src
+
+Each "call" here is a special function which is applied either to a set
+of ~HTML~ nodes or to a single node in a set.
+
+All ~lquery~ functions are defined in the ~lquery-funcs~ package and
+documented [[https://shinmera.github.io/lquery/#PACKAGE%20LQUERY-FUNCS][here]].
+
+You can add your own functions for data processing, using
+[[https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-FUNCTION][define-lquery-function]] and [[https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-LIST-FUNCTION][define-lquery-list-function]]. This can be
+useful if some operation is frequent. For example, lets write a function
+to make strings shorter!
+
+First, we need to define lQuery function. It will process one node at a
+time:
+
+#+begin_src lisp
+
+POFTHEDAY> (lquery:define-lquery-function shorten (text max-length)
+             (check-type text string)
+             (check-type max-length (integer 0 65535))
+             (str:shorten max-length text))
+
+LQUERY-FUNCS::SHORTEN
+
+#+end_src
+
+Now we can use it to make our web crawler even more beauteful!
+
+#+begin_src lisp
+
+POFTHEDAY> (lquery:$ (initialize (dex:get "https://twitter.com/shinmera"))
+             ".tweet-text"
+             (render-text)
+             (shorten 40)
+             (lt 5))
+#("Hi, I'm a #gamedev. My latest project..."
+  "Aw thank you, here's the whole story ..."
+  "雨林pic.twitter.com/BFwcd0AWSE"
+  "いらっしゃいませ～！pic.twitter.com/wwaWDD6B3Q"
+  "The logic of Splatoon.pic.twitter.com...")
+
+#+end_src
+
+There are other ~define-*~ macros in ~lquery~ as well. Read its
+documentation to learn more about how to extend it. It would be nice if
+[[https://twitter.com/Shinmera][@shinmera]] add more examples on how to extend ~lquery~!
