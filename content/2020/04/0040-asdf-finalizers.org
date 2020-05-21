@@ -1,4 +1,4 @@
-* asdf-finalizers :asdf_extension:
+* asdf-finalizers :asdf:asdf_extension:
 
 This is a library written by [[https://twitter.com/ngnghm][François-René Rideau]] in days when he was
 the maintainer of the ASDF. This library allows you to move a piece of code,

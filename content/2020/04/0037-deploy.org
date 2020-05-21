@@ -1,4 +1,4 @@
-* deploy :asdf_extension:delivering:
+* deploy :asdf:asdf_extension:delivering:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

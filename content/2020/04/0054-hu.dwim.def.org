@@ -1,4 +1,4 @@
-* hu.dwim.def
+* hu.dwim.def :macro:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :(

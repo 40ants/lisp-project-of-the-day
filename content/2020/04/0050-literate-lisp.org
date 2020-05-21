@@ -1,4 +1,4 @@
-* literate-lisp :asdf_extension:
+* literate-lisp :asdf:asdf_extension:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

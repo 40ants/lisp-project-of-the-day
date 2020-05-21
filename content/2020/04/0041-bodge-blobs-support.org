@@ -1,4 +1,4 @@
-* bodge-blobs-support :asdf_extension:
+* bodge-blobs-support :asdf:asdf_extension:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :(

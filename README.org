@@ -199,73 +199,102 @@ that:
   </script>
   "))
 
+
+(defvar *index-uri* nil
+  "This is a path to the site's top level. When it is nil, consider we are on the front page.")
+
+
+(defun construct-uri (uri &rest args)
+  (if *index-uri*
+      (concatenate 'string
+                   *index-uri*
+                   (apply #'rutils:fmt uri args))
+      (apply #'rutils:fmt uri args)))
+
+
 (defmacro app-page ((stream &key title index-uri (site-title "Lisp Project of the Day")) &body body)
-  (let ((site-title
-          (cond
-            (index-uri
-             (list (list :a :href index-uri
-                         site-title)))
-            (t
-             (list site-title)))))
-    `(cl-who:with-html-output (*standard-output* ,stream :prologue t :indent t)
+  `(let ((*index-uri* ,index-uri))
+     (cl-who:with-html-output (*standard-output* ,stream :prologue t :indent t)
        (:html :lang "en"
-              (:head
-               (:meta :charset "utf-8")
-               ,@(when title
-                   `((:title (cl-who:esc ,title))))
-               (:link :rel "alternate"
-                      :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
-                      :type "application/rss+xml")
-               ,*google-code*
-               (:link
-                :type "text/css"
-                :rel "stylesheet"
-                :href  ,cl-bootstrap:*bootstrap-css-url*)
-               (:script :src ,cl-bootstrap:*jquery-url*)
-               (:script :src ,cl-bootstrap:*bootstrap-js-url*)
-               (:link :rel "stylesheet"
-                      :href "../../highlight/styles/tomorrow-night.css")
-               (:script :src "../../highlight/highlight.pack.js")
-               (:script "hljs.initHighlightingOnLoad();")
-               (:style "
-.tags .label {margin-right: 1em}
-.posts tr {line-height: 1.7em}
-.posts tr td.number {font-weight: bold; padding-right: 0.7em}
-.posts tr td.tags {padding-left: 0.7em}
+         (:head
+          (:meta :charset "utf-8")
+          ,@(when title
+              `((:title (cl-who:esc ,title))))
+          (:link :rel "alternate"
+                 :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
+                 :type "application/rss+xml")
+          ,*google-code*
+          (:link
+           :type "text/css"
+           :rel "stylesheet"
+           :href  ,cl-bootstrap:*bootstrap-css-url*)
+          (:script :src ,cl-bootstrap:*jquery-url*)
+          (:script :src ,cl-bootstrap:*bootstrap-js-url*)
+          (:link :rel "stylesheet"
+                 :href "../../highlight/styles/tomorrow-night.css")
+          (:script :src "../../highlight/highlight.pack.js")
+          (:script "hljs.initHighlightingOnLoad();")
+          (:style "
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
 "))
-              (:body 
-               (cl-bootstrap:bs-container ()
-                 (cl-bootstrap:bs-row
-                   (:a :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
-                       :style "display: block; float: right;"
-                       (:img :alt "RSS Feed"
-                             :src "http://40ants.com/lisp-project-of-the-day/media/images/rss.png"))
-                   (:header
-                    (:h1 :style "text-align: center"
-                         ,@site-title)
-                    ,@(when title
-                        `((:h2 :style "text-align: center"
-                               (cl-who:esc ,title)))))
-                   (cl-bootstrap:bs-col-md ()
-                     (:center
-                      (:h3 "You can support this project by donating at:")
-                      (:a :href "https://www.patreon.com/bePatron?u=33868637"
-                          (:img :alt "Donate using Patreon"
-                                :src "http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png"
-                                :width "160"))
-                      (:a :href "https://liberapay.com/poftheday/donate"
-                          (:img :alt "Donate using Liberapay"
-                                :src "https://liberapay.com/assets/widgets/donate.svg")))
-                     ,@body))
-                 (:div
-                  (:hr)
-                  (:center
-                   (:p (cl-who:str "Brought to you by 40Ants under&nbsp;")
-                       (:a :rel "license"
-                           :href "http://creativecommons.org/licenses/by-sa/4.0/"
-                           (:img :alt "Creative Commons License"
-                                 :style "border-width:0"
-                                 :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png")))))))))))
+         (:body 
+          (cl-bootstrap:bs-container ()
+            (cl-bootstrap:bs-row
+              (:a :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
+                  :style "display: block; float: right;"
+                  (:img :alt "RSS Feed"
+                        :src "http://40ants.com/lisp-project-of-the-day/media/images/rss.png"))
+              (:header
+               (:h1 :style "text-align: center"
+                    (if ,index-uri
+                        (cl-who:htm
+                         (:a :href (rutils:fmt "~Aindex.html" ,index-uri)
+                             (cl-who:esc ,site-title)))
+                        (cl-who:esc ,site-title)))
+               ,@(when title
+                   `((:h2 :style "text-align: center"
+                          (cl-who:esc ,title)))))
+              (cl-bootstrap:bs-col-md ()
+                (:center
+                 (:h3 "You can support this project by donating at:")
+                 (:a :href "https://www.patreon.com/bePatron?u=33868637"
+                     (:img :alt "Donate using Patreon"
+                           :src "http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png"
+                           :width "160"))
+                 (:a :href "https://liberapay.com/poftheday/donate"
+                     (:img :alt "Donate using Liberapay"
+                           :src "https://liberapay.com/assets/widgets/donate.svg")))
+                ,@body))
+            (:div
+             (:hr)
+             (:center
+              (:p (cl-who:str "Brought to you by 40Ants under&nbsp;")
+                  (:a :rel "license"
+                      :href "http://creativecommons.org/licenses/by-sa/4.0/"
+                      (:img :alt "Creative Commons License"
+                            :style "border-width:0"
+                            :src "https://i.creativecommons.org/l/by-sa/4.0/88x31.png")))))))))))
 
 #+END_SRC
 *** Generation of separate pages for articles
@@ -346,18 +375,23 @@ H1, H2, etc:
 (defmethod render-node ((node cl-org-mode::outline-node) stream)
   (cl-who:with-html-output (stream)
     ;; First node is a title
-    (let ((level (1- (length (cl-org-mode::node.heading-level-indicator node)))))
+    (with ((level (1- (length (cl-org-mode::node.heading-level-indicator node))))
+           (full-title (cl-org-mode::node.heading node))
+           (title (remove-tags full-title)))
       (ecase level
         (1 (unless *rss-mode*
              (cl-who:htm
-              (:h1 (cl-who:esc (remove-tags
-                                (cl-org-mode::node.heading node)))))))
+              (:h1 (cl-who:esc title)
+                   (:span :class "tags"
+                          (loop for tag in (extract-tags full-title)
+                          do (cl-who:htm
+                              (:a :href (construct-uri "tags/~A.html" tag)
+                                  (cl-bootstrap:bs-label ()
+                                    (cl-who:esc tag))))))))))
         (2 (cl-who:htm
-            (:h2 (cl-who:esc (remove-tags
-                              (cl-org-mode::node.heading node))))))
+            (:h2 (cl-who:esc title))))
         (3 (cl-who:htm
-            (:h3 (cl-who:esc (remove-tags
-                              (cl-org-mode::node.heading node)))))))))
+            (:h3 (cl-who:esc title)))))))
   (call-render-for-all-children node stream))
 
 #+END_SRC
@@ -578,12 +612,12 @@ Now it is time to write a code which will render all org mode files into HTML:
   (call-render-for-all-children file stream))
 
 (defun render-file (file)
-  (let ((filename (make-output-filename file))
-        (title (get-title file)))
+  (with ((filename (make-output-filename file))
+         (title (get-title file)))
     (ensure-directories-exist filename)
 
     (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-      (app-page (stream :index-uri "../../index.html"
+      (app-page (stream :index-uri "../../"
                         :title title)
         (cl-who:with-html-output (stream)
           (render-node file stream)
@@ -709,6 +743,7 @@ We'll reuse this function for the front page and for tag pages:
 #+BEGIN_SRC lisp
   
 (defun render-index-page (files filename &key
+                                           (index-uri nil)
                                            (path "docs")
                                            (title "Latest posts"))
   (let ((filename (ppath:join path
@@ -723,13 +758,13 @@ We'll reuse this function for the front page and for tag pages:
                        not-published
                        :test #'string-equal))))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
-        (app-page (stream)
+        (app-page (stream :index-uri index-uri)
           (:section :style "margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
                     (:h3 :style "margin-left: 1.6em"
                          title)
                     (:table :class "posts"
                             (loop for file in (reverse files)
-                                  for url = (get-uri file)
+                                  for uri = (get-uri file)
                                   do (cl-who:htm
                                       (:tr
                                        (multiple-value-bind (title number tags)
@@ -741,13 +776,13 @@ We'll reuse this function for the front page and for tag pages:
                                              (:td :class "number"
                                                   (cl-who:esc (format nil "#~A" number)))
                                       
-                                             (:td (:a :href url
+                                             (:td (:a :href (construct-uri uri)
                                                       (cl-who:esc title)))
 
                                              (:td :class "tags"
                                                   (loop for tag in tags
                                                         do (cl-who:htm
-                                                            (:a :href (rutils:fmt "/tags/~A.html" tag)
+                                                            (:a :href (construct-uri "tags/~A.html" tag)
                                                                 (cl-bootstrap:bs-label ()
                                                                   (cl-who:esc tag)))))
                                                   (when (is-not-published file)
@@ -803,6 +838,7 @@ Now we can write a function which will render a one page:
   (render-index-page (get-files-with-tag all-files tag)
                      tag
                      :path "docs/tags/"
+                     :index-uri "../"
                      :title (rutils:fmt "Posts with tag \"~A\""
                                         tag)))
 

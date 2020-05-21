@@ -1,4 +1,4 @@
-* com.google.base :asdf_extension:performance:
+* com.google.base :asdf:asdf_extension:performance:
 
 Today's Common Lisp Project of the Day is a library, written by Robert
 Brown, one of the authors of Google's Common Lisp Style Guide.

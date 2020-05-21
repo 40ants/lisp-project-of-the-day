@@ -1,4 +1,4 @@
-* asdf-linguist :asdf_extension:
+* asdf-linguist :asdf:asdf_extension:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :)
