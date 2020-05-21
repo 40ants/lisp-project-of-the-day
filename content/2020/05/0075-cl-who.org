@@ -1,0 +1,145 @@
+* cl-who :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today we continue to investigate ~poftheday~'s [[http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html][dependencies]] and will look
+at well known ~cl-who~ library. ~CL-Who~ is a library Edmund Weitz and
+provides a DSL for html generation.
+
+For thouse who are not familiar with ~cl-who~, here is a quick example:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-who:with-html-output-to-string (s)
+             (:body
+              (:p "Hello world!")))
+"<body><p>Hello world!</p></body>"
+
+#+end_src
+
+If you want to insert a variable, you have to use a local macro
+~esc~. There is also another macro ~str~, and it very easy to misuse
+it. That is one of the reasons why I don't like ~cl-who~ and prefer
+~spinneret~.
+
+Let's pretend we want to ouput a username in the comment list on our
+page. The correct way to do so will be:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY> (let ((user (make-instance
+                        'user
+                        :name "Bob <script>alert('You are hacked')</script>"))
+                 (comment-text "Hello from Bob!"))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:div :class "comment"
+                     (:div :class "username"
+                           (cl-who:esc (get-name user)))
+                     (:div :class "text"
+                           (cl-who:esc comment-text)))))
+"
+<div class='comment'>
+  <div class='username'>Bob &lt;script&gt;alert(&#039;You are hacked&#039;)&lt;/script&gt;
+  </div>
+  <div class='text'>Hello from Bob!
+  </div>
+</div>"
+
+#+end_src
+
+As I said, this was a correct way, but it is very easy to misuse ~cl-who~
+and make your beautiful site open for [[https://en.wikipedia.org/wiki/Cross-site_scripting][XSS attacks]]. You only have to use
+~str~ instead of ~esc~:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((user (make-instance 'user :name "Bob <script>alert('You are hacked')</script>"))
+                 (comment-text "Hello from Bob!"))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:div :class "comment"
+                     (:div :class "username"
+                           (cl-who:str (get-name user)))
+                     (:div :class "text"
+                           (cl-who:str comment-text)))))
+"
+<div class='comment'>
+  <div class='username'>Bob <script>alert('You are hacked')</script>
+  </div>
+  <div class='text'>Hello from Bob!
+  </div>
+</div>"
+
+#+end_src
+
+Here ~<script>~ tag wasn not escaped. This way, any code an evil user will
+enter as his name will be executed in other users browers.
+
+Another inconvenience of ~cl-who~ is that you have to use ~htm~ macro if
+want to mix ~HTML~ pieces with lisp forms. For example if you want to
+output a list of items, this will not work:
+
+#+begin_src 
+
+
+POFTHEDAY> (let ((list (list 1 2 3 4 5)))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:ul
+                (loop for item in list
+                      do (:li (cl-who:esc
+                               (format nil "Item number ~A"
+                                       item)))))))
+; in: LET ((LIST (LIST 1 2 3 4 5)))
+;     (:LI (CL-WHO:ESC (FORMAT NIL "Item number ~A" POFTHEDAY::ITEM)))
+; 
+; caught STYLE-WARNING:
+;   undefined function: :LI
+; 
+; compilation unit finished
+;   Undefined function:
+;     :LI
+;   caught 1 STYLE-WARNING condition
+
+#+end_src
+
+You have to wrap ~:li~ form with a ~htm~ macro, like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((list (list 1 2 3 4 5)))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:ul
+                (loop for item in list
+                      do (cl-who:htm
+                          (:li 
+                           (cl-who:esc
+                            (format nil "Item number ~A"
+                                    item))))))))
+"
+<ul>
+<li>Item number 1
+</li>
+<li>Item number 2
+</li>
+<li>Item number 3
+</li>
+<li>Item number 4
+</li>
+<li>Item number 5
+</li>
+</ul>"
+
+#+end_src
+
+The Common Lisp Project of the Day's blog uses ~cl-who~ only because this
+is a dependency of the [[http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html][cl-bootstrap]]. Personally I'm prefer ~spinneret~ and
+probably will rewrite #poftheday site to use it.
