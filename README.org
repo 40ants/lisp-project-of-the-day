@@ -23,7 +23,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 18 May - [[content/2020/05/0072-plump.org][plump]] ([[https://twitter.com/svetlyak40wt/status/1262443990021963777][twitter]])
 - 19 May - [[content/2020/05/0073-clss.org][clss]] ([[https://twitter.com/svetlyak40wt/status/1262820171741265921][twitter]])
 - 20 May - [[content/2020/05/0074-lquery.org][lquery]] ([[https://twitter.com/svetlyak40wt/status/1263152708468518913][twitter]])
-- 21 May - [[content/2020/05/0075-cl-who.org][cl-who]]
+- 21 May - [[content/2020/05/0075-cl-who.org][cl-who]] ([[https://twitter.com/svetlyak40wt/status/1263532054525902848][twitter]])
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])

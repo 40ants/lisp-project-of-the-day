@@ -9,10 +9,10 @@
 :END:
 
 Today we continue to investigate ~poftheday~'s [[http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html][dependencies]] and will look
-at well known ~cl-who~ library. ~CL-Who~ is a library Edmund Weitz and
-provides a DSL for html generation.
+at the well known ~cl-who~ library. ~CL-Who~ is a library Edmund Weitz and
+provides a DSL for HTML generation.
 
-For thouse who are not familiar with ~cl-who~, here is a quick example:
+For those who are not familiar with ~cl-who~, here is a quick example:
 
 #+begin_src lisp
 
@@ -24,11 +24,11 @@ POFTHEDAY> (cl-who:with-html-output-to-string (s)
 #+end_src
 
 If you want to insert a variable, you have to use a local macro
-~esc~. There is also another macro ~str~, and it very easy to misuse
+~esc~. There is also another macro - ~str~, and it very easy to misuse
 it. That is one of the reasons why I don't like ~cl-who~ and prefer
 ~spinneret~.
 
-Let's pretend we want to ouput a username in the comment list on our
+Let's pretend we want to output a username in the comment list on our
 page. The correct way to do so will be:
 
 #+begin_src lisp
@@ -63,7 +63,9 @@ and make your beautiful site open for [[https://en.wikipedia.org/wiki/Cross-site
 
 #+begin_src lisp
 
-POFTHEDAY> (let ((user (make-instance 'user :name "Bob <script>alert('You are hacked')</script>"))
+POFTHEDAY> (let ((user (make-instance
+                        'user
+                        :name "Bob <script>alert('You are hacked')</script>"))
                  (comment-text "Hello from Bob!"))
              (cl-who:with-html-output-to-string (s nil :indent t)
                (:div :class "comment"
@@ -81,11 +83,11 @@ POFTHEDAY> (let ((user (make-instance 'user :name "Bob <script>alert('You are ha
 
 #+end_src
 
-Here ~<script>~ tag wasn not escaped. This way, any code an evil user will
-enter as his name will be executed in other users browers.
+Here ~script~ tag that was not escaped. This way, any code an evil user will
+enter as his name will be executed in other users browsers.
 
 Another inconvenience of ~cl-who~ is that you have to use ~htm~ macro if
-want to mix ~HTML~ pieces with lisp forms. For example if you want to
+want to mix ~HTML~ pieces with lisp forms. For example, if you want to
 output a list of items, this will not work:
 
 #+begin_src 
@@ -141,5 +143,5 @@ POFTHEDAY> (let ((list (list 1 2 3 4 5)))
 #+end_src
 
 The Common Lisp Project of the Day's blog uses ~cl-who~ only because this
-is a dependency of the [[http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html][cl-bootstrap]]. Personally I'm prefer ~spinneret~ and
+is a dependency of the [[http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html][cl-bootstrap]]. Personally, I prefer ~spinneret~ and
 probably will rewrite #poftheday site to use it.

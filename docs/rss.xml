@@ -6,6 +6,96 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-who</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html</link>
+            <description>&lt;p&gt;Today we continue to investigate &lt;code&gt;poftheday&lt;/code&gt;&apos;s &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html&quot;&gt;dependencies&lt;/a&gt; and will look at the well known &lt;code&gt;cl-who&lt;/code&gt; library. &lt;code&gt;CL-Who&lt;/code&gt; is a library Edmund Weitz and provides a DSL for HTML generation.&lt;/p&gt;
+&lt;p&gt;For those who are not familiar with &lt;code&gt;cl-who&lt;/code&gt;, here is a quick example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-who:with-html-output-to-string (s)
+             (:body
+              (:p &amp;quot;Hello world!&amp;quot;)))
+&amp;quot;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Hello world!&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you want to insert a variable, you have to use a local macro &lt;code&gt;esc&lt;/code&gt;. There is also another macro - &lt;code&gt;str&lt;/code&gt;, and it very easy to misuse it. That is one of the reasons why I don&apos;t like &lt;code&gt;cl-who&lt;/code&gt; and prefer &lt;code&gt;spinneret&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Let&apos;s pretend we want to output a username in the comment list on our page. The correct way to do so will be:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY&amp;gt; (let ((user (make-instance
+                        &amp;#039;user
+                        :name &amp;quot;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;&amp;quot;))
+                 (comment-text &amp;quot;Hello from Bob!&amp;quot;))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:div :class &amp;quot;comment&amp;quot;
+                     (:div :class &amp;quot;username&amp;quot;
+                           (cl-who:esc (get-name user)))
+                     (:div :class &amp;quot;text&amp;quot;
+                           (cl-who:esc comment-text)))))
+&amp;quot;
+&amp;lt;div class=&amp;#039;comment&amp;#039;&amp;gt;
+  &amp;lt;div class=&amp;#039;username&amp;#039;&amp;gt;Bob &amp;amp;lt;script&amp;amp;gt;alert(&amp;amp;#039;You are hacked&amp;amp;#039;)&amp;amp;lt;/script&amp;amp;gt;
+  &amp;lt;/div&amp;gt;
+  &amp;lt;div class=&amp;#039;text&amp;#039;&amp;gt;Hello from Bob!
+  &amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As I said, this was a correct way, but it is very easy to misuse &lt;code&gt;cl-who&lt;/code&gt; and make your beautiful site open for &lt;a href=&quot;https://en.wikipedia.org/wiki/Cross-site_scripting&quot;&gt;XSS attacks&lt;/a&gt;. You only have to use &lt;code&gt;str&lt;/code&gt; instead of &lt;code&gt;esc&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((user (make-instance
+                        &amp;#039;user
+                        :name &amp;quot;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;&amp;quot;))
+                 (comment-text &amp;quot;Hello from Bob!&amp;quot;))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:div :class &amp;quot;comment&amp;quot;
+                     (:div :class &amp;quot;username&amp;quot;
+                           (cl-who:str (get-name user)))
+                     (:div :class &amp;quot;text&amp;quot;
+                           (cl-who:str comment-text)))))
+&amp;quot;
+&amp;lt;div class=&amp;#039;comment&amp;#039;&amp;gt;
+  &amp;lt;div class=&amp;#039;username&amp;#039;&amp;gt;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;
+  &amp;lt;/div&amp;gt;
+  &amp;lt;div class=&amp;#039;text&amp;#039;&amp;gt;Hello from Bob!
+  &amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here &lt;code&gt;script&lt;/code&gt; tag that was not escaped. This way, any code an evil user will enter as his name will be executed in other users browsers.&lt;/p&gt;
+&lt;p&gt;Another inconvenience of &lt;code&gt;cl-who&lt;/code&gt; is that you have to use &lt;code&gt;htm&lt;/code&gt; macro if want to mix &lt;code&gt;HTML&lt;/code&gt; pieces with lisp forms. For example, if you want to output a list of items, this will not work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; &apos;&gt;POFTHEDAY&amp;gt; (let ((list (list 1 2 3 4 5)))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:ul
+                (loop for item in list
+                      do (:li (cl-who:esc
+                               (format nil &amp;quot;Item number ~A&amp;quot;
+                                       item)))))))
+; in: LET ((LIST (LIST 1 2 3 4 5)))
+;     (:LI (CL-WHO:ESC (FORMAT NIL &amp;quot;Item number ~A&amp;quot; POFTHEDAY::ITEM)))
+; 
+; caught STYLE-WARNING:
+;   undefined function: :LI
+; 
+; compilation unit finished
+;   Undefined function:
+;     :LI
+;   caught 1 STYLE-WARNING condition&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You have to wrap &lt;code&gt;:li&lt;/code&gt; form with a &lt;code&gt;htm&lt;/code&gt; macro, like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((list (list 1 2 3 4 5)))
+             (cl-who:with-html-output-to-string (s nil :indent t)
+               (:ul
+                (loop for item in list
+                      do (cl-who:htm
+                          (:li 
+                           (cl-who:esc
+                            (format nil &amp;quot;Item number ~A&amp;quot;
+                                    item))))))))
+&amp;quot;
+&amp;lt;ul&amp;gt;
+&amp;lt;li&amp;gt;Item number 1
+&amp;lt;/li&amp;gt;
+&amp;lt;li&amp;gt;Item number 2
+&amp;lt;/li&amp;gt;
+&amp;lt;li&amp;gt;Item number 3
+&amp;lt;/li&amp;gt;
+&amp;lt;li&amp;gt;Item number 4
+&amp;lt;/li&amp;gt;
+&amp;lt;li&amp;gt;Item number 5
+&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The Common Lisp Project of the Day&apos;s blog uses &lt;code&gt;cl-who&lt;/code&gt; only because this is a dependency of the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html&quot;&gt;cl-bootstrap&lt;/a&gt;. Personally, I prefer &lt;code&gt;spinneret&lt;/code&gt; and probably will rewrite #poftheday site to use it.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>lquery</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0074-lquery.html</link>
             <description>&lt;p&gt;Yesterday I&apos;ve &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html&quot;&gt;reviewed a library&lt;/a&gt; to apply CSS3 selectors to the HTML nodes, produced by &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;Plump&lt;/a&gt;. And this allowed making our Twitter crawler more concise.&lt;/p&gt;
@@ -1217,33 +1307,6 @@ POFTHEDAY&amp;gt; (super-let blah
 &lt;p&gt;And finally, &lt;code&gt;&amp;body&lt;/code&gt; keyword says to handle the rest of the macro arguments like a function&apos;s body.&lt;/p&gt;
 &lt;p&gt;There is also ability to define a custom function which will decide how to indent a form. But I didn&apos;t use this feature yet.&lt;/p&gt;
 &lt;p&gt;You can read detail about the structure of indentation rules in &lt;a href=&quot;https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248&quot;&gt;this Emacs docstring&lt;/a&gt;.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>cl-heredoc</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</link>
-            <description>&lt;p&gt;This module implements a syntax to read string literals in &lt;a href=&quot;https://en.wikipedia.org/wiki/Here_document&quot;&gt;heredoc&lt;/a&gt; style. Such way of reading is also supported in some other languages.&lt;/p&gt;
-&lt;p&gt;Heredoc allows you to define a string literal where any symbols can be used:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (set-dispatch-macro-character
-            #\# #\&amp;gt;
-            #&amp;#039;cl-heredoc:read-heredoc)
-
-POFTHEDAY&amp;gt; #&amp;gt;some stop sequence&amp;gt;And now I can
-use any characters even different quotes:
-
-- &amp;#039;
-- &amp;quot;
-some stop sequence
-
-;; result is:
-
-&amp;quot;And now I can
-use any characters even different quotes:
-
-- &amp;#039;
-- \&amp;quot;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-heredoc&lt;/code&gt; you can write anything you want without escaping. This might be useful in some cases.&lt;/p&gt;
-&lt;p&gt;Also, it exports a function &lt;code&gt;read-until-match&lt;/code&gt; which might be used to read from a string until a given subsequence.&lt;/p&gt;
 </description>
         </item>
     </channel>
