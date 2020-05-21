@@ -90,7 +90,10 @@ First of all, we need to define a package for our code:
 
 #+BEGIN_SRC lisp
 (defpackage #:poftheday
-  (:use #:cl #:doplus)
+  (:use #:cl)
+  (:import-from #:rutils
+                #:iter
+                #:with)
   (:export
    #:choose))
 (in-package poftheday)
@@ -227,6 +230,8 @@ that:
                (:style "
 .tags .label {margin-right: 1em}
 .posts tr {line-height: 1.7em}
+.posts tr td.number {font-weight: bold; padding-right: 0.7em}
+.posts tr td.tags {padding-left: 0.7em}
 "))
               (:body 
                (cl-bootstrap:bs-container ()
@@ -280,8 +285,9 @@ node of org-mode file:
 (defun extract-tags (title)
   (declare (type simple-string title))
   (when (find #\: title :test #'char=)
-    (str:split #\:
-               (cl-ppcre:regex-replace-all ".*?:(.*):$" title "\\1"))))
+    (mapcar (alexandria:curry #'str:replace-all "_" "-")
+            (str:split #\:
+                       (cl-ppcre:regex-replace-all ".*?:(.*):$" title "\\1")))))
 
 (defun get-title (file)
   ;; Title can ends with tags, we need to extract them
@@ -698,12 +704,19 @@ We'll use few helpers to create urls and titles for the index page:
 
 #+END_SRC
 
+We'll reuse this function for the front page and for tag pages:
+
 #+BEGIN_SRC lisp
   
-(defun render-index (files)
-  (let ((filename (ppath:join "docs"
-                              "index.html"))
+(defun render-index-page (files filename &key
+                                           (path "docs")
+                                           (title "Latest posts"))
+  (let ((filename (ppath:join path
+                              (rutils:fmt "~A.html"
+                                          filename)))
         (not-published (find-not-published-systems)))
+    (ensure-directories-exist filename)
+    
     (flet ((is-not-published (file)
              (let ((title (get-title file)))
                (member title
@@ -713,32 +726,89 @@ We'll use few helpers to create urls and titles for the index page:
         (app-page (stream)
           (:section :style "margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
                     (:h3 :style "margin-left: 1.6em"
-                         "Latest post")
+                         title)
                     (:table :class "posts"
-                     (loop for file in (reverse files)
-                           for url = (get-uri file)
-                           do (cl-who:htm
-                               (:tr
-                                (multiple-value-bind (title number tags)
-                                    (get-title-for-index file)
+                            (loop for file in (reverse files)
+                                  for url = (get-uri file)
+                                  do (cl-who:htm
+                                      (:tr
+                                       (multiple-value-bind (title number tags)
+                                           (get-title-for-index file)
                                   
-                                  (unless (string-equal number
-                                                        "draft")
-                                    (cl-who:with-html-output (stream)
-                                      (:td :style "font-weight: bold; padding-right: 0.7em"
-                                           (cl-who:esc (format nil "#~A" number)))
+                                         (unless (string-equal number
+                                                               "draft")
+                                           (cl-who:with-html-output (stream)
+                                             (:td :class "number"
+                                                  (cl-who:esc (format nil "#~A" number)))
                                       
-                                      (:td (:a :href url
-                                           (cl-who:esc title)))
+                                             (:td (:a :href url
+                                                      (cl-who:esc title)))
 
-                                      (:td :class "tags"
-                                           (loop for tag in tags
-                                                 do (cl-bootstrap:bs-label ()
-                                                      (cl-who:esc tag)))
-                                           (when (is-not-published file)
-                                             (cl-bootstrap:bs-label-danger
-                                               (cl-who:str "draft")))))))))))))))
+                                             (:td :class "tags"
+                                                  (loop for tag in tags
+                                                        do (cl-who:htm
+                                                            (:a :href (rutils:fmt "/tags/~A.html" tag)
+                                                                (cl-bootstrap:bs-label ()
+                                                                  (cl-who:esc tag)))))
+                                                  (when (is-not-published file)
+                                                    (cl-bootstrap:bs-label-danger
+                                                      (cl-who:esc "draft")))))))))))))))
     (values)))
+
+
+(defun render-index (files)
+  (render-index-page files "index"))
+
+#+END_SRC
+
+*** Generating of tag pages
+
+    For each tag we want to generate a separate page where will be
+    listed only posts having a tag.
+
+    First, we need a function to collect a set of tags, used by all posts:
+
+#+BEGIN_SRC lisp
+
+(defun get-all-tags (files)
+  (let (results)
+    (iter outer
+      (:for file :in files)
+      (with ((_ tags (get-title file)))
+        (declare (ignorable _))
+        (iter (:for tag :in tags)
+          (pushnew tag results :test #'string-equal))))
+    results))
+
+#+END_SRC
+
+Also we need a function to filter files having specific tag:
+
+#+BEGIN_SRC lisp
+
+(defun get-files-with-tag (files tag)
+  (iter (:for file :in files)
+    (with ((_ tags (get-title file)))
+      (declare (ignorable _))
+      (when (member tag tags :test #'string-equal)
+        (:collect file)))))
+
+#+END_SRC
+
+Now we can write a function which will render a one page:
+
+#+BEGIN_SRC lisp
+
+(defun render-tag (all-files tag)
+  (render-index-page (get-files-with-tag all-files tag)
+                     tag
+                     :path "docs/tags/"
+                     :title (rutils:fmt "Posts with tag \"~A\""
+                                        tag)))
+
+(defun render-all-tag-pages (all-files)
+  (mapcar (alexandria:curry #'render-tag all-files)
+          (get-all-tags all-files)))
 
 #+END_SRC
 
@@ -768,10 +838,12 @@ files and write html:
 
 #+BEGIN_SRC lisp
 
-(defun render-site ()
+(defun render-site (&key (with-tags t))
   (let ((files (read-files)))
     (mapc #'render-file files)
     (render-index files)
+    (when with-tags
+      (render-all-tag-pages files))
     (render-patrons)
     (render-rss files)
     (values)))
