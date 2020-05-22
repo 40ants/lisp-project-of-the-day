@@ -1,0 +1,87 @@
+* cl-change-case :utils:text:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This cool library is able to transform strings from one time of
+delimiters to others.
+
+Previously I've used [[http://quickdocs.org/kebab/][kebab]], but ~cl-change-case~ is much more featureful:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-change-case:path-case "foo-bar-bazz")
+"foo/bar/bazz"
+POFTHEDAY> (cl-change-case:path-case "foo-bar_bazz")
+"foo/bar/bazz"
+POFTHEDAY> (cl-change-case:path-case "foo-bar-bazz")
+"foo/bar/bazz"
+POFTHEDAY> (cl-change-case:sentence-case "foo-bar-bazz")
+"Foo bar bazz"
+POFTHEDAY> (cl-change-case:snake-case "foo-bar-bazz")
+"foo_bar_bazz"
+POFTHEDAY> (cl-change-case:camel-case "foo-bar-bazz")
+"fooBarBazz"
+POFTHEDAY> (cl-change-case:no-case "foo-bar-bazz")
+"foo bar bazz"
+POFTHEDAY> (cl-change-case:header-case "foo-bar-bazz")
+"Foo-Bar-Bazz"
+
+#+end_src
+
+When this can be useful? In cases when you interop with other systems,
+but want to use ~:this-style-of-symbols~ in Lisp. For example, you might
+generate identifiers for JavaScript or Python.
+
+Another case is when you want to output labels for UI. Here I have a
+function which will render an HTML table describing a CLOS object:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass user ()
+             ((created-at :initarg :created-at)
+              (name :initarg :name)
+              (num-posts :initarg :num-posts)))
+
+POFTHEDAY> (defun render (object)
+             (let* ((class-name (type-of object))
+                    (class (find-class class-name))
+                    (slots (closer-mop:class-slots class)))
+               (cl-who:with-html-output-to-string (*standard-output* nil :indent t)
+                 (:table
+                  (loop for slot in slots
+                        for slot-name = (closer-mop:slot-definition-name slot)
+                        for label = (cl-change-case:sentence-case (symbol-name slot-name))
+                        for value = (rutils:fmt "~A"
+                                                (slot-value object slot-name))
+                        do (cl-who:htm
+                            (:tr
+                             (:th (cl-who:esc label))
+                             (:td (cl-who:esc value)))))))))
+
+POFTHEDAY> (render (make-instance 'user
+                                  :name "Bob"
+                                  :created-at "2020-05-22"
+                                  :num-posts 42))
+"
+<table>
+<tr>
+  <th>Created at</th>
+  <td>2020-05-22</td>
+</tr>
+<tr>
+  <th>Name</th>
+  <td>Bob</td>
+</tr>
+<tr>
+  <th>Num posts</th>
+  <td>42</td>
+</tr>
+</table>"
+
+#+end_src

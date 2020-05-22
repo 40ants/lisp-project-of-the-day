@@ -24,6 +24,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 19 May - [[content/2020/05/0073-clss.org][clss]] ([[https://twitter.com/svetlyak40wt/status/1262820171741265921][twitter]])
 - 20 May - [[content/2020/05/0074-lquery.org][lquery]] ([[https://twitter.com/svetlyak40wt/status/1263152708468518913][twitter]])
 - 21 May - [[content/2020/05/0075-cl-who.org][cl-who]] ([[https://twitter.com/svetlyak40wt/status/1263532054525902848][twitter]])
+- 22 May - [[content/2020/05/0076-cl-change-case.org][cl-change-case]]
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
@@ -326,24 +327,6 @@ node of org-mode file:
                       (get-root file)))))
     (values (remove-tags full-title)
             (extract-tags full-title))))
-
-#+END_SRC
-
-To iterate over nodes in org-mode file, we will create a custom clause
-for the :doplus library. It was described [[content/2020/03/0013-poftheday.org][in this #poftheday post]].
-
-#+BEGIN_SRC lisp
-
-(defclause in-nodes (file)
-  `((with (node
-           ;; We need to skip root node and first top-level outline node
-           (cl-org-mode::node.next-node
-            (cl-org-mode::node.next-node
-             (get-root ,file)))))
-    (for ,*iteration-variable*
-         (being node :then (cl-org-mode::node.next-node
-                            ,*iteration-variable*)))
-    (stop-when (null ,*iteration-variable*))))
 
 #+END_SRC
 
