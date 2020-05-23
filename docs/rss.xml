@@ -6,6 +6,175 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>named-readtables</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0077-named-readtables.html</link>
+            <description>&lt;p&gt;This system is highly recommended if you are writing a code which modifies a &lt;code&gt;*readtable*&lt;/code&gt; because it allows to define and switch between readtables as you do with Lisp packages.&lt;/p&gt;
+&lt;p&gt;If you are not familiar with what &lt;code&gt;*readtable*&lt;/code&gt; is, then read this article:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lisper.in/reader-macros&quot;&gt;https://lisper.in/reader-macros&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;but pay attention, that the article manipulates with &lt;code&gt;*readtable*&lt;/code&gt; instead of using &lt;code&gt;named-readtables&lt;/code&gt;. This is bad. Use &lt;code&gt;named-readtables&lt;/code&gt; instead.&lt;/p&gt;
+&lt;p&gt;First, let&apos;s see how to use &lt;code&gt;named-readtables&lt;/code&gt; to switch between read-tables. As an example, we&apos;ll see how to use &lt;code&gt;cl-interpol&lt;/code&gt; and &lt;code&gt;rutils&lt;/code&gt; readtables.&lt;/p&gt;
+&lt;p&gt;This is how you can lookup which tables are available:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ql:quickload &amp;#039;(:cl-interpol :rutils))
+
+POFTHEDAY&amp;gt; (named-readtables:list-all-named-readtables)
+(#&amp;lt;NAMED-READTABLE :COMMON-LISP {1000024B73}&amp;gt;
+ #&amp;lt;NAMED-READTABLE :CURRENT {1000025663}&amp;gt;
+ #&amp;lt;NAMED-READTABLE RUTILS.READTABLE:RUTILS-READTABLE {1004A960E3}&amp;gt;
+ #&amp;lt;NAMED-READTABLE RUTILS.READTABLE:STANDARD-READTABLE {1004A96133}&amp;gt;
+ #&amp;lt;NAMED-READTABLE :INTERPOL-SYNTAX {1001D19853}&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s see how does switching work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First I&amp;#039;ll switch to the interpol&amp;#039;s syntax:
+POFTHEDAY&amp;gt; (named-readtables:in-readtable :interpol-syntax)
+
+POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
+             #?&amp;quot;Hello ${username}!&amp;quot;)
+&amp;quot;Hello Bob!&amp;quot;
+
+;; Rutils readtable is not active, and we can&amp;#039;t
+;; use it&amp;#039;s syntax for hashes:
+POFTHEDAY&amp;gt; #h(:foo &amp;quot;bar&amp;quot;)
+; Debugger entered on #&amp;lt;SB-INT:SIMPLE-READER-ERROR
+; &amp;quot;no dispatch function defined for ~S&amp;quot; {10068D4C63}&amp;gt;
+
+;; We have to activate  it first
+POFTHEDAY&amp;gt; (named-readtables:in-readtable
+            rutils:rutils-readtable)
+
+POFTHEDAY&amp;gt; #h(:foo &amp;quot;bar&amp;quot;)
+#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {10068B9013}&amp;gt;
+
+;; But now we are unable to use iterpol&amp;#039;s syntax:
+POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
+             #?&amp;quot;Hello ${username}!&amp;quot;)
+; Debugger entered on #&amp;lt;SB-INT:SIMPLE-READER-ERROR
+; &amp;quot;no dispatch function defined for ~S&amp;quot; {1006AE93F3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if we want to use both readtables from &lt;code&gt;cl-interpol&lt;/code&gt; and from &lt;code&gt;rutils&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;It is possible if we merge them together and create a new readtable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:defreadtable
+               :poftheday
+             (:merge
+              rutils:rutils-readtable
+              :interpol-syntax))
+
+POFTHEDAY&amp;gt; (named-readtables:in-readtable
+            :poftheday)
+
+POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
+             #h(:greeting #?&amp;quot;Hello ${username}!&amp;quot;))
+#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {1003054C23}&amp;gt;
+
+POFTHEDAY&amp;gt; (rutils:print-ht *)
+#{
+  :GREETING &amp;quot;Hello Bob!&amp;quot;
+ }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll define a literal syntax for lambda from &lt;code&gt;rutils&lt;/code&gt; as a separate named read-table:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; &apos;&gt;POFTHEDAY&amp;gt; (defmacro trivial-positional-lambda (body)
+             `(lambda (&amp;amp;optional % %%)
+                (declare (ignorable %) (ignorable %%))
+                ,body))
+
+POFTHEDAY&amp;gt; (defun |^-reader| (stream char)
+             (declare (ignore char))
+             (let ((sexp (read stream t nil t)))
+               `(trivial-positional-lambda
+                 ,(if (and (listp sexp) (listp (car sexp)))
+                      (cons &amp;#039;progn sexp)
+                      sexp))))
+
+POFTHEDAY&amp;gt; (named-readtables:defreadtable
+               :lambda
+             (:merge :standard)
+             (:macro-char #\^ #&amp;#039;|^-reader|))
+
+;; Now we can switch to the new readtable
+;; and use new syntax for lambdas:
+POFTHEDAY&amp;gt; (named-readtables:in-readtable :lambda)
+
+POFTHEDAY&amp;gt; ^(+ % %%)
+#&amp;lt;FUNCTION (LAMBDA (&amp;amp;OPTIONAL % %%)) {2252593B}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *
+                    2
+                    3)
+5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Named readtables has yet another useful feature - it integrates with SLIME. When you have a &lt;code&gt;(in-readtable)&lt;/code&gt; call after you package definition, SLIME will know what &lt;code&gt;readtable&lt;/code&gt; to use when you hit &lt;code&gt;Ctrl-C Ctrl-C&lt;/code&gt; on defuns.&lt;/p&gt;
+&lt;p&gt;That is what &lt;code&gt;in-readtable&lt;/code&gt; expands to:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:in-readtable :interpol-syntax)
+
+;; It expands to:
+(eval-when (:compile-toplevel
+            :load-toplevel
+            :execute)
+  (setf *readtable*
+        (named-readtables:ensure-readtable
+         &amp;#039;:interpol-syntax))
+  (when (find-package :swank)
+    (named-readtables::%frob-swank-readtable-alist
+     *package*
+     *readtable*)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This &lt;code&gt;%frob-swank-readtable-alist&lt;/code&gt; modifies &lt;code&gt;swank:*readtable-alist*&lt;/code&gt; to make it know what readtable should be used for the package. But a comment to this code says it is a &lt;code&gt;KLUDGE&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Interesting, how this will or should work in the LispWorks?&lt;/p&gt;
+</description>
+        </item>
+        <item>
+            <title>cl-change-case</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0076-cl-change-case.html</link>
+            <description>&lt;p&gt;This cool library is able to transform strings from one time of delimiters to others.&lt;/p&gt;
+&lt;p&gt;Previously I&apos;ve used &lt;a href=&quot;http://quickdocs.org/kebab/&quot;&gt;kebab&lt;/a&gt;, but &lt;code&gt;cl-change-case&lt;/code&gt; is much more featureful:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-change-case:path-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;foo/bar/bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:path-case &amp;quot;foo-bar_bazz&amp;quot;)
+&amp;quot;foo/bar/bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:path-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;foo/bar/bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:sentence-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;Foo bar bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:snake-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;foo_bar_bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:camel-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;fooBarBazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:no-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;foo bar bazz&amp;quot;
+POFTHEDAY&amp;gt; (cl-change-case:header-case &amp;quot;foo-bar-bazz&amp;quot;)
+&amp;quot;Foo-Bar-Bazz&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When this can be useful? In cases when you interop with other systems, but want to use &lt;code&gt;:this-style-of-symbols&lt;/code&gt; in Lisp. For example, you might generate identifiers for JavaScript or Python.&lt;/p&gt;
+&lt;p&gt;Another case is when you want to output labels for UI. Here I have a function which will render an HTML table describing a &lt;code&gt;CLOS&lt;/code&gt; object:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+             ((created-at :initarg :created-at)
+              (name :initarg :name)
+              (num-posts :initarg :num-posts)))
+
+POFTHEDAY&amp;gt; (defun render (object)
+             (let* ((class-name (type-of object))
+                    (class (find-class class-name))
+                    (slots (closer-mop:class-slots class)))
+               (cl-who:with-html-output-to-string (*standard-output* nil :indent t)
+                 (:table
+                  (loop for slot in slots
+                        for slot-name = (closer-mop:slot-definition-name slot)
+                        for label = (cl-change-case:sentence-case (symbol-name slot-name))
+                        for value = (rutils:fmt &amp;quot;~A&amp;quot;
+                                                (slot-value object slot-name))
+                        do (cl-who:htm
+                            (:tr
+                             (:th (cl-who:esc label))
+                             (:td (cl-who:esc value)))))))))
+
+POFTHEDAY&amp;gt; (render (make-instance &amp;#039;user
+                                  :name &amp;quot;Bob&amp;quot;
+                                  :created-at &amp;quot;2020-05-22&amp;quot;
+                                  :num-posts 42))
+&amp;quot;
+&amp;lt;table&amp;gt;
+&amp;lt;tr&amp;gt;
+  &amp;lt;th&amp;gt;Created at&amp;lt;/th&amp;gt;
+  &amp;lt;td&amp;gt;2020-05-22&amp;lt;/td&amp;gt;
+&amp;lt;/tr&amp;gt;
+&amp;lt;tr&amp;gt;
+  &amp;lt;th&amp;gt;Name&amp;lt;/th&amp;gt;
+  &amp;lt;td&amp;gt;Bob&amp;lt;/td&amp;gt;
+&amp;lt;/tr&amp;gt;
+&amp;lt;tr&amp;gt;
+  &amp;lt;th&amp;gt;Num posts&amp;lt;/th&amp;gt;
+  &amp;lt;td&amp;gt;42&amp;lt;/td&amp;gt;
+&amp;lt;/tr&amp;gt;
+&amp;lt;/table&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
             <title>cl-who</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html</link>
             <description>&lt;p&gt;Today we continue to investigate &lt;code&gt;poftheday&lt;/code&gt;&apos;s &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html&quot;&gt;dependencies&lt;/a&gt; and will look at the well known &lt;code&gt;cl-who&lt;/code&gt; library. &lt;code&gt;CL-Who&lt;/code&gt; is a library Edmund Weitz and provides a DSL for HTML generation.&lt;/p&gt;
@@ -1127,186 +1296,6 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
      FOO)
 
 (42 2 3 4)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&quot;atomics&quot;, like all &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&apos;s&lt;/a&gt; libraries, has a &lt;a href=&quot;https://shinmera.github.io/atomics/&quot;&gt;good documentation&lt;/a&gt; where you can find details on support for atomics operations in different CL implementations.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>pretty-function</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0057-pretty-function.html</link>
-            <description>&lt;p&gt;This small library makes debugging easier when you are using many anonymous functions. With &lt;code&gt;pretty-functions&lt;/code&gt; you can give names to your lambdas.&lt;/p&gt;
-&lt;p&gt;Here is a traceback you&apos;ll have with ordinal lambda:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun bar ()
-             (error &amp;quot;Hello World!&amp;quot;))
-
-POFTHEDAY&amp;gt; (defun foo (func)
-             (funcall func))
-
-POFTHEDAY&amp;gt; (foo (lambda ()
-                  (bar)))
-
--&amp;gt;
-Hello World!
-   [Condition of type SIMPLE-ERROR]
-
-Restarts:
- 0: [RETRY] Retry SLY mREPL evaluation request.
- 1: [*ABORT] Return to SLY&amp;#039;s top level.
- 2: [ABORT] abort thread (#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003785853}&amp;gt;)
-
-Backtrace:
- 0: (BAR)
- 1: ((LAMBDA ()))
- 2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (LAMBDA NIL (BAR))) #A&amp;lt;NULL-LEXENV&amp;gt;)
- 3: (EVAL (FOO (LAMBDA NIL (BAR))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;pretty-function&lt;/code&gt; we should see the name instead of &lt;code&gt;LAMBDA&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (pretty-function:enable-pretty-function-printing)
-
-POFTHEDAY&amp;gt; (foo (pretty-function:named-lambda bar-caller ()
-                  (bar)))
-
--&amp;gt;
-Hello World!
-   [Condition of type SIMPLE-ERROR]
-
-Restarts:
- 0: [RETRY] Retry SLY mREPL evaluation request.
- 1: [*ABORT] Return to SLY&amp;#039;s top level.
- 2: [ABORT] abort thread (#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {100394D853}&amp;gt;)
-
-Backtrace:
- 0: (BAR)
- 1: ((LAMBDA ()))
- 2: (FOO #&amp;lt;FUNCTION (LAMBDA NIL) {2253906B}&amp;gt;)
- 3: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #&amp;lt;NULL-LEXENV&amp;gt;)
- 4: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, it does not work. Probably, because &lt;code&gt;SLY&lt;/code&gt; turns off &lt;code&gt;*pretty-print*&lt;/code&gt; when rendering the traceback. At least, it does not work in SBCL.&lt;/p&gt;
-&lt;p&gt;Almost the same result we&apos;ll get if request a backtrace as a list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (block test
-               (handler-bind ((error (lambda (c)
-                                       (return-from test
-                                         (sb-debug:backtrace-as-list 7)))))
-                 (foo (pretty-function:named-lambda bar-caller ()
-                        (bar)))))
-
-(((FLET &amp;quot;H0&amp;quot; :IN TEST) #&amp;lt;unused argument&amp;gt;)
- (SB-KERNEL::%SIGNAL #&amp;lt;SIMPLE-ERROR &amp;quot;Hello World!&amp;quot; {10050B8763}&amp;gt;)
- (ERROR &amp;quot;Hello World!&amp;quot;)
- (BAR)
- ((LAMBDA () :IN TEST))
- (FOO #&amp;lt;named-lambda BAR-CALLER&amp;gt;)
- ((LAMBDA ())))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Named function has its name only when it is rendered as function&apos;s argument. But anyway, it is useful.&lt;/p&gt;
-&lt;p&gt;Probably, it will work better on other supported implementations: Allegro, Clisp, CMU, Lispworks or MCL.&lt;/p&gt;
-&lt;p&gt;More complex example uses another macro - &lt;code&gt;named-lambda*&lt;/code&gt;. It allows to use of arbitrary form to return a current name of a lambda function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *f*
-             (let ((n 0))
-               (pretty-function:named-lambda*
-                   ;; a form to return a description
-                   (format nil &amp;quot;counter=~A&amp;quot; n)
-                   () ;; arguments
-                 (incf n))))
-
-POFTHEDAY&amp;gt; *f*
-#&amp;lt;named-lambda counter=0&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *f*)
-1
-
-POFTHEDAY&amp;gt; *f*
-#&amp;lt;named-lambda counter=1&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *f*)
-2
-
-POFTHEDAY&amp;gt; *f*
-#&amp;lt;named-lambda counter=2&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You might want to make a shorter name like &lt;code&gt;&lt;counter=1&gt;&lt;/code&gt;, then you need to use lower-level macro &lt;code&gt;with-function-printer&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *f*
-             (let ((n 0))
-               (pretty-function:with-function-printer
-                   ;; A lambda to wriite a description
-                   (lambda (s) (format s &amp;quot;#&amp;lt;counter=~A&amp;gt;&amp;quot; n))
-                 ;; A lambda to do a real job
-                 (lambda ()
-                   (incf n)))))
-
-POFTHEDAY&amp;gt; *f*
-#&amp;lt;counter=0&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *f*)
-1
-
-POFTHEDAY&amp;gt; *f*
-#&amp;lt;counter=1&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, with Lisp, you always can write your own syntax sugar around this macro.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>trivial-indent</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0056-trivial-indent.html</link>
-            <description>&lt;p&gt;This is another great library by &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;. It is a portability layer for defining indentation rules for both SLIME and &lt;a href=&quot;http://joaotavora.github.io/sly/#A-SLY-tour-for-SLIME-users&quot;&gt;SLY&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Let&apos;s pretend we have a macro:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro super-let (name value &amp;amp;body body)
-             `(let ((,name ,value))
-                ,@body))
-
-POFTHEDAY&amp;gt; (super-let foo
-               100500
-             (format nil &amp;quot;Foo is ~A&amp;quot; foo))
-&amp;quot;Foo is 100500&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if we want Emacs to indent it like this?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (super-let foo
-                      100500
-             (format nil &amp;quot;Foo is ~A&amp;quot; foo))
-&amp;quot;Foo is 100500&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then we can set indentation rule, and &lt;code&gt;trivial-indent&lt;/code&gt; will make it work for both SLIME and SLY:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This rule says: indent first two arguments
-;; with 11 spaces if they are on their own line.
-;; And other arguments indent like usual function&amp;#039;s body.
-POFTHEDAY&amp;gt; (trivial-indent:define-indentation super-let
-               (11 11 &amp;amp;body))
-
-;; And now all super-let form will be indented according to this rule.
-POFTHEDAY&amp;gt; (super-let blah
-                      &amp;#039;minor
-             (format nil &amp;quot;blah -&amp;gt; ~A&amp;quot; blah))
-&amp;quot;blah -&amp;gt; MINOR&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I have an advice for you. If you are using &lt;code&gt;SLY&lt;/code&gt;, it might cache indentation rules. When you&apos;ve defined a rule but don&apos;t see an effect, call &lt;code&gt;(slynk:update-indentation-information)&lt;/code&gt; in the REPL.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s try to define a more complex indentation rule. Yesterday I wrote such macro for running Genetic Algorithm:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(def macro run-ga ((genome &amp;amp;key (population-size 100)
-                                (max-iterations 1000)
-                                (survive-ratio 0.5))
-                   &amp;amp;body fitness-code)
-  (let ((var-names (get-var-names genome)))
-    
-    (unless genome
-      ...)))
-
-;; After that you might run it like this:
-
-(run-ga (((x 0 10)
-          (y -10 10)
-          (z &amp;#039;(:foo :bar :bazz)))
-         :max-iterations 100
-         :survive-ratio 0.2)
-  
-  ;; Our fitness-function
-  (abs (- (ecase z
-            (:foo 10)
-            (:bar 100)
-            (:bazz 1000))
-           (+ x y))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, without special rules, these algorithm parameters are hard to distinguish from the genom definition (the first argument).&lt;/p&gt;
-&lt;p&gt;But what if we want to separate keyword arguments visually and to make this form look like this?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(run-ga (((x 0 10)
-          (y -10 10)s
-          (z &amp;#039;(:foo :bar :bazz)))
-    :max-iterations 100
-    :survive-ratio 0.2)
-  
-  ;; Our fitness-function
-  (abs (- (ecase z
-            (:foo 10)
-            (:bar 100)
-            (:bazz 1000))
-           (+ x y))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then we might define the following rule:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-indent:define-indentation
-               genetic-algorithm:run-ga
-               ((&amp;amp;whole &amp;amp;lambda &amp;amp;rest -4) &amp;amp;body))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It says, that &lt;code&gt;run-ga&lt;/code&gt; macro has a list-like first argument. Keyword &lt;code&gt;&amp;whole &amp;lambda&lt;/code&gt; tells that first item of this list would be indented as a regular lambda-list.&lt;/p&gt;
-&lt;p&gt;Following &lt;code&gt;&amp;rest -4&lt;/code&gt; tells Emacs to deindent rest items of the first list.&lt;/p&gt;
-&lt;p&gt;And finally, &lt;code&gt;&amp;body&lt;/code&gt; keyword says to handle the rest of the macro arguments like a function&apos;s body.&lt;/p&gt;
-&lt;p&gt;There is also ability to define a custom function which will decide how to indent a form. But I didn&apos;t use this feature yet.&lt;/p&gt;
-&lt;p&gt;You can read detail about the structure of indentation rules in &lt;a href=&quot;https://github.com/jwiegley/emacs-release/blob/adfd5933358fdf6715423dee8169eb3cd7d982db/lisp/emacs-lisp/cl-indent.el#L180-L248&quot;&gt;this Emacs docstring&lt;/a&gt;.&lt;/p&gt;
 </description>
         </item>
     </channel>

@@ -39,7 +39,7 @@ but want to use ~:this-style-of-symbols~ in Lisp. For example, you might
 generate identifiers for JavaScript or Python.
 
 Another case is when you want to output labels for UI. Here I have a
-function which will render an HTML table describing a CLOS object:
+function which will render an HTML table describing a ~CLOS~ object:
 
 #+begin_src lisp
 

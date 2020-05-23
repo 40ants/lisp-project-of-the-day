@@ -66,8 +66,8 @@ POFTHEDAY&gt; (cl-change-case:camel-case &quot;foo-bar-bazz&quot;)
 POFTHEDAY&gt; (cl-change-case:no-case &quot;foo-bar-bazz&quot;)
 &quot;foo bar bazz&quot;
 POFTHEDAY&gt; (cl-change-case:header-case &quot;foo-bar-bazz&quot;)
-&quot;Foo-Bar-Bazz&quot;</code></pre><p>When this can be useful? In cases when you interop with other systems, but want to use <code>:this-style-of-symbols</code> in Lisp. For example, you might generate indentifiers for JavaScript or Python.</p>
-<p>Another case is when you want to output labels for UI. Here I have a function which will render an HTML table describing a CLOS object:</p>
+&quot;Foo-Bar-Bazz&quot;</code></pre><p>When this can be useful? In cases when you interop with other systems, but want to use <code>:this-style-of-symbols</code> in Lisp. For example, you might generate identifiers for JavaScript or Python.</p>
+<p>Another case is when you want to output labels for UI. Here I have a function which will render an HTML table describing a <code>CLOS</code> object:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (defclass user ()
              ((created-at :initarg :created-at)
               (name :initarg :name)

@@ -1,0 +1,158 @@
+* named-readtables :language:readtable:
+
+This system is highly recommended if you are writing a code which
+modifies a ~*readtable*~ because it allows to define and switch between
+readtables as you do with Lisp packages.
+
+If you are not familiar with what ~*readtable*~ is, then read this article:
+
+https://lisper.in/reader-macros
+
+but pay attention, that the article manipulates with ~*readtable*~ instead
+of using ~named-readtables~. This is bad. Use ~named-readtables~ instead.
+
+First, let's see how to use ~named-readtables~ to switch between
+read-tables. As an example, we'll see how to use ~cl-interpol~ and ~rutils~
+readtables.
+
+This is how you can lookup which tables are available:
+
+#+begin_src lisp
+
+POFTHEDAY> (ql:quickload '(:cl-interpol :rutils))
+
+POFTHEDAY> (named-readtables:list-all-named-readtables)
+(#<NAMED-READTABLE :COMMON-LISP {1000024B73}>
+ #<NAMED-READTABLE :CURRENT {1000025663}>
+ #<NAMED-READTABLE RUTILS.READTABLE:RUTILS-READTABLE {1004A960E3}>
+ #<NAMED-READTABLE RUTILS.READTABLE:STANDARD-READTABLE {1004A96133}>
+ #<NAMED-READTABLE :INTERPOL-SYNTAX {1001D19853}>)
+
+#+end_src
+
+Now let's see how does switching work:
+
+#+begin_src lisp
+
+;; First I'll switch to the interpol's syntax:
+POFTHEDAY> (named-readtables:in-readtable :interpol-syntax)
+
+POFTHEDAY> (let ((username "Bob"))
+             #?"Hello ${username}!")
+"Hello Bob!"
+
+;; Rutils readtable is not active, and we can't
+;; use it's syntax for hashes:
+POFTHEDAY> #h(:foo "bar")
+; Debugger entered on #<SB-INT:SIMPLE-READER-ERROR
+; "no dispatch function defined for ~S" {10068D4C63}>
+
+;; We have to activate  it first
+POFTHEDAY> (named-readtables:in-readtable
+            rutils:rutils-readtable)
+
+POFTHEDAY> #h(:foo "bar")
+#<HASH-TABLE :TEST EQL :COUNT 1 {10068B9013}>
+
+;; But now we are unable to use iterpol's syntax:
+POFTHEDAY> (let ((username "Bob"))
+             #?"Hello ${username}!")
+; Debugger entered on #<SB-INT:SIMPLE-READER-ERROR
+; "no dispatch function defined for ~S" {1006AE93F3}>
+
+#+end_src
+
+But what if we want to use both readtables from ~cl-interpol~ and from
+~rutils~?
+
+It is possible if we merge them together and create a new readtable:
+
+#+begin_src lisp
+
+POFTHEDAY> (named-readtables:defreadtable
+               :poftheday
+             (:merge
+              rutils:rutils-readtable
+              :interpol-syntax))
+
+POFTHEDAY> (named-readtables:in-readtable
+            :poftheday)
+
+POFTHEDAY> (let ((username "Bob"))
+             #h(:greeting #?"Hello ${username}!"))
+#<HASH-TABLE :TEST EQL :COUNT 1 {1003054C23}>
+
+POFTHEDAY> (rutils:print-ht *)
+#{
+  :GREETING "Hello Bob!"
+ } 
+
+#+end_src
+
+Now we'll define a literal syntax for lambda from ~rutils~ as a
+separate named read-table:
+
+#+begin_src 
+
+POFTHEDAY> (defmacro trivial-positional-lambda (body)
+             `(lambda (&optional % %%)
+                (declare (ignorable %) (ignorable %%))
+                ,body))
+
+POFTHEDAY> (defun |^-reader| (stream char)
+             (declare (ignore char))
+             (let ((sexp (read stream t nil t)))
+               `(trivial-positional-lambda
+                 ,(if (and (listp sexp) (listp (car sexp)))
+                      (cons 'progn sexp)
+                      sexp))))
+
+POFTHEDAY> (named-readtables:defreadtable
+               :lambda
+             (:merge :standard)
+             (:macro-char #\^ #'|^-reader|))
+
+;; Now we can switch to the new readtable
+;; and use new syntax for lambdas:
+POFTHEDAY> (named-readtables:in-readtable :lambda)
+
+POFTHEDAY> ^(+ % %%)
+#<FUNCTION (LAMBDA (&OPTIONAL % %%)) {2252593B}>
+
+POFTHEDAY> (funcall *
+                    2
+                    3)
+5
+
+#+end_src
+
+Named readtables has yet another useful feature - it integrates with
+SLIME. When you have a ~(in-readtable)~ call after you package definition,
+SLIME will know what ~readtable~ to use when you hit ~Ctrl-C Ctrl-C~ on
+defuns.
+
+That is what ~in-readtable~ expands to:
+
+#+begin_src lisp
+
+POFTHEDAY> (named-readtables:in-readtable :interpol-syntax)
+
+;; It expands to:
+(eval-when (:compile-toplevel
+            :load-toplevel
+            :execute)
+  (setf *readtable*
+        (named-readtables:ensure-readtable
+         ':interpol-syntax))
+  (when (find-package :swank)
+    (named-readtables::%frob-swank-readtable-alist
+     *package*
+     *readtable*)))
+
+#+end_src
+
+This ~%frob-swank-readtable-alist~ modifies ~swank:*readtable-alist*~ to
+make it know what readtable should be used for the package. But a
+comment to this code says it is a ~KLUDGE~.
+
+Interesting, how this will or should work in the LispWorks?

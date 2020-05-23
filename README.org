@@ -24,7 +24,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 19 May - [[content/2020/05/0073-clss.org][clss]] ([[https://twitter.com/svetlyak40wt/status/1262820171741265921][twitter]])
 - 20 May - [[content/2020/05/0074-lquery.org][lquery]] ([[https://twitter.com/svetlyak40wt/status/1263152708468518913][twitter]])
 - 21 May - [[content/2020/05/0075-cl-who.org][cl-who]] ([[https://twitter.com/svetlyak40wt/status/1263532054525902848][twitter]])
-- 22 May - [[content/2020/05/0076-cl-change-case.org][cl-change-case]]
+- 22 May - [[content/2020/05/0076-cl-change-case.org][cl-change-case]] ([[https://twitter.com/svetlyak40wt/status/1263898979282141184][twitter]])
+- 23 May - [[content/2020/05/0077-named-readtables.org][named-readtables]] ([[https://twitter.com/svetlyak40wt/status/1264257101175689218][twitter]])
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
