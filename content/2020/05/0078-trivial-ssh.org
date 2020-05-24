@@ -1,0 +1,76 @@
+* trivial-ssh :system:network:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :|
+:Tests:    :|
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This system is a simple wrapper around cl-libssh2 which is binding to
+the libssh2. Trivial SSH provides a few macros to safely establish
+a connection, open and close streams.
+
+In the next example we'll connect to the host and run two commands to
+get its hostname and OS description:
+
+#+begin_src lisp
+
+;; Make this before Quickloading the system:
+;; brew upgrade libssh2
+
+POFTHEDAY> (flet ((read-lines (s)
+                    (loop for line = (read-line s nil nil)
+                          while line
+                          collect line)))
+
+             (ssh:with-connection (conn "134.209.21.115" (ssh:agent "root"))
+               (values
+                (ssh:with-command (conn iostream "hostname -f")
+                                  (read-lines iostream))
+                (ssh:with-command (conn iostream "lsb_release --id --release --codename")
+                                  (read-lines iostream)))))
+("my-lovely-host.inter.net")
+("Distributor ID:	Ubuntu"
+ "Release:	18.04"
+ "Codename:	bionic")
+
+#+end_src
+
+Also, there is are commands to upload and download files using SCP
+protocol. Here is how we can copy the bootstrap file to the host and
+execute it:
+
+#+begin_src lisp
+
+  POFTHEDAY> (ssh:with-connection (conn "134.209.21.115" (ssh:agent "root"))
+               (ssh:upload-file conn "install.sh" "/tmp/install.sh")
+               (ssh:with-command (conn stream "chmod +x /tmp/install.sh"))
+                 (ssh:with-command (conn stream "/tmp/install.sh")))
+
+#+end_src
+
+The cool part of ~with-command~ macro is that you have a communication
+stream and can read output during the command execution. Here we are
+installing Emacs on the remote host and can observe the process:
+
+[[../../media/0078/install-emacs.gif]]
+
+Here is the code from this sample:
+
+#+begin_src lisp
+
+POFTHEDAY> (flet ((-> (from to)
+                    (loop for line = (read-line from nil nil)
+                       while line
+                       do (write-string line to)
+                          (terpri))))
+             (ssh:with-connection (conn "134.209.21.115"
+                                        (ssh:agent "root"))
+               (ssh:with-command
+                   (conn stream "apt-get update &&
+                                apt-get install -y emacs-nox")
+                   (-> stream *standard-output*))))
+
+#+end_src
