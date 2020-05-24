@@ -6,6 +6,47 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-ssh</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0078-trivial-ssh.html</link>
+            <description>&lt;p&gt;This system is a simple wrapper around cl-libssh2 which is binding to the libssh2. Trivial SSH provides a few macros to safely establish a connection, open and close streams.&lt;/p&gt;
+&lt;p&gt;In the next example we&apos;ll connect to the host and run two commands to get its hostname and OS description:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; Make this before Quickloading the system:
+;; brew upgrade libssh2
+
+POFTHEDAY&amp;gt; (flet ((read-lines (s)
+                    (loop for line = (read-line s nil nil)
+                          while line
+                          collect line)))
+
+             (ssh:with-connection (conn &amp;quot;134.209.21.115&amp;quot; (ssh:agent &amp;quot;root&amp;quot;))
+               (values
+                (ssh:with-command (conn iostream &amp;quot;hostname -f&amp;quot;)
+                                  (read-lines iostream))
+                (ssh:with-command (conn iostream &amp;quot;lsb_release --id --release --codename&amp;quot;)
+                                  (read-lines iostream)))))
+(&amp;quot;my-lovely-host.inter.net&amp;quot;)
+(&amp;quot;Distributor ID:	Ubuntu&amp;quot;
+ &amp;quot;Release:	18.04&amp;quot;
+ &amp;quot;Codename:	bionic&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, there is are commands to upload and download files using SCP protocol. Here is how we can copy the bootstrap file to the host and execute it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ssh:with-connection (conn &amp;quot;134.209.21.115&amp;quot; (ssh:agent &amp;quot;root&amp;quot;))
+               (ssh:upload-file conn &amp;quot;install.sh&amp;quot; &amp;quot;/tmp/install.sh&amp;quot;)
+               (ssh:with-command (conn stream &amp;quot;chmod +x /tmp/install.sh&amp;quot;))
+                 (ssh:with-command (conn stream &amp;quot;/tmp/install.sh&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The cool part of &lt;code&gt;with-command&lt;/code&gt; macro is that you have a communication stream and can read output during the command execution. Here we are installing Emacs on the remote host and can observe the process:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0078/install-emacs.gif&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Here is the code from this sample:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((-&amp;gt; (from to)
+                    (loop for line = (read-line from nil nil)
+                       while line
+                       do (write-string line to)
+                          (terpri))))
+             (ssh:with-connection (conn &amp;quot;134.209.21.115&amp;quot;
+                                        (ssh:agent &amp;quot;root&amp;quot;))
+               (ssh:with-command
+                   (conn stream &amp;quot;apt-get update &amp;amp;&amp;amp;
+                                apt-get install -y emacs-nox&amp;quot;)
+                   (-&amp;gt; stream *standard-output*))))&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
             <title>named-readtables</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0077-named-readtables.html</link>
             <description>&lt;p&gt;This system is highly recommended if you are writing a code which modifies a &lt;code&gt;*readtable*&lt;/code&gt; because it allows to define and switch between readtables as you do with Lisp packages.&lt;/p&gt;
@@ -1270,32 +1311,6 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
   (endwin))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Full examples are available here:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&quot;&gt;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;That is it. If you need an interactive interface in the console, use cl-ncurses!&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>atomics</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0058-atomics.html</link>
-            <description>&lt;p&gt;This is a portability library for access to atomic operation primitives such as &lt;code&gt;compare-and-swap&lt;/code&gt;, &lt;code&gt;atomic-incf&lt;/code&gt; and &lt;code&gt;atomic-decf&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Atomic operations are particularly useful for implementing lockless algorithms.&lt;/p&gt;
-&lt;p&gt;Here is an example of using compare and swap under SBCL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((foo (list 1 2 3 4)))
-             (atomics:cas (car foo)
-                          1
-                          42)
-             foo)
-
--&amp;gt; (LET ((FOO (LIST 1 2 3 4)))
-     (LET ((#:OLD0 1))
-       (EQ #:OLD0
-           (LET ((#:CONS1 FOO))
-             (LET ((#:OLD2 #:OLD0))
-               (LET ((#:NEW3 42))
-                 (SB-KERNEL:%COMPARE-AND-SWAP-CAR #:CONS1
-                                                  #:OLD2
-                                                  #:NEW3))))))
-     FOO)
-
-(42 2 3 4)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&quot;atomics&quot;, like all &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&apos;s&lt;/a&gt; libraries, has a &lt;a href=&quot;https://shinmera.github.io/atomics/&quot;&gt;good documentation&lt;/a&gt; where you can find details on support for atomics operations in different CL implementations.&lt;/p&gt;
 </description>
         </item>
     </channel>
