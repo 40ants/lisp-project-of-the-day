@@ -85,7 +85,11 @@ POFTHEDAY&gt; (flet ((read-lines (s)
                (ssh:with-command
                    (conn stream &quot;apt-get update &amp;&amp;
                                 apt-get install -y emacs-nox&quot;)
-                   (-&gt; stream *standard-output*))))</code></pre>
+                   (-&gt; stream *standard-output*))))</code></pre><h2>Update</h2><p>Found that <code>cl-libssh2</code> does not support agent forwarding. Because of that, I'm not able to call <code>git pull</code> on the remote machine.</p>
+<p>I tried to patch <code>cl-libssh2</code> to support the latest <code>libssh2</code> where agent forwarding was supported in August 2019, but this patch does not work yet.</p>
+<p>If somebody is interested to help me with that, he might try this pull-request:</p>
+<p><a href="https://github.com/alxchk/cl-libssh2/pull/7">https://github.com/alxchk/cl-libssh2/pull/7</a></p>
+
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

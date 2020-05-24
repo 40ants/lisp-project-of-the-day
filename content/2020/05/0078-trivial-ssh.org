@@ -74,3 +74,17 @@ POFTHEDAY> (flet ((-> (from to)
                    (-> stream *standard-output*))))
 
 #+end_src
+
+** Update
+
+Found that ~cl-libssh2~ does not support agent forwarding. Because of that,
+I'm not able to call ~git pull~ on the remote machine.
+
+I tried to patch ~cl-libssh2~ to support the latest ~libssh2~ where agent
+forwarding was supported in August 2019, but this patch does not work
+yet.
+
+If somebody is interested to help me with that, he might try this
+pull-request:
+
+https://github.com/alxchk/cl-libssh2/pull/7
