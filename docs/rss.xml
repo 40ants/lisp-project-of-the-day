@@ -6,6 +6,99 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-collider</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0079-cl-collider.html</link>
+            <description>&lt;p&gt;This library is an interface to a very interesting algorithmic audio synthesizer - &lt;a href=&quot;https://supercollider.github.io/&quot;&gt;SuperCollider&lt;/a&gt;. SuperCollider itself has a builtin programming language, but &lt;code&gt;cl-collider&lt;/code&gt; makes it possible to write music in lisp interactively.&lt;/p&gt;
+&lt;p&gt;Here is how a simple program in sclang looks like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; C&apos;&gt;// 60Hz Gabber Rave 1995
+Server.default.boot;
+
+(
+SynthDef(\gabberkick, {
+    var snd, freq, high, lfo;
+    freq = \freq.kr(440) * (Env.perc(0.001, 0.08, curve: -1).ar * 48 * \bend.kr(1)).midiratio;
+    snd = Saw.ar(freq);
+    snd = (snd * 100).tanh + ((snd.sign - snd) * -8.dbamp);
+    high = HPF.ar(snd, 300);
+    lfo = SinOsc.ar(8, [0, 0.5pi]).range(0, 0.01);
+    high = high.dup(2) + (DelayC.ar(high, 0.01, lfo) * -2.dbamp);
+    snd = LPF.ar(snd, 100).dup(2) + high;
+    snd = RLPF.ar(snd, 7000, 2);
+    snd = BPeakEQ.ar(snd, \ffreq.kr(3000) * XLine.kr(1, 0.8, 0.3), 0.5, 15);
+    snd = snd * Env.asr(0.001, 1, 0.05).ar(2, \gate.kr(1));
+    Out.ar(\out.kr(0), snd * \amp.kr(0.1));
+}).add;
+
+SynthDef(\hoover, {
+    var snd, freq, bw, delay, decay;
+    freq = \freq.kr(440);
+    freq = freq * Env([-5, 6, 0], [0.1, 1.7], [\lin, -4]).kr.midiratio;
+    bw = 1.035;
+    snd = { DelayN.ar(Saw.ar(freq * ExpRand(bw, 1 / bw)) + Saw.ar(freq * 0.5 * ExpRand(bw, 1 / bw)), 0.01, Rand(0, 0.01)) }.dup(20);
+    snd = (Splay.ar(snd) * 3).atan;
+    snd = snd * Env.asr(0.01, 1.0, 1.0).kr(0, \gate.kr(1));
+    snd = FreeVerb2.ar(snd[0], snd[1], 0.3, 0.9);
+    snd = snd * Env.asr(0, 1.0, 4, 6).kr(2, \gate.kr(1));
+    Out.ar(\out.kr(0), snd * \amp.kr(0.1));
+}).add;
+)
+
+(
+var durations;
+durations = [1, 1, 1, 1, 3/4, 1/4, 1/2, 3/4, 1/4, 1/2];
+Ppar([
+    Pbind(*[
+        instrument: \gabberkick,
+        amp: -23.dbamp,
+        freq: 60,
+        legato: 0.8,
+        ffreq: Pseq((0..(durations.size * 4 - 1)).normalize, inf).linexp(0, 1, 100, 4000),
+        dur: Pseq(durations, inf),
+        bend: Pfuncn({ |x| if(x &amp;lt; (1/2), 0.4, 1) }, inf) &amp;lt;&amp;gt; Pkey(\dur),
+    ]),
+    Pbind(*[
+        instrument: \hoover,
+        amp: -20.dbamp,
+        midinote: 74,
+        dur: durations.sum * 2,
+        sustain: 7,
+    ])
+]).play(TempoClock(210 / 60));
+)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I wasn&apos;t able to translate it into the Lisp form, because &lt;code&gt;cl-collider&lt;/code&gt; does not have documentation and diving into it will require too much time. However, there is a working code example from its README, which you can try in the REPL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:in-readtable :sc)
+POFTHEDAY&amp;gt; (setf sc:*s* (sc:make-external-server
+                         &amp;quot;localhost&amp;quot; :port 48800))
+POFTHEDAY&amp;gt; (use-package :sc)
+
+POFTHEDAY&amp;gt; (defsynth saw-synth ((note 60) (dur 4.0))
+             (let* ((env (env-gen.kr (env [0 .2 0]
+                                          [(* dur .2) (* dur .8)])
+                                     :act :free))
+                    (freq (midicps note))
+                    (sig (lpf.ar (saw.ar freq env)
+                                 (* freq 2))))
+               (out.ar 0 [sig sig])))
+
+POFTHEDAY&amp;gt; (defun make-melody (time n &amp;amp;optional (offset 0))
+             (when (&amp;gt; n 0)
+               (at time (synth &amp;#039;saw-synth
+                               :note (+ offset (alexandria:random-elt
+                                                &amp;#039;(62 65 69 72)))))
+               (let ((next-time (+ time (alexandria:random-elt
+                                         &amp;#039;(0 1 2 1.5)))))
+                 (callback next-time #&amp;#039;make-melody
+                           next-time (- n 1) offset))))
+
+POFTHEDAY&amp;gt; (make-melody (quant 4) 16)
+POFTHEDAY&amp;gt; (make-melody (+ 4 (quant 4)) 16 12)
+
+;; This will stop the music
+POFTHEDAY&amp;gt; (sc:stop)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is a demo, showing how does live coding works with &lt;code&gt;cl-collider&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=pZyuHjztARY&quot;&gt;https://www.youtube.com/watch?v=pZyuHjztARY&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;To try &lt;code&gt;cl-collider&lt;/code&gt;, you&apos;ll need to install a SuperCollider. On OSX it is as simple as doing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;brew cask install supercollider&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
             <title>trivial-ssh</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0078-trivial-ssh.html</link>
             <description>&lt;p&gt;This system is a simple wrapper around cl-libssh2 which is binding to the libssh2. Trivial SSH provides a few macros to safely establish a connection, open and close streams.&lt;/p&gt;
@@ -1226,95 +1319,6 @@ Suzie 76.5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is more semantic because w
 &lt;p&gt;You can find more examples in this file:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&quot;&gt;https://github.com/sharplispers/clawk/blob/master/clawktest.lisp&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;For me, CLAWK seems a nice tool to process files line by line from Common Lisp.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>cl-ncurses</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html</link>
-            <description>&lt;p&gt;This library is binding to NCurses. It allows for creating windowing interfaces for the console. With NCurses you can print to any place of the screen, change colors and probably do some other awesome things.&lt;/p&gt;
-&lt;p&gt;I took a few examples from the original NCurses documentation:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&quot;&gt;https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;It was pretty straightforward to port them to Common Lisp.&lt;/p&gt;
-&lt;p&gt;The first example just wait for any key and print this key in bold:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
-  (declare (ignorable argv))
-  (initscr)
-  (raw)
-  (keypad *stdscr* 1)
-  (noecho)
-  (printw &amp;quot;Type any character to see it in bold:
-&amp;quot;)
-  (let ((ch (getch)))
-    (cond
-      ((= ch 265)
-       (printw &amp;quot;F1 Key pressed&amp;quot;))
-      (t
-       (printw &amp;quot;The pressed key is &amp;quot;)
-       (attron a_bold)
-       (printw (format nil &amp;quot;~A~%&amp;quot; (code-char ch)))
-       (attroff a_bold)))
-    (refresh)
-    (getch)
-    (endwin)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Second example a little bit complex. It uses fetches the size of the terminal and prints &quot;Hello Lisp Word!&quot; in the centre. After that, it draws a border using pseudographics:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0059/ncurses-hello.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;Here is the code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
-  &amp;quot;This example is based on:
-   https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/windows.html&amp;quot;
-  (declare (ignorable argv))
-  (initscr)
-  (start-color)
-  (init-pair 1
-             color_red
-             color_black)
-
-  (let ((text &amp;quot;Hello Lisp World!&amp;quot;))
-    (multiple-value-bind (screen-height screen-width)
-        (get-maxyx *stdscr*)
-      (let* ((text-len (length text))
-             (box-width (+ text-len 4))
-             (box-height 5)
-             (box-x (round (/ (- screen-width box-width)
-                              2)))
-             (box-y (round (/ (- screen-height box-height)
-                              2)))
-             (plus (char-code #\+))
-             (h-line (char-code #\-))
-             (v-line (char-code #\|)))
-
-        (attron (color-pair 1))
-
-        ;; It&amp;#039;s time to print a text in the center of the screen:
-        (mvprintw (+ box-y 2) (+ box-x 2) text)
-        
-        ;; Now we&amp;#039;ll draw a border around the box.
-        ;; Horizontal lines:
-        (mvhline box-y box-x
-                 h-line box-width)
-        (mvhline (+ box-y (1- box-height)) box-x
-                 h-line box-width)
-        ;; Vertical lines:
-        (mvvline box-y box-x
-                 v-line box-height)
-        (mvvline box-y (+ box-x (1- box-width))
-                 v-line box-height)
-        ;; And corners
-        (mvaddch box-y box-x
-                 plus)
-        (mvaddch box-y (+ box-x (1- box-width))
-                 plus)
-        (mvaddch (+ box-y (1- box-height))
-                 (+ box-x (1- box-width))
-                 plus)
-        (mvaddch (+ box-y (1- box-height)) box-x
-                 plus)
-        (move 0 0))))
-
-  ;; Wait for key press
-  (getch)
-  (endwin))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Full examples are available here:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&quot;&gt;https://github.com/40ants/lisp-project-of-the-day/tree/master/test/0059&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;That is it. If you need an interactive interface in the console, use cl-ncurses!&lt;/p&gt;
 </description>
         </item>
     </channel>

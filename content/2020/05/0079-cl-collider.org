@@ -1,7 +1,15 @@
 * cl-collider :sound:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
 
 This library is an interface to a very interesting algorithmic audio
-synthesator - [[https://supercollider.github.io/][SuperCollider]]. SuperCollider itself has a builtin
+synthesizer - [[https://supercollider.github.io/][SuperCollider]]. SuperCollider itself has a builtin
 programming language, but ~cl-collider~ makes it possible to write music
 in lisp interactively.
 
@@ -69,7 +77,7 @@ Ppar([
 
 I wasn't able to translate it into the Lisp form, because ~cl-collider~
 does not have documentation and diving into it will require too much
-time. However, there is a working code example from it's README, which
+time. However, there is a working code example from its README, which
 you can try in the REPL:
 
 #+begin_src lisp

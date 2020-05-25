@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-collider
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-collider</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-collider<span class='tags'><a href='../../tags/sound.html'><span class='label label-default'>sound</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library is an interface to a very interesting algorithmic audio synthesizer - <a href="https://supercollider.github.io/">SuperCollider</a>. SuperCollider itself has a builtin programming language, but <code>cl-collider</code> makes it possible to write music in lisp interactively.</p>
+<p>Here is how a simple program in sclang looks like:</p>
+<pre><code class=' C'>// 60Hz Gabber Rave 1995
+Server.default.boot;
+
+(
+SynthDef(\gabberkick, {
+    var snd, freq, high, lfo;
+    freq = \freq.kr(440) * (Env.perc(0.001, 0.08, curve: -1).ar * 48 * \bend.kr(1)).midiratio;
+    snd = Saw.ar(freq);
+    snd = (snd * 100).tanh + ((snd.sign - snd) * -8.dbamp);
+    high = HPF.ar(snd, 300);
+    lfo = SinOsc.ar(8, [0, 0.5pi]).range(0, 0.01);
+    high = high.dup(2) + (DelayC.ar(high, 0.01, lfo) * -2.dbamp);
+    snd = LPF.ar(snd, 100).dup(2) + high;
+    snd = RLPF.ar(snd, 7000, 2);
+    snd = BPeakEQ.ar(snd, \ffreq.kr(3000) * XLine.kr(1, 0.8, 0.3), 0.5, 15);
+    snd = snd * Env.asr(0.001, 1, 0.05).ar(2, \gate.kr(1));
+    Out.ar(\out.kr(0), snd * \amp.kr(0.1));
+}).add;
+
+SynthDef(\hoover, {
+    var snd, freq, bw, delay, decay;
+    freq = \freq.kr(440);
+    freq = freq * Env([-5, 6, 0], [0.1, 1.7], [\lin, -4]).kr.midiratio;
+    bw = 1.035;
+    snd = { DelayN.ar(Saw.ar(freq * ExpRand(bw, 1 / bw)) + Saw.ar(freq * 0.5 * ExpRand(bw, 1 / bw)), 0.01, Rand(0, 0.01)) }.dup(20);
+    snd = (Splay.ar(snd) * 3).atan;
+    snd = snd * Env.asr(0.01, 1.0, 1.0).kr(0, \gate.kr(1));
+    snd = FreeVerb2.ar(snd[0], snd[1], 0.3, 0.9);
+    snd = snd * Env.asr(0, 1.0, 4, 6).kr(2, \gate.kr(1));
+    Out.ar(\out.kr(0), snd * \amp.kr(0.1));
+}).add;
+)
+
+(
+var durations;
+durations = [1, 1, 1, 1, 3/4, 1/4, 1/2, 3/4, 1/4, 1/2];
+Ppar([
+    Pbind(*[
+        instrument: \gabberkick,
+        amp: -23.dbamp,
+        freq: 60,
+        legato: 0.8,
+        ffreq: Pseq((0..(durations.size * 4 - 1)).normalize, inf).linexp(0, 1, 100, 4000),
+        dur: Pseq(durations, inf),
+        bend: Pfuncn({ |x| if(x &lt; (1/2), 0.4, 1) }, inf) &lt;&gt; Pkey(\dur),
+    ]),
+    Pbind(*[
+        instrument: \hoover,
+        amp: -20.dbamp,
+        midinote: 74,
+        dur: durations.sum * 2,
+        sustain: 7,
+    ])
+]).play(TempoClock(210 / 60));
+)</code></pre><p>I wasn't able to translate it into the Lisp form, because <code>cl-collider</code> does not have documentation and diving into it will require too much time. However, there is a working code example from its README, which you can try in the REPL:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (named-readtables:in-readtable :sc)
+POFTHEDAY&gt; (setf sc:*s* (sc:make-external-server
+                         &quot;localhost&quot; :port 48800))
+POFTHEDAY&gt; (use-package :sc)
+
+POFTHEDAY&gt; (defsynth saw-synth ((note 60) (dur 4.0))
+             (let* ((env (env-gen.kr (env [0 .2 0]
+                                          [(* dur .2) (* dur .8)])
+                                     :act :free))
+                    (freq (midicps note))
+                    (sig (lpf.ar (saw.ar freq env)
+                                 (* freq 2))))
+               (out.ar 0 [sig sig])))
+
+POFTHEDAY&gt; (defun make-melody (time n &amp;optional (offset 0))
+             (when (&gt; n 0)
+               (at time (synth &#039;saw-synth
+                               :note (+ offset (alexandria:random-elt
+                                                &#039;(62 65 69 72)))))
+               (let ((next-time (+ time (alexandria:random-elt
+                                         &#039;(0 1 2 1.5)))))
+                 (callback next-time #&#039;make-melody
+                           next-time (- n 1) offset))))
+
+POFTHEDAY&gt; (make-melody (quant 4) 16)
+POFTHEDAY&gt; (make-melody (+ 4 (quant 4)) 16 12)
+
+;; This will stop the music
+POFTHEDAY&gt; (sc:stop)</code></pre><p>Here is a demo, showing how does live coding works with <code>cl-collider</code>:</p>
+<p><a href="https://www.youtube.com/watch?v=pZyuHjztARY">https://www.youtube.com/watch?v=pZyuHjztARY</a></p>
+<p>To try <code>cl-collider</code>, you'll need to install a SuperCollider. On OSX it is as simple as doing:</p>
+<pre><code class=' bash'>brew cask install supercollider</code></pre>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
