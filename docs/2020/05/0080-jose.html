@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>jose
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>jose</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>jose<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a><a href='../../tags/security.html'><span class='label label-default'>security</span></a><a href='../../tags/crypto.html'><span class='label label-default'>crypto</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>JOSE is an implementation of <a href="https://datatracker.ietf.org/wg/jose/documents/">Javascript Object Signing and Encryption</a>.</p>
+<p>This <a href="https://twitter.com/nitro_idiot">@nitro_idiot's</a> library implements a <a href="https://tools.ietf.org/html/rfc7515">JSON Web Signature</a> and allows to encode, decode and inspect JWT tokens.</p>
+<p>JOSE can be useful to implement signed token exchange between microservices.</p>
+<p>I found a <a href="https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3">great article on what JWT, JWS and JWE are</a>. Read it you you want more about them. To demostrate, how does token inspection work, I took a JWT token from the article and parsed it with Common Lisp JOSE:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (jose/jwt:inspect-token
+            &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc4YjRjZjIzNjU2ZGMzOTUzNjRmMWI2YzAyOTA3NjkxZjJjZGZmZTEifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEwNTAyMjUxMTU4OTIwMTQ3NzMyIiwiYXpwIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiZW1haWwiOiJwcmFiYXRoQHdzbzIuY29tIiwiYXRfaGFzaCI6InpmODZ2TnVsc0xCOGdGYXFSd2R6WWciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXVkIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiaGQiOiJ3c28yLmNvbSIsImlhdCI6MTQwMTkwODI3MSwiZXhwIjoxNDAxOTEyMTcxfQ.TVKv-pdyvk2gW8sGsCbsnkqsrS0T-H00xnY6ETkIfgIxfotvFn5IwKm3xyBMpy0FFe0Rb5Ht8AEJV6PdWyxz8rMgX2HROWqSo_RfEfUpBb4iOsq4W28KftW5H0IA44VmNZ6zU4YTqPSt4TPhyFC9fP2D_Hg7JQozpQRUfbWTJI&quot;)
+
+((&quot;exp&quot; . 1401912171) (&quot;iat&quot; . 1401908271) (&quot;hd&quot; . &quot;wso2.com&quot;)
+ (&quot;aud&quot;
+  . &quot;825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com&quot;)
+ (&quot;email_verified&quot; . T) (&quot;at_hash&quot; . &quot;zf86vNulsLB8gFaqRwdzYg&quot;)
+ (&quot;email&quot; . &quot;prabath@wso2.com&quot;)
+ (&quot;azp&quot;
+  . &quot;825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com&quot;)
+ (&quot;sub&quot; . &quot;110502251158920147732&quot;) (&quot;iss&quot; . &quot;accounts.google.com&quot;))
+
+((&quot;alg&quot; . &quot;RS256&quot;) (&quot;kid&quot; . &quot;78b4cf23656dc395364f1b6c02907691f2cdffe1&quot;))
+
+#(77 82 175 250 151 114 190 77 160 91 203 6 176 38 236 158 74 172 173 45 19 248
+  125 52 198 118 58 17 57 8 126 2 49 126 139 111 22 126 72 192 169 183 199 32
+  76 167 45 5 21 237 17 111 145 237 240 1 9 87 163 221 91 44 115 242 179 32 95
+  97 209 57 106 146 163 244 95 17 245 41 5 190 34 58 202 184 91 111 10 126 213
+  185 31 66 0 227 133 102 53 158 179 83 134 19 168 244 173 225 51 225 200 80
+  189 124 253 131 252 120 59 37 10 51 165 4 84 125 181 147 36)</code></pre><p>Inspect returns payload, headers and the signature.</p>
+<p>There are also two methods <code>encode</code> and <code>decode</code>. Here is an example from</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter
+               *secret* (ironclad:ascii-string-to-byte-array
+                         &quot;I Love Common Lisp!&quot;))
+
+POFTHEDAY&gt; (defparameter
+               *token*
+             (jose:encode :hs256 *secret*
+                          &#039;((&quot;user&quot;  . &quot;Bob&quot;)
+                            (&quot;email&quot; . &quot;bob@gmail.com&quot;))))
+
+;; Now this token can be sent to the authenticated
+;; user so that user can pass it back during API calls:
+POFTHEDAY&gt; *token*
+&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiQm9iIiwiZW1haWwiOiJib2JAZ21haWwuY29tIn0.NLgg5RxlKDNqw1cqFU0_HysIu-zO7JBYUQN2IZF6c6w&quot;
+
+;; And when we&#039;ll receive such API call,
+;; we can know who this user is.
+POFTHEDAY&gt; (jose:decode :hs256 *secret*
+                        *token*)
+((&quot;user&quot; . &quot;Bob&quot;) (&quot;email&quot; . &quot;bob@gmail.com&quot;))
+((&quot;alg&quot; . &quot;HS256&quot;) (&quot;typ&quot; . &quot;JWT&quot;))</code></pre><p>Cool feature of JWT token is that it is signed and you can be trust to the payload's content. Let's pretend, that Bob is the Evil hacker and wants to get access to other account.</p>
+<p>To do this, Bob will modify payload and use header and sign from original token:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defun replace-payload (token new-payload)
+             (rutils:with (((original-header rutils:_ original-sign)
+                            (str:split &quot;.&quot; token))
+                           (json-payload
+                            (jonathan:to-json new-payload :from :alist))
+                           (new-encoded-payload
+                            (jose/base64:base64url-encode json-payload)))
+               (str:join &quot;.&quot;
+                         (list original-header
+                               new-encoded-payload
+                               original-sign))))
+
+POFTHEDAY&gt; (defparameter *new-token*
+             (replace-payload *token*
+                              &#039;((&quot;user&quot;  . &quot;Alice&quot;)
+                                (&quot;email&quot; . &quot;alice@wonderland.in&quot;))))
+
+;; Now we&#039;ll try to decode token on the server-side
+;; and receive error from JOSE:
+POFTHEDAY&gt; (jose:decode :hs256 *secret*
+                        *new-token*)
+; Debugger entered on #&lt;JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}&gt;
+[1] POFTHEDAY&gt; 
+; Evaluation aborted on #&lt;JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}&gt;
+
+;; But we still can inspect bad token because
+;; it&#039;s content is not encrypted:
+POFTHEDAY&gt; (jose:inspect-token *new-token*)
+
+((&quot;email&quot; . &quot;alice@wonderland.in&quot;) (&quot;user&quot; . &quot;Alice&quot;))
+
+((&quot;alg&quot; . &quot;HS256&quot;) (&quot;typ&quot; . &quot;JWT&quot;))
+
+#(52 184 32 229 28 101 40 51 106 195 87 42 21 77 63 31 43 8 187 236 206 236 144
+  88 81 3 118 33 145 122 115 172)</code></pre><p>BTW, as you can see, tokens are not encoded, they are signed. Because of that, you should pass them only over encrypted channels.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

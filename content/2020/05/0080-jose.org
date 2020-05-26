@@ -1,0 +1,126 @@
+* jose :web:security:crypto:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+JOSE is an implementation of [[https://datatracker.ietf.org/wg/jose/documents/][Javascript Object Signing and Encryption]].
+
+This [[https://twitter.com/nitro_idiot][@nitro_idiot's]] library implements a [[https://tools.ietf.org/html/rfc7515][JSON Web Signature]] and allows
+to encode, decode and inspect JWT tokens.
+
+JOSE can be useful to implement signed token exchange between
+microservices.
+
+I found a [[https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3][great article on what JWT, JWS and JWE are]]. Read it you you
+want more about them. To demostrate, how does token inspection work, I
+took a JWT token from the article and parsed it with Common Lisp JOSE:
+
+#+begin_src lisp
+
+POFTHEDAY> (jose/jwt:inspect-token
+            "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc4YjRjZjIzNjU2ZGMzOTUzNjRmMWI2YzAyOTA3NjkxZjJjZGZmZTEifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEwNTAyMjUxMTU4OTIwMTQ3NzMyIiwiYXpwIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiZW1haWwiOiJwcmFiYXRoQHdzbzIuY29tIiwiYXRfaGFzaCI6InpmODZ2TnVsc0xCOGdGYXFSd2R6WWciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXVkIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiaGQiOiJ3c28yLmNvbSIsImlhdCI6MTQwMTkwODI3MSwiZXhwIjoxNDAxOTEyMTcxfQ.TVKv-pdyvk2gW8sGsCbsnkqsrS0T-H00xnY6ETkIfgIxfotvFn5IwKm3xyBMpy0FFe0Rb5Ht8AEJV6PdWyxz8rMgX2HROWqSo_RfEfUpBb4iOsq4W28KftW5H0IA44VmNZ6zU4YTqPSt4TPhyFC9fP2D_Hg7JQozpQRUfbWTJI")
+
+(("exp" . 1401912171) ("iat" . 1401908271) ("hd" . "wso2.com")
+ ("aud"
+  . "825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com")
+ ("email_verified" . T) ("at_hash" . "zf86vNulsLB8gFaqRwdzYg")
+ ("email" . "prabath@wso2.com")
+ ("azp"
+  . "825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com")
+ ("sub" . "110502251158920147732") ("iss" . "accounts.google.com"))
+
+(("alg" . "RS256") ("kid" . "78b4cf23656dc395364f1b6c02907691f2cdffe1"))
+
+#(77 82 175 250 151 114 190 77 160 91 203 6 176 38 236 158 74 172 173 45 19 248
+  125 52 198 118 58 17 57 8 126 2 49 126 139 111 22 126 72 192 169 183 199 32
+  76 167 45 5 21 237 17 111 145 237 240 1 9 87 163 221 91 44 115 242 179 32 95
+  97 209 57 106 146 163 244 95 17 245 41 5 190 34 58 202 184 91 111 10 126 213
+  185 31 66 0 227 133 102 53 158 179 83 134 19 168 244 173 225 51 225 200 80
+  189 124 253 131 252 120 59 37 10 51 165 4 84 125 181 147 36)
+
+#+end_src
+
+Inspect returns payload, headers and the signature.
+
+There are also two methods ~encode~ and ~decode~. Here is an example from
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter
+               *secret* (ironclad:ascii-string-to-byte-array
+                         "I Love Common Lisp!"))
+
+POFTHEDAY> (defparameter
+               *token*
+             (jose:encode :hs256 *secret*
+                          '(("user"  . "Bob")
+                            ("email" . "bob@gmail.com"))))
+
+;; Now this token can be sent to the authenticated
+;; user so that user can pass it back during API calls:
+POFTHEDAY> *token*
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiQm9iIiwiZW1haWwiOiJib2JAZ21haWwuY29tIn0.NLgg5RxlKDNqw1cqFU0_HysIu-zO7JBYUQN2IZF6c6w"
+
+;; And when we'll receive such API call,
+;; we can know who this user is.
+POFTHEDAY> (jose:decode :hs256 *secret*
+                        *token*)
+(("user" . "Bob") ("email" . "bob@gmail.com"))
+(("alg" . "HS256") ("typ" . "JWT"))
+
+#+end_src
+
+Cool feature of JWT token is that it is signed and you can be trust to
+the payload's content. Let's pretend, that Bob is the Evil hacker and
+wants to get access to other account.
+
+To do this, Bob will modify payload and use header and sign from
+original token:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun replace-payload (token new-payload)
+             (rutils:with (((original-header rutils:_ original-sign)
+                            (str:split "." token))
+                           (json-payload
+                            (jonathan:to-json new-payload :from :alist))
+                           (new-encoded-payload
+                            (jose/base64:base64url-encode json-payload)))
+               (str:join "."
+                         (list original-header
+                               new-encoded-payload
+                               original-sign))))
+
+POFTHEDAY> (defparameter *new-token*
+             (replace-payload *token*
+                              '(("user"  . "Alice")
+                                ("email" . "alice@wonderland.in"))))
+
+;; Now we'll try to decode token on the server-side
+;; and receive error from JOSE:
+POFTHEDAY> (jose:decode :hs256 *secret*
+                        *new-token*)
+; Debugger entered on #<JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}>
+[1] POFTHEDAY> 
+; Evaluation aborted on #<JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}>
+
+;; But we still can inspect bad token because
+;; it's content is not encrypted:
+POFTHEDAY> (jose:inspect-token *new-token*)
+
+(("email" . "alice@wonderland.in") ("user" . "Alice"))
+
+(("alg" . "HS256") ("typ" . "JWT"))
+
+#(52 184 32 229 28 101 40 51 106 195 87 42 21 77 63 31 43 8 187 236 206 236 144
+  88 81 3 118 33 145 122 115 172)
+
+#+end_src
+
+BTW, as you can see, tokens are not encoded, they are signed. Because of
+that, you should pass them only over encrypted channels.
