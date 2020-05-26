@@ -16,8 +16,8 @@ to encode, decode and inspect JWT tokens.
 JOSE can be useful to implement signed token exchange between
 microservices.
 
-I found a [[https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3][great article on what JWT, JWS and JWE are]]. Read it you you
-want more about them. To demostrate, how does token inspection work, I
+I found a [[https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3][great article on what JWT, JWS and JWE are]]. Read it you
+want more about them. To demonstrate, how does token inspection work, I
 took a JWT token from the article and parsed it with Common Lisp JOSE:
 
 #+begin_src lisp
@@ -47,7 +47,8 @@ POFTHEDAY> (jose/jwt:inspect-token
 
 Inspect returns payload, headers and the signature.
 
-There are also two methods ~encode~ and ~decode~. Here is an example from
+There are also two methods ~encode~ and ~decode~. Here is how we can use
+them to issue and verify JWT token:
 
 #+begin_src lisp
 
@@ -75,12 +76,12 @@ POFTHEDAY> (jose:decode :hs256 *secret*
 
 #+end_src
 
-Cool feature of JWT token is that it is signed and you can be trust to
-the payload's content. Let's pretend, that Bob is the Evil hacker and
-wants to get access to other account.
+A cool feature of JWT token is that it is signed and you can trust
+the payload's content. Let's pretend, that Bob is the "evil hacker" who
+wants to get access to another account.
 
 To do this, Bob will modify payload and use header and sign from
-original token:
+the original token:
 
 #+begin_src lisp
 
