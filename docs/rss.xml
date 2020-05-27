@@ -6,6 +6,55 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-ppcre-unicode</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0081-cl-ppcre-unicode.html</link>
+            <description>&lt;p&gt;This system adds Unicode support to the &lt;code&gt;cl-ppcre&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;What does it mean? It means that after loading &lt;code&gt;cl-ppcre-unicode&lt;/code&gt; you&apos;ll be able to match against Unicode symbol properties.&lt;/p&gt;
+&lt;p&gt;A property matcher has a special syntax in cl-ppcre&apos;s regexps: &lt;code&gt;\p{PropertyName}&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Here is an example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; This is how we can find out a position
+;; of the first Cyrillic letter:
+
+POFTHEDAY&amp;gt; (ppcre:scan &amp;quot;\\p{Cyrillic}&amp;quot;
+                       &amp;quot;123&amp;#x42E;56&amp;quot;)
+3
+
+;; Here we are extracting a
+;; sequence of Emoji from the text:
+POFTHEDAY&amp;gt; (ppcre:regex-replace
+            &amp;quot;.*?([\\p{Emoticons}|\\p{Supplemental Symbols and Pictographs}]+).*&amp;quot;
+            &amp;quot;Hello, Lisper! &amp;#x1F917;&amp;#x1F603; How are you?&amp;quot;
+            &amp;quot;\\1&amp;quot;)
+&amp;quot;&amp;#x1F917;&amp;#x1F603;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are using two different Unicode classes as properties, because these two characters belong to different classes.&lt;/p&gt;
+&lt;p&gt;You can use &lt;code&gt;cl-unicode&lt;/code&gt; to discover the character&apos;s unicode class:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-unicode:code-block #\&amp;#x1F603;)
+&amp;quot;Emoticons&amp;quot;
+
+POFTHEDAY&amp;gt; (cl-unicode:code-block #\&amp;#x1F917;)
+&amp;quot;Supplemental Symbols and Pictographs&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The way, how &lt;code&gt;cl-ppcre-unicode&lt;/code&gt; works is very interesting. It turns out that &lt;code&gt;cl-ppcre&lt;/code&gt; has a special hook which allows you to define a property resolver.&lt;/p&gt;
+&lt;p&gt;For example, if you want to have a special property for vowels, you might do something like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun my-property-resolver (property-name)
+             (if (string-equal property-name
+                               &amp;quot;vowel&amp;quot;)
+                 (rutils:fn vovel-p (character)
+                   (member character &amp;#039;(#\A #\E #\I #\O #\U)
+                           :test #&amp;#039;char-equal))
+                 (cl-ppcre-unicode:unicode-property-resolver
+                  property-name)))
+
+POFTHEDAY&amp;gt; (setf cl-ppcre:*property-resolver*
+                 #&amp;#039;my-property-resolver)
+
+;; And now we can use the &amp;quot;Vowel&amp;quot; property in any
+;; regular expressions!
+POFTHEDAY&amp;gt; (ppcre:regex-replace-all
+            &amp;quot;\\p{Vowel}&amp;quot;
+            &amp;quot;Hello, Lisper! How are you?&amp;quot;
+            &amp;quot;&amp;quot;)
+&amp;quot;Hll, Lspr! Hw r y?&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Isn&apos;t this cool!? 🤪&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>jose</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0080-jose.html</link>
             <description>&lt;p&gt;JOSE is an implementation of &lt;a href=&quot;https://datatracker.ietf.org/wg/jose/documents/&quot;&gt;Javascript Object Signing and Encryption&lt;/a&gt;.&lt;/p&gt;
@@ -1276,69 +1325,6 @@ POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
  &amp;quot;(format t \&amp;quot;Blah~%\&amp;quot;)
  &amp;quot;
  *&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Can somebody tell me when this could be useful if you can just use Emacs and SLIME?&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>cl-charms</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html</link>
-            <description>&lt;p&gt;Two days ago I &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;reviewed the cl-ncurses&lt;/a&gt;. &lt;code&gt;CL-Charms&lt;/code&gt; is also a binding to &lt;code&gt;ncurses&lt;/code&gt;, but uses more universal and portable &lt;a href=&quot;https://common-lisp.net/project/cffi/manual/html_node/&quot;&gt;CFFI&lt;/a&gt; instead of &lt;a href=&quot;http://quickdocs.org/uffi/&quot;&gt;UFFI&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;By the way, LEM (Common Lisp Emacs) uses &lt;code&gt;cl-charms&lt;/code&gt; for it&apos;s console backend.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;CL-Charms&lt;/code&gt; provides a high-level API besides a low level. I&apos;ve ported my previous &lt;code&gt;echo&lt;/code&gt; program to it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun main (&amp;amp;rest argv)
-  (declare (ignorable argv))
-  (with-curses ()
-    (enable-raw-input)
-    (enable-extra-keys *standard-window*)
-    (disable-echoing)
-
-    (write-string-at-cursor *standard-window*
-                            &amp;quot;Type any character to see it in bold:
-&amp;quot;)
-
-    (let ((ch (get-char *standard-window*)))
-
-      (cond
-        ((eql ch (code-char 265))
-         (write-string-at-cursor *standard-window*
-                                 &amp;quot;F1 Key pressed&amp;quot;))
-        (t
-         (write-string-at-cursor *standard-window*
-                                 &amp;quot;The pressed key is &amp;quot;)
-
-         (cl-charms/low-level:attron cl-charms/low-level:a_bold)
-         (write-string-at-cursor *standard-window*
-                                 (format nil &amp;quot;~A~%&amp;quot; ch))
-         (cl-charms/low-level:attroff cl-charms/low-level:a_bold)))
-      
-
-      (get-char *standard-window*))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Interesting that &lt;code&gt;cl-charms/low-level&lt;/code&gt; package can be used as a drop-in replacement for &lt;code&gt;cl-ncurses&lt;/code&gt; and my second example worked without any changes except a change &lt;a href=&quot;https://github.com/40ants/lisp-project-of-the-day/blob/master/test/0061/window.ros#L11-L12&quot;&gt;in the use clause&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;A few words about portability&lt;/h2&gt;&lt;h3&gt;CL-NCURSES&lt;/h3&gt;&lt;p&gt;I must admit, that working with such kind of bindings can be problematic. For example, I haven&apos;t any problems using neither &lt;code&gt;cl-ncurses&lt;/code&gt; nor &lt;code&gt;cl-charms&lt;/code&gt; on OSX, but there was a problem with starting an example program on Ubuntu Bionic.&lt;/p&gt;
-&lt;p&gt;On Ubuntu &lt;code&gt;cl-ncurses&lt;/code&gt; is unable to find &lt;code&gt;libncurses.so&lt;/code&gt; and you have to load it manually like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; These paths are harcoded in the cl-ncurses:
-(defvar *ncurses-search-paths*
-  #-win32&amp;#039;(&amp;quot;/usr/local/lib64/&amp;quot; &amp;quot;/usr/local/lib/&amp;quot; &amp;quot;/lib64/&amp;quot; &amp;quot;/lib/&amp;quot; &amp;quot;/usr/lib64/&amp;quot; &amp;quot;/usr/lib/&amp;quot;)
-  #+win32&amp;#039;(&amp;quot;/users/jacob/src/pdc31dll/&amp;quot;))
-
-;; On Ubuntu Bionic you have to add this
-;; before cl-ncurses initscr call:
-(uffi:load-foreign-library &amp;quot;/lib/x86_64-linux-gnu/libncurses.so.5.9&amp;quot;
-                           :module &amp;quot;cl-ncurses&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;h3&gt;CL-CHARMS&lt;/h3&gt;&lt;p&gt;&lt;code&gt;CL-Charms&lt;/code&gt; has another problem. It requires the &lt;code&gt;libncurses5-dev&lt;/code&gt; package to be installed on Ubuntu. Without that, it has problem when compiling the CFFI Grovel&apos;s files:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;; cc -o /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o -c -g -Wall -Wundef -Wsign-compare -Wpointer-arith -O3 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wunused-parameter -fno-omit-frame-pointer -momit-leaf-frame-pointer -fno-pie -fPIC -I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/ /root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c
-/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c:6:10: fatal error: ncurses.h: No such file or directory
- #include &amp;lt;ncurses.h&amp;gt;
-          ^~~~~~~~~~~
-compilation terminated.
-Unhandled CFFI-GROVEL:GROVEL-ERROR in thread #&amp;lt;error printing a SB-THREAD:THREAD: #&amp;lt;PRINT-NOT-READABLE {10042938A3}&amp;gt;&amp;gt;: Subprocess #&amp;lt;UIOP/LAUNCH-PROGRAM::PROCESS-INFO {100428DCF3}&amp;gt;
- with command (&amp;quot;cc&amp;quot; &amp;quot;-o&amp;quot; &amp;quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel-tmpBF3HHBTQ.o&amp;quot; &amp;quot;-c&amp;quot; &amp;quot;-g&amp;quot; &amp;quot;-Wall&amp;quot; &amp;quot;-Wundef&amp;quot; &amp;quot;-Wsign-compare&amp;quot; &amp;quot;-Wpointer-arith&amp;quot; &amp;quot;-O3&amp;quot; &amp;quot;-D_LARGEFILE_SOURCE&amp;quot; &amp;quot;-D_LARGEFILE64_SOURCE&amp;quot; &amp;quot;-D_FILE_OFFSET_BITS=64&amp;quot; &amp;quot;-Wunused-parameter&amp;quot; &amp;quot;-fno-omit-frame-pointer&amp;quot; &amp;quot;-momit-leaf-frame-pointer&amp;quot; &amp;quot;-fno-pie&amp;quot; &amp;quot;-fPIC&amp;quot; &amp;quot;-I/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cffi_0.21.0/&amp;quot; &amp;quot;/root/.cache/common-lisp/sbcl-1.5.6-linux-x64/root/.roswell/lisp/quicklisp/dists/quicklisp/software/cl-charms-20200218-git/src/low-level/curses-grovel__grovel.c&amp;quot;)
- exited with error code 1
-
-Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;main thread&amp;quot; RUNNING {10004F04C3}&amp;gt;
-0: (SB-DEBUG::DEBUGGER-DISABLED-HOOK #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt; #&amp;lt;unused argument&amp;gt; :QUIT T)
-1: (SB-DEBUG::RUN-HOOK *INVOKE-DEBUGGER-HOOK* #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt;)
-2: (INVOKE-DEBUGGER #&amp;lt;CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; {1004291F73}&amp;gt;)
-3: (ERROR CFFI-GROVEL:GROVEL-ERROR :FORMAT-CONTROL &amp;quot;~a&amp;quot; :FORMAT-ARGUMENTS (#&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;))
-4: (CFFI-GROVEL:GROVEL-ERROR &amp;quot;~a&amp;quot; #&amp;lt;UIOP/RUN-PROGRAM:SUBPROCESS-ERROR {10042917F3}&amp;gt;)
-5: ((FLET &amp;quot;THUNK&amp;quot; :IN CFFI-GROVEL:PROCESS-GROVEL-FILE))&lt;/code&gt;&lt;/pre&gt;&lt;h3&gt;Possible Solution?&lt;/h3&gt;&lt;p&gt;Probably, &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s &lt;a href=&quot;https://github.com/borodust/claw&quot;&gt;claw&lt;/a&gt; and &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0041-bodge-blobs-support.html&quot;&gt;bodge-blobs-support&lt;/a&gt; can solve these issues?&lt;/p&gt;
 </description>
         </item>
     </channel>

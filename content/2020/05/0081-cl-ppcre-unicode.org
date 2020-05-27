@@ -1,0 +1,86 @@
+* cl-ppcre-unicode :text:regex:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system adds Unicode support to the ~cl-ppcre~.
+
+What does it mean? It means that after loading ~cl-ppcre-unicode~ you'll be
+able to match against Unicode symbol properties.
+
+A property matcher has a special syntax in cl-ppcre's regexps:
+~\p{PropertyName}~.
+
+Here is an example:
+
+#+begin_src lisp
+
+;; This is how we can find out a position
+;; of the first Cyrillic letter:
+
+POFTHEDAY> (ppcre:scan "\\p{Cyrillic}"
+                       "123Ю56")
+3
+
+;; Here we are extracting a
+;; sequence of Emoji from the text:
+POFTHEDAY> (ppcre:regex-replace
+            ".*?([\\p{Emoticons}|\\p{Supplemental Symbols and Pictographs}]+).*"
+            "Hello, Lisper! 🤗😃 How are you?"
+            "\\1")
+"🤗😃"
+
+#+end_src
+
+We are using two different Unicode classes as properties because these
+two characters belong to different classes.
+
+You can use ~cl-unicode~ to discover the character's unicode class:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-unicode:code-block #\😃)
+"Emoticons"
+
+POFTHEDAY> (cl-unicode:code-block #\🤗)
+"Supplemental Symbols and Pictographs"
+
+#+end_src
+
+The way, how ~cl-ppcre-unicode~ works is very interesting. It turns out
+that ~cl-ppcre~ has a special hook which allows you to define a property
+resolver.
+
+For example, if you want to have a special property for vowels, you
+might do something like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun my-property-resolver (property-name)
+             (if (string-equal property-name
+                               "vowel")
+                 (rutils:fn vovel-p (character)
+                   (member character '(#\A #\E #\I #\O #\U)
+                           :test #'char-equal))
+                 (cl-ppcre-unicode:unicode-property-resolver
+                  property-name)))
+
+POFTHEDAY> (setf cl-ppcre:*property-resolver*
+                 #'my-property-resolver)
+
+;; And now we can use the "Vowel" property in any
+;; regular expressions!
+POFTHEDAY> (ppcre:regex-replace-all
+            "\\p{Vowel}"
+            "Hello, Lisper! How are you?"
+            "")
+"Hll, Lspr! Hw r y?"
+
+#+end_src
+
+Isn't this cool!? 🤪
