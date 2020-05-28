@@ -66,7 +66,7 @@ POFTHEDAY&gt; (ppcre:regex-replace
             &quot;.*?([\\p{Emoticons}|\\p{Supplemental Symbols and Pictographs}]+).*&quot;
             &quot;Hello, Lisper! &#x1F917;&#x1F603; How are you?&quot;
             &quot;\\1&quot;)
-&quot;&#x1F917;&#x1F603;&quot;</code></pre><p>We are using two different Unicode classes as properties, because these two characters belong to different classes.</p>
+&quot;&#x1F917;&#x1F603;&quot;</code></pre><p>We are using two different Unicode classes as properties because these two characters belong to different classes.</p>
 <p>You can use <code>cl-unicode</code> to discover the character's unicode class:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (cl-unicode:code-block #\&#x1F603;)
 &quot;Emoticons&quot;

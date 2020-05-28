@@ -6,6 +6,158 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>data-table</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html</link>
+            <description>&lt;p&gt;This library provides a few methods to work with data tables. Think about it as a limited version of &lt;a href=&quot;https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html&quot;&gt;Pandas Dataframe&lt;/a&gt; for Common Lisp.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Data-table&lt;/code&gt; abilities are really modest. For example, it does not provide methods to investigate data in the table.&lt;/p&gt;
+&lt;p&gt;To overcome this limitation, we&apos;ll use another library - &lt;code&gt;cl-ascii-table&lt;/code&gt; and define a &lt;code&gt;describe-object&lt;/code&gt; method for data tables:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
+             (make-instance &amp;#039;data-table:data-table
+                            :column-names &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Birthday&amp;quot; &amp;quot;Age&amp;quot;)
+                            :rows &amp;#039;((&amp;quot;Bob&amp;quot; &amp;quot;1985-05-17&amp;quot; 35)
+                                    (&amp;quot;Alice&amp;quot; &amp;quot;1989-02-23&amp;quot; 31)
+                                    (&amp;quot;John&amp;quot; &amp;quot;2000-01-03&amp;quot; 20))))
+
+;; This is what we&amp;#039;ll wee by default:
+POFTHEDAY&amp;gt; (describe *dt*)
+#&amp;lt;DATA-TABLE:DATA-TABLE {1003D50293}&amp;gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  COLUMN-NAMES                   = (&amp;quot;Name&amp;quot; &amp;quot;Birthday&amp;quot; &amp;quot;Age&amp;quot;)
+  COLUMN-TYPES                   = (STRING STRING (INTEGER 0 4611686018427387903))
+  ROWS                           = ((&amp;quot;Bob&amp;quot; &amp;quot;1985-05-17&amp;quot; 35) (&amp;quot;Alice&amp;quot; &amp;quot;1989-02-23&amp;quot; 31))
+
+;; But with custom method we might make it more
+;; more convenient:
+POFTHEDAY&amp;gt; (defmethod describe-object ((obj data-table:data-table) stream)
+             (loop with table = (ascii-table:make-table
+                                 (data-table:column-names obj))
+                   for row in (data-table:rows obj)
+                   do (ascii-table:add-row table row)
+                   finally (ascii-table:display table)))
+
+POFTHEDAY&amp;gt; (describe *dt*)
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Bob   | 1985-05-17 |  35 |
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s see what capabilities for data slicing does it have.&lt;/p&gt;
+&lt;p&gt;Here is how we can retrieve columns. Pay attention, column names are case insensitive. But if case mismatch, column names of the resulting table will be different. Maybe this is a bug:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (describe
+            (data-table:select-columns *dt*
+                                       &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Age&amp;quot;)))
++-------+-----+
+| Name  | Age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+
+; No values
+POFTHEDAY&amp;gt; (describe
+            (data-table:select-columns *dt*
+                                       &amp;#039;(&amp;quot;name&amp;quot; &amp;quot;age&amp;quot;)))
++-------+-----+
+| name  | age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a way to select a subtable using indices.&lt;/p&gt;
+&lt;p&gt;This is how we can select contiguous columns with &quot;Name&quot; and &quot;Age&quot; labels:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; We have to do call this method first.
+;; It will fill a list of datatypes.
+;; Without filled list of datatypes, make-sub-table will fail :(
+
+POFTHEDAY&amp;gt; (data-table:coerce-data-table-of-strings-to-types *dt*)
+
+POFTHEDAY&amp;gt; (describe
+            (data-table:make-sub-table *dt*
+                                       :lci 1 :uci 3))
++------------+-----+
+| Birthday   | Age |
++------------+-----+
+| 1985-05-17 |  35 |
+| 1989-02-23 |  31 |
+| 2000-01-03 |  20 |
++------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we want to select only the last two rows, then we have to do some math:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; In pandas.DataFrame this will be just: dt.tail(2)
+;;
+POFTHEDAY&amp;gt; (let ((rows-count (data-table:number-of-rows *dt*)))
+             (describe
+              (data-table:make-sub-table *dt*
+                                         :lri (- rows-count 2)
+                                         :uri rows-count)))
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, we can combine column selection by name with make-sub-table. But this will create an intermediate table.&lt;/p&gt;
+&lt;p&gt;There is also a method &lt;code&gt;overlay-region&lt;/code&gt; to combine two tables. Let&apos;s use it to add email for Genry and Mary:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
+             (data-table:plists-to-data-table
+              &amp;#039;((:id 1 :name &amp;quot;Bob&amp;quot;)
+                (:id 2 :name &amp;quot;Genry&amp;quot;)
+                (:id 3 :name &amp;quot;Mary&amp;quot;))))
+
+POFTHEDAY&amp;gt; (describe *dt*)
++----+-------+
+| ID | NAME  |
++----+-------+
+|  1 | Bob   |
+|  2 | Genry |
+|  3 | Mary  |
++----+-------+
+
+POFTHEDAY&amp;gt; (data-table:overlay-region
+            (data-table:plists-to-data-table
+             &amp;#039;((:email &amp;quot;genry@gmail.com&amp;quot;)
+               (:email &amp;quot;mary@hormail.com&amp;quot;)))
+            *dt*)
+NIL
+
+POFTHEDAY&amp;gt; (describe *dt*)
++------------------+-------+
+| ID               | NAME  |
++------------------+-------+
+| genry@gmail.com  | Bob   |
+| mary@hormail.com | Genry |
+|                3 | Mary  |
++------------------+-------+
+
+POFTHEDAY&amp;gt; ;; Oh, this method modified the original table :(((&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To fix the issue, we need to recreate an original table and to specify indexes for applied overlay:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
+             (data-table:plists-to-data-table
+              &amp;#039;((:id 1 :name &amp;quot;Bob&amp;quot;)
+                (:id 2 :name &amp;quot;Genry&amp;quot;)
+                (:id 3 :name &amp;quot;Mary&amp;quot;))))
+
+POFTHEDAY&amp;gt; (data-table:overlay-region
+            (data-table:plists-to-data-table
+             &amp;#039;((:email &amp;quot;genry@gmail.com&amp;quot;)
+               (:email &amp;quot;mary@hormail.com&amp;quot;)))
+            *dt*
+            :col-idx 2
+            :row-idx 1)
+
+;; But new column has no name now :(
+POFTHEDAY&amp;gt; (describe *dt*)
++----+-------+------------------+
+| ID | NAME  | NIL              |
++----+-------+------------------+
+|  1 | Bob   | NIL              |
+|  2 | Genry | genry@gmail.com  |
+|  3 | Mary  | mary@hormail.com |
++----+-------+------------------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It would be nice to have support for indices and joins &lt;a href=&quot;https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html#join&quot;&gt;like in Pandas&lt;/a&gt;. That is what I expect from the data manipulation library.&lt;/p&gt;
+&lt;p&gt;We&apos;ve viewed almost all core functions of the &lt;code&gt;data-table&lt;/code&gt; library. There are also data coercion and comparison functions. But I think this library has lots of room for improvement.&lt;/p&gt;
+&lt;p&gt;Maybe &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt; has plans to build a dataframe library as supplementary to his &lt;a href=&quot;https://github.com/numcl/numcl&quot;&gt;NumCL&lt;/a&gt;?&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>cl-ppcre-unicode</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0081-cl-ppcre-unicode.html</link>
             <description>&lt;p&gt;This system adds Unicode support to the &lt;code&gt;cl-ppcre&lt;/code&gt;.&lt;/p&gt;
@@ -25,7 +177,7 @@ POFTHEDAY&amp;gt; (ppcre:regex-replace
             &amp;quot;.*?([\\p{Emoticons}|\\p{Supplemental Symbols and Pictographs}]+).*&amp;quot;
             &amp;quot;Hello, Lisper! &amp;#x1F917;&amp;#x1F603; How are you?&amp;quot;
             &amp;quot;\\1&amp;quot;)
-&amp;quot;&amp;#x1F917;&amp;#x1F603;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are using two different Unicode classes as properties, because these two characters belong to different classes.&lt;/p&gt;
+&amp;quot;&amp;#x1F917;&amp;#x1F603;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are using two different Unicode classes as properties because these two characters belong to different classes.&lt;/p&gt;
 &lt;p&gt;You can use &lt;code&gt;cl-unicode&lt;/code&gt; to discover the character&apos;s unicode class:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-unicode:code-block #\&amp;#x1F603;)
 &amp;quot;Emoticons&amp;quot;
@@ -1283,48 +1435,6 @@ POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
 &lt;p&gt;I think it might be useful to integrate &lt;code&gt;asdf-viz&lt;/code&gt; into IDE.&lt;/p&gt;
 &lt;p&gt;Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE is able to do this?&lt;/p&gt;
 &lt;p&gt;P.S. – next system will be chosen from the dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>magic-ed</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0062-magic-ed.html</link>
-            <description>&lt;p&gt;This strange library replaces standard &lt;code&gt;cl:ed&lt;/code&gt; function with a new one, which executes editor specified in the &lt;code&gt;EDITOR&lt;/code&gt; environment variable.&lt;/p&gt;
-&lt;p&gt;It does not work from SLY, so I had to run a raw REPL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;* sb-ext:*ed-functions*
- NIL
- * (cl:ed &amp;quot;qlfile&amp;quot;)
-
- debugger invoked on a SB-INT:EXTENSION-FAILURE in thread
- #&amp;lt;THREAD &amp;quot;main thread&amp;quot; RUNNING {1000518083}&amp;gt;:
-   Don&amp;#039;t know how to ED qlfile
- See also:
-   The SBCL Manual, Variable *ED-FUNCTIONS*
-
- Type HELP for debugger help, or (SB-EXT:EXIT) to exit from SBCL.
-
- restarts (invokable by number or by possibly-abbreviated name):
-   0: [ABORT] Exit debugger, returning to top level.
-
- (ED &amp;quot;qlfile&amp;quot;)
- 0] ^D
- * (ql:quickload :magic-ed)
- To load &amp;quot;magic-ed&amp;quot;:
-   Load 1 ASDF system:
-     magic-ed
- ; Loading &amp;quot;magic-ed&amp;quot;
-
- (:MAGIC-ED)
- * sb-ext:*ed-functions*
- (MAGIC-ED:ED-EDITOR)
- * (cl:ed &amp;quot;qlfile&amp;quot;)
- T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, this library provides a function &lt;code&gt;magic-ed&lt;/code&gt; which is able to return file&apos;s content and evaluate the lisp code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;* (magic-ed:magic-ed &amp;quot;/tmp/foo&amp;quot; :output :string)
- ...
- HERE Vim WAS STARTED AND I EDITED THE FILE
- ...
- &amp;quot;(format t \&amp;quot;Blah~%\&amp;quot;)
- &amp;quot;
- *&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Can somebody tell me when this could be useful if you can just use Emacs and SLIME?&lt;/p&gt;
 </description>
         </item>
     </channel>
