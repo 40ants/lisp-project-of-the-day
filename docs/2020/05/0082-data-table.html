@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>data-table
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>data-table</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>data-table<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library provides a few methods to work with data tables. Think about it as a limited version of <a href="https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html">Pandas Dataframe</a> for Common Lisp.</p>
+<p><code>Data-table</code> abilities are really modest. For example, it does not provide methods to investigate data in the table.</p>
+<p>To overcome this limitation, we'll use another library - <code>cl-ascii-table</code> and define a <code>describe-object</code> method for data tables:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+             (make-instance &#039;data-table:data-table
+                            :column-names &#039;(&quot;Name&quot; &quot;Birthday&quot; &quot;Age&quot;)
+                            :rows &#039;((&quot;Bob&quot; &quot;1985-05-17&quot; 35)
+                                    (&quot;Alice&quot; &quot;1989-02-23&quot; 31)
+                                    (&quot;John&quot; &quot;2000-01-03&quot; 20))))
+
+;; This is what we&#039;ll wee by default:
+POFTHEDAY&gt; (describe *dt*)
+#&lt;DATA-TABLE:DATA-TABLE {1003D50293}&gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  COLUMN-NAMES                   = (&quot;Name&quot; &quot;Birthday&quot; &quot;Age&quot;)
+  COLUMN-TYPES                   = (STRING STRING (INTEGER 0 4611686018427387903))
+  ROWS                           = ((&quot;Bob&quot; &quot;1985-05-17&quot; 35) (&quot;Alice&quot; &quot;1989-02-23&quot; 31))
+
+;; But with custom method we might make it more
+;; more convenient:
+POFTHEDAY&gt; (defmethod describe-object ((obj data-table:data-table) stream)
+             (loop with table = (ascii-table:make-table
+                                 (data-table:column-names obj))
+                   for row in (data-table:rows obj)
+                   do (ascii-table:add-row table row)
+                   finally (ascii-table:display table)))
+
+POFTHEDAY&gt; (describe *dt*)
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Bob   | 1985-05-17 |  35 |
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+</code></pre><p>Now let's see what capabilities for data slicing does it have.</p>
+<p>Here is how we can retrieve columns. Pay attention, column names are case insensitive. But if case mismatch, column names of the resulting table will be different. Maybe this is a bug:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (describe
+            (data-table:select-columns *dt*
+                                       &#039;(&quot;Name&quot; &quot;Age&quot;)))
++-------+-----+
+| Name  | Age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+
+; No values
+POFTHEDAY&gt; (describe
+            (data-table:select-columns *dt*
+                                       &#039;(&quot;name&quot; &quot;age&quot;)))
++-------+-----+
+| name  | age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+</code></pre><p>There is also a way to select a subtable using indices.</p>
+<p>This is how we can select contiguous columns with "Name" and "Age" labels:</p>
+<pre><code class=' lisp'>;; We have to do call this method first.
+;; It will fill a list of datatypes.
+;; Without filled list of datatypes, make-sub-table will fail :(
+
+POFTHEDAY&gt; (data-table:coerce-data-table-of-strings-to-types *dt*)
+
+POFTHEDAY&gt; (describe
+            (data-table:make-sub-table *dt*
+                                       :lci 1 :uci 3))
++------------+-----+
+| Birthday   | Age |
++------------+-----+
+| 1985-05-17 |  35 |
+| 1989-02-23 |  31 |
+| 2000-01-03 |  20 |
++------------+-----+</code></pre><p>If we want to select only the last two rows, then we have to do some math:</p>
+<pre><code class=' lisp'>;; In pandas.DataFrame this will be just: dt.tail(2)
+;;
+POFTHEDAY&gt; (let ((rows-count (data-table:number-of-rows *dt*)))
+             (describe
+              (data-table:make-sub-table *dt*
+                                         :lri (- rows-count 2)
+                                         :uri rows-count)))
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+</code></pre><p>Also, we can combine column selection by name with make-sub-table. But this will create an intermediate table.</p>
+<p>There is also a method <code>overlay-region</code> to combine two tables. Let's use it to add email for Genry and Mary:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+             (data-table:plists-to-data-table
+              &#039;((:id 1 :name &quot;Bob&quot;)
+                (:id 2 :name &quot;Genry&quot;)
+                (:id 3 :name &quot;Mary&quot;))))
+
+POFTHEDAY&gt; (describe *dt*)
++----+-------+
+| ID | NAME  |
++----+-------+
+|  1 | Bob   |
+|  2 | Genry |
+|  3 | Mary  |
++----+-------+
+
+POFTHEDAY&gt; (data-table:overlay-region
+            (data-table:plists-to-data-table
+             &#039;((:email &quot;genry@gmail.com&quot;)
+               (:email &quot;mary@hormail.com&quot;)))
+            *dt*)
+NIL
+
+POFTHEDAY&gt; (describe *dt*)
++------------------+-------+
+| ID               | NAME  |
++------------------+-------+
+| genry@gmail.com  | Bob   |
+| mary@hormail.com | Genry |
+|                3 | Mary  |
++------------------+-------+
+
+POFTHEDAY&gt; ;; Oh, this method modified the original table :(((</code></pre><p>To fix the issue, we need to recreate an original table and to specify indexes for applied overlay:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+             (data-table:plists-to-data-table
+              &#039;((:id 1 :name &quot;Bob&quot;)
+                (:id 2 :name &quot;Genry&quot;)
+                (:id 3 :name &quot;Mary&quot;))))
+
+POFTHEDAY&gt; (data-table:overlay-region
+            (data-table:plists-to-data-table
+             &#039;((:email &quot;genry@gmail.com&quot;)
+               (:email &quot;mary@hormail.com&quot;)))
+            *dt*
+            :col-idx 2
+            :row-idx 1)
+
+;; But new column has no name now :(
+POFTHEDAY&gt; (describe *dt*)
++----+-------+------------------+
+| ID | NAME  | NIL              |
++----+-------+------------------+
+|  1 | Bob   | NIL              |
+|  2 | Genry | genry@gmail.com  |
+|  3 | Mary  | mary@hormail.com |
++----+-------+------------------+</code></pre><p>It would be nice to have support for indices and joins <a href="https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html#join">like in pandas</a>. That is what I expect from the data manipulation library.</p>
+<p>We've viewed almost all core functions of the <code>data-table</code> library. There are also data coercion and comparison functions. But I think this library has lots of room for improvement.</p>
+<p>Maybe <a href="https://twitter.com/guicho271828">@guicho271828</a> has plans to build a dataframe library as supplementary to <a href="https://github.com/numcl/numcl">NumCL</a>?</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

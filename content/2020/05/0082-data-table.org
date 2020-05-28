@@ -1,0 +1,221 @@
+* data-table :data_structures:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :|
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library provides a few methods to work with data tables. Think
+about it as a limited version of [[https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html][Pandas Dataframe]] for Common Lisp.
+
+~Data-table~ abilities are really modest. For example, it does not provide methods
+to investigate data in the table.
+
+To overcome this limitation, we'll use another library - ~cl-ascii-table~
+and define a ~describe-object~ method for data tables:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *dt*
+             (make-instance 'data-table:data-table
+                            :column-names '("Name" "Birthday" "Age")
+                            :rows '(("Bob" "1985-05-17" 35)
+                                    ("Alice" "1989-02-23" 31)
+                                    ("John" "2000-01-03" 20))))
+
+;; This is what we'll wee by default:
+POFTHEDAY> (describe *dt*)
+#<DATA-TABLE:DATA-TABLE {1003D50293}>
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  COLUMN-NAMES                   = ("Name" "Birthday" "Age")
+  COLUMN-TYPES                   = (STRING STRING (INTEGER 0 4611686018427387903))
+  ROWS                           = (("Bob" "1985-05-17" 35) ("Alice" "1989-02-23" 31))
+
+;; But with custom method we might make it more
+;; more convenient:
+POFTHEDAY> (defmethod describe-object ((obj data-table:data-table) stream)
+             (loop with table = (ascii-table:make-table
+                                 (data-table:column-names obj))
+                   for row in (data-table:rows obj)
+                   do (ascii-table:add-row table row)
+                   finally (ascii-table:display table)))
+
+POFTHEDAY> (describe *dt*)
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Bob   | 1985-05-17 |  35 |
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+
+
+#+end_src
+
+Now let's see what capabilities for data slicing does it have.
+
+Here is how we can retrieve columns. Pay attention, column names are
+case insensitive. But if case mismatch, column names of the resulting
+table will be different. Maybe this is a bug:
+
+#+begin_src lisp
+
+POFTHEDAY> (describe
+            (data-table:select-columns *dt*
+                                       '("Name" "Age")))
++-------+-----+
+| Name  | Age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+
+; No values
+POFTHEDAY> (describe
+            (data-table:select-columns *dt*
+                                       '("name" "age")))
++-------+-----+
+| name  | age |
++-------+-----+
+| Bob   |  35 |
+| Alice |  31 |
+| John  |  20 |
++-------+-----+
+
+
+#+end_src
+
+There is also a way to select a subtable using indices.
+
+This is how we can select contiguous columns with "Name" and
+"Age" labels:
+
+#+begin_src lisp
+
+;; We have to do call this method first.
+;; It will fill a list of datatypes.
+;; Without filled list of datatypes, make-sub-table will fail :(
+
+POFTHEDAY> (data-table:coerce-data-table-of-strings-to-types *dt*)
+
+POFTHEDAY> (describe
+            (data-table:make-sub-table *dt*
+                                       :lci 1 :uci 3))
++------------+-----+
+| Birthday   | Age |
++------------+-----+
+| 1985-05-17 |  35 |
+| 1989-02-23 |  31 |
+| 2000-01-03 |  20 |
++------------+-----+
+
+#+end_src
+
+If we want to select only the last two rows, then we have to do some math:
+
+#+begin_src lisp
+
+;; In pandas.DataFrame this will be just: dt.tail(2)
+;;
+POFTHEDAY> (let ((rows-count (data-table:number-of-rows *dt*)))
+             (describe
+              (data-table:make-sub-table *dt*
+                                         :lri (- rows-count 2)
+                                         :uri rows-count)))
++-------+------------+-----+
+| Name  | Birthday   | Age |
++-------+------------+-----+
+| Alice | 1989-02-23 |  31 |
+| John  | 2000-01-03 |  20 |
++-------+------------+-----+
+
+#+end_src
+
+Also, we can combine column selection by name with make-sub-table. But
+this will create an intermediate table.
+
+There is also a method ~overlay-region~ to combine two tables. Let's use
+it to add email for Genry and Mary:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *dt*
+             (data-table:plists-to-data-table
+              '((:id 1 :name "Bob")
+                (:id 2 :name "Genry")
+                (:id 3 :name "Mary"))))
+
+POFTHEDAY> (describe *dt*)
++----+-------+
+| ID | NAME  |
++----+-------+
+|  1 | Bob   |
+|  2 | Genry |
+|  3 | Mary  |
++----+-------+
+
+POFTHEDAY> (data-table:overlay-region
+            (data-table:plists-to-data-table
+             '((:email "genry@gmail.com")
+               (:email "mary@hormail.com")))
+            *dt*)
+NIL
+
+POFTHEDAY> (describe *dt*)
++------------------+-------+
+| ID               | NAME  |
++------------------+-------+
+| genry@gmail.com  | Bob   |
+| mary@hormail.com | Genry |
+|                3 | Mary  |
++------------------+-------+
+
+POFTHEDAY> ;; Oh, this method modified the original table :(((
+
+#+end_src
+
+To fix the issue, we need to recreate an original table and to specify
+indexes for applied overlay:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *dt*
+             (data-table:plists-to-data-table
+              '((:id 1 :name "Bob")
+                (:id 2 :name "Genry")
+                (:id 3 :name "Mary"))))
+
+POFTHEDAY> (data-table:overlay-region
+            (data-table:plists-to-data-table
+             '((:email "genry@gmail.com")
+               (:email "mary@hormail.com")))
+            *dt*
+            :col-idx 2
+            :row-idx 1)
+
+;; But new column has no name now :(
+POFTHEDAY> (describe *dt*)
++----+-------+------------------+
+| ID | NAME  | NIL              |
++----+-------+------------------+
+|  1 | Bob   | NIL              |
+|  2 | Genry | genry@gmail.com  |
+|  3 | Mary  | mary@hormail.com |
++----+-------+------------------+
+
+#+end_src
+
+It would be nice to have support for indices and joins
+[[https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html#join][like in Pandas]]. That is what I expect from the data manipulation
+library.
+
+We've viewed almost all core functions of the ~data-table~ library. There
+are also data coercion and comparison functions. But I think this
+library has lots of room for improvement.
+
+Maybe [[https://twitter.com/guicho271828][@guicho271828]] has plans to build a dataframe library as
+supplementary to his [[https://github.com/numcl/numcl][NumCL]]?
