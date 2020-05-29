@@ -11,7 +11,7 @@
 This is a small utility library by [[https://twitter.com/nitro_idiot][Eitaro Fukamachi]]. It serves a single
 purpose - make working with alists more convenient.
 
-Library has a good documentation with lots of examples. Here is the
+The library has good documentation with lots of examples. Here is the
 excerpt from it:
 
 #+begin_src lisp
@@ -70,5 +70,5 @@ POFTHEDAY> (assoc-utils:plist-alist *)
 
 #+end_src
 
-Read [[http://quickdocs.org/assoc-utils/][the documentation]] to learn more about other functions which allows
+Read [[http://quickdocs.org/assoc-utils/][the documentation]] to learn more about other functions which allow
 to compare alists, check their type and to get keys and values.

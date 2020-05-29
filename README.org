@@ -31,7 +31,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 26 May - [[content/2020/05/0080-jose.org][jose]] ([[https://twitter.com/svetlyak40wt/status/1265325558000484354][twitter]])
 - 27 May - [[content/2020/05/0081-cl-ppcre-unicode.org][cl-ppcre-unicode]] ([[https://twitter.com/svetlyak40wt/status/1265695892285292545][twitter]])
 - 28 May - [[content/2020/28/0082-data-table.org][data-table]] ([[https://twitter.com/svetlyak40wt/status/1266117466096369664][twitter]])
-- 29 May - [[content/2020/05/0083-assoc-utils.org][assoc-utils]]
+- 29 May - [[content/2020/05/0083-assoc-utils.org][assoc-utils]] ([[https://twitter.com/svetlyak40wt/status/1266431240925843456][twitter]])
 - 30 May - https://docs.stevelosh.com/bobbin/usage/
 
 ** April

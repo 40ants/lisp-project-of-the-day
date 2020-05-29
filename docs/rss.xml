@@ -6,6 +6,56 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>assoc-utils</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0083-assoc-utils.html</link>
+            <description>&lt;p&gt;This is a small utility library by &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;Eitaro Fukamachi&lt;/a&gt;. It serves a single purpose - make working with alists more convenient.&lt;/p&gt;
+&lt;p&gt;The library has good documentation with lots of examples. Here is the excerpt from it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *person*
+             &amp;#039;((&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;)
+               (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;)))
+
+POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;name&amp;quot;)
+&amp;quot;Eitaro&amp;quot;
+
+POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;address&amp;quot;)
+NIL
+
+POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;address&amp;quot;
+                             ;; This is default
+                             &amp;quot;Tokyo, Japan&amp;quot;)
+&amp;quot;Tokyo, Japan&amp;quot;
+
+;; The alist remains the same
+POFTHEDAY&amp;gt; *person*
+((&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;) (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;))
+
+;; But aget is setf-able:
+POFTHEDAY&amp;gt; (setf (assoc-utils:aget *person* &amp;quot;address&amp;quot;)
+                 &amp;quot;Tokyo, Japan&amp;quot;)
+
+POFTHEDAY&amp;gt; *person*
+((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
+ (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;)
+ (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;))
+
+POFTHEDAY&amp;gt; (assoc-utils:delete-from-alistf *person*
+                                           &amp;quot;email&amp;quot;)
+((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
+ (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also conversion functions which automatically converts keys from strings to keywords and vice versa:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; *person*
+((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;) 
+ (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))
+
+POFTHEDAY&amp;gt; (assoc-utils:alist-plist *person*)
+(:ADDRESS &amp;quot;Tokyo, Japan&amp;quot;
+ :NAME &amp;quot;Eitaro&amp;quot;)
+
+POFTHEDAY&amp;gt; (assoc-utils:plist-alist *)
+((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
+ (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/assoc-utils/&quot;&gt;the documentation&lt;/a&gt; to learn more about other functions which allow to compare alists, check their type and to get keys and values.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>data-table</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html</link>
             <description>&lt;p&gt;This library provides a few methods to work with data tables. Think about it as a limited version of &lt;a href=&quot;https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html&quot;&gt;Pandas Dataframe&lt;/a&gt; for Common Lisp.&lt;/p&gt;
@@ -1411,30 +1461,6 @@ POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
         &amp;lt;twitter&amp;gt;https://twitter.com/mary&amp;lt;/twitter&amp;gt;
     &amp;lt;/contact&amp;gt;
 &amp;lt;/address-book&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Please, note that support for &lt;a href=&quot;https://www.w3schools.com/xml/xml_namespaces.asp&quot;&gt;XML namespaces&lt;/a&gt; is very limited. You can only specify a namespace for some tags. Namespace prefixes are not supported.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>asdf-viz</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0063-asdf-viz.html</link>
-            <description>&lt;p&gt;Today I decided it will be more interesting to investigate Lisp systems which I already have as dependencies of my projects. That is why I&apos;ve remembered about &lt;code&gt;asdf-viz&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;ASDF-VIZ&lt;/code&gt; is able to render a graph of ASDF systems. It can be installed as Unix scripts using &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt; or used from the REPL.&lt;/p&gt;
-&lt;p&gt;Also, you&apos;ll need a &lt;a href=&quot;https://www.graphviz.org/&quot;&gt;Graphviz&lt;/a&gt; program installed.&lt;/p&gt;
-&lt;p&gt;Now we&apos;ll render a graph of all dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (setf cl-dot:*dot-path* &amp;quot;/usr/local/bin/dot&amp;quot;)
-
-POFTHEDAY&amp;gt; (asdf-viz:visualize-asdf-hierarchy
-            &amp;quot;docs/media/0063/systems.png&amp;quot;
-            (list (asdf:find-system :poftheday)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0063/systems.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;Interestingly, &lt;code&gt;asdf-viz&lt;/code&gt; not only can draw a system&apos;s dependencies but also class hierarchies and call graphs.&lt;/p&gt;
-&lt;p&gt;Here is a small example, how to render a class hierarchy:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf-viz.class-hierarchy:visualize-class-hierarchy
-            &amp;quot;docs/media/0063/classes.png&amp;quot;
-            (list &amp;#039;cl-org-mode::node))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this is the resulting graph:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0063/classes.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;I think it might be useful to integrate &lt;code&gt;asdf-viz&lt;/code&gt; into IDE.&lt;/p&gt;
-&lt;p&gt;Probably Emacs might show graphs in a separate buffer? Or LispWorks IDE is able to do this?&lt;/p&gt;
-&lt;p&gt;P.S. – next system will be chosen from the dependencies of the &lt;code&gt;poftheday&lt;/code&gt; system.&lt;/p&gt;
 </description>
         </item>
     </channel>
