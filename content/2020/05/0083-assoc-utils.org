@@ -1,0 +1,74 @@
+* assoc-utils :data_structures:utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This is a small utility library by [[https://twitter.com/nitro_idiot][Eitaro Fukamachi]]. It serves a single
+purpose - make working with alists more convenient.
+
+Library has a good documentation with lots of examples. Here is the
+excerpt from it:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *person*
+             '(("name" . "Eitaro")
+               ("email" . "e.arrows@gmail.com")))
+
+POFTHEDAY> (assoc-utils:aget *person* "name")
+"Eitaro"
+
+POFTHEDAY> (assoc-utils:aget *person* "address")
+NIL
+
+POFTHEDAY> (assoc-utils:aget *person* "address"
+                             ;; This is default
+                             "Tokyo, Japan")
+"Tokyo, Japan"
+
+;; The alist remains the same
+POFTHEDAY> *person*
+(("name" . "Eitaro") ("email" . "e.arrows@gmail.com"))
+
+;; But aget is setf-able:
+POFTHEDAY> (setf (assoc-utils:aget *person* "address")
+                 "Tokyo, Japan")
+
+POFTHEDAY> *person*
+(("address" . "Tokyo, Japan")
+ ("name" . "Eitaro")
+ ("email" . "e.arrows@gmail.com"))
+
+POFTHEDAY> (assoc-utils:delete-from-alistf *person*
+                                           "email")
+(("address" . "Tokyo, Japan")
+ ("name" . "Eitaro"))
+
+#+end_src
+
+There are also conversion functions which automatically converts keys
+from strings to keywords and vice versa:
+
+#+begin_src lisp
+
+POFTHEDAY> *person*
+(("address" . "Tokyo, Japan") 
+ ("name" . "Eitaro"))
+
+POFTHEDAY> (assoc-utils:alist-plist *person*)
+(:ADDRESS "Tokyo, Japan"
+ :NAME "Eitaro")
+
+POFTHEDAY> (assoc-utils:plist-alist *)
+(("address" . "Tokyo, Japan")
+ ("name" . "Eitaro"))
+
+#+end_src
+
+Read [[http://quickdocs.org/assoc-utils/][the documentation]] to learn more about other functions which allows
+to compare alists, check their type and to get keys and values.
