@@ -1030,5 +1030,11 @@ files, and extracting their ":defsystem-depends-on".
      T)
 
 #+end_src
+
+- http://quickdocs.org/defclass-std/
+- http://quickdocs.org/pythonic-string-reader/
+- http://quickdocs.org/cl-cron/
+- http://quickdocs.org/group-by/
+- http://quickdocs.org/parse-float/
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
