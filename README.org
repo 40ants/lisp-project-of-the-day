@@ -33,7 +33,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 28 May - [[content/2020/28/0082-data-table.org][data-table]] ([[https://twitter.com/svetlyak40wt/status/1266117466096369664][twitter]])
 - 29 May - [[content/2020/05/0083-assoc-utils.org][assoc-utils]] ([[https://twitter.com/svetlyak40wt/status/1266431240925843456][twitter]])
 - 30 May - [[content/2020/0084-cl-ascii-table.org][cl-ascii-table]] ([[https://twitter.com/svetlyak40wt/status/1266805748748767232][twitter]])
-- 31 May - https://docs.stevelosh.com/bobbin/usage/
+
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
@@ -1001,5 +1001,34 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/ruricolist/vernacular - interesting system to
   extend Lisp with other syntax
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
+- [[https://docs.stevelosh.com/bobbin/usage/][bobbin]] - text wrapping utility
+- http://quickdocs.org/simplified-types/
+  http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html
+
+  #+begin_src lisp
+
+    POFTHEDAY> (mapcar #'type-of '(21 -23 1.23 4.56d0 "string"))
+    ((INTEGER 0 4611686018427387903)
+     FIXNUM
+     SINGLE-FLOAT
+     DOUBLE-FLOAT
+     (SIMPLE-ARRAY CHARACTER (6)))
+    
+    POFTHEDAY> (mapcar #'simplified-types:simplified-type-of '(21 -23 1.23 4.56d0 "string"))
+    ((INTEGER 21 21)
+     (INTEGER -23 -23)
+     SINGLE-FLOAT
+     DOUBLE-FLOAT
+     T)
+
+    POFTHEDAY> (let ((simplified-types::*precise-integer-types* nil))
+                 (mapcar #'simplified-types:simplified-type-of '(21 -23 1.23 4.56d0 "string")))
+    ((INTEGER * *)
+     (INTEGER * *)
+     SINGLE-FLOAT
+     DOUBLE-FLOAT
+     T)
+
+#+end_src
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
