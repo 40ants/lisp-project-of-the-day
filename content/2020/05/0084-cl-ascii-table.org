@@ -1,0 +1,65 @@
+* cl-ascii-table                                            :console:ui:text:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today I want to cheat and to review a library you've already seen in
+action in the [[http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html][data-table's review]].
+
+Recently I encounter a task where I needed to print tabulated data.
+In Python there is really cool library [[https://pypi.org/project/tabulate/][tabulate]] and first thing I did -
+created [[https://www.reddit.com/r/Common_Lisp/comments/gs115z/looking_for_a_library_to_show_data_frames_and/][the post on Reddit]] asking if there is something similar for
+Common Lisp exists.
+
+Comments didn't give a  variety of choices, but I found a ~cl-ascii-table~
+[[http://quickdocs.org/cl-ascii-table/][on Quickdocs]]. Remember, if you need to solve some problem - search o
+Quickdocs first! ;-)
+
+So, ~cl-ascii-table~ is a little helper to draw nice ASCII tables. It is
+very easy to use. Just create a table, then add rows, and command it to
+render the table:
+
+#+begin_src lisp
+
+POFTHEDAY> (loop with rows = '(("Bob" 31 "bob@gmail.com" 89.4)
+                               ("Alice" 28 "alice@hot.com" 65.1)
+                               ("Garry" 25 "garry@zoumz.in" 76.3))
+                 with table = (ascii-table:make-table
+                               '("Name" "Age" "Email" "Weight")
+                               ;; this is optional
+                               :header "Sport Group")
+                 for row in  rows
+                 do (ascii-table:add-row table row)
+                 finally (ascii-table:display table))
+.---------------------------------------.
+|              Sport Group              |
++-------+-----+----------------+--------+
+| Name  | Age | Email          | Weight |
++-------+-----+----------------+--------+
+| Bob   |  31 | bob@gmail.com  |   89.4 |
+| Alice |  28 | alice@hot.com  |   65.1 |
+| Garry |  25 | garry@zoumz.in |   76.3 |
++-------+-----+----------------+--------+
+
+#+end_src
+
+It is not so featureful as Python's tabulate, but does it job.
+
+By the way, pay attention on the difference between system name and
+package name. It might be important if you use [[https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html][package-inferred-system]]
+ASDF extension for your own system.
+
+In this case, you can put this line into your ASD file. This will let
+ASDF to know which system should be loaded when you are importing
+symbols from ~ascii-table~ package:
+
+#+begin_src lisp
+
+(register-system-packages "cl-ascii-table" '(#:ascii-table))
+
+#+end_src

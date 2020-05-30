@@ -6,6 +6,36 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-ascii-table</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0084-cl-ascii-table.html</link>
+            <description>&lt;p&gt;Today I want to cheat and to review a library you&apos;ve already seen in action in the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html&quot;&gt;data-table&apos;s review&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Recently I encounter a task where I needed to print tabulated data. In Python there is really cool library &lt;a href=&quot;https://pypi.org/project/tabulate/&quot;&gt;tabulate&lt;/a&gt; and first thing I did - created &lt;a href=&quot;https://www.reddit.com/r/Common_Lisp/comments/gs115z/looking_for_a_library_to_show_data_frames_and/&quot;&gt;the post on Reddit&lt;/a&gt; asking if there is something similar for Common Lisp exists.&lt;/p&gt;
+&lt;p&gt;Comments didn&apos;t give a  variety of choices, but I found a &lt;code&gt;cl-ascii-table&lt;/code&gt; &lt;a href=&quot;http://quickdocs.org/cl-ascii-table/&quot;&gt;on Quickdocs&lt;/a&gt;. Remember, if you need to solve some problem - search o Quickdocs first! ;-)&lt;/p&gt;
+&lt;p&gt;So, &lt;code&gt;cl-ascii-table&lt;/code&gt; is a little helper to draw nice ASCII tables. It is very easy to use. Just create a table, then add rows, and command it to render the table:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with rows = &amp;#039;((&amp;quot;Bob&amp;quot; 31 &amp;quot;bob@gmail.com&amp;quot; 89.4)
+                               (&amp;quot;Alice&amp;quot; 28 &amp;quot;alice@hot.com&amp;quot; 65.1)
+                               (&amp;quot;Garry&amp;quot; 25 &amp;quot;garry@zoumz.in&amp;quot; 76.3))
+                 with table = (ascii-table:make-table
+                               &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Age&amp;quot; &amp;quot;Email&amp;quot; &amp;quot;Weight&amp;quot;)
+                               ;; this is optional
+                               :header &amp;quot;Sport Group&amp;quot;)
+                 for row in  rows
+                 do (ascii-table:add-row table row)
+                 finally (ascii-table:display table))
+.---------------------------------------.
+|              Sport Group              |
++-------+-----+----------------+--------+
+| Name  | Age | Email          | Weight |
++-------+-----+----------------+--------+
+| Bob   |  31 | bob@gmail.com  |   89.4 |
+| Alice |  28 | alice@hot.com  |   65.1 |
+| Garry |  25 | garry@zoumz.in |   76.3 |
++-------+-----+----------------+--------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is not so featureful as Python&apos;s tabulate, but does it job.&lt;/p&gt;
+&lt;p&gt;By the way, pay attention on the difference between system name and package name. It might be important if you use &lt;a href=&quot;https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html&quot;&gt;package-inferred-system&lt;/a&gt; ASDF extension for your own system.&lt;/p&gt;
+&lt;p&gt;In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from &lt;code&gt;ascii-table&lt;/code&gt; package:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
             <title>assoc-utils</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0083-assoc-utils.html</link>
             <description>&lt;p&gt;This is a small utility library by &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;Eitaro Fukamachi&lt;/a&gt;. It serves a single purpose - make working with alists more convenient.&lt;/p&gt;
@@ -1407,60 +1437,6 @@ POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
              (? obj :foo 1))
 2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here a question mark is an abbreviation for &lt;code&gt;rutils:generic-elt&lt;/code&gt; generic and you can define a custom method to access different kinds of containers.&lt;/p&gt;
 &lt;p&gt;I definitely will try to use more of &lt;code&gt;rutils&lt;/code&gt; in my code now.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>xml-emitter</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html</link>
-            <description>&lt;p&gt;This library can be used to generate XML. You can use it for outputting any XML, but I use its builtin helpers to generate RSS feed.&lt;/p&gt;
-&lt;p&gt;Here is how to generate RSS feed in Common Lisp:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-output-to-string (s)
-             (xml-emitter:with-rss2 (s :encoding &amp;quot;utf-8&amp;quot;)
-               (xml-emitter:rss-channel-header &amp;quot;Common Lisp Project of the Day&amp;quot; 
-                                               &amp;quot;https://poftheday.org&amp;quot;)
-               (xml-emitter:rss-item &amp;quot;First post&amp;quot;
-                                     :description &amp;quot;Hello World&amp;quot;
-                                     :category &amp;quot;lisp&amp;quot;)))
-
-&amp;quot;&amp;lt;?xml version=\&amp;quot;1.0\&amp;quot; encoding=\&amp;quot;utf-8\&amp;quot;?&amp;gt;
-&amp;lt;rss version=\&amp;quot;2.0\&amp;quot;&amp;gt;
-    &amp;lt;channel&amp;gt;
-        &amp;lt;title&amp;gt;Common Lisp Project of the Day&amp;lt;/title&amp;gt;
-        &amp;lt;link&amp;gt;https://poftheday.org&amp;lt;/link&amp;gt;
-        &amp;lt;generator&amp;gt;xml-emitter&amp;lt;/generator&amp;gt;
-        &amp;lt;language&amp;gt;en-us&amp;lt;/language&amp;gt;
-        &amp;lt;item&amp;gt;
-            &amp;lt;title&amp;gt;First post&amp;lt;/title&amp;gt;
-            &amp;lt;description&amp;gt;Hello World&amp;lt;/description&amp;gt;
-            &amp;lt;category&amp;gt;lisp&amp;lt;/category&amp;gt;
-        &amp;lt;/item&amp;gt;
-    &amp;lt;/channel&amp;gt;
-&amp;lt;/rss&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, you easily can generate any XML as well:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-output-to-string (s)
-             (xml-emitter:with-xml-output (s)
-               (xml-emitter:with-tag (&amp;quot;address-book&amp;quot;)
-                 (xml-emitter:with-tag (&amp;quot;contact&amp;quot;)
-                   (xml-emitter:emit-simple-tags
-                    :name &amp;quot;Bob&amp;quot;
-                    :email &amp;quot;bob@perkins.com&amp;quot;
-                    :note &amp;quot;My friend.&amp;quot;))
-                 (xml-emitter:with-tag (&amp;quot;contact&amp;quot;)
-                   (xml-emitter:emit-simple-tags
-                    :name &amp;quot;Mary&amp;quot;
-                    :twitter &amp;quot;https://twitter.com/mary&amp;quot;)))))
-
-&amp;quot;&amp;lt;?xml version=\&amp;quot;1.0\&amp;quot; encoding=\&amp;quot;ISO-8859-1\&amp;quot;?&amp;gt;
-&amp;lt;address-book&amp;gt;
-    &amp;lt;contact&amp;gt;
-        &amp;lt;name&amp;gt;Bob&amp;lt;/name&amp;gt;
-        &amp;lt;email&amp;gt;bob@perkins.com&amp;lt;/email&amp;gt;
-        &amp;lt;note&amp;gt;My friend.&amp;lt;/note&amp;gt;
-    &amp;lt;/contact&amp;gt;
-    &amp;lt;contact&amp;gt;
-        &amp;lt;name&amp;gt;Mary&amp;lt;/name&amp;gt;
-        &amp;lt;twitter&amp;gt;https://twitter.com/mary&amp;lt;/twitter&amp;gt;
-    &amp;lt;/contact&amp;gt;
-&amp;lt;/address-book&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Please, note that support for &lt;a href=&quot;https://www.w3schools.com/xml/xml_namespaces.asp&quot;&gt;XML namespaces&lt;/a&gt; is very limited. You can only specify a namespace for some tags. Namespace prefixes are not supported.&lt;/p&gt;
 </description>
         </item>
     </channel>
