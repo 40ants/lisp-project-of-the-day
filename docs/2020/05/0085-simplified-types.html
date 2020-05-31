@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>simplified-types
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>simplified-types</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>simplified-types<span class='tags'><a href='../../tags/language.html'><span class='label label-default'>language</span></a><a href='../../tags/types.html'><span class='label label-default'>types</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Yesterday I wrote a simple implementation of dataframe. A dataframe stores data columns as a simple vectors of some type.</p>
+<p>For this implementation I needed a type inference to set vector's type for each column. An inferred type should be generic enough to work for all items in the column.</p>
+<p>But what if we have positive and negative integers in our data? What type will return the standard <code>type-of</code>?</p>
+<p>Here is the answer:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (type-of 21)
+(INTEGER 0 4611686018427387903)
+
+POFTHEDAY&gt; (type-of -21)
+FIXNUM</code></pre><p>So, if I'll make my vector's type <code>(INTEGER 0 4611686018427387903)</code> it will raise an error on the second element:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (make-array
+            2
+            :element-type &#039;(INTEGER
+                            0
+                            4611686018427387903)
+            :initial-contents &#039;(21 -21))
+; Debugger entered on
+; #&lt;TYPE-ERROR expected-type:
+; (UNSIGNED-BYTE 62) datum: -21&gt;</code></pre><p>That's why I started to search the way to make inferred type more generic and found <code>simplified-types</code> library.</p>
+<p>Here is how it works:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (mapcar #&#039;type-of
+             &#039;(21 -23 1.23 4.56d0 &quot;string&quot;))
+
+((INTEGER 0 4611686018427387903)
+  FIXNUM
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  (SIMPLE-ARRAY CHARACTER (6)))
+    
+POFTHEDAY&gt; (mapcar #&#039;simplified-types:simplified-type-of
+             &#039;(21 -23 1.23 4.56d0 &quot;string&quot;))
+
+((INTEGER 21 21)
+ (INTEGER -23 -23)
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  T)</code></pre><p>Hovewer, <code>INTEGER</code> with bounds still is not what I need for my application. Happily, <a href="https://github.com/marcoheisig">Marco Heisig</a> foresee this need and added a switcher which makes integer types more generic.</p>
+<p>With this option, the library produces exactly what I need:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((simplified-types::*precise-integer-types* nil))
+             (mapcar #&#039;simplified-types:simplified-type-of
+               &#039;(21 -23 1.23 4.56d0 &quot;string&quot;)))
+
+((INTEGER * *)
+ (INTEGER * *)
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  T)</code></pre><p>If you'd like to work with types in Common Lisp, then you probabli might be interested in other library I've reviwed recently - <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html">trivialib.type-unify</a>. It allows to do pattern-matching on type specifiers.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
