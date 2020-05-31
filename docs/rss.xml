@@ -6,6 +6,57 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>simplified-types</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0085-simplified-types.html</link>
+            <description>&lt;p&gt;Yesterday I wrote a simple implementation of dataframe. A dataframe stores data columns as simple vectors of some type.&lt;/p&gt;
+&lt;p&gt;For this implementation, I needed a type inference to set vector&apos;s type for each column. An inferred type should be generic enough to work for all items in the column.&lt;/p&gt;
+&lt;p&gt;But what if we have positive and negative integers in our data? What type will return the standard &lt;code&gt;type-of&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;Here is the answer:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (type-of 21)
+(INTEGER 0 4611686018427387903)
+
+POFTHEDAY&amp;gt; (type-of -21)
+FIXNUM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, if I&apos;ll make my vector&apos;s type &lt;code&gt;(INTEGER 0 4611686018427387903)&lt;/code&gt; it will raise an error on the second element:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (make-array
+            2
+            :element-type &amp;#039;(INTEGER
+                            0
+                            4611686018427387903)
+            :initial-contents &amp;#039;(21 -21))
+; Debugger entered on
+; #&amp;lt;TYPE-ERROR expected-type:
+; (UNSIGNED-BYTE 62) datum: -21&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That&apos;s why I started to search the way to make inferred type more generic and found &lt;code&gt;simplified-types&lt;/code&gt; library.&lt;/p&gt;
+&lt;p&gt;Here is how it works:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (mapcar #&amp;#039;type-of
+             &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;))
+
+((INTEGER 0 4611686018427387903)
+  FIXNUM
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  (SIMPLE-ARRAY CHARACTER (6)))
+    
+POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
+             &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;))
+
+((INTEGER 21 21)
+ (INTEGER -23 -23)
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, &lt;code&gt;INTEGER&lt;/code&gt; with bounds still is not what I need for my application. Happily, &lt;a href=&quot;https://github.com/marcoheisig&quot;&gt;Marco Heisig&lt;/a&gt; foresee this need and added a switcher which makes integer types more generic.&lt;/p&gt;
+&lt;p&gt;With this option, the library produces exactly what I need:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((simplified-types::*precise-integer-types* nil))
+             (mapcar #&amp;#039;simplified-types:simplified-type-of
+               &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;)))
+
+((INTEGER * *)
+ (INTEGER * *)
+  SINGLE-FLOAT
+  DOUBLE-FLOAT
+  T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you&apos;d like to work with types in Common Lisp, then you probably might be interested in the library I&apos;ve reviewed recently - &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html&quot;&gt;trivialib.type-unify&lt;/a&gt;. It allows us to do pattern-matching on type specifiers.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>cl-ascii-table</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0084-cl-ascii-table.html</link>
             <description>&lt;p&gt;Today I want to cheat and to review a library you&apos;ve already seen in action in the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html&quot;&gt;data-table&apos;s review&lt;/a&gt;.&lt;/p&gt;
@@ -1415,28 +1466,6 @@ This line is much...
 This one is also ...
 
 I can&amp;#039;t belive!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;BTW &lt;code&gt;str&lt;/code&gt; has very &lt;a href=&quot;https://vindarel.github.io/cl-str/&quot;&gt;cool documentation&lt;/a&gt;. I&apos;d like to have such docs for other CL libraries.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>rutils</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html</link>
-            <description>&lt;p&gt;Rutils translated as Radical Utilities. It is a collection of many useful utilities. Some of the utilities can be found in other libraries, for example, arrow macro or short notation for lambdas.&lt;/p&gt;
-&lt;p&gt;There is an interesting &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/ann-rutils.md&quot;&gt;document&lt;/a&gt; which describes why &lt;code&gt;rutils&lt;/code&gt; is so radical. In short - it provides a reader macro for hash tables and short aliases for many common lisp operators and generic accessors. &lt;/p&gt;
-&lt;p&gt;Previously I didn&apos;t dig into the &lt;code&gt;rutils&lt;/code&gt; documentation and used only a few functions to work with lists. But now I found a &lt;a href=&quot;https://github.com/vseloved/rutils/blob/master/docs/tutorial.md&quot;&gt;great tutorial&lt;/a&gt; covering most &lt;code&gt;rutils&lt;/code&gt; features. I recommend you to spend few evenings reading it and trying different code samples.&lt;/p&gt;
-&lt;p&gt;Here is a small example which demonstrates how hash table syntax and generic accessors work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:in-readtable rutils:rutils-readtable)
-
-POFTHEDAY&amp;gt; (import &amp;#039;rutils:?)
-
-POFTHEDAY&amp;gt; (let ((obj #h(:foo &amp;#039;(1 2 3))))
-             (? obj :foo 1))
-2
-
-;; It also works with curly braces:
-POFTHEDAY&amp;gt; (let ((obj #{:foo &amp;#039;(1 2 3)}))
-             (? obj :foo 1))
-2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here a question mark is an abbreviation for &lt;code&gt;rutils:generic-elt&lt;/code&gt; generic and you can define a custom method to access different kinds of containers.&lt;/p&gt;
-&lt;p&gt;I definitely will try to use more of &lt;code&gt;rutils&lt;/code&gt; in my code now.&lt;/p&gt;
 </description>
         </item>
     </channel>

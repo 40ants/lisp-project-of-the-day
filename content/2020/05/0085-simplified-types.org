@@ -1,4 +1,4 @@
-* simplified-types :language:types:
+* simplified-types :language:typing:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :(
@@ -9,9 +9,9 @@
 :END:
 
 Yesterday I wrote a simple implementation of dataframe. A dataframe
-stores data columns as a simple vectors of some type.
+stores data columns as simple vectors of some type.
 
-For this implementation I needed a type inference to set vector's type
+For this implementation, I needed a type inference to set vector's type
 for each column. An inferred type should be generic enough to work for
 all items in the column.
 
@@ -74,7 +74,7 @@ POFTHEDAY> (mapcar #'simplified-types:simplified-type-of
 
 #+end_src
 
-Hovewer, ~INTEGER~ with bounds still is not what I need for my
+However, ~INTEGER~ with bounds still is not what I need for my
 application. Happily, [[https://github.com/marcoheisig][Marco Heisig]] foresee this need and added a
 switcher which makes integer types more generic.
 
@@ -94,8 +94,8 @@ POFTHEDAY> (let ((simplified-types::*precise-integer-types* nil))
 
 #+end_src
 
-If you'd like to work with types in Common Lisp, then you probabli might
-be interested in other library I've reviwed recently -
-[[http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html][trivialib.type-unify]]. It allows to do pattern-matching on type
+If you'd like to work with types in Common Lisp, then you probably might
+be interested in the library I've reviewed recently -
+[[http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html][trivialib.type-unify]]. It allows us to do pattern-matching on type
 specifiers.
 

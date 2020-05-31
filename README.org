@@ -33,7 +33,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 28 May - [[content/2020/28/0082-data-table.org][data-table]] ([[https://twitter.com/svetlyak40wt/status/1266117466096369664][twitter]])
 - 29 May - [[content/2020/05/0083-assoc-utils.org][assoc-utils]] ([[https://twitter.com/svetlyak40wt/status/1266431240925843456][twitter]])
 - 30 May - [[content/2020/0084-cl-ascii-table.org][cl-ascii-table]] ([[https://twitter.com/svetlyak40wt/status/1266805748748767232][twitter]])
-- 31 May - [[content/2020/05/0085-simplified-types.org][simplified-types]]
+- 31 May - [[content/2020/05/0085-simplified-types.org][simplified-types]] ([[https://twitter.com/svetlyak40wt/status/1267165838039285760][twitter]])
 
 ** April
 - 01 April - [[content/2020/04/0025-april.org][april]] ([[https://twitter.com/svetlyak40wt/status/1245315377397186568][twitter]])
