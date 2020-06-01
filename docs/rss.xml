@@ -6,6 +6,60 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>pythonic-string-reader</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0086-pythonic-string-reader.html</link>
+            <description>&lt;p&gt;This is a small package which adds a new syntax for writing multiline string as you do in Python.&lt;/p&gt;
+&lt;p&gt;I already reviewed the &quot;heredoc&quot; library providing a similar functionality:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&quot;&gt;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here is how &lt;code&gt;pythonic-string-reader&lt;/code&gt; can be used:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; Enable the syntax:
+POFTHEDAY&amp;gt; (named-readtables:in-readtable
+            pythonic-string-reader:pythonic-string-syntax)
+
+;; Using it from the REPL:
+POFTHEDAY&amp;gt; &amp;quot;&amp;quot;&amp;quot;
+Hello &amp;quot;Lisp World!&amp;quot;
+&amp;quot;&amp;quot;&amp;quot;
+&amp;quot;
+Hello \&amp;quot;Lisp World!\&amp;quot;
+&amp;quot;
+
+;; Using it for function&amp;#039;s docstring:
+POFTHEDAY&amp;gt; (defun foo (x)
+             &amp;quot;&amp;quot;&amp;quot; This is a function
+                 which multiplies &amp;quot;x&amp;quot;
+                 to itself.
+             &amp;quot;&amp;quot;&amp;quot;
+             (* x x))
+FOO
+POFTHEDAY&amp;gt; (documentation &amp;#039;FOO
+                          &amp;#039;function)
+&amp;quot; This is a function
+                 which multiplies \&amp;quot;x\&amp;quot;
+                 to itself.
+             &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Whereas &lt;code&gt;cl-heredoc&lt;/code&gt; package allowed you to choose a string which will denote the end of the string literal, &lt;code&gt;pythonic-string-reader&lt;/code&gt; supports only 3 or 4 double-quotes.&lt;/p&gt;
+&lt;p&gt;4 double-quotes might be useful if you want to use 3 double quotes in the text:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo ()
+             &amp;quot;&amp;quot;&amp;quot;&amp;quot;
+             You also might enter text with 3 double quotes:
+
+             &amp;quot;&amp;quot;&amp;quot;
+             Just use 4 double quotes when starting such string
+             literal.
+             &amp;quot;&amp;quot;&amp;quot;
+&amp;quot;&amp;quot;&amp;quot;&amp;quot;)
+
+POFTHEDAY&amp;gt; (foo)
+&amp;quot;
+             You also might enter text with 3 double quotes:
+
+             \&amp;quot;\&amp;quot;\&amp;quot;
+             Just use 4 double quotes when starting such string
+             literal.
+             \&amp;quot;\&amp;quot;\&amp;quot;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
             <title>simplified-types</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0085-simplified-types.html</link>
             <description>&lt;p&gt;Yesterday I wrote a simple implementation of dataframe. A dataframe stores data columns as simple vectors of some type.&lt;/p&gt;
@@ -1427,45 +1481,6 @@ POFTHEDAY&amp;gt; (defmacro custom-let* (bindings &amp;amp;body body &amp;amp;en
     (locally (list a b))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, our single declaration form was torn apart and each part placed into the correct place inside nested &lt;code&gt;lets&lt;/code&gt;. Great!&lt;/p&gt;
 &lt;h2&gt;How does it work&lt;/h2&gt;&lt;p&gt;There are three phases:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;&lt;code&gt;parse-declarations&lt;/code&gt; parses whole body passed to the &lt;code&gt;custom-let*&lt;/code&gt; and   extracts forms related to type declarations. It stores them in a   special &lt;code&gt;env&lt;/code&gt; object.&lt;/li&gt;&lt;li&gt;&lt;code&gt;filter-declaration-env&lt;/code&gt; allows us to select only declarations related   to the needed variable.&lt;/li&gt;&lt;li&gt;&lt;code&gt;build-declarations&lt;/code&gt; transforms one or many &lt;code&gt;env&lt;/code&gt; objects into the lists   of symbols so that they can be used for the macro-expansion.&lt;/li&gt;&lt;/ul&gt;
-</description>
-        </item>
-        <item>
-            <title>str</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0066-str.html</link>
-            <description>&lt;p&gt;This is a single purpose utility library. Before switching to the &lt;code&gt;str&lt;/code&gt;, I used &lt;code&gt;cl-strings&lt;/code&gt;, but &lt;code&gt;str&lt;/code&gt; library is more consistent.&lt;/p&gt;
-&lt;p&gt;I like that unlike standard functions, &lt;code&gt;str&lt;/code&gt; is able to work with chars and strings as delimiter:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (str:split #\Space
-                      &amp;quot;Foo bar bazz&amp;quot;)
-(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)
-
-POFTHEDAY&amp;gt; (str:split &amp;quot; &amp;quot;
-                      &amp;quot;Foo bar bazz&amp;quot;)
-(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)
-
-;; Also it is able to skip empty strings:
-POFTHEDAY&amp;gt; (str:split &amp;quot; &amp;quot;
-                      &amp;quot;Foo   bar   bazz&amp;quot;)
-(&amp;quot;Foo&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot; &amp;quot;bazz&amp;quot;)
-
-POFTHEDAY&amp;gt; (str:split-omit-nulls &amp;quot; &amp;quot;
-                      &amp;quot;Foo   bar   bazz&amp;quot;)
-(&amp;quot;Foo&amp;quot; &amp;quot;bar&amp;quot; &amp;quot;bazz&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Parameter ordering can seem a little strange at first glance, but they&apos;ve made this way to make it easier to &lt;code&gt;curry&lt;/code&gt; functions.&lt;/p&gt;
-&lt;p&gt;For example, if we have a multiline text and want to put ellipsis at the end of string longer than X, we might do:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *text* &amp;quot;
-This line is much longer than we need.
-This one is also too long.
-
-I can&amp;#039;t belive!
-&amp;quot;&amp;quot;&amp;quot;)
-
-POFTHEDAY&amp;gt; (str:unlines
-            (mapcar (alexandria:curry #&amp;#039;str:shorten 20)
-                    (str:lines *text*)))
-&amp;quot;
-This line is much...
-This one is also ...
-
-I can&amp;#039;t belive!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;BTW &lt;code&gt;str&lt;/code&gt; has very &lt;a href=&quot;https://vindarel.github.io/cl-str/&quot;&gt;cool documentation&lt;/a&gt;. I&apos;d like to have such docs for other CL libraries.&lt;/p&gt;
 </description>
         </item>
     </channel>

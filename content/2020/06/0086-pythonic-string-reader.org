@@ -9,9 +9,9 @@
 :END:
 
 This is a small package which adds a new syntax for writing multiline
-string like you do in Python.
+string as you do in Python.
 
-I already reviewed the "heredoc" library providing the similar functionality:
+I already reviewed the "heredoc" library providing a similar functionality:
 
 http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html
 
@@ -49,9 +49,9 @@ POFTHEDAY> (documentation 'FOO
 
 Whereas ~cl-heredoc~ package allowed you to choose a string which will denote
 the end of the string literal, ~pythonic-string-reader~ supports only 3 or
-4 double quotes.
+4 double-quotes.
 
-4 double quotes might be useful, if you want to use 3 double quotes in
+4 double-quotes might be useful if you want to use 3 double quotes in
 the text:
 
 #+begin_src lisp

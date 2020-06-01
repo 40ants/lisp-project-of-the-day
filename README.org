@@ -2,6 +2,9 @@
 Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 * 2020
+** June
+- 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
+
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
 - 02 May - [[content/2020/05/0056-trivial-indent.org][trivial-indent]] ([[https://twitter.com/svetlyak40wt/status/1256668072422899713][twitter]])
@@ -1003,7 +1006,6 @@ files, and extracting their ":defsystem-depends-on".
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
 - [[https://docs.stevelosh.com/bobbin/usage/][bobbin]] - text wrapping utility
 - http://quickdocs.org/defclass-std/
-- http://quickdocs.org/pythonic-string-reader/
 - http://quickdocs.org/cl-cron/
 - http://quickdocs.org/group-by/
 - http://quickdocs.org/parse-float/
