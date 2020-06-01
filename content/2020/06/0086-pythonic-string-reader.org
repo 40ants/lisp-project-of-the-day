@@ -1,0 +1,79 @@
+* pythonic-string-reader :readtable:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a small package which adds a new syntax for writing multiline
+string like you do in Python.
+
+I already reviewed the "heredoc" library providing the similar functionality:
+
+http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html
+
+Here is how ~pythonic-string-reader~ can be used:
+
+#+begin_src lisp
+
+;; Enable the syntax:
+POFTHEDAY> (named-readtables:in-readtable
+            pythonic-string-reader:pythonic-string-syntax)
+
+;; Using it from the REPL:
+POFTHEDAY> """
+Hello "Lisp World!"
+"""
+"
+Hello \"Lisp World!\"
+"
+
+;; Using it for function's docstring:
+POFTHEDAY> (defun foo (x)
+             """ This is a function
+                 which multiplies "x"
+                 to itself.
+             """
+             (* x x))
+FOO
+POFTHEDAY> (documentation 'FOO
+                          'function)
+" This is a function
+                 which multiplies \"x\"
+                 to itself.
+             "
+#+end_src
+
+Whereas ~cl-heredoc~ package allowed you to choose a string which will denote
+the end of the string literal, ~pythonic-string-reader~ supports only 3 or
+4 double quotes.
+
+4 double quotes might be useful, if you want to use 3 double quotes in
+the text:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun foo ()
+             """"
+             You also might enter text with 3 double quotes:
+
+             """
+             Just use 4 double quotes when starting such string
+             literal.
+             """
+"""")
+
+POFTHEDAY> (foo)
+"
+             You also might enter text with 3 double quotes:
+
+             \"\"\"
+             Just use 4 double quotes when starting such string
+             literal.
+             \"\"\"
+"
+
+#+end_src
