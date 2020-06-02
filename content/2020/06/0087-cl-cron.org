@@ -1,0 +1,115 @@
+* cl-cron :datetime:system:threads:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a small system which allows you to organize a scheduled function
+execution in a Cron-like manner.
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-cron:make-cron-job
+            (lambda ()
+              (format t "[~A] Cron works!~%"
+                      (local-time:now))))
+#:|cron743|
+
+POFTHEDAY> (cl-cron:start-cron)
+#<SB-THREAD:THREAD "Anonymous thread" RUNNING {1004D8CB93}>
+
+[2020-06-02T22:29:00.328017+03:00] Cron works!
+[2020-06-02T22:30:00.321083+03:00] Cron works!
+
+POFTHEDAY> (cl-cron:stop-cron)
+NIL
+
+POFTHEDAY> (defun list-cron-jobs ()
+             (loop for key being the hash-key
+                     of cl-cron::*cron-jobs-hash*
+                   collect key))
+
+POFTHEDAY> (list-cron-jobs)
+(#:|cron743|)
+
+POFTHEDAY> (cl-cron:delete-cron-job (first *))
+T
+
+POFTHEDAY> (list-cron-jobs)
+NIL
+
+#+end_src
+
+Having unnamed cron jobs is not convenient because it is to remove them,
+you need to get its name using ~list-cron-jobs~ function.
+
+But you can provide a ~hash-key~ argument to the ~make-cron-job~ function:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-cron:make-cron-job
+            (lambda ()
+              (format t "[~A] Cron works!~%"
+                      (local-time:now)))
+            :hash-key :print-every-minute)
+:PRINT-EVERY-MINUTE
+
+POFTHEDAY> (list-cron-jobs)
+(:PRINT-EVERY-MINUTE)
+
+POFTHEDAY> (cl-cron:delete-cron-job
+            :print-every-minute)
+T
+
+POFTHEDAY> (list-cron-jobs)
+NIL
+
+#+end_src
+
+To make a task which runs not every minute but at the specified time, you
+can pass keyword arguments to the ~make-cron-job~.
+
+For example, this will add a callback to run at 10:00 of every Sunday:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-cron:make-cron-job
+            (lambda ()
+              (format t "Wake Up!~%"))
+
+            ;; Days of week are numbered from 0,
+            ;; where 0 is Monday.
+            ;; Run every Sunday:
+            :day-of-week 6
+            :hour 10
+            :minute 0
+            :hash-key :sunday-alarm)
+:SUNDAY-ALARM
+
+#+end_src
+
+I use ~cl-cron~ in the Ultralisp.org, [[https://github.com/ultralisp/ultralisp/blob/517738b087ca5a3eb14de728d855ca70739913c8/src/cron.lisp#L157-L184][to schedule different tasks]]. And
+another useful trick I do is redefining ~cl-cron:log-cron-message~.
+
+By default it writes lines to the ~./cron.log~, but using this definition
+you can redirect all messages to the ~log4cl~:
+
+#+begin_src lisp
+
+;; Here we are patching this function because
+;; original tries to write into a file cl-cron.log
+(defun cl-cron:log-cron-message (message &optional (type "error"))
+  (if (string-equal type "error")
+      (log:error message)
+      (log:info message)))
+
+#+end_src
+
+Probably, I'll make a pull-request with these fixes soon.
+But seems the author of this library is not very active neither at
+BitBucket nor at the GitHub.
+

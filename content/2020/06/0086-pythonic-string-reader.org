@@ -1,9 +1,9 @@
 * pythonic-string-reader :readtable:
 :PROPERTIES:
-:Documentation: :)
+:Documentation: :(
 :Docstrings: :)
 :Tests:    :(
-:Examples: :)
+:Examples: :(
 :RepositoryActivity: :(
 :CI:       :(
 :END:
