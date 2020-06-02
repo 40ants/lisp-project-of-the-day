@@ -6,6 +6,77 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-cron</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0087-cl-cron.html</link>
+            <description>&lt;p&gt;This is a small system which allows you to organize a scheduled function execution in a Cron-like manner.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+            (lambda ()
+              (format t &amp;quot;[~A] Cron works!~%&amp;quot;
+                      (local-time:now))))
+#:|cron743|
+
+POFTHEDAY&amp;gt; (cl-cron:start-cron)
+#&amp;lt;SB-THREAD:THREAD &amp;quot;Anonymous thread&amp;quot; RUNNING {1004D8CB93}&amp;gt;
+
+[2020-06-02T22:29:00.328017+03:00] Cron works!
+[2020-06-02T22:30:00.321083+03:00] Cron works!
+
+POFTHEDAY&amp;gt; (cl-cron:stop-cron)
+NIL
+
+POFTHEDAY&amp;gt; (defun list-cron-jobs ()
+             (loop for key being the hash-key
+                     of cl-cron::*cron-jobs-hash*
+                   collect key))
+
+POFTHEDAY&amp;gt; (list-cron-jobs)
+(#:|cron743|)
+
+POFTHEDAY&amp;gt; (cl-cron:delete-cron-job (first *))
+T
+
+POFTHEDAY&amp;gt; (list-cron-jobs)
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Having unnamed cron jobs is not convenient because it is to remove them, you need to get its name using &lt;code&gt;list-cron-jobs&lt;/code&gt; function.&lt;/p&gt;
+&lt;p&gt;But you can provide a &lt;code&gt;hash-key&lt;/code&gt; argument to the &lt;code&gt;make-cron-job&lt;/code&gt; function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+            (lambda ()
+              (format t &amp;quot;[~A] Cron works!~%&amp;quot;
+                      (local-time:now)))
+            :hash-key :print-every-minute)
+:PRINT-EVERY-MINUTE
+
+POFTHEDAY&amp;gt; (list-cron-jobs)
+(:PRINT-EVERY-MINUTE)
+
+POFTHEDAY&amp;gt; (cl-cron:delete-cron-job
+            :print-every-minute)
+T
+
+POFTHEDAY&amp;gt; (list-cron-jobs)
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute but at the specified time, you can pass keyword arguments to the &lt;code&gt;make-cron-job&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For example, this will add a callback to run at 10:00 of every Sunday:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+            (lambda ()
+              (format t &amp;quot;Wake Up!~%&amp;quot;))
+
+            ;; Days of week are numbered from 0,
+            ;; where 0 is Monday.
+            ;; Run every Sunday:
+            :day-of-week 6
+            :hour 10
+            :minute 0
+            :hash-key :sunday-alarm)
+:SUNDAY-ALARM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I use &lt;code&gt;cl-cron&lt;/code&gt; in the Ultralisp.org, &lt;a href=&quot;https://github.com/ultralisp/ultralisp/blob/517738b087ca5a3eb14de728d855ca70739913c8/src/cron.lisp#L157-L184&quot;&gt;to schedule different tasks&lt;/a&gt;. And another useful trick I do is redefining &lt;code&gt;cl-cron:log-cron-message&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;By default it writes lines to the &lt;code&gt;./cron.log&lt;/code&gt;, but using this definition you can redirect all messages to the &lt;code&gt;log4cl&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; Here we are patching this function because
+;; original tries to write into a file cl-cron.log
+(defun cl-cron:log-cron-message (message &amp;amp;optional (type &amp;quot;error&amp;quot;))
+  (if (string-equal type &amp;quot;error&amp;quot;)
+      (log:error message)
+      (log:info message)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably, I&apos;ll make a pull-request with these fixes soon. But seems the author of this library is not very active neither at BitBucket nor at the GitHub.&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>pythonic-string-reader</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0086-pythonic-string-reader.html</link>
             <description>&lt;p&gt;This is a small package which adds a new syntax for writing multiline string as you do in Python.&lt;/p&gt;
@@ -1425,62 +1496,6 @@ Buffer: le
 
 6 chars were read
 Buffer: lines.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably this facility is also covered by more popular utility library?&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>parse-declarations</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html</link>
-            <description>&lt;p&gt;This library provides advanced facilities to work with declaration forms and can be useful for writing macroses.&lt;/p&gt;
-&lt;p&gt;I wasn&apos;t able to imagine a good enough example, but luckily, this library has &lt;a href=&quot;https://common-lisp.net/project/parse-declarations/manual/html_node/Examples.html#Examples&quot;&gt;great documentation&lt;/a&gt; and I stole this example from it.&lt;/p&gt;
-&lt;p&gt;It is an analogue of the standard &lt;code&gt;let*&lt;/code&gt; form which expands into multiple &lt;code&gt;let&lt;/code&gt; forms. Maybe you know, &lt;code&gt;let*&lt;/code&gt; can have declarations inside. But to process them correctly, you need to place a declaration related to each variable into its own &lt;code&gt;let&lt;/code&gt; form.&lt;/p&gt;
-&lt;p&gt;Here is how this can be done with &lt;code&gt;parse-declarations&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; System and package names are different:
-POFTHEDAY&amp;gt; (ql:quickload :parse-declarations-1.0)
-
-POFTHEDAY&amp;gt; (import &amp;#039;(tcr.parse-declarations-1.0::parse-body
-                     tcr.parse-declarations-1.0:filter-declaration-env
-                     tcr.parse-declarations-1.0:build-declarations
-                     tcr.parse-declarations-1.0:check-declaration-env
-                     tcr.parse-declarations-1.0:parse-declarations))
-
-POFTHEDAY&amp;gt; (defmacro custom-let* (bindings &amp;amp;body body &amp;amp;environment macro-env)
-    (flet ((normalize-binding (binding)
-             (cond ((symbolp binding)    `(,binding nil))
-                   ((null (cdr binding)) `(,(car binding) nil))
-                   (t binding))))
-      (multiple-value-bind (real-body decls) (parse-body body :documentation nil)
-        (let ((decl-env (parse-declarations decls macro-env)))
-          (check-declaration-env decl-env :unknown-allowed nil :warn-only t)
-          (labels ((generate-nested-lets (bindings &amp;amp;optional used-binding-names)
-                     (if (null bindings)
-                         `(locally
-                              ,@(build-declarations &amp;#039;declare
-                                  (filter-declaration-env decl-env :include :free)
-                                  (filter-declaration-env decl-env :include :bound
-                                                          :not-affecting used-binding-names))
-                            ,@real-body)
-                         (destructuring-bind ((var value) . more-bindings) bindings
-                           `(let ((,var ,value))
-                              ,@(build-declarations &amp;#039;declare
-                                  (filter-declaration-env decl-env :affecting `(,var)))
-                              ,(generate-nested-lets more-bindings (cons var used-binding-names)))))))
-            (generate-nested-lets (mapcar #&amp;#039;normalize-binding bindings)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention that &lt;code&gt;parse-body&lt;/code&gt; function is intentionally is not exported to not conflict with &lt;code&gt;alexandria:parse-body&lt;/code&gt;. Author considered that many lispers do import all alexandria&apos;s symbols into their packages.&lt;/p&gt;
-&lt;p&gt;By the way, Alexandria implements only a simple version of the &lt;code&gt;parse-body&lt;/code&gt; function and does not support all advanced features of &lt;code&gt;parse-declarations&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;But let&apos;s see how our macro will expand!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (custom-let* ((a 1)
-                         (b (* a 0.01)))
-             (declare (type fixnum a)
-                      (type single-float b))
-             (list a b))
-
-;; It expands to -&amp;gt;
-(let ((a 1))
-  (declare (type fixnum a))
-  (let ((b (* a 0.01)))
-    (declare (type single-float b))
-    (locally (list a b))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, our single declaration form was torn apart and each part placed into the correct place inside nested &lt;code&gt;lets&lt;/code&gt;. Great!&lt;/p&gt;
-&lt;h2&gt;How does it work&lt;/h2&gt;&lt;p&gt;There are three phases:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;code&gt;parse-declarations&lt;/code&gt; parses whole body passed to the &lt;code&gt;custom-let*&lt;/code&gt; and   extracts forms related to type declarations. It stores them in a   special &lt;code&gt;env&lt;/code&gt; object.&lt;/li&gt;&lt;li&gt;&lt;code&gt;filter-declaration-env&lt;/code&gt; allows us to select only declarations related   to the needed variable.&lt;/li&gt;&lt;li&gt;&lt;code&gt;build-declarations&lt;/code&gt; transforms one or many &lt;code&gt;env&lt;/code&gt; objects into the lists   of symbols so that they can be used for the macro-expansion.&lt;/li&gt;&lt;/ul&gt;
 </description>
         </item>
     </channel>
