@@ -1,0 +1,157 @@
+* group-by :utils:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This small utility library implements a really handy facility. It allows
+you to group items by one or many keys.
+
+Here is how it works. In the next example we'll group names by their
+first letter:
+
+#+begin_src lisp
+
+POFTHEDAY> (group-by:group-by
+            '("Alice"
+              "Bob"
+              "Ashley"
+              "Katie"
+              "Brittany"
+              "Jessica"
+              "Daniel"
+              "Josh")
+            :key (lambda (name)
+                   (elt name 0))
+            :value #'identity)
+
+((#\A "Alice"
+      "Ashley")
+ (#\B "Bob"
+      "Brittany")
+ (#\K "Katie")
+ (#\J "Jessica"
+      "Josh")
+ (#\D "Daniel"))
+#+end_src
+
+If we are going to group by the first letter and next by the second, we
+need to use ~group-by-repeated~ function:
+
+#+begin_src lisp
+
+POFTHEDAY> (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1)))
+             (group-by:group-by-repeated
+              '("Alice"
+                "Bob"
+                "Ashley"
+                "Katie"
+                "Brittany"
+                "Jessica"
+                "Daniel"
+                "Josh")
+            :keys (list #'first-letter
+                       #'second-letter)))
+
+((#\D (#\a "Daniel"))
+ (#\J (#\o "Josh")
+      (#\e "Jessica"))
+ (#\K (#\a "Katie"))
+ (#\B (#\r "Brittany")
+      (#\o "Bob"))
+ (#\A (#\s "Ashley")
+      (#\l "Alice")))
+
+#+end_src
+
+This library also provides a way to accumulate grouped items into a
+special object. This could be useful when you don't have all items right
+away, but receiving them one by one from some source.
+
+Here is how this can be used in the simplest case. First, we'll request
+names from the user and will be collecting them into a special grouped
+list datastructure:
+
+#+begin_src lisp
+
+POFTHEDAY> (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1))
+                  (request-name ()
+                    (format t "Enter a name: ")
+                    (read)))
+             (loop with accumulator = (group-by:make-grouped-list
+                                       nil
+                                       :keys (list #'first-letter
+                                                   #'second-letter))
+                   for name = (request-name)
+                     then (request-name)
+                   while name
+                   do (group-by:add-item-to-grouping
+                       name
+                       accumulator)
+                   finally (return accumulator)))
+Enter a name: "Markus"
+Enter a name: "Bob"
+Enter a name: "Betty"
+Enter a name: "Mery"
+Enter a name: "Oleg"
+Enter a name: "Marianna"
+Enter a name: nil
+#<GROUP-BY:GROUPED-LIST {1006D3EC43}>
+
+POFTHEDAY> (defparameter *grouping* *)
+
+#+end_src
+
+At any time of this process we can access the datastructure to work with
+already collected items. Let's write a recursive function to see what
+we've collected so far:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun print-tree (grouping &optional (depth 0))
+             (let ((prefix (make-string depth :initial-element #\Space))
+                   (key (group-by:key-value grouping))
+                   (items (group-by:items-in-group grouping))
+                   (subgroups (group-by:child-groupings grouping)))
+               (when key
+                 (format t "~A~A~&" prefix key)
+                 (incf depth))
+
+               (if subgroups
+                   (loop for child in subgroups
+                         do (print-tree child depth))
+                   (loop for item in items
+                         do (format t "~A - ~A~%"
+                                    prefix
+                                    item)))))
+
+POFTHEDAY> (print-tree *grouping*)
+O
+ l
+  - Oleg
+B
+ e
+  - Betty
+ o
+  - Bob
+M
+ e
+  - Mery
+ a
+  - Marianna
+  - Markus
+
+#+end_src
+
+This library is powerful enough to have it in your toolbox. Go and group
+something now!

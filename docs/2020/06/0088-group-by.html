@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>group-by
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>group-by</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>group-by<span class='tags'><a href='../../tags/utils.html'><span class='label label-default'>utils</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This small utility library implements a really handy facility. It allows you to group items by one or many keys.</p>
+<p>Here is how it works. In the next example we'll group names by their first letter:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (group-by:group-by
+            &#039;(&quot;Alice&quot;
+              &quot;Bob&quot;
+              &quot;Ashley&quot;
+              &quot;Katie&quot;
+              &quot;Brittany&quot;
+              &quot;Jessica&quot;
+              &quot;Daniel&quot;
+              &quot;Josh&quot;)
+            :key (lambda (name)
+                   (elt name 0))
+            :value #&#039;identity)
+
+((#\A &quot;Alice&quot;
+      &quot;Ashley&quot;)
+ (#\B &quot;Bob&quot;
+      &quot;Brittany&quot;)
+ (#\K &quot;Katie&quot;)
+ (#\J &quot;Jessica&quot;
+      &quot;Josh&quot;)
+ (#\D &quot;Daniel&quot;))</code></pre><p>If we are going to group by the first letter and next by the second, we need to use <code>group-by-repeated</code> function:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1)))
+             (group-by:group-by-repeated
+              &#039;(&quot;Alice&quot;
+                &quot;Bob&quot;
+                &quot;Ashley&quot;
+                &quot;Katie&quot;
+                &quot;Brittany&quot;
+                &quot;Jessica&quot;
+                &quot;Daniel&quot;
+                &quot;Josh&quot;)
+            :keys (list #&#039;first-letter
+                       #&#039;second-letter)))
+
+((#\D (#\a &quot;Daniel&quot;))
+ (#\J (#\o &quot;Josh&quot;)
+      (#\e &quot;Jessica&quot;))
+ (#\K (#\a &quot;Katie&quot;))
+ (#\B (#\r &quot;Brittany&quot;)
+      (#\o &quot;Bob&quot;))
+ (#\A (#\s &quot;Ashley&quot;)
+      (#\l &quot;Alice&quot;)))</code></pre><p>This library also provides a way to accumulate grouped items into a special object. This could be useful when you don't have all items right away, but receiving them one by one from some source.</p>
+<p>Here is how this can be used in the simplest case. First, we'll request names from the user and will be collecting them into a special grouped list datastructure:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1))
+                  (request-name ()
+                    (format t &quot;Enter a name: &quot;)
+                    (read)))
+             (loop with accumulator = (group-by:make-grouped-list
+                                       nil
+                                       :keys (list #&#039;first-letter
+                                                   #&#039;second-letter))
+                   for name = (request-name)
+                     then (request-name)
+                   while name
+                   do (group-by:add-item-to-grouping
+                       name
+                       accumulator)
+                   finally (return accumulator)))
+Enter a name: &quot;Markus&quot;
+Enter a name: &quot;Bob&quot;
+Enter a name: &quot;Betty&quot;
+Enter a name: &quot;Mery&quot;
+Enter a name: &quot;Oleg&quot;
+Enter a name: &quot;Marianna&quot;
+Enter a name: nil
+#&lt;GROUP-BY:GROUPED-LIST {1006D3EC43}&gt;
+
+POFTHEDAY&gt; (defparameter *grouping* *)</code></pre><p>At any time of this process we can access the datastructure to work with already collected items. Let's write a recursive function to see what we've collected so far:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defun print-tree (grouping &amp;optional (depth 0))
+             (let ((prefix (make-string depth :initial-element #\Space))
+                   (key (group-by:key-value grouping))
+                   (items (group-by:items-in-group grouping))
+                   (subgroups (group-by:child-groupings grouping)))
+               (when key
+                 (format t &quot;~A~A~&amp;&quot; prefix key)
+                 (incf depth))
+
+               (if subgroups
+                   (loop for child in subgroups
+                         do (print-tree child depth))
+                   (loop for item in items
+                         do (format t &quot;~A - ~A~%&quot;
+                                    prefix
+                                    item)))))
+
+POFTHEDAY&gt; (print-tree *grouping*)
+O
+ l
+  - Oleg
+B
+ e
+  - Betty
+ o
+  - Bob
+M
+ e
+  - Mery
+ a
+  - Marianna
+  - Markus</code></pre><p>This library is powerful enough to have it in your toolbox. Go and group something now!</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
