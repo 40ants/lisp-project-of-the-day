@@ -1,4 +1,4 @@
-* group-by :utils:
+* group-by :utils:data_structures:algorithms:
 :PROPERTIES:
 :Documentation: :|
 :Docstrings: :)
@@ -75,9 +75,9 @@ This library also provides a way to accumulate grouped items into a
 special object. This could be useful when you don't have all items right
 away, but receiving them one by one from some source.
 
-Here is how this can be used in the simplest case. First, we'll request
+Here is how it can be used in the simplest case. First, we'll request
 names from the user and will be collecting them into a special grouped
-list datastructure:
+list data structure:
 
 #+begin_src lisp
 
@@ -112,9 +112,9 @@ POFTHEDAY> (defparameter *grouping* *)
 
 #+end_src
 
-At any time of this process we can access the datastructure to work with
-already collected items. Let's write a recursive function to see what
-we've collected so far:
+At any time we can access the data structure to work with already
+collected items. Let's write a recursive function to see what we've
+collected so far:
 
 #+begin_src lisp
 

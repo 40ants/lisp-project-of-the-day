@@ -6,6 +6,119 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>group-by</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0088-group-by.html</link>
+            <description>&lt;p&gt;This small utility library implements a really handy facility. It allows you to group items by one or many keys.&lt;/p&gt;
+&lt;p&gt;Here is how it works. In the next example we&apos;ll group names by their first letter:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (group-by:group-by
+            &amp;#039;(&amp;quot;Alice&amp;quot;
+              &amp;quot;Bob&amp;quot;
+              &amp;quot;Ashley&amp;quot;
+              &amp;quot;Katie&amp;quot;
+              &amp;quot;Brittany&amp;quot;
+              &amp;quot;Jessica&amp;quot;
+              &amp;quot;Daniel&amp;quot;
+              &amp;quot;Josh&amp;quot;)
+            :key (lambda (name)
+                   (elt name 0))
+            :value #&amp;#039;identity)
+
+((#\A &amp;quot;Alice&amp;quot;
+      &amp;quot;Ashley&amp;quot;)
+ (#\B &amp;quot;Bob&amp;quot;
+      &amp;quot;Brittany&amp;quot;)
+ (#\K &amp;quot;Katie&amp;quot;)
+ (#\J &amp;quot;Jessica&amp;quot;
+      &amp;quot;Josh&amp;quot;)
+ (#\D &amp;quot;Daniel&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we are going to group by the first letter and next by the second, we need to use &lt;code&gt;group-by-repeated&lt;/code&gt; function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1)))
+             (group-by:group-by-repeated
+              &amp;#039;(&amp;quot;Alice&amp;quot;
+                &amp;quot;Bob&amp;quot;
+                &amp;quot;Ashley&amp;quot;
+                &amp;quot;Katie&amp;quot;
+                &amp;quot;Brittany&amp;quot;
+                &amp;quot;Jessica&amp;quot;
+                &amp;quot;Daniel&amp;quot;
+                &amp;quot;Josh&amp;quot;)
+            :keys (list #&amp;#039;first-letter
+                       #&amp;#039;second-letter)))
+
+((#\D (#\a &amp;quot;Daniel&amp;quot;))
+ (#\J (#\o &amp;quot;Josh&amp;quot;)
+      (#\e &amp;quot;Jessica&amp;quot;))
+ (#\K (#\a &amp;quot;Katie&amp;quot;))
+ (#\B (#\r &amp;quot;Brittany&amp;quot;)
+      (#\o &amp;quot;Bob&amp;quot;))
+ (#\A (#\s &amp;quot;Ashley&amp;quot;)
+      (#\l &amp;quot;Alice&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library also provides a way to accumulate grouped items into a special object. This could be useful when you don&apos;t have all items right away, but receiving them one by one from some source.&lt;/p&gt;
+&lt;p&gt;Here is how it can be used in the simplest case. First, we&apos;ll request names from the user and will be collecting them into a special grouped list data structure:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
+                    (elt name 0))
+                  (second-letter (name)
+                    (elt name 1))
+                  (request-name ()
+                    (format t &amp;quot;Enter a name: &amp;quot;)
+                    (read)))
+             (loop with accumulator = (group-by:make-grouped-list
+                                       nil
+                                       :keys (list #&amp;#039;first-letter
+                                                   #&amp;#039;second-letter))
+                   for name = (request-name)
+                     then (request-name)
+                   while name
+                   do (group-by:add-item-to-grouping
+                       name
+                       accumulator)
+                   finally (return accumulator)))
+Enter a name: &amp;quot;Markus&amp;quot;
+Enter a name: &amp;quot;Bob&amp;quot;
+Enter a name: &amp;quot;Betty&amp;quot;
+Enter a name: &amp;quot;Mery&amp;quot;
+Enter a name: &amp;quot;Oleg&amp;quot;
+Enter a name: &amp;quot;Marianna&amp;quot;
+Enter a name: nil
+#&amp;lt;GROUP-BY:GROUPED-LIST {1006D3EC43}&amp;gt;
+
+POFTHEDAY&amp;gt; (defparameter *grouping* *)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;At any time we can access the data structure to work with already collected items. Let&apos;s write a recursive function to see what we&apos;ve collected so far:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-tree (grouping &amp;amp;optional (depth 0))
+             (let ((prefix (make-string depth :initial-element #\Space))
+                   (key (group-by:key-value grouping))
+                   (items (group-by:items-in-group grouping))
+                   (subgroups (group-by:child-groupings grouping)))
+               (when key
+                 (format t &amp;quot;~A~A~&amp;amp;&amp;quot; prefix key)
+                 (incf depth))
+
+               (if subgroups
+                   (loop for child in subgroups
+                         do (print-tree child depth))
+                   (loop for item in items
+                         do (format t &amp;quot;~A - ~A~%&amp;quot;
+                                    prefix
+                                    item)))))
+
+POFTHEDAY&amp;gt; (print-tree *grouping*)
+O
+ l
+  - Oleg
+B
+ e
+  - Betty
+ o
+  - Bob
+M
+ e
+  - Mery
+ a
+  - Marianna
+  - Markus&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library is powerful enough to have it in your toolbox. Go and group something now!&lt;/p&gt;
+</description>
+        </item>
+        <item>
             <title>cl-cron</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0087-cl-cron.html</link>
             <description>&lt;p&gt;This is a small system which allows you to organize a scheduled function execution in a Cron-like manner.&lt;/p&gt;
@@ -1435,67 +1548,6 @@ In [3]: %timeit count_lines(&amp;quot;/var/log/install.log&amp;quot;)
 &lt;p&gt;This can be improved if I&apos;ll use 10kb buffer instead of 1kb. In this case reading will take 7ms.&lt;/p&gt;
 &lt;p&gt;Also, I found that the most consing occur in the &lt;code&gt;cffi:foreign-string-to-lisp&lt;/code&gt; call.&lt;/p&gt;
 &lt;h2&gt;Update 2&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/luismbo&quot;&gt;@luismbo&lt;/a&gt; &lt;a href=&quot;https://twitter.com/luismbo/status/1261738185203298306&quot;&gt;found&lt;/a&gt; that CPython uses a &lt;a href=&quot;https://github.com/python/cpython/blob/a1d12bb1197d9335fcb62aad7fb0df56098197ac/Objects/unicodeobject.c#L4549&quot;&gt;shortcut trick&lt;/a&gt; to not decode string if it consists of ASCII characters. That is why it can be more performant than my Common Lisp &lt;code&gt;read-lines&lt;/code&gt; function.&lt;/p&gt;
-</description>
-        </item>
-        <item>
-            <title>cl-utilities</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html</link>
-            <description>&lt;p&gt;This is a yet another utilities library. It is used by only a single &lt;code&gt;poftheday&lt;/code&gt;&apos;s dependency - &lt;code&gt;xml-emitter&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0064-xml-emitter.html&quot;&gt;reviewed&lt;/a&gt; on 10 May.&lt;/p&gt;
-&lt;p&gt;Amount of tools in this toolbox is not very large and mostly covered by more popular libs.&lt;/p&gt;
-&lt;p&gt;For example, it has a macro for item collection. For example, this macro can be useful to collect hash key value pairs into an alist. But this facility is also available from UIOP:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((the-hash #h(:foo &amp;quot;bar&amp;quot;
-                              :blah &amp;quot;minor&amp;quot;)))
-             (cl-utilities:collecting
-               (maphash
-                (lambda (key value)
-                  (cl-utilities:collect
-                      (cons key value)))
-                the-hash)))
-((:FOO . &amp;quot;bar&amp;quot;) (:BLAH . &amp;quot;minor&amp;quot;))
-
-;; Here is the similar code using UIOP
-POFTHEDAY&amp;gt; (let ((the-hash #h(:foo &amp;quot;bar&amp;quot;
-                              :blah &amp;quot;minor&amp;quot;)))
-             (uiop:while-collecting (collect)
-               (maphash
-                (lambda (key value)
-                  (collect (cons key value)))
-                the-hash)))
-((:FOO . &amp;quot;bar&amp;quot;) (:BLAH . &amp;quot;minor&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But UIOP is more powerful allows you to collect many types of items simultaneously. For example, we might want to collect keys and values into the separate lists:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((the-hash #h(:foo &amp;quot;bar&amp;quot;
-                              :blah &amp;quot;minor&amp;quot;)))
-             (uiop:while-collecting (collect-key collect-value)
-               (maphash
-                (lambda (key value)
-                  (collect-key key)
-                  (collect-value value))
-                the-hash)))
-(:FOO :BLAH)
-(&amp;quot;bar&amp;quot; &amp;quot;minor&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;An interesting feature is a function &lt;code&gt;read-delimited&lt;/code&gt;. It can be useful to read chars from the stream into a limited buffer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (stream &amp;quot;The string
-with multiple
-lines.&amp;quot;)
-             (let ((buffer (str:repeat 10 &amp;quot; &amp;quot;)))
-               (loop for num-chars = (cl-utilities:read-delimited
-                                      buffer
-                                      stream)
-                     while (not (zerop num-chars))
-                     do (format t &amp;quot;~A chars were read~%&amp;quot;
-                                num-chars)
-                        (format t &amp;quot;Buffer: ~A~2%&amp;quot;
-                                (str:substring 0 num-chars
-                                               buffer)))))
-10 chars were read
-Buffer: The string
-
-10 chars were read
-Buffer: with multi
-
-2 chars were read
-Buffer: le
-
-6 chars were read
-Buffer: lines.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably this facility is also covered by more popular utility library?&lt;/p&gt;
 </description>
         </item>
     </channel>
