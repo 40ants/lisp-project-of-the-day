@@ -6,6 +6,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
 - 02 June - [[content/2020/06/0087-cl-cron.org][cl-cron]] ([[https://twitter.com/svetlyak40wt/status/1267908838470160393][twitter]])
 - 03 June - [[content/2020/06/0088-group-by.org][group-by]] ([[https://twitter.com/svetlyak40wt/status/1268237575426318338][twitter]])
+- 04 June - [[content/2020/06/0089-lambda-fiddle.org][lambda-fiddle]] ([[http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
@@ -1044,7 +1045,8 @@ files, and extracting their ":defsystem-depends-on".
 - [[https://docs.stevelosh.com/bobbin/usage/][bobbin]] - text wrapping utility
 - http://quickdocs.org/defclass-std/
 - http://quickdocs.org/parse-float/
-- http://quickdocs.org/lambda-fiddle/
 - http://quickdocs.org/legit
+- https://github.com/Shinmera/modularize
+- http://quickdocs.org/modularize-hooks/
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

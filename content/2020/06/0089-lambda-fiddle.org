@@ -1,0 +1,95 @@
+* lambda-fiddle :macro:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library serves a single purpose - to help macro writers to parse
+lambda lists. In this sense, it is similar to ~parse-declarations~,
+[[http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html][reviewed on 13 May]].
+
+The library has a number of functions to extract or remove exact parts
+of the lambda list:
+
+#+begin_src lisp
+
+POFTHEDAY> (lambda-fiddle:remove-aux-part
+            '(foo bar &key baz &aux (something else) altogether))
+(FOO BAR &KEY BAZ)
+
+POFTHEDAY> (lambda-fiddle:aux-lambda-vars
+            '(foo bar &key baz &aux (something else) altogether))
+(SOMETHING ALTOGETHER)
+
+POFTHEDAY> (lambda-fiddle:extract-all-lambda-vars
+            '(foo bar &key baz &aux (something else) altogether))
+(FOO BAR BAZ SOMETHING ALTOGETHER)
+
+POFTHEDAY> (lambda-fiddle:split-lambda-list
+            '(&whole wide world &key roles))
+((WORLD) WIDE NIL NIL NIL NIL (ROLES) NIL)
+
+POFTHEDAY> (lambda-fiddle:with-destructured-lambda-list
+               (:required req :optional opt)
+               '(foo bar &optional baz)
+             (list :required req
+                   :optional opt))
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))
+
+#+end_src
+
+It also provides a higher-level macro to extract particular pieces
+all at once:
+
+#+begin_src lisp
+
+POFTHEDAY> (lambda-fiddle:with-destructured-lambda-list
+               (:required req :optional opt)
+               '(foo bar &optional baz)
+             (list :required req
+                   :optional opt))
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))
+
+#+end_src
+
+[[https://twitter.com/shinmera][@Shinmmera]]'s "legit" contains [[https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45][a practical example]] of the
+~with-desctructured-lambda-list~ usage.
+
+This code replaces optional arguments with keywords and adds optional
+predicates which can be used to check if a keyword argument was
+provided:
+
+#+begin_src lisp
+
+(defmacro define-git-wrapper (name &rest argdefs)
+  (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs
+    (let* ((purereq (purify-args req))
+           (purekey (purify-args key))
+           (pureopt (purify-args opt))
+           (augkeys (mapcar (lambda (a)
+                              `(,a NIL ,(p-symb a)))
+                            (append pureopt purekey))))
+      `(defun ,name (,@purereq &key ,@augkeys)
+         (declare (ignorable ,@(mapcar #'third augkeys)))
+         (run-git
+          ,(subseq (string-downcase name) 4)
+          ,@(loop for arg in req 
+                  when (front-arg-p arg)
+                    collect (parse-rargdef arg))
+          ,@(loop for arg in opt
+                  when (front-arg-p arg)
+                    collect (parse-oargdef arg))
+          ,@(mapcar #'parse-kargdef key)
+          ,@(loop for arg in req
+                  unless (front-arg-p arg)
+                    collect (parse-rargdef arg))
+          ,@(loop for arg in opt
+                  unless (front-arg-p arg)
+                    collect
+                    (parse-oargdef arg)))))))
+
+#+end_src
