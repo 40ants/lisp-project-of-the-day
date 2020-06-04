@@ -117,6 +117,7 @@ M
   - Marianna
   - Markus&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library is powerful enough to have it in your toolbox. Go and group something now!&lt;/p&gt;
 </description>
+            <pubDate>Wed, 03 Jun 2020 20:54:39 +0300</pubDate>
         </item>
         <item>
             <title>cl-cron</title>
@@ -188,6 +189,7 @@ NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute 
       (log:error message)
       (log:info message)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably, I&apos;ll make a pull-request with these fixes soon. But seems the author of this library is not very active neither at BitBucket nor at the GitHub.&lt;/p&gt;
 </description>
+            <pubDate>Tue, 02 Jun 2020 23:04:49 +0300</pubDate>
         </item>
         <item>
             <title>pythonic-string-reader</title>
@@ -242,6 +244,7 @@ POFTHEDAY&amp;gt; (foo)
              literal.
              \&amp;quot;\&amp;quot;\&amp;quot;
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Mon, 01 Jun 2020 21:24:03 +0300</pubDate>
         </item>
         <item>
             <title>simplified-types</title>
@@ -293,6 +296,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
   DOUBLE-FLOAT
   T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you&apos;d like to work with types in Common Lisp, then you probably might be interested in the library I&apos;ve reviewed recently - &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html&quot;&gt;trivialib.type-unify&lt;/a&gt;. It allows us to do pattern-matching on type specifiers.&lt;/p&gt;
 </description>
+            <pubDate>Sun, 31 May 2020 22:22:49 +0300</pubDate>
         </item>
         <item>
             <title>cl-ascii-table</title>
@@ -323,6 +327,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
 &lt;p&gt;By the way, pay attention on the difference between system name and package name. It might be important if you use &lt;a href=&quot;https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html&quot;&gt;package-inferred-system&lt;/a&gt; ASDF extension for your own system.&lt;/p&gt;
 &lt;p&gt;In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from &lt;code&gt;ascii-table&lt;/code&gt; package:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Sat, 30 May 2020 22:00:38 +0300</pubDate>
         </item>
         <item>
             <title>assoc-utils</title>
@@ -373,6 +378,7 @@ POFTHEDAY&amp;gt; (assoc-utils:plist-alist *)
 ((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
  (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/assoc-utils/&quot;&gt;the documentation&lt;/a&gt; to learn more about other functions which allow to compare alists, check their type and to get keys and values.&lt;/p&gt;
 </description>
+            <pubDate>Fri, 29 May 2020 21:13:27 +0300</pubDate>
         </item>
         <item>
             <title>data-table</title>
@@ -525,6 +531,7 @@ POFTHEDAY&amp;gt; (describe *dt*)
 &lt;p&gt;We&apos;ve viewed almost all core functions of the &lt;code&gt;data-table&lt;/code&gt; library. There are also data coercion and comparison functions. But I think this library has lots of room for improvement.&lt;/p&gt;
 &lt;p&gt;Maybe &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt; has plans to build a dataframe library as supplementary to his &lt;a href=&quot;https://github.com/numcl/numcl&quot;&gt;NumCL&lt;/a&gt;?&lt;/p&gt;
 </description>
+            <pubDate>Fri, 29 May 2020 00:31:49 +0300</pubDate>
         </item>
         <item>
             <title>cl-ppcre-unicode</title>
@@ -574,6 +581,7 @@ POFTHEDAY&amp;gt; (ppcre:regex-replace-all
             &amp;quot;&amp;quot;)
 &amp;quot;Hll, Lspr! Hw r y?&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Isn&apos;t this cool!? 🤪&lt;/p&gt;
 </description>
+            <pubDate>Wed, 27 May 2020 20:38:40 +0300</pubDate>
         </item>
         <item>
             <title>jose</title>
@@ -661,6 +669,7 @@ POFTHEDAY&amp;gt; (jose:inspect-token *new-token*)
 #(52 184 32 229 28 101 40 51 106 195 87 42 21 77 63 31 43 8 187 236 206 236 144
   88 81 3 118 33 145 122 115 172)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;BTW, as you can see, tokens are not encoded, they are signed. Because of that, you should pass them only over encrypted channels.&lt;/p&gt;
 </description>
+            <pubDate>Tue, 26 May 2020 20:17:08 +0300</pubDate>
         </item>
         <item>
             <title>cl-collider</title>
@@ -754,6 +763,7 @@ POFTHEDAY&amp;gt; (sc:stop)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is a demo, sho
 &lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=pZyuHjztARY&quot;&gt;https://www.youtube.com/watch?v=pZyuHjztARY&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;To try &lt;code&gt;cl-collider&lt;/code&gt;, you&apos;ll need to install a SuperCollider. On OSX it is as simple as doing:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;brew cask install supercollider&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Mon, 25 May 2020 20:34:07 +0300</pubDate>
         </item>
         <item>
             <title>trivial-ssh</title>
@@ -799,6 +809,7 @@ POFTHEDAY&amp;gt; (flet ((read-lines (s)
 &lt;p&gt;If somebody is interested to help me with that, he might try this pull-request:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/alxchk/cl-libssh2/pull/7&quot;&gt;https://github.com/alxchk/cl-libssh2/pull/7&lt;/a&gt;&lt;/p&gt;
 </description>
+            <pubDate>Sun, 24 May 2020 20:54:00 +0300</pubDate>
         </item>
         <item>
             <title>named-readtables</title>
@@ -905,6 +916,7 @@ POFTHEDAY&amp;gt; (funcall *
      *readtable*)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This &lt;code&gt;%frob-swank-readtable-alist&lt;/code&gt; modifies &lt;code&gt;swank:*readtable-alist*&lt;/code&gt; to make it know what readtable should be used for the package. But a comment to this code says it is a &lt;code&gt;KLUDGE&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Interesting, how this will or should work in the LispWorks?&lt;/p&gt;
 </description>
+            <pubDate>Sat, 23 May 2020 21:18:23 +0300</pubDate>
         </item>
         <item>
             <title>cl-change-case</title>
@@ -968,6 +980,7 @@ POFTHEDAY&amp;gt; (render (make-instance &amp;#039;user
   &amp;lt;td&amp;gt;42&amp;lt;/td&amp;gt;
 &amp;lt;/tr&amp;gt;
 &amp;lt;/table&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Sat, 23 May 2020 21:18:23 +0300</pubDate>
         </item>
         <item>
             <title>cl-who</title>
@@ -1058,6 +1071,7 @@ POFTHEDAY&amp;gt; (let ((user (make-instance
 &amp;lt;/li&amp;gt;
 &amp;lt;/ul&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The Common Lisp Project of the Day&apos;s blog uses &lt;code&gt;cl-who&lt;/code&gt; only because this is a dependency of the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html&quot;&gt;cl-bootstrap&lt;/a&gt;. Personally, I prefer &lt;code&gt;spinneret&lt;/code&gt; and probably will rewrite #poftheday site to use it.&lt;/p&gt;
 </description>
+            <pubDate>Thu, 21 May 2020 21:21:13 +0300</pubDate>
         </item>
         <item>
             <title>lquery</title>
@@ -1095,6 +1109,7 @@ LQUERY-FUNCS::SHORTEN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use it to make
   &amp;quot;&amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q&amp;quot;
   &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other &lt;code&gt;define-*&lt;/code&gt; macros in &lt;code&gt;lquery&lt;/code&gt; as well. Read its documentation to learn more about how to extend it. It would be nice if &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@shinmera&lt;/a&gt; add more examples on how to extend &lt;code&gt;lquery&lt;/code&gt;!&lt;/p&gt;
 </description>
+            <pubDate>Wed, 20 May 2020 20:06:02 +0300</pubDate>
         </item>
         <item>
             <title>clss</title>
@@ -1159,6 +1174,7 @@ POFTHEDAY&amp;gt; (plump:serialize * nil)
  &amp;quot;AFTER&amp;quot; &amp;quot;WARNING&amp;quot; &amp;quot;NOT&amp;quot; &amp;quot;FIRST-ONLY&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is a &lt;code&gt;clss:define-pseudo-selector&lt;/code&gt; macro which allows defining a custom pseudo-selector.&lt;/p&gt;
 &lt;p&gt;Yesterday we&apos;ll learn about a more sophisticated tool for web scraping - lQuery.&lt;/p&gt;
 </description>
+            <pubDate>Tue, 19 May 2020 23:11:00 +0300</pubDate>
         </item>
         <item>
             <title>plump</title>
@@ -1193,6 +1209,7 @@ POFTHEDAY&amp;gt; (loop for post in (rutils:take 5 *posts*)
 - Shit&amp;#039;s broken. Will be back in a few ...&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library has more utils for HTML parsing. Read the documentation to learn more.&lt;/p&gt;
 &lt;p&gt;If you are going to write crawlers  in Common lisp, I recommend you to use Plump together with another @shimera&apos;s library - &lt;a href=&quot;https://shinmera.github.io/CLSS/&quot;&gt;clss&lt;/a&gt; but we&apos;ll play with it tomorrow :)&lt;/p&gt;
 </description>
+            <pubDate>Mon, 18 May 2020 21:08:33 +0300</pubDate>
         </item>
         <item>
             <title>parenscript</title>
@@ -1359,6 +1376,7 @@ POFTHEDAY&amp;gt; (ps
             &amp;#039;&amp;lt;/a&amp;gt;&amp;#039;].join(&amp;#039;&amp;#039;);
 };&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With Parenscript you can create client-side applications or code for running on Node.js. All of this, using Common Lisp power. Isn&apos;t it cool?&lt;/p&gt;
 </description>
+            <pubDate>Sun, 17 May 2020 22:17:21 +0300</pubDate>
         </item>
         <item>
             <title>split-sequence</title>
@@ -1426,6 +1444,7 @@ POFTHEDAY&amp;gt; (split-sequence:split-sequence-if
             (setf start end)
             (values (first next) t))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Thank you, Steve!&lt;/p&gt;
 </description>
+            <pubDate>Sat, 16 May 2020 22:22:26 +0300</pubDate>
         </item>
         <item>
             <title>osicat</title>
@@ -1549,6 +1568,7 @@ In [3]: %timeit count_lines(&amp;quot;/var/log/install.log&amp;quot;)
 &lt;p&gt;Also, I found that the most consing occur in the &lt;code&gt;cffi:foreign-string-to-lisp&lt;/code&gt; call.&lt;/p&gt;
 &lt;h2&gt;Update 2&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/luismbo&quot;&gt;@luismbo&lt;/a&gt; &lt;a href=&quot;https://twitter.com/luismbo/status/1261738185203298306&quot;&gt;found&lt;/a&gt; that CPython uses a &lt;a href=&quot;https://github.com/python/cpython/blob/a1d12bb1197d9335fcb62aad7fb0df56098197ac/Objects/unicodeobject.c#L4549&quot;&gt;shortcut trick&lt;/a&gt; to not decode string if it consists of ASCII characters. That is why it can be more performant than my Common Lisp &lt;code&gt;read-lines&lt;/code&gt; function.&lt;/p&gt;
 </description>
+            <pubDate>Fri, 15 May 2020 23:41:06 +0300</pubDate>
         </item>
     </channel>
 </rss>

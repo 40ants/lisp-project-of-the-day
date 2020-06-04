@@ -108,7 +108,8 @@ First of all, we need to define a package for our code:
   (:use #:cl)
   (:import-from #:rutils
                 #:iter
-                #:with)
+                #:with
+                #:fmt)
   (:export
    #:choose))
 (in-package poftheday)
@@ -672,6 +673,37 @@ those, having a link to the twitter.
 
 #+END_SRC
 
+Also, for each file we need to know when it was created. Without a date,
+many RSS clients will display feed in a wrong ways.
+
+Next function get's the timestamp of the commit with "publish" keyword
+in a text. Or the timestamp of the first commit where the file
+was added to the repository.
+
+As the second value, it returns a commit message a timestamp was take
+from. This was useful for debugging:
+
+#+BEGIN_SRC lisp
+
+(defun get-file-timestamp (file)
+  (let* ((all-commits (with-output-to-string (*standard-output*)
+                        (legit:git-log :paths (fmt "content/~A"
+                                                   (get-filename file))
+                                       :reverse t
+                                       :format "%at %s")))
+         (lines (str:split #\Newline all-commits))
+         (line-we-want (loop for line in lines
+                             when (str:contains? "publish" line :ignore-case t)
+                             do (return line)
+                             finally (return (first lines))))
+         (first-timestamp
+           (parse-integer (first (str:split #\Space
+                                            line-we-want)))))
+    (values (local-time:unix-to-timestamp first-timestamp)
+            line-we-want)))
+
+#+END_SRC
+
 #+BEGIN_SRC lisp
 
 (defun render-rss (files)
@@ -697,9 +729,12 @@ those, having a link to the twitter.
                 for uri = (get-uri file)
                 for full-url = (format nil "~A~A" base-url uri)
                 for description = (make-description file)
+                for timestamp = (get-file-timestamp file)
                 do (xml-emitter:rss-item title
                                          :description description
-                                         :link full-url)))))))
+                                         :link full-url
+                                         :pubdate (local-time:format-rfc1123-timestring
+                                                   nil timestamp))))))))
 
 #+END_SRC
 
@@ -1009,5 +1044,7 @@ files, and extracting their ":defsystem-depends-on".
 - [[https://docs.stevelosh.com/bobbin/usage/][bobbin]] - text wrapping utility
 - http://quickdocs.org/defclass-std/
 - http://quickdocs.org/parse-float/
+- http://quickdocs.org/lambda-fiddle/
+- http://quickdocs.org/legit
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
