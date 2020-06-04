@@ -56,8 +56,8 @@ POFTHEDAY> (lambda-fiddle:with-destructured-lambda-list
 
 #+end_src
 
-[[https://twitter.com/shinmera][@Shinmmera]]'s "legit" contains [[https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45][a practical example]] of the
-~with-desctructured-lambda-list~ usage.
+[[https://twitter.com/shinmera][@Shinmera]]'s "legit" contains [[https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45][a practical example]] of the
+~with-destructured-lambda-list~ usage.
 
 This code replaces optional arguments with keywords and adds optional
 predicates which can be used to check if a keyword argument was
@@ -93,3 +93,6 @@ provided:
                     (parse-oargdef arg)))))))
 
 #+end_src
+
+That is it. If you want to parse lambda lists, use this little helper
+instead of searching &optional, &rest, &misc, etc by hand.

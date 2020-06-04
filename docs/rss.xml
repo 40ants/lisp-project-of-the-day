@@ -6,6 +6,69 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lambda-fiddle</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0089-lambda-fiddle.html</link>
+            <description>&lt;p&gt;This library serves a single purpose - to help macro writers to parse lambda lists. In this sense, it is similar to &lt;code&gt;parse-declarations&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html&quot;&gt;reviewed on 13 May&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The library has a number of functions to extract or remove exact parts of the lambda list:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:remove-aux-part
+            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
+(FOO BAR &amp;amp;KEY BAZ)
+
+POFTHEDAY&amp;gt; (lambda-fiddle:aux-lambda-vars
+            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
+(SOMETHING ALTOGETHER)
+
+POFTHEDAY&amp;gt; (lambda-fiddle:extract-all-lambda-vars
+            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
+(FOO BAR BAZ SOMETHING ALTOGETHER)
+
+POFTHEDAY&amp;gt; (lambda-fiddle:split-lambda-list
+            &amp;#039;(&amp;amp;whole wide world &amp;amp;key roles))
+((WORLD) WIDE NIL NIL NIL NIL (ROLES) NIL)
+
+POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
+               (:required req :optional opt)
+               &amp;#039;(foo bar &amp;amp;optional baz)
+             (list :required req
+                   :optional opt))
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It also provides a higher-level macro to extract particular pieces all at once:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
+               (:required req :optional opt)
+               &amp;#039;(foo bar &amp;amp;optional baz)
+             (list :required req
+                   :optional opt))
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@Shinmmera&lt;/a&gt;&apos;s &quot;legit&quot; contains &lt;a href=&quot;https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45&quot;&gt;a practical example&lt;/a&gt; of the &lt;code&gt;with-destructured-lambda-list&lt;/code&gt; usage.&lt;/p&gt;
+&lt;p&gt;This code replaces optional arguments with keywords and adds optional predicates which can be used to check if a keyword argument was provided:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defmacro define-git-wrapper (name &amp;amp;rest argdefs)
+  (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs
+    (let* ((purereq (purify-args req))
+           (purekey (purify-args key))
+           (pureopt (purify-args opt))
+           (augkeys (mapcar (lambda (a)
+                              `(,a NIL ,(p-symb a)))
+                            (append pureopt purekey))))
+      `(defun ,name (,@purereq &amp;amp;key ,@augkeys)
+         (declare (ignorable ,@(mapcar #&amp;#039;third augkeys)))
+         (run-git
+          ,(subseq (string-downcase name) 4)
+          ,@(loop for arg in req 
+                  when (front-arg-p arg)
+                    collect (parse-rargdef arg))
+          ,@(loop for arg in opt
+                  when (front-arg-p arg)
+                    collect (parse-oargdef arg))
+          ,@(mapcar #&amp;#039;parse-kargdef key)
+          ,@(loop for arg in req
+                  unless (front-arg-p arg)
+                    collect (parse-rargdef arg))
+          ,@(loop for arg in opt
+                  unless (front-arg-p arg)
+                    collect
+                    (parse-oargdef arg)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. If you want to parse lambda lists, use this little helper instead of searching &amp;optional, &amp;rest, &amp;misc, etc by hand.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 04 Jun 2020 23:51:31 +0300</pubDate>
+        </item>
+        <item>
             <title>group-by</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0088-group-by.html</link>
             <description>&lt;p&gt;This small utility library implements a really handy facility. It allows you to group items by one or many keys.&lt;/p&gt;
@@ -1445,130 +1508,6 @@ POFTHEDAY&amp;gt; (split-sequence:split-sequence-if
             (values (first next) t))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Thank you, Steve!&lt;/p&gt;
 </description>
             <pubDate>Sat, 16 May 2020 22:22:26 +0300</pubDate>
-        </item>
-        <item>
-            <title>osicat</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0069-osicat.html</link>
-            <description>&lt;p&gt;This is a library, created by &lt;a href=&quot;https://twitter.com/nsiivola&quot;&gt;@nsiivola&lt;/a&gt;. It is well suited if you need to call &lt;a href=&quot;https://en.wikipedia.org/wiki/POSIX&quot;&gt;POSIX&lt;/a&gt; API. &lt;code&gt;Osicat&lt;/code&gt; has outdated documentation but it is has docstring and the code is well structured.&lt;/p&gt;
-&lt;p&gt;Using &lt;code&gt;osicat&lt;/code&gt;, you can work with files and make other system calls.&lt;/p&gt;
-&lt;p&gt;Here is an example of how you can get information about files:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (osicat:file-kind &amp;quot;/tmp&amp;quot;)
-:SYMBOLIC-LINK
-
-POFTHEDAY&amp;gt; (osicat:read-link &amp;quot;/tmp&amp;quot;)
-#P&amp;quot;private/tmp&amp;quot;
-
-POFTHEDAY&amp;gt; (osicat:file-permissions &amp;quot;/tmp&amp;quot;)
-(:USER-READ :USER-WRITE :USER-EXEC :GROUP-READ
- :GROUP-WRITE :GROUP-EXEC :OTHER-READ
- :OTHER-WRITE :OTHER-EXEC :STICKY)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ve never used &lt;code&gt;osicat&lt;/code&gt; before. When preparing this review, I noticed it has functions to make such system calls like &lt;code&gt;open&lt;/code&gt;, &lt;code&gt;read&lt;/code&gt;, &lt;code&gt;close&lt;/code&gt; and I wondered if it will be faster to implement such a handy operation like reading lines from a file using these calls instead of streams.&lt;/p&gt;
-&lt;p&gt;So, let&apos;s compare the performance of the native Common Lisp streams and raw POSIX calls when we want to read all lines of the large log file.&lt;/p&gt;
-&lt;p&gt;I have a 26M log file &lt;code&gt;/var/log/install.log&lt;/code&gt; on my disk.&lt;/p&gt;
-&lt;p&gt;As a baseline, we&apos;ll take the performance of the &lt;code&gt;uiop:read-file-lines&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (time
-            (length
-             (uiop:read-file-lines *filename*)))
-Evaluation took:
-  0.610 seconds of real time
-  0.610132 seconds of total run time (0.549502 user, 0.060630 system)
-  [ Run times consist of 0.119 seconds GC time, and 0.492 seconds non-GC time. ]
-  100.00% CPU
-  1,346,441,256 processor cycles
-  300,767,776 bytes consed
-  
-76560 ;; This is the number of lines&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can open a file and read a piece into the buffer, using POSIX system calls:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *filename* &amp;quot;/var/log/install.log&amp;quot;)
-
-POFTHEDAY&amp;gt; (defparameter *fd* (osicat-posix:open *filename*
-                                                 osicat-posix::o-rdonly))
-
-POFTHEDAY&amp;gt; (cffi:with-foreign-pointer-as-string ((buf buf-size) 1024)
-             (osicat-posix:read *fd* buf buf-size))
-&amp;quot;Feb 25 09:58:02 localhost opendirectoryd[231]: opendirectoryd (build 692.000) launched - installer mode
-Feb 25 09:58:02 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
-Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Initialize trigger support
-Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
-Feb 25 09:58:03 localhost opendirectoryd[231]: [default] Failed to open file &amp;lt;private&amp;gt; [2: No such file or directory]
-Feb 25 09:58:03 localhost opendirectoryd[231]: [default] created endpoint for mach service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
-Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &amp;#039;reset_cache&amp;#039; for service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
-Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Registered RPC over XPC &amp;#039;reset_online&amp;#039; for service &amp;#039;com.apple.private.opendirectoryd.rpc&amp;#039;
-Feb 25 09:58:03 localhost opendirectoryd[231]: [session] Re&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But we want to read a string, separated by newlines. In this scenario, code will be more complex:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun read-lines (filename &amp;amp;key (separator #\Newline))
-  (declare (optimize (speed 3) (debug 0) (safety 0))
-  
-  (let ((fd (osicat-posix:open filename
-                               osicat-posix::o-rdonly))
-        (current-string &amp;quot;&amp;quot;)
-        (separator (char-code separator)))
-    (uiop:while-collecting (collect-string)
-      (unwind-protect
-           (cffi:with-foreign-pointer (buf 1024 buf-size)
-             (flet ((collect-lines (num-bytes)
-                      (loop with begin of-type fixnum = 0
-                            for offset of-type fixnum from 0 below num-bytes
-                            for char = (cffi:mem-ref buf :unsigned-char offset)
-                            
-                            when (= char separator)
-                              do (let ((part (cffi:foreign-string-to-lisp
-                                              buf
-                                              :offset begin
-                                              :count (- offset begin))))
-                                   (setf begin (1+ offset))
-                                   
-                                   (cond ((zerop (length current-string))
-                                          (collect-string part))
-                                         (t
-                                          (collect-string
-                                           (concatenate &amp;#039;string part))
-                                          (setf current-string &amp;quot;&amp;quot;))))
-                            finally (unless (= offset num-bytes)
-                                      (setf current-string
-                                            (concatenate &amp;#039;string
-                                                         current-string
-                                                         (cffi:foreign-string-to-lisp
-                                                          buf
-                                                          :offset begin
-                                                          :count (- offset begin))))))))
-               (loop for num-bytes of-type fixnum = (osicat-posix:read fd buf buf-size)
-                     while (not (zerop num-bytes))
-                     do (collect-lines num-bytes)
-                     finally (when (not (zerop (length current-string)))
-                               (collect-string current-string))))))
-        (osicat-posix:close fd))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I tried to put proper type declarations, and performance is 2.3 times faster than &lt;code&gt;uiop:read-file-lines&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (time (length (read-lines *filename*)))
-Evaluation took:
-  0.233 seconds of real time
-  0.232355 seconds of total run time (0.203830 user, 0.028525 system)
-  [ Run times consist of 0.036 seconds GC time, and 0.197 seconds non-GC time. ]
-  99.57% CPU
-  514,348,582 processor cycles
-  87,868,848 bytes consed
-  
-76560&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now the sad part of this story. If we compare performance with such interpreted language as Python, then Python will be 4.5 times faster than my optimized function :(&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;In [1]: def read_lines(filename):
-   ...:     l = []
-   ...:     with open(filename) as f:
-   ...:         for line in f:
-   ...:             l.append(line)
-   ...:     return l
-
-In [2]: def count_lines(filename):
-   ...:     return len(read_lines(filename))
-
-In [3]: %timeit count_lines(&amp;quot;/var/log/install.log&amp;quot;)
-55.5 ms &amp;#xB1; 3.94 ms per loop (mean &amp;#xB1; std. dev. of 7 runs, 10 loops each)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;CFFI uses &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; to convert bytes to string but makes few unnecessary calls.&lt;/p&gt;
-&lt;p&gt;I tried to extract UTF-8 decoder from the &lt;a href=&quot;https://github.com/cl-babel/babel&quot;&gt;Babel&lt;/a&gt; into a single function, but it&apos;s internals too complex, to finish this task in one evening.&lt;/p&gt;
-&lt;p&gt;If somebody knows fast Common Lisp implementation of the UTF-8 decoder, let me know and I&apos;ll update my article with new code. Probably &lt;code&gt;trivial-utf-8:utf-8-bytes-to-string&lt;/code&gt; will do the job if I&apos;ll modify it to read bytes from the alien pointer?&lt;/p&gt;
-&lt;h2&gt;Update 1&lt;/h2&gt;&lt;p&gt;I&apos;ve runned the code under a SBCL&apos;s statistical profiler and build this flamegraph:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0069/read-lines-flamegraph.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;It shows that:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;50% of time wasted in my function read-line&lt;/li&gt;&lt;li&gt;10% is utf-8  decoding&lt;/li&gt;&lt;li&gt;40% – in a &quot;read&quot; syscall.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;This is strange, because when I remove all code which converts utf-8 and just reads whole file piece by piece it takes 25-30ms only.&lt;/p&gt;
-&lt;p&gt;This can be improved if I&apos;ll use 10kb buffer instead of 1kb. In this case reading will take 7ms.&lt;/p&gt;
-&lt;p&gt;Also, I found that the most consing occur in the &lt;code&gt;cffi:foreign-string-to-lisp&lt;/code&gt; call.&lt;/p&gt;
-&lt;h2&gt;Update 2&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/luismbo&quot;&gt;@luismbo&lt;/a&gt; &lt;a href=&quot;https://twitter.com/luismbo/status/1261738185203298306&quot;&gt;found&lt;/a&gt; that CPython uses a &lt;a href=&quot;https://github.com/python/cpython/blob/a1d12bb1197d9335fcb62aad7fb0df56098197ac/Objects/unicodeobject.c#L4549&quot;&gt;shortcut trick&lt;/a&gt; to not decode string if it consists of ASCII characters. That is why it can be more performant than my Common Lisp &lt;code&gt;read-lines&lt;/code&gt; function.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 15 May 2020 23:41:06 +0300</pubDate>
         </item>
     </channel>
 </rss>
