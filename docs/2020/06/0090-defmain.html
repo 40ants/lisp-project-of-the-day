@@ -49,7 +49,7 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>defmain</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>defmain<span class='tags'><a href='../../tags/commandline.html'><span class='label label-default'>commandline</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Today I want to tell about my own library for command line arguments parsing. <code>Defmain</code> provides a macro for defining the main function.</p>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>defmain</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>defmain<span class='tags'><a href='../../tags/commandline.html'><span class='label label-default'>commandline</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Today I want to tell about my own library for command-line arguments parsing. <code>Defmain</code> provides a macro for defining the main function.</p>
 <p>All you need is to declare required and optional arguments like this:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (defmain:defmain main
                ((debug &quot;Show traceback instead of short message.&quot;
@@ -68,7 +68,7 @@ h1 .tags {
                      repositories
                      debug
                      log
-                     token))</code></pre><p>This code expands to a lot of low level code which uses <a href="https://twitter.com/didierverna">@didierverna</a>'s <code>net.didierverna.clon</code> for actual arguments parsing:</p>
+                     token))</code></pre><p>This code expands to a lot of low-level code which uses <a href="https://twitter.com/didierverna">@didierverna</a>'s <code>net.didierverna.clon</code> for actual arguments parsing:</p>
 <pre><code class=' lisp'>(progn
  (defun main (&amp;rest defmain/defmain::argv)
    (declare (ignorable))
@@ -136,20 +136,56 @@ h1 .tags {
                        repositories debug log token)
                nil)))))))
  (setf (get &#039;main :arguments) &#039;(debug log token)
-       (documentation &#039;main &#039;function) &quot;Utility to analyze github forks.&quot;))</code></pre><p>Let's try to call our main function to check how  it process command line arguments.</p>
-<p>Defmain calls <code>uiop:quit</code> at the end of the function on after the printing help message. To suppress this behavior, I'll redefine this function to just print to the screen:</p>
+       (documentation &#039;main &#039;function) &quot;Utility to analyze github forks.&quot;))</code></pre><p>Let's try to call our main function to check how  it processes command-line arguments.</p>
+<p>Defmain calls <code>uiop:quit</code> at the end of the function on after the printing help message. To suppress this behaviour, I'll redefine this function to just print to the screen:</p>
 <pre><code class=' lisp'>POFTHEDAY&gt; (defun uiop:quit (&amp;optional (code 0))
              (format t &quot;Quit was called with code=~A~%&quot;
-                     code))</code></pre><p>Now we can pass it differen combination of arguments:</p>
-<p>#+begin_str lisp</p>
-<p>POFTHEDAY> (main) Repositories:  Debug: NIL Log: NIL Token: NIL</p>
-<p>POFTHEDAY> (main "Foo" "Bar") Repositories: "Foo", "Bar" Debug: NIL Log: NIL Token: NIL</p>
-<p>POFTHEDAY> (main "--debug" "Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: NIL Token: NIL</p>
-<p>POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: "app.log" Token: NIL</p>
-<p>;; Now we'll check how it will ;; process environment variable: POFTHEDAY> (setf (uiop:getenv "TOKEN")                  "$ome $ecret 7oken")</p>
-<p>POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: "app.log" Token: "$ome $ecret 7oken" NIL POFTHEDAY> (main "--help") Usage: main main [-hd] [OPTIONS] REPOSITORY...</p>
-<p>Utility to analyze github forks.   -h, --help                  Show help on this program.   -d, --debug                 Show traceback instead of short message.   -l, --log=STR               Filename to write log to.   -t, --token=STR             GitHub personal access token.                               Environment: TOKEN Quit was called with code=1</p>
-<p>#+end_str</p>
+                     code))</code></pre><p>Now we can pass it different combinations of arguments:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (main)
+Repositories: 
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY&gt; (main &quot;Foo&quot; &quot;Bar&quot;)
+Repositories: &quot;Foo&quot;, &quot;Bar&quot;
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY&gt; (main &quot;--debug&quot; &quot;Foo&quot; &quot;Bar&quot;)
+Repositories: &quot;Foo&quot;, &quot;Bar&quot;
+Debug: T
+Log: NIL
+Token: NIL
+
+POFTHEDAY&gt; (main &quot;--debug&quot; &quot;--log&quot; &quot;app.log&quot;&quot;Foo&quot; &quot;Bar&quot;)
+Repositories: &quot;Foo&quot;, &quot;Bar&quot;
+Debug: T
+Log: &quot;app.log&quot;
+Token: NIL
+
+;; Now we&#039;ll check how it will
+;; process environment variable:
+POFTHEDAY&gt; (setf (uiop:getenv &quot;TOKEN&quot;)
+                 &quot;$ome $ecret 7oken&quot;)
+
+POFTHEDAY&gt; (main &quot;--debug&quot; &quot;--log&quot; &quot;app.log&quot;&quot;Foo&quot; &quot;Bar&quot;)
+Repositories: &quot;Foo&quot;, &quot;Bar&quot;
+Debug: T
+Log: &quot;app.log&quot;
+Token: &quot;$ome $ecret 7oken&quot;
+NIL
+POFTHEDAY&gt; (main &quot;--help&quot;)
+Usage: main main [-hd] [OPTIONS] REPOSITORY...
+
+Utility to analyze github forks.
+  -h, --help                  Show help on this program.
+  -d, --debug                 Show traceback instead of short message.
+  -l, --log=STR               Filename to write log to.
+  -t, --token=STR             GitHub personal access token.
+                              Environment: TOKEN
+Quit was called with code=1</code></pre><p><code>Defmain</code> is not in Quicklisp distribution, but you can install it from <a href="https://ultralisp.org/">Ultralisp.org</a>.</p>
 <p>If you are looking to something simpler, you might take a look at <code>unix-opts</code>, <a href="http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html">reviewed in the #0006 #poftheday</a> post.</p>
 
 <script src="https://utteranc.es/client.js"

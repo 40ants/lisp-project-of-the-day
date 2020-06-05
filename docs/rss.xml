@@ -6,6 +6,150 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>defmain</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0090-defmain.html</link>
+            <description>&lt;p&gt;Today I want to tell about my own library for command-line arguments parsing. &lt;code&gt;Defmain&lt;/code&gt; provides a macro for defining the main function.&lt;/p&gt;
+&lt;p&gt;All you need is to declare required and optional arguments like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmain:defmain main
+               ((debug &amp;quot;Show traceback instead of short message.&amp;quot;
+                       :flag t)
+                (log   &amp;quot;Filename to write log to.&amp;quot;)
+                (token &amp;quot;GitHub personal access token.&amp;quot;
+                       :env-var &amp;quot;TOKEN&amp;quot;)
+                &amp;amp;rest repositories)
+             &amp;quot;Utility to analyze github forks.&amp;quot;
+             
+             (format t
+                     &amp;quot;Repositories: ~{~S~^, ~}~%~
+                      Debug: ~S~%~
+                      Log: ~S~%~
+                      Token: ~S~%&amp;quot;
+                     repositories
+                     debug
+                     log
+                     token))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code expands to a lot of low-level code which uses &lt;a href=&quot;https://twitter.com/didierverna&quot;&gt;@didierverna&lt;/a&gt;&apos;s &lt;code&gt;net.didierverna.clon&lt;/code&gt; for actual arguments parsing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
+ (defun main (&amp;amp;rest defmain/defmain::argv)
+   (declare (ignorable))
+   (let ((defmain/defmain::synopsis
+          (net.didierverna.clon:defsynopsis (:postfix &amp;quot;REPOSITORY...&amp;quot;
+                                             :make-default nil)
+            (defmain/defmain::text :contents &amp;quot;Utility to analyze github forks.&amp;quot;)
+            (defmain/defmain::flag :long-name &amp;quot;help&amp;quot; :env-var nil :description
+             &amp;quot;Show help on this program.&amp;quot; :short-name &amp;quot;h&amp;quot;)
+            (defmain/defmain::flag :long-name &amp;quot;debug&amp;quot; :env-var nil :description
+             &amp;quot;Show traceback instead of short message.&amp;quot; :short-name &amp;quot;d&amp;quot;)
+            (defmain/defmain::stropt :long-name &amp;quot;log&amp;quot; :env-var nil :description
+             &amp;quot;Filename to write log to.&amp;quot; :short-name &amp;quot;l&amp;quot;)
+            (defmain/defmain::stropt :long-name &amp;quot;token&amp;quot; :env-var &amp;quot;TOKEN&amp;quot;
+             :description &amp;quot;GitHub personal access token.&amp;quot; :short-name &amp;quot;t&amp;quot;)))
+         (defmain/defmain::argv
+          (or defmain/defmain::argv (uiop/image:command-line-arguments))))
+     (change-class defmain/defmain::synopsis &amp;#039;defmain/defmain::cool-synopsis
+                   :command &amp;#039;main)
+     (net.didierverna.clon:make-context :cmdline
+                                        (cons &amp;quot;main&amp;quot; defmain/defmain::argv)
+                                        :synopsis defmain/defmain::synopsis))
+   (let ((defmain/defmain::%rest-arguments (net.didierverna.clon:remainder)))
+     (declare (ignorable defmain/defmain::%rest-arguments))
+     (flet ((defmain/defmain::%pop-argument (defmain/defmain::name)
+              &amp;quot;This local function is used to pop positional arguments from the command line.&amp;quot;
+              (unless defmain/defmain::%rest-arguments
+                (check-type defmain/defmain::name symbol)
+                (error &amp;#039;defmain/defmain::argument-is-required-error :name
+                       defmain/defmain::name))
+              (pop defmain/defmain::%rest-arguments)))
+       (let ((net.didierverna.clon:help
+              (net.didierverna.clon:getopt :long-name &amp;quot;help&amp;quot;))
+             (debug (net.didierverna.clon:getopt :long-name &amp;quot;debug&amp;quot;))
+             (log (net.didierverna.clon:getopt :long-name &amp;quot;log&amp;quot;))
+             (token (net.didierverna.clon:getopt :long-name &amp;quot;token&amp;quot;)))
+         (when net.didierverna.clon:help
+           (net.didierverna.clon:help)
+           (uiop/image:quit 1))
+         (handler-bind ((sb-sys:interactive-interrupt
+                         (lambda (defmain/defmain::c)
+                           (declare (ignorable defmain/defmain::c))
+                           (uiop/image:quit 0)))
+                        (defmain/defmain::argument-is-required-error
+                         (lambda (defmain/defmain::c)
+                           (format t &amp;quot;~A~%&amp;quot; defmain/defmain::c)
+                           (uiop/image:quit 1)))
+                        (error
+                         (lambda (condition)
+                           (uiop/image:print-condition-backtrace condition
+                                                                 :stream
+                                                                 *error-output*)
+                           (uiop/image:quit 1))))
+           (let ((repositories defmain/defmain::%rest-arguments))
+             (flet ()
+               (setf (logical-pathname-translations &amp;quot;TEMPORARY-FILES&amp;quot;)
+                       `((&amp;quot;*.*.*&amp;quot;
+                          ,(uiop/package:symbol-call :cl-fad
+                                                     &amp;#039;defmain/defmain::get-default-temporary-directory))))
+               (uiop/stream:setup-temporary-directory)
+               (format t &amp;quot;Repositories: ~{~S~^, ~}~%~
+                          Debug: ~S~%~
+                          Log: ~S~%~
+                          Token: ~S~%&amp;quot;
+                       repositories debug log token)
+               nil)))))))
+ (setf (get &amp;#039;main :arguments) &amp;#039;(debug log token)
+       (documentation &amp;#039;main &amp;#039;function) &amp;quot;Utility to analyze github forks.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s try to call our main function to check how  it processes command-line arguments.&lt;/p&gt;
+&lt;p&gt;Defmain calls &lt;code&gt;uiop:quit&lt;/code&gt; at the end of the function on after the printing help message. To suppress this behaviour, I&apos;ll redefine this function to just print to the screen:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun uiop:quit (&amp;amp;optional (code 0))
+             (format t &amp;quot;Quit was called with code=~A~%&amp;quot;
+                     code))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can pass it different combinations of arguments:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (main)
+Repositories: 
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY&amp;gt; (main &amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
+Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
+Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
+Debug: T
+Log: NIL
+Token: NIL
+
+POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;--log&amp;quot; &amp;quot;app.log&amp;quot;&amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
+Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
+Debug: T
+Log: &amp;quot;app.log&amp;quot;
+Token: NIL
+
+;; Now we&amp;#039;ll check how it will
+;; process environment variable:
+POFTHEDAY&amp;gt; (setf (uiop:getenv &amp;quot;TOKEN&amp;quot;)
+                 &amp;quot;$ome $ecret 7oken&amp;quot;)
+
+POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;--log&amp;quot; &amp;quot;app.log&amp;quot;&amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
+Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
+Debug: T
+Log: &amp;quot;app.log&amp;quot;
+Token: &amp;quot;$ome $ecret 7oken&amp;quot;
+NIL
+POFTHEDAY&amp;gt; (main &amp;quot;--help&amp;quot;)
+Usage: main main [-hd] [OPTIONS] REPOSITORY...
+
+Utility to analyze github forks.
+  -h, --help                  Show help on this program.
+  -d, --debug                 Show traceback instead of short message.
+  -l, --log=STR               Filename to write log to.
+  -t, --token=STR             GitHub personal access token.
+                              Environment: TOKEN
+Quit was called with code=1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Defmain&lt;/code&gt; is not in Quicklisp distribution, but you can install it from &lt;a href=&quot;https://ultralisp.org/&quot;&gt;Ultralisp.org&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you are looking to something simpler, you might take a look at &lt;code&gt;unix-opts&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html&quot;&gt;reviewed in the #0006 #poftheday&lt;/a&gt; post.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 05 Jun 2020 22:24:53 +0300</pubDate>
+        </item>
+        <item>
             <title>lambda-fiddle</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0089-lambda-fiddle.html</link>
             <description>&lt;p&gt;This library serves a single purpose - to help macro writers to parse lambda lists. In this sense, it is similar to &lt;code&gt;parse-declarations&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html&quot;&gt;reviewed on 13 May&lt;/a&gt;.&lt;/p&gt;
@@ -1440,74 +1584,6 @@ POFTHEDAY&amp;gt; (ps
 };&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With Parenscript you can create client-side applications or code for running on Node.js. All of this, using Common Lisp power. Isn&apos;t it cool?&lt;/p&gt;
 </description>
             <pubDate>Sun, 17 May 2020 22:17:21 +0300</pubDate>
-        </item>
-        <item>
-            <title>split-sequence</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0070-split-sequence.html</link>
-            <description>&lt;p&gt;This is the utility library with a single purpose – to split, dissect, cut, cleave and partition sequences.&lt;/p&gt;
-&lt;p&gt;In the simplest form it is:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (split-sequence:split-sequence
-            #\Space
-            &amp;quot;Bob loves Alice!&amp;quot;)
-(&amp;quot;Bob&amp;quot; &amp;quot;loves&amp;quot; &amp;quot;Alice!&amp;quot;)
-16&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also is able to split only N times, split from the and to remove empty subsequences:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (split-sequence:split-sequence
-            0
-            #(1 2 3 4 0 5 6 7 0 8 9 0))
-(#(1 2 3 4) #(5 6 7) #(8 9) #())
-
-POFTHEDAY&amp;gt; (split-sequence:split-sequence
-            0
-            #(1 2 3 4 0 5 6 7 0 8 9 0)
-            :remove-empty-subseqs t)
-(#(1 2 3 4) #(5 6 7) #(8 9))
-
-POFTHEDAY&amp;gt; (split-sequence:split-sequence
-            0
-            #(1 2 3 4 0 5 6 7 0 8 9 0)
-            :remove-empty-subseqs t
-            :from-end t
-            :count 1)
-(#(8 9))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also &lt;code&gt;split-sequence-if&lt;/code&gt; and &lt;code&gt;split-sequence-if-not&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defstruct word text)
-POFTHEDAY&amp;gt; (defstruct white-space)
-
-POFTHEDAY&amp;gt; (defmethod print-object ((obj word) stream)
-             (format stream &amp;quot;&amp;lt;WORD ~A&amp;gt;&amp;quot; (word-text obj)))
-
-POFTHEDAY&amp;gt; (defmethod print-object ((obj white-space) stream)
-             (format stream &amp;quot;&amp;lt;SPACE&amp;gt;&amp;quot;))
-
-POFTHEDAY&amp;gt; (defparameter *tokens*
-             (list (make-word :text &amp;quot;Bob&amp;quot;)
-                   (make-white-space)
-                   (make-word :text &amp;quot;loves&amp;quot;)
-                   (make-white-space)
-                   (make-word :text &amp;quot;Alice&amp;quot;)))
-(&amp;lt;WORD Bob&amp;gt; &amp;lt;SPACE&amp;gt; &amp;lt;WORD loves&amp;gt; &amp;lt;SPACE&amp;gt; &amp;lt;WORD Alice&amp;gt;)
-
-POFTHEDAY&amp;gt; (split-sequence:split-sequence-if
-            (lambda (item)
-              (typep item &amp;#039;white-space))
-              *tokens*)
-((&amp;lt;WORD Bob&amp;gt;) (&amp;lt;WORD loves&amp;gt;) (&amp;lt;WORD Alice&amp;gt;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, a library &lt;code&gt;cl-utilities&lt;/code&gt;, reviewed &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0068-cl-utilities.html&quot;&gt;two days ago&lt;/a&gt;, and &lt;code&gt;rutils&lt;/code&gt;, reviewed at &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0065-rutils.html&quot;&gt;the start of the week&lt;/a&gt;, are also include these splitting functions, but code is different. Probably this is because &lt;code&gt;split-sequence&lt;/code&gt; evolved since it was copied into  &lt;code&gt;cl-utilities&lt;/code&gt; and &lt;code&gt;rutils&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;This simple &lt;a href=&quot;https://ultralisp.org/search/?query=symbol%3Asplit-sequence-if&quot;&gt;search query&lt;/a&gt; on Ultralisp.org shows that this functionality is also available in some other Common Lisp libraries.&lt;/p&gt;
-&lt;h2&gt;Update 1&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/fwoaroof/status/1261736998412271616&quot;&gt;@fwoaroof&lt;/a&gt; gave me a &lt;a href=&quot;https://github.com/fiddlerwoaroof/fwoar.lisputils/blob/master/string-utils/split.lisp&quot;&gt;link to the split function&lt;/a&gt;, optimized to work with very long (&gt; 1G) strings.&lt;/p&gt;
-&lt;h2&gt;Update 2&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/stevelosh&quot;&gt;@stevelosh&lt;/a&gt; &lt;a href=&quot;https://twitter.com/stevelosh/status/1261749896656424967&quot;&gt;sent me a code&lt;/a&gt; which uses &lt;code&gt;split-sequence&lt;/code&gt; to make an iterator:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun spliterator (delimiter sequence &amp;amp;key (test #&amp;#039;eql) (key #&amp;#039;identity))
-  (let ((start 0)
-        (length (length sequence)))
-    (lambda ()
-      (if (= start length)
-          (values nil nil)
-          (multiple-value-bind (next end)
-              (split-sequence:split-sequence delimiter sequence
-                                             :count 1 :start start
-                                             :key key :test test)
-            (setf start end)
-            (values (first next) t))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Thank you, Steve!&lt;/p&gt;
-</description>
-            <pubDate>Sat, 16 May 2020 22:22:26 +0300</pubDate>
         </item>
     </channel>
 </rss>

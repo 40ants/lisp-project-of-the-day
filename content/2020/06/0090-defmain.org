@@ -8,7 +8,7 @@
 :CI:       :)
 :END:
 
-Today I want to tell about my own library for command line arguments
+Today I want to tell about my own library for command-line arguments
 parsing. ~Defmain~ provides a macro for defining the main function.
 
 All you need is to declare required and optional arguments like this:
@@ -36,7 +36,7 @@ POFTHEDAY> (defmain:defmain main
 
 #+end_src
 
-This code expands to a lot of low level code which uses [[https://twitter.com/didierverna][@didierverna]]'s
+This code expands to a lot of low-level code which uses [[https://twitter.com/didierverna][@didierverna]]'s
 ~net.didierverna.clon~ for actual arguments parsing:
 
 #+begin_src lisp
@@ -112,11 +112,11 @@ This code expands to a lot of low level code which uses [[https://twitter.com/di
 
 #+end_src
 
-Let's try to call our main function to check how  it process
-command line arguments.
+Let's try to call our main function to check how  it processes
+command-line arguments.
 
 Defmain calls ~uiop:quit~ at the end of the function on after the printing
-help message. To suppress this behavior, I'll redefine this function to
+help message. To suppress this behaviour, I'll redefine this function to
 just print to the screen:
 
 #+begin_src lisp
@@ -127,9 +127,9 @@ POFTHEDAY> (defun uiop:quit (&optional (code 0))
 
 #+end_src
 
-Now we can pass it differen combination of arguments:
+Now we can pass it different combinations of arguments:
 
-#+begin_str lisp
+#+begin_src lisp
 
 POFTHEDAY> (main)
 Repositories: 
@@ -177,7 +177,10 @@ Utility to analyze github forks.
                               Environment: TOKEN
 Quit was called with code=1
 
-#+end_str
+#+end_src
+
+~Defmain~ is not in Quicklisp distribution, but you can install it from
+[[https://ultralisp.org/][Ultralisp.org]].
 
 If you are looking to something simpler, you might take a look at ~unix-opts~,
 [[http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html][reviewed in the #0006 #poftheday]] post.
