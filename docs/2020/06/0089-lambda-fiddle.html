@@ -78,7 +78,7 @@ POFTHEDAY&gt; (lambda-fiddle:with-destructured-lambda-list
                &#039;(foo bar &amp;optional baz)
              (list :required req
                    :optional opt))
-(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))</code></pre><p><a href="https://twitter.com/shinmera">@Shinmmera</a>'s "legit" contains <a href="https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45">a practical example</a> of the <code>with-destructured-lambda-list</code> usage.</p>
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))</code></pre><p><a href="https://twitter.com/shinmera">@Shinmera</a>'s "legit" contains <a href="https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45">a practical example</a> of the <code>with-destructured-lambda-list</code> usage.</p>
 <p>This code replaces optional arguments with keywords and adds optional predicates which can be used to check if a keyword argument was provided:</p>
 <pre><code class=' lisp'>(defmacro define-git-wrapper (name &amp;rest argdefs)
   (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs

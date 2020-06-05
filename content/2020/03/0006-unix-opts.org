@@ -30,13 +30,13 @@ NIL
 
 #+END_SRC
 
-Options are declared by a macro opts:define-opts it stores them in the
-global opts::*options* variable.
+Options are declared by a macro ~opts:define-opts~ it stores them in the
+global ~opts::*options*~ variable.
 
 Seems there is no way to have subcommands with different options when
-you are using unix-opts.
+you are using ~unix-opts~.
 
-Internal code of the unix-opts is short, readable and documented. The
+Internal code of the ~unix-opts~ is short, readable and documented. The
 library has no dependencies which is good if you want to write simple
 command-line scripts in Common Lisp.
 

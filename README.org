@@ -7,6 +7,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 02 June - [[content/2020/06/0087-cl-cron.org][cl-cron]] ([[https://twitter.com/svetlyak40wt/status/1267908838470160393][twitter]])
 - 03 June - [[content/2020/06/0088-group-by.org][group-by]] ([[https://twitter.com/svetlyak40wt/status/1268237575426318338][twitter]])
 - 04 June - [[content/2020/06/0089-lambda-fiddle.org][lambda-fiddle]] ([[http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html][twitter]])
+- 05 June - [[content/2020/06/0090-defmain.org][defmain]]
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])

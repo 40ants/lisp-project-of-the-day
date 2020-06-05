@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>defmain
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>defmain</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>defmain<span class='tags'><a href='../../tags/commandline.html'><span class='label label-default'>commandline</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Today I want to tell about my own library for command line arguments parsing. <code>Defmain</code> provides a macro for defining the main function.</p>
+<p>All you need is to declare required and optional arguments like this:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defmain:defmain main
+               ((debug &quot;Show traceback instead of short message.&quot;
+                       :flag t)
+                (log   &quot;Filename to write log to.&quot;)
+                (token &quot;GitHub personal access token.&quot;
+                       :env-var &quot;TOKEN&quot;)
+                &amp;rest repositories)
+             &quot;Utility to analyze github forks.&quot;
+             
+             (format t
+                     &quot;Repositories: ~{~S~^, ~}~%~
+                      Debug: ~S~%~
+                      Log: ~S~%~
+                      Token: ~S~%&quot;
+                     repositories
+                     debug
+                     log
+                     token))</code></pre><p>This code expands to a lot of low level code which uses <a href="https://twitter.com/didierverna">@didierverna</a>'s <code>net.didierverna.clon</code> for actual arguments parsing:</p>
+<pre><code class=' lisp'>(progn
+ (defun main (&amp;rest defmain/defmain::argv)
+   (declare (ignorable))
+   (let ((defmain/defmain::synopsis
+          (net.didierverna.clon:defsynopsis (:postfix &quot;REPOSITORY...&quot;
+                                             :make-default nil)
+            (defmain/defmain::text :contents &quot;Utility to analyze github forks.&quot;)
+            (defmain/defmain::flag :long-name &quot;help&quot; :env-var nil :description
+             &quot;Show help on this program.&quot; :short-name &quot;h&quot;)
+            (defmain/defmain::flag :long-name &quot;debug&quot; :env-var nil :description
+             &quot;Show traceback instead of short message.&quot; :short-name &quot;d&quot;)
+            (defmain/defmain::stropt :long-name &quot;log&quot; :env-var nil :description
+             &quot;Filename to write log to.&quot; :short-name &quot;l&quot;)
+            (defmain/defmain::stropt :long-name &quot;token&quot; :env-var &quot;TOKEN&quot;
+             :description &quot;GitHub personal access token.&quot; :short-name &quot;t&quot;)))
+         (defmain/defmain::argv
+          (or defmain/defmain::argv (uiop/image:command-line-arguments))))
+     (change-class defmain/defmain::synopsis &#039;defmain/defmain::cool-synopsis
+                   :command &#039;main)
+     (net.didierverna.clon:make-context :cmdline
+                                        (cons &quot;main&quot; defmain/defmain::argv)
+                                        :synopsis defmain/defmain::synopsis))
+   (let ((defmain/defmain::%rest-arguments (net.didierverna.clon:remainder)))
+     (declare (ignorable defmain/defmain::%rest-arguments))
+     (flet ((defmain/defmain::%pop-argument (defmain/defmain::name)
+              &quot;This local function is used to pop positional arguments from the command line.&quot;
+              (unless defmain/defmain::%rest-arguments
+                (check-type defmain/defmain::name symbol)
+                (error &#039;defmain/defmain::argument-is-required-error :name
+                       defmain/defmain::name))
+              (pop defmain/defmain::%rest-arguments)))
+       (let ((net.didierverna.clon:help
+              (net.didierverna.clon:getopt :long-name &quot;help&quot;))
+             (debug (net.didierverna.clon:getopt :long-name &quot;debug&quot;))
+             (log (net.didierverna.clon:getopt :long-name &quot;log&quot;))
+             (token (net.didierverna.clon:getopt :long-name &quot;token&quot;)))
+         (when net.didierverna.clon:help
+           (net.didierverna.clon:help)
+           (uiop/image:quit 1))
+         (handler-bind ((sb-sys:interactive-interrupt
+                         (lambda (defmain/defmain::c)
+                           (declare (ignorable defmain/defmain::c))
+                           (uiop/image:quit 0)))
+                        (defmain/defmain::argument-is-required-error
+                         (lambda (defmain/defmain::c)
+                           (format t &quot;~A~%&quot; defmain/defmain::c)
+                           (uiop/image:quit 1)))
+                        (error
+                         (lambda (condition)
+                           (uiop/image:print-condition-backtrace condition
+                                                                 :stream
+                                                                 *error-output*)
+                           (uiop/image:quit 1))))
+           (let ((repositories defmain/defmain::%rest-arguments))
+             (flet ()
+               (setf (logical-pathname-translations &quot;TEMPORARY-FILES&quot;)
+                       `((&quot;*.*.*&quot;
+                          ,(uiop/package:symbol-call :cl-fad
+                                                     &#039;defmain/defmain::get-default-temporary-directory))))
+               (uiop/stream:setup-temporary-directory)
+               (format t &quot;Repositories: ~{~S~^, ~}~%~
+                          Debug: ~S~%~
+                          Log: ~S~%~
+                          Token: ~S~%&quot;
+                       repositories debug log token)
+               nil)))))))
+ (setf (get &#039;main :arguments) &#039;(debug log token)
+       (documentation &#039;main &#039;function) &quot;Utility to analyze github forks.&quot;))</code></pre><p>Let's try to call our main function to check how  it process command line arguments.</p>
+<p>Defmain calls <code>uiop:quit</code> at the end of the function on after the printing help message. To suppress this behavior, I'll redefine this function to just print to the screen:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defun uiop:quit (&amp;optional (code 0))
+             (format t &quot;Quit was called with code=~A~%&quot;
+                     code))</code></pre><p>Now we can pass it differen combination of arguments:</p>
+<p>#+begin_str lisp</p>
+<p>POFTHEDAY> (main) Repositories:  Debug: NIL Log: NIL Token: NIL</p>
+<p>POFTHEDAY> (main "Foo" "Bar") Repositories: "Foo", "Bar" Debug: NIL Log: NIL Token: NIL</p>
+<p>POFTHEDAY> (main "--debug" "Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: NIL Token: NIL</p>
+<p>POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: "app.log" Token: NIL</p>
+<p>;; Now we'll check how it will ;; process environment variable: POFTHEDAY> (setf (uiop:getenv "TOKEN")                  "$ome $ecret 7oken")</p>
+<p>POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar") Repositories: "Foo", "Bar" Debug: T Log: "app.log" Token: "$ome $ecret 7oken" NIL POFTHEDAY> (main "--help") Usage: main main [-hd] [OPTIONS] REPOSITORY...</p>
+<p>Utility to analyze github forks.   -h, --help                  Show help on this program.   -d, --debug                 Show traceback instead of short message.   -l, --log=STR               Filename to write log to.   -t, --token=STR             GitHub personal access token.                               Environment: TOKEN Quit was called with code=1</p>
+<p>#+end_str</p>
+<p>If you are looking to something simpler, you might take a look at <code>unix-opts</code>, <a href="http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html">reviewed in the #0006 #poftheday</a> post.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

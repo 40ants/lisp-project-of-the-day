@@ -69,9 +69,9 @@ POFTHEDAY&gt; (handler-bind ((opts:unknown-option
                                   &quot;--help&quot;)))
 Warning: &quot;--help&quot; option is unknown!
 NIL
-(&quot;myscript&quot;)</code></pre><p>Options are declared by a macro opts:define-opts it stores them in the global opts::*options* variable.</p>
-<p>Seems there is no way to have subcommands with different options when you are using unix-opts.</p>
-<p>Internal code of the unix-opts is short, readable and documented. The library has no dependencies which is good if you want to write simple command-line scripts in Common Lisp.</p>
+(&quot;myscript&quot;)</code></pre><p>Options are declared by a macro <code>opts:define-opts</code> it stores them in the global <code>opts::*options*</code> variable.</p>
+<p>Seems there is no way to have subcommands with different options when you are using <code>unix-opts</code>.</p>
+<p>Internal code of the <code>unix-opts</code> is short, readable and documented. The library has no dependencies which is good if you want to write simple command-line scripts in Common Lisp.</p>
 <p>Read full example in the documentation:</p>
 <p><a href="http://quickdocs.org/unix-opts/">http://quickdocs.org/unix-opts/</a></p>
 

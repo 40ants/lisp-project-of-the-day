@@ -1,0 +1,183 @@
+* defmain :commandline:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :|
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+Today I want to tell about my own library for command line arguments
+parsing. ~Defmain~ provides a macro for defining the main function.
+
+All you need is to declare required and optional arguments like this:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmain:defmain main
+               ((debug "Show traceback instead of short message."
+                       :flag t)
+                (log   "Filename to write log to.")
+                (token "GitHub personal access token."
+                       :env-var "TOKEN")
+                &rest repositories)
+             "Utility to analyze github forks."
+             
+             (format t
+                     "Repositories: ~{~S~^, ~}~%~
+                      Debug: ~S~%~
+                      Log: ~S~%~
+                      Token: ~S~%"
+                     repositories
+                     debug
+                     log
+                     token))
+
+#+end_src
+
+This code expands to a lot of low level code which uses [[https://twitter.com/didierverna][@didierverna]]'s
+~net.didierverna.clon~ for actual arguments parsing:
+
+#+begin_src lisp
+
+(progn
+ (defun main (&rest defmain/defmain::argv)
+   (declare (ignorable))
+   (let ((defmain/defmain::synopsis
+          (net.didierverna.clon:defsynopsis (:postfix "REPOSITORY..."
+                                             :make-default nil)
+            (defmain/defmain::text :contents "Utility to analyze github forks.")
+            (defmain/defmain::flag :long-name "help" :env-var nil :description
+             "Show help on this program." :short-name "h")
+            (defmain/defmain::flag :long-name "debug" :env-var nil :description
+             "Show traceback instead of short message." :short-name "d")
+            (defmain/defmain::stropt :long-name "log" :env-var nil :description
+             "Filename to write log to." :short-name "l")
+            (defmain/defmain::stropt :long-name "token" :env-var "TOKEN"
+             :description "GitHub personal access token." :short-name "t")))
+         (defmain/defmain::argv
+          (or defmain/defmain::argv (uiop/image:command-line-arguments))))
+     (change-class defmain/defmain::synopsis 'defmain/defmain::cool-synopsis
+                   :command 'main)
+     (net.didierverna.clon:make-context :cmdline
+                                        (cons "main" defmain/defmain::argv)
+                                        :synopsis defmain/defmain::synopsis))
+   (let ((defmain/defmain::%rest-arguments (net.didierverna.clon:remainder)))
+     (declare (ignorable defmain/defmain::%rest-arguments))
+     (flet ((defmain/defmain::%pop-argument (defmain/defmain::name)
+              "This local function is used to pop positional arguments from the command line."
+              (unless defmain/defmain::%rest-arguments
+                (check-type defmain/defmain::name symbol)
+                (error 'defmain/defmain::argument-is-required-error :name
+                       defmain/defmain::name))
+              (pop defmain/defmain::%rest-arguments)))
+       (let ((net.didierverna.clon:help
+              (net.didierverna.clon:getopt :long-name "help"))
+             (debug (net.didierverna.clon:getopt :long-name "debug"))
+             (log (net.didierverna.clon:getopt :long-name "log"))
+             (token (net.didierverna.clon:getopt :long-name "token")))
+         (when net.didierverna.clon:help
+           (net.didierverna.clon:help)
+           (uiop/image:quit 1))
+         (handler-bind ((sb-sys:interactive-interrupt
+                         (lambda (defmain/defmain::c)
+                           (declare (ignorable defmain/defmain::c))
+                           (uiop/image:quit 0)))
+                        (defmain/defmain::argument-is-required-error
+                         (lambda (defmain/defmain::c)
+                           (format t "~A~%" defmain/defmain::c)
+                           (uiop/image:quit 1)))
+                        (error
+                         (lambda (condition)
+                           (uiop/image:print-condition-backtrace condition
+                                                                 :stream
+                                                                 *error-output*)
+                           (uiop/image:quit 1))))
+           (let ((repositories defmain/defmain::%rest-arguments))
+             (flet ()
+               (setf (logical-pathname-translations "TEMPORARY-FILES")
+                       `(("*.*.*"
+                          ,(uiop/package:symbol-call :cl-fad
+                                                     'defmain/defmain::get-default-temporary-directory))))
+               (uiop/stream:setup-temporary-directory)
+               (format t "Repositories: ~{~S~^, ~}~%~
+                          Debug: ~S~%~
+                          Log: ~S~%~
+                          Token: ~S~%"
+                       repositories debug log token)
+               nil)))))))
+ (setf (get 'main :arguments) '(debug log token)
+       (documentation 'main 'function) "Utility to analyze github forks."))
+
+#+end_src
+
+Let's try to call our main function to check how  it process
+command line arguments.
+
+Defmain calls ~uiop:quit~ at the end of the function on after the printing
+help message. To suppress this behavior, I'll redefine this function to
+just print to the screen:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun uiop:quit (&optional (code 0))
+             (format t "Quit was called with code=~A~%"
+                     code))
+
+#+end_src
+
+Now we can pass it differen combination of arguments:
+
+#+begin_str lisp
+
+POFTHEDAY> (main)
+Repositories: 
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY> (main "Foo" "Bar")
+Repositories: "Foo", "Bar"
+Debug: NIL
+Log: NIL
+Token: NIL
+
+POFTHEDAY> (main "--debug" "Foo" "Bar")
+Repositories: "Foo", "Bar"
+Debug: T
+Log: NIL
+Token: NIL
+
+POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar")
+Repositories: "Foo", "Bar"
+Debug: T
+Log: "app.log"
+Token: NIL
+
+;; Now we'll check how it will
+;; process environment variable:
+POFTHEDAY> (setf (uiop:getenv "TOKEN")
+                 "$ome $ecret 7oken")
+
+POFTHEDAY> (main "--debug" "--log" "app.log""Foo" "Bar")
+Repositories: "Foo", "Bar"
+Debug: T
+Log: "app.log"
+Token: "$ome $ecret 7oken"
+NIL
+POFTHEDAY> (main "--help")
+Usage: main main [-hd] [OPTIONS] REPOSITORY...
+
+Utility to analyze github forks.
+  -h, --help                  Show help on this program.
+  -d, --debug                 Show traceback instead of short message.
+  -l, --log=STR               Filename to write log to.
+  -t, --token=STR             GitHub personal access token.
+                              Environment: TOKEN
+Quit was called with code=1
+
+#+end_str
+
+If you are looking to something simpler, you might take a look at ~unix-opts~,
+[[http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html][reviewed in the #0006 #poftheday]] post.

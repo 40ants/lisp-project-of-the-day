@@ -37,7 +37,7 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
                &amp;#039;(foo bar &amp;amp;optional baz)
              (list :required req
                    :optional opt))
-(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@Shinmmera&lt;/a&gt;&apos;s &quot;legit&quot; contains &lt;a href=&quot;https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45&quot;&gt;a practical example&lt;/a&gt; of the &lt;code&gt;with-destructured-lambda-list&lt;/code&gt; usage.&lt;/p&gt;
+(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s &quot;legit&quot; contains &lt;a href=&quot;https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45&quot;&gt;a practical example&lt;/a&gt; of the &lt;code&gt;with-destructured-lambda-list&lt;/code&gt; usage.&lt;/p&gt;
 &lt;p&gt;This code replaces optional arguments with keywords and adds optional predicates which can be used to check if a keyword argument was provided:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defmacro define-git-wrapper (name &amp;amp;rest argdefs)
   (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs
@@ -66,7 +66,7 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
                     collect
                     (parse-oargdef arg)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. If you want to parse lambda lists, use this little helper instead of searching &amp;optional, &amp;rest, &amp;misc, etc by hand.&lt;/p&gt;
 </description>
-            <pubDate>Thu, 04 Jun 2020 23:51:31 +0300</pubDate>
+            <pubDate>Thu, 04 Jun 2020 23:55:08 +0300</pubDate>
         </item>
         <item>
             <title>group-by</title>
