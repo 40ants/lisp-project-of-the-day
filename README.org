@@ -1045,7 +1045,6 @@ files, and extracting their ":defsystem-depends-on".
   extend Lisp with other syntax
 - [[http://www.wuwei.name/][wuwei]] - stateful ajax framework based on continuations.
 - [[https://docs.stevelosh.com/bobbin/usage/][bobbin]] - text wrapping utility
-- http://quickdocs.org/defclass-std/
 - http://quickdocs.org/parse-float/
 - http://quickdocs.org/legit
 - https://github.com/Shinmera/modularize

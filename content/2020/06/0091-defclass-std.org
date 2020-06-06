@@ -1,8 +1,63 @@
-* defclass-std :macros:language:
+* defclass-std :macro:clos:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This library provides a shortcut macro to define ~CLOS~ classes. Today I
+needed to define a class which will store stock candles data. It will
+keep data in a columns.
+
+With ~defclass-std~ we can define such class like this:
 
 #+begin_src lisp
 
-(defclass storage ()
+POFTHEDAY> (defclass-std:defclass/std candles ()
+             ((timestamps
+               lows highs
+               opens closes
+               volumes)))
+
+#+end_src
+
+It will expand into the ~defclass~ full of accessors, init forms, etc:
+
+#+begin_src lisp
+
+(defclass candles nil
+  ((timestamps :accessor timestamps
+               :initarg :timestamps
+               :initform nil)
+   (lows :accessor lows
+         :initarg :lows
+         :initform nil)
+   (highs :accessor highs
+          :initarg :highs
+          :initform nil)
+   (opens :accessor opens
+          :initarg :opens
+          :initform nil)
+   (closes :accessor closes
+           :initarg :closes
+           :initform nil)
+   (volumes :accessor volumes
+            :initarg :volumes
+            :initform nil)))
+
+#+end_src
+
+But what I really want is a class with custom initforms and readers,
+prefixed by class name.
+
+Here is the class definition I had before discovered the ~defclass-std~.
+
+#+begin_src lisp
+
+(defclass candles ()
   ((timestamps :reader storage-timestamps
                :initform (make-time-vector)
                :initarg :timestamps)
@@ -26,18 +81,46 @@
 
 #+end_src
 
+Here is how ~defclass-std~ can make this definition shorter and [[https://en.wikipedia.org/wiki/Don%27t_repeat_yourself][DRY]]:
+
 #+begin_src lisp
 
-(defclass-std:defclass/std storage ()
+(defclass-std:defclass/std candles ()
   ((timestamps
-    :r :i :with :std (make-time-vector))
+    :ri :with-prefix
+    :std (make-time-vector))
    (volumes
-    :r :i :with :std (make-volume-vector))
+    :ri :with-prefix
+    :std (make-volume-vector))
    ;; Columns, having common options
    ;; can be grouped together!
    (lows highs opens closes
-    :r :i :with :std (make-price-vector)))
+    :ri :with-prefix
+    :std (make-price-vector)))
   (:documentation
    "This is stock candles storage."))
 
 #+end_src
+
+It will write ~:initarg~ and ~:reader~ for each slot. Also, slot's ~:initform~
+will have the value, provided after the ~:std~ keyword.
+
+The syntax can be made it even shorter, but such format is not
+supported yet:
+
+#+begin_src lisp
+
+(defclass-std:defclass/std candles ()
+  ((timestamps
+    :std (make-time-vector))
+   (volumes
+    :std (make-volume-vector))
+   (lows highs opens closes
+    :std (make-price-vector)))
+  (:default-slot-opts :ri :with-prefix)
+  (:documentation
+   "This is stock candles storage."))
+
+#+end_src
+
+This can make class definitions as concise as defstruct.

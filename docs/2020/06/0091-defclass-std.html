@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>defclass-std
+    </title>
+    <link rel='alternate' href='http://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='http://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='http://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>defclass-std</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>defclass-std<span class='tags'><a href='../../tags/macro.html'><span class='label label-default'>macro</span></a><a href='../../tags/clos.html'><span class='label label-default'>clos</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This library provides a shortcut macro to define <code>CLOS</code> classes. Today I needed to define a class which will store stock candles data. It will keep data in a columns.</p>
+<p>With <code>defclass-std</code> we can define such class like this:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defclass-std:defclass/std candles ()
+             ((timestamps
+               lows highs
+               opens closes
+               volumes)))</code></pre><p>It will expand into the <code>defclass</code> full of accessors, init forms, etc:</p>
+<pre><code class=' lisp'>(defclass candles nil
+  ((timestamps :accessor timestamps
+               :initarg :timestamps
+               :initform nil)
+   (lows :accessor lows
+         :initarg :lows
+         :initform nil)
+   (highs :accessor highs
+          :initarg :highs
+          :initform nil)
+   (opens :accessor opens
+          :initarg :opens
+          :initform nil)
+   (closes :accessor closes
+           :initarg :closes
+           :initform nil)
+   (volumes :accessor volumes
+            :initarg :volumes
+            :initform nil)))</code></pre><p>But what I really want is a class with custom initforms and readers, prefixed by class name.</p>
+<p>Here is the class definition I had before discovered the <code>defclass-std</code>.</p>
+<pre><code class=' lisp'>(defclass candles ()
+  ((timestamps :reader storage-timestamps
+               :initform (make-time-vector)
+               :initarg :timestamps)
+   (lows :reader storage-lows
+         :initform (make-price-vector)
+         :initarg :lows)
+   (highs :reader storage-highs
+          :initform (make-price-vector)
+          :initarg :highs)
+   (opens :reader storage-opens
+          :initform (make-price-vector)
+          :initarg :opens)
+   (closes :reader storage-closes
+           :initform (make-price-vector)
+           :initarg :closes)
+   (volumes :reader storage-volumes
+            :initform (make-volume-vector)
+            :initarg :volumes))
+  (:documentation
+   &quot;This is stock candles storage.&quot;))</code></pre><p>Here is how <code>defclass-std</code> can make this definition shorter and <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>:</p>
+<pre><code class=' lisp'>(defclass-std:defclass/std candles ()
+  ((timestamps
+    :ri :with-prefix
+    :std (make-time-vector))
+   (volumes
+    :ri :with-prefix
+    :std (make-volume-vector))
+   ;; Columns, having common options
+   ;; can be grouped together!
+   (lows highs opens closes
+    :ri :with-prefix
+    :std (make-price-vector)))
+  (:documentation
+   &quot;This is stock candles storage.&quot;))</code></pre><p>It will write <code>:initarg</code> and <code>:reader</code> for each slot. Also, slot's <code>:initform</code> will have the value, provided after the <code>:std</code> keyword.</p>
+<p>The syntax can be made it even shorter, but such format is not supported yet:</p>
+<pre><code class=' lisp'>(defclass-std:defclass/std candles ()
+  ((timestamps
+    :std (make-time-vector))
+   (volumes
+    :std (make-volume-vector))
+   (lows highs opens closes
+    :std (make-price-vector)))
+  (:default-slot-opts :ri :with-prefix)
+  (:documentation
+   &quot;This is stock candles storage.&quot;))</code></pre><p>This can make class definitions as concise as defstruct.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
