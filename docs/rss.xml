@@ -6,6 +6,85 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>defclass-std</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0091-defclass-std.html</link>
+            <description>&lt;p&gt;This library provides a shortcut macro to define &lt;code&gt;CLOS&lt;/code&gt; classes. Today I needed to define a class which will store stock candles data. It will keep data in the columns.&lt;/p&gt;
+&lt;p&gt;With &lt;code&gt;defclass-std&lt;/code&gt; we can define such class like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass-std:defclass/std candles ()
+             ((timestamps
+               lows highs
+               opens closes
+               volumes)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will be expand into the &lt;code&gt;defclass&lt;/code&gt; full of accessors, init forms, etc:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass candles nil
+  ((timestamps :accessor timestamps
+               :initarg :timestamps
+               :initform nil)
+   (lows :accessor lows
+         :initarg :lows
+         :initform nil)
+   (highs :accessor highs
+          :initarg :highs
+          :initform nil)
+   (opens :accessor opens
+          :initarg :opens
+          :initform nil)
+   (closes :accessor closes
+           :initarg :closes
+           :initform nil)
+   (volumes :accessor volumes
+            :initarg :volumes
+            :initform nil)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what I really want is a class with custom initforms and readers, prefixed by class name.&lt;/p&gt;
+&lt;p&gt;Here is the class definition I had before discovered the &lt;code&gt;defclass-std&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass candles ()
+  ((timestamps :reader candles-timestamps
+               :initform (make-time-vector)
+               :initarg :timestamps)
+   (lows :reader candles-lows
+         :initform (make-price-vector)
+         :initarg :lows)
+   (highs :reader candles-highs
+          :initform (make-price-vector)
+          :initarg :highs)
+   (opens :reader candles-opens
+          :initform (make-price-vector)
+          :initarg :opens)
+   (closes :reader candles-closes
+           :initform (make-price-vector)
+           :initarg :closes)
+   (volumes :reader candles-volumes
+            :initform (make-volume-vector)
+            :initarg :volumes))
+  (:documentation
+   &amp;quot;This is stock candles candles.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how &lt;code&gt;defclass-std&lt;/code&gt; can make this definition shorter and &lt;a href=&quot;https://en.wikipedia.org/wiki/Don%27t_repeat_yourself&quot;&gt;DRY&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass-std:defclass/std candles ()
+  ((timestamps
+    :ri :with-prefix
+    :std (make-time-vector))
+   (volumes
+    :ri :with-prefix
+    :std (make-volume-vector))
+   ;; Columns, having common options
+   ;; can be grouped together!
+   (lows highs opens closes
+    :ri :with-prefix
+    :std (make-price-vector)))
+  (:documentation
+   &amp;quot;This is stock candles storage.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will write &lt;code&gt;:initarg&lt;/code&gt; and &lt;code&gt;:reader&lt;/code&gt; for each slot. Also, slot&apos;s &lt;code&gt;:initform&lt;/code&gt; will have the value, provided after the &lt;code&gt;:std&lt;/code&gt; keyword.&lt;/p&gt;
+&lt;p&gt;The syntax can be made even shorter, but such format is not supported yet:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass-std:defclass/std candles ()
+  ((timestamps
+    :std (make-time-vector))
+   (volumes
+    :std (make-volume-vector))
+   (lows highs opens closes
+    :std (make-price-vector)))
+  (:default-slot-opts :ri :with-prefix)
+  (:documentation
+   &amp;quot;This is stock candles storage.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can make class definitions as concise as defstruct.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 06 Jun 2020 20:58:34 +0300</pubDate>
+        </item>
+        <item>
             <title>defmain</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0090-defmain.html</link>
             <description>&lt;p&gt;Today I want to tell about my own library for command-line arguments parsing. &lt;code&gt;Defmain&lt;/code&gt; provides a macro for defining the main function.&lt;/p&gt;
@@ -1417,173 +1496,6 @@ POFTHEDAY&amp;gt; (loop for post in (rutils:take 5 *posts*)
 &lt;p&gt;If you are going to write crawlers  in Common lisp, I recommend you to use Plump together with another @shimera&apos;s library - &lt;a href=&quot;https://shinmera.github.io/CLSS/&quot;&gt;clss&lt;/a&gt; but we&apos;ll play with it tomorrow :)&lt;/p&gt;
 </description>
             <pubDate>Mon, 18 May 2020 21:08:33 +0300</pubDate>
-        </item>
-        <item>
-            <title>parenscript</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html</link>
-            <description>&lt;p&gt;Parenscript is the CL&apos;s answer to the &lt;a href=&quot;https://clojurescript.org/&quot;&gt;ClojureScript&lt;/a&gt;. It makes possible to write client-side code in Lisp and compile it to the Javascript for running in the Browser.&lt;/p&gt;
-&lt;p&gt;I used Parenscript in one application, based on Electron and Weblocks.&lt;/p&gt;
-&lt;p&gt;Here is a &lt;a href=&quot;https://github.com/40ants/hacrm/blob/464e931fb7eac7f2b8b0d3f5465ba9c255ec1d2b/src/widgets/contacts-list.lisp#L148-L184&quot;&gt;piece of real code&lt;/a&gt; which uses Parenscript to define a client-side code. This code allows switching between different contacts using shortcuts. It uses &lt;code&gt;jQuery&lt;/code&gt; to access &lt;code&gt;DOM&lt;/code&gt; elements:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(weblocks-parenscript:make-dependency
- (let ((numbers-are-visible nil))
-   
-   ;; With this code we give user ability to press Alt+1, Alt+2,...
-   ;; to select one of first 10 contacts in the list.
-   (setf (@ document onkeydown)
-         (lambda (e)
-           (let ((code (@ e &amp;quot;keyCode&amp;quot;))
-                 (numbers (j-query &amp;quot;.contact-list__contact-number&amp;quot;)))
-             ((@ console log) &amp;quot;Key down with code:&amp;quot; code)
-             
-             (cond
-               ((= code 18)
-                ((@ numbers show))
-                (setf numbers-are-visible t))
-               ((and (&amp;gt;= 57 code 48))
-                ;; If user presed 0, then we&amp;#039;l consider it a 10.
-                (when (= code 48)
-                  (setf code (+ code 10)))
-                
-                (let ((contact-number (- code 48)))
-                  ((@ console log)
-                   &amp;quot;Selecting contact&amp;quot; contact-number)
-                  ;; jQuery(&amp;quot;#contact-0 a&amp;quot;).click()
-                  ((@ (j-query (+ &amp;quot;#contact-&amp;quot; contact-number &amp;quot; a&amp;quot;))
-                      click))))))))
-   
-   (setf (@ document onkeyup)
-         (lambda (e)
-           (let ((code (@ e &amp;quot;keyCode&amp;quot;))
-                 (numbers (j-query &amp;quot;.contact-list__contact-number&amp;quot;)))
-             ((@ console log) &amp;quot;Key up with code:&amp;quot; code)
-             
-             (cond
-               ((= code 18)
-                ((@ numbers hide))
-                (setf numbers-are-visible nil)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are two ways of using Parenscript:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;You can manually compile a &lt;code&gt;s-exp&lt;/code&gt; into Javascript.&lt;/li&gt;&lt;li&gt;You can use it as an ASDF extension to compile some components   automatically. But this will require the use of additional system   &lt;a href=&quot;https://github.com/gonzojive/paren-files&quot;&gt;paren-files&lt;/a&gt;. We&apos;ll review it later.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Let&apos;s investigate the first way by defining a simple JS function which sums two numbers and shows the result in Web Inspector&apos;s console:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (import &amp;#039;(parenscript:ps
-                     parenscript:@))
-
-POFTHEDAY&amp;gt; (ps
-             (+ 1 2))
-&amp;quot;1 + 2;&amp;quot;
-
-POFTHEDAY&amp;gt; (ps
-             (defun foo (a b)
-               (+ a b)))
-&amp;quot;function foo(a, b) {
-    return a + b;
-};&amp;quot;
-
-POFTHEDAY&amp;gt; (ps
-             (defun foo (a b)
-               ((@ console log)
-                 (+ a b))))
-&amp;quot;function foo(a, b) {
-    __PS_MV_REG = [];
-    return console.log(a + b);
-};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you might notice, instead of dot notation, Parenscript uses a &lt;code&gt;@&lt;/code&gt; macro.&lt;/p&gt;
-&lt;p&gt;Parenscript supports a subset of &lt;code&gt;loop&lt;/code&gt; macro:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
-             (loop :with collection =  &amp;#039;(1 2 3)
-                   :for i :in collection
-                   :do ((@ console log)
-                       i)))
-&amp;quot;(function () {
-    var collection = [1, 2, 3];
-    var _js8 = collection.length;
-    for (var _js7 = 0; _js7 &amp;lt; _js8; _js7 += 1) {
-        var i = collection[_js7];
-        console.log(i);
-    };
-})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And also it allows you to write custom macroses which will expand into the Javascript Code!&lt;/p&gt;
-&lt;p&gt;There are few ways to define macroses for Parenscript here is one of them. We&apos;ll define a macro in Common Lisp code and then will call this macro from Parenscript:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps:defpsmacro awhen (test &amp;amp;body body)
-             `(let ((it ,test))
-                (when it
-                  ,@body)))
-
-POFTHEDAY&amp;gt; (ps
-             (let ((some-var 100500))
-               (awhen (= some-var 42)
-                 ((@ console log)
-                  &amp;quot;Some var is&amp;quot; it))))
-&amp;quot;(function () {
-    var someVar = 100500;
-    var it = someVar === 42;
-    __PS_MV_REG = [];
-    return it ? console.log(&amp;#039;Some var is&amp;#039;, it) : null;
-})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Rewriting macro for Parenscript is not a fan. Why you should do this if macro already exists for Common Lisp?&lt;/p&gt;
-&lt;p&gt;You shouldn&apos;t!&lt;/p&gt;
-&lt;p&gt;Import existing Lisp macro into the Parenscript!&lt;/p&gt;
-&lt;p&gt;In the next example, I&apos;ll show you how to reuse anaphoric &lt;code&gt;if&lt;/code&gt; from &lt;code&gt;rutils&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First, let&amp;#039;s eval our form in Common Lisp
-POFTHEDAY&amp;gt; (rutils:aif (= 1 2)
-              (list :status :ok
-                    :result rutils:it)
-              (list :status :fail
-                    :result rutils:it))
-(:STATUS :FAIL :RESULT NIL)
-
-;; By default it will not work:
-POFTHEDAY&amp;gt; (ps
-             (rutils:aif (= 1 2)
-                (list :status :ok
-                      :result it)
-                (list :status :fail
-                      :result it)))
-&amp;quot;aif(1 === 2,
-     [&amp;#039;status&amp;#039;, &amp;#039;ok&amp;#039;, &amp;#039;result&amp;#039;, it],
-     [&amp;#039;status&amp;#039;, &amp;#039;fail&amp;#039;, &amp;#039;result&amp;#039;, it]);&amp;quot;
-
-;; But we can import the macro:
-
-POFTHEDAY&amp;gt; (ps:import-macros-from-lisp
-            &amp;#039;rutils:aif)
-
-POFTHEDAY&amp;gt; (ps
-             (rutils:aif (= 1 2)
-                (list :status :ok
-                      :result it)
-                (list :status :fail
-                      :result it)))
-&amp;quot;(function () {
-    var it = 1 === 2;
-    return it ? [&amp;#039;status&amp;#039;, &amp;#039;ok&amp;#039;, &amp;#039;result&amp;#039;, it]
-              : [&amp;#039;status&amp;#039;, &amp;#039;fail&amp;#039;, &amp;#039;result&amp;#039;, it];
-})();&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also built-in support for HTML rendering. Parenscript supports &lt;a href=&quot;https://github.com/franzinc/aserve/blob/master/doc/htmlgen.md&quot;&gt;Allegro HTMLGen DSL&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
-             (defun render-link (user)
-               (ps:ps-html
-                ((:a :href (+ &amp;quot;https://foo.bar/&amp;quot;
-                               (get-nickname user)))
-                 (get-name user)))))
-&amp;quot;function renderLink(user) {
-    __PS_MV_REG = [];
-    return [&amp;#039;&amp;lt;a href=\\\&amp;quot;&amp;#039;,
-            &amp;#039;https://foo.bar/&amp;#039; + getNickname(user),
-            &amp;#039;\\\&amp;quot;&amp;gt;&amp;#039;,
-             getName(user),
-            &amp;#039;&amp;lt;/a&amp;gt;&amp;#039;].join(&amp;#039;&amp;#039;);
-};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And &lt;a href=&quot;https://edicl.github.io/cl-who/&quot;&gt;CL-WHO&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ps
-             (defun render-link (user)
-               (ps:who-ps-html
-                (:a :href (+ &amp;quot;https://foo.bar/&amp;quot;
-                              (get-nickname user))
-                 (get-name user)))))
-&amp;quot;function renderLink(user) {
-    __PS_MV_REG = [];
-    return [&amp;#039;&amp;lt;a href=\\\&amp;quot;&amp;#039;,
-            &amp;#039;https://foo.bar/&amp;#039; + getNickname(user),
-            &amp;#039;\\\&amp;quot;&amp;gt;&amp;#039;,
-             getName(user),
-            &amp;#039;&amp;lt;/a&amp;gt;&amp;#039;].join(&amp;#039;&amp;#039;);
-};&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With Parenscript you can create client-side applications or code for running on Node.js. All of this, using Common Lisp power. Isn&apos;t it cool?&lt;/p&gt;
-</description>
-            <pubDate>Sun, 17 May 2020 22:17:21 +0300</pubDate>
         </item>
     </channel>
 </rss>

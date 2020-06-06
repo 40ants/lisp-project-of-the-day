@@ -10,7 +10,7 @@
 
 This library provides a shortcut macro to define ~CLOS~ classes. Today I
 needed to define a class which will store stock candles data. It will
-keep data in a columns.
+keep data in the columns.
 
 With ~defclass-std~ we can define such class like this:
 
@@ -24,7 +24,7 @@ POFTHEDAY> (defclass-std:defclass/std candles ()
 
 #+end_src
 
-It will expand into the ~defclass~ full of accessors, init forms, etc:
+It will be expand into the ~defclass~ full of accessors, init forms, etc:
 
 #+begin_src lisp
 
@@ -58,26 +58,26 @@ Here is the class definition I had before discovered the ~defclass-std~.
 #+begin_src lisp
 
 (defclass candles ()
-  ((timestamps :reader storage-timestamps
+  ((timestamps :reader candles-timestamps
                :initform (make-time-vector)
                :initarg :timestamps)
-   (lows :reader storage-lows
+   (lows :reader candles-lows
          :initform (make-price-vector)
          :initarg :lows)
-   (highs :reader storage-highs
+   (highs :reader candles-highs
           :initform (make-price-vector)
           :initarg :highs)
-   (opens :reader storage-opens
+   (opens :reader candles-opens
           :initform (make-price-vector)
           :initarg :opens)
-   (closes :reader storage-closes
+   (closes :reader candles-closes
            :initform (make-price-vector)
            :initarg :closes)
-   (volumes :reader storage-volumes
+   (volumes :reader candles-volumes
             :initform (make-volume-vector)
             :initarg :volumes))
   (:documentation
-   "This is stock candles storage."))
+   "This is stock candles candles."))
 
 #+end_src
 
@@ -105,7 +105,7 @@ Here is how ~defclass-std~ can make this definition shorter and [[https://en.wik
 It will write ~:initarg~ and ~:reader~ for each slot. Also, slot's ~:initform~
 will have the value, provided after the ~:std~ keyword.
 
-The syntax can be made it even shorter, but such format is not
+The syntax can be made even shorter, but such format is not
 supported yet:
 
 #+begin_src lisp
