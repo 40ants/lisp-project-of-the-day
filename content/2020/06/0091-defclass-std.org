@@ -1,0 +1,43 @@
+* defclass-std :macros:language:
+
+#+begin_src lisp
+
+(defclass storage ()
+  ((timestamps :reader storage-timestamps
+               :initform (make-time-vector)
+               :initarg :timestamps)
+   (lows :reader storage-lows
+         :initform (make-price-vector)
+         :initarg :lows)
+   (highs :reader storage-highs
+          :initform (make-price-vector)
+          :initarg :highs)
+   (opens :reader storage-opens
+          :initform (make-price-vector)
+          :initarg :opens)
+   (closes :reader storage-closes
+           :initform (make-price-vector)
+           :initarg :closes)
+   (volumes :reader storage-volumes
+            :initform (make-volume-vector)
+            :initarg :volumes))
+  (:documentation
+   "This is stock candles storage."))
+
+#+end_src
+
+#+begin_src lisp
+
+(defclass-std:defclass/std storage ()
+  ((timestamps
+    :r :i :with :std (make-time-vector))
+   (volumes
+    :r :i :with :std (make-volume-vector))
+   ;; Columns, having common options
+   ;; can be grouped together!
+   (lows highs opens closes
+    :r :i :with :std (make-price-vector)))
+  (:documentation
+   "This is stock candles storage."))
+
+#+end_src
