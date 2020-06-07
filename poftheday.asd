@@ -13,5 +13,7 @@
                "xml-emitter"
                "rutils"
                "doplus"
-               "arrows")
+               "arrows"
+               "legit"
+               "local-time")
   :components ((:org "readme")))

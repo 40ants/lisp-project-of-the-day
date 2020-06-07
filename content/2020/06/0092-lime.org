@@ -11,12 +11,12 @@
 Lime is a standalone SWANK client. It can be used to programmatically
 connect to the SWANK server without Emacs.
 
-One useful thing, you might do is to make a command line client to send
-commandd to your server. One practical task is code hot-reload. Here is
-an [[https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload][example]] how to implement it using [[http://quickdocs.org/swank-client/][another SWANK client]].
+One useful thing, you might do is to make a command-line client to send
+a command to your server. One practical task is code hot-reload. Here is
+an [[https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload][example]] of how to implement it using [[http://quickdocs.org/swank-client/][another SWANK client]].
 
-Example from Lime's sources show how to create a REPL connected to the
-SWANK. However, this example creates SWANK server in the same process. I
+Example from Lime's sources shows how to create a REPL connected to the
+SWANK. However, this example creates a SWANK server in the same process. I
 think it will be more realistic to connect from one lisp to another.
 
 So, I modified example to make it connect to the localhost 20100, where
@@ -42,12 +42,12 @@ To load "swank":
 
 #+end_src
 
-Now we need a function which will make a connection and provide us the
-remote REPL.
+Now we need a function which will make a connection and provide us with
+the remote REPL.
 
 I just removed the code which starts  SWANK in the same process and
 replaced ~(uiop:hostname)~ with "localhost", because ~(uiop:hostname)~
-didn't worked for me.
+didn't work for me:
 
 #+begin_src lisp
 
@@ -89,6 +89,8 @@ POFTHEDAY> (defun repl ()
                                           (prin1-to-string input)))))))))
 
 #+end_src
+
+Now we can connect to our ClozureCL process and have a fun!
 
 #+begin_src lisp
 

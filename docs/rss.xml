@@ -6,6 +6,91 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lime</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0092-lime.html</link>
+            <description>&lt;p&gt;Lime is a standalone SWANK client. It can be used to programmatically connect to the SWANK server without Emacs.&lt;/p&gt;
+&lt;p&gt;One useful thing, you might do is to make a command-line client to send a command to your server. One practical task is code hot-reload. Here is an &lt;a href=&quot;https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload&quot;&gt;example&lt;/a&gt; of how to implement it using &lt;a href=&quot;http://quickdocs.org/swank-client/&quot;&gt;another SWANK client&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Example from Lime&apos;s sources shows how to create a REPL connected to the SWANK. However, this example creates a SWANK server in the same process. I think it will be more realistic to connect from one lisp to another.&lt;/p&gt;
+&lt;p&gt;So, I modified example to make it connect to the localhost 20100, where we&apos;ll start a separate ClozureCL process with SWANK:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
+
+For more information about CCL, please see http://ccl.clozure.com.
+
+CCL is free software.  It is distributed under the terms of the Apache
+Licence, Version 2.0.
+? (ql:quickload :swank)
+To load &amp;quot;swank&amp;quot;:
+  Load 1 ASDF system:
+    swank
+; Loading &amp;quot;swank&amp;quot;
+
+? (swank:create-server :port 20100 :dont-close t :style :spawn)
+;; Swank started at port: 20100.
+20100&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need a function which will make a connection and provide us with the remote REPL.&lt;/p&gt;
+&lt;p&gt;I just removed the code which starts  SWANK in the same process and replaced &lt;code&gt;(uiop:hostname)&lt;/code&gt; with &quot;localhost&quot;, because &lt;code&gt;(uiop:hostname)&lt;/code&gt; didn&apos;t work for me:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun repl ()
+             &amp;quot;Start the REPL.&amp;quot;
+             (let ((conn (lime:make-connection &amp;quot;localhost&amp;quot;
+                                               20100)))
+               (lime:connect conn)
+
+               (format t &amp;quot;Swank server running on ~A ~A~%&amp;quot;
+                       (lime:connection-implementation-name conn)
+                       (lime:connection-implementation-version conn))
+               
+               (loop
+                 ;; Read all events
+                 (sleep 0.05)
+                 (let ((events (lime:pull-all-events conn)))
+                   (loop for event in events do
+                     (typecase event
+                       (lime:write-string-event
+                        (write-string (lime:event-string event)))
+                       (lime:debugger-event
+                        (write-string &amp;quot;Entered debugger!&amp;quot;))
+                       (t
+                        t))))
+                 ;; Take input
+                 (if (lime:connection-reader-waiting-p conn)
+                     ;; Read a line to send as standard input
+                     (progn
+                       (format t &amp;quot;~%Read: &amp;quot;)
+                       (let ((input (read-line)))
+                         (lime:send-input conn input)))
+                     ;; Read regular code
+                     (progn
+                       (format t &amp;quot;~A&amp;gt; &amp;quot; (lime:connection-package conn))
+                       (let ((input (read)))
+                         (lime:evaluate conn
+                                        (with-standard-io-syntax
+                                          (prin1-to-string input)))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can connect to our ClozureCL process and have a fun!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; We are connecting from SBCL to CCL
+POFTHEDAY&amp;gt; (lisp-implementation-type)
+&amp;quot;SBCL&amp;quot;
+POFTHEDAY&amp;gt; (lisp-implementation-version)
+&amp;quot;2.0.2&amp;quot;
+
+POFTHEDAY&amp;gt; (repl)
+Swank server running on ccl Version 1.12 (v1.12) DarwinX8664
+
+COMMON-LISP-USER&amp;gt; (lisp-implementation-type)
+&amp;quot;Clozure Common Lisp&amp;quot;
+
+COMMON-LISP-USER&amp;gt; (lisp-implementation-version)
+&amp;quot;Version 1.12 (v1.12) DarwinX8664&amp;quot;
+
+COMMON-LISP-USER&amp;gt; (+ 1 2)
+3&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you are going to try &lt;code&gt;Lime&lt;/code&gt; on CCL, use the patched &lt;code&gt;swank-protocol&lt;/code&gt; system with &lt;a href=&quot;https://github.com/eudoxia0/swank-protocol/pull/2&quot;&gt;this fix&lt;/a&gt;. Without the fix Lime will not work because of the following error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;&amp;lt;INFO&amp;gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
+  Read message SWANK-PROTOCOL::RESULT: (:READER-ERROR
+                                        &amp;quot;(:emacs-rex (swank-repl:listener-eval #A((7) common-lisp:base-char . \&amp;quot;(+ 1 2)\&amp;quot;)) \&amp;quot;COMMON-LISP-USER\&amp;quot; :repl-thread 5)
+&amp;quot;
+                                        &amp;quot;Reader error on #&amp;lt;STRING-INPUT-STREAM  :CLOSED #x30200139FB9D&amp;gt;:
+reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I experienced the same error with &lt;a href=&quot;https://github.com/cxxxr/lem&quot;&gt;Lem&lt;/a&gt; editor. And it was fixed with a &lt;a href=&quot;https://github.com/cxxxr/lem/pull/471/files&quot;&gt;similar patch&lt;/a&gt;.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 08 Jun 2020 00:27:06 +0300</pubDate>
+        </item>
+        <item>
             <title>defclass-std</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0091-defclass-std.html</link>
             <description>&lt;p&gt;This library provides a shortcut macro to define &lt;code&gt;CLOS&lt;/code&gt; classes. Today I needed to define a class which will store stock candles data. It will keep data in the columns.&lt;/p&gt;
@@ -82,7 +167,7 @@
   (:documentation
    &amp;quot;This is stock candles storage.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can make class definitions as concise as defstruct.&lt;/p&gt;
 </description>
-            <pubDate>Sat, 06 Jun 2020 20:58:34 +0300</pubDate>
+            <pubDate>Sat, 06 Jun 2020 22:12:54 +0300</pubDate>
         </item>
         <item>
             <title>defmain</title>
@@ -1461,41 +1546,6 @@ POFTHEDAY&amp;gt; (plump:serialize * nil)
 &lt;p&gt;Yesterday we&apos;ll learn about a more sophisticated tool for web scraping - lQuery.&lt;/p&gt;
 </description>
             <pubDate>Tue, 19 May 2020 23:11:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>plump</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html</link>
-            <description>&lt;p&gt;Yesterday &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; mentioned Plump in the &lt;a href=&quot;https://twitter.com/XH004&quot;&gt;@XH004&lt;/a&gt;&apos;s &lt;a href=&quot;https://twitter.com/XH004/status/1261861964818440192&quot;&gt;thread&lt;/a&gt; about performance optimization of it&apos;s new HTML parser. And I decided to review it.&lt;/p&gt;
-&lt;p&gt;Plump is able to parse, modify and serialize an HTML back.&lt;/p&gt;
-&lt;p&gt;Let&apos;s write a crawler to grab @shinmera&apos;s posts from Twitter!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *raw-html*
-              (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
-
-POFTHEDAY&amp;gt; (defvar *html* (plump:parse *raw-html*))
-
-;; We need all divs with class &amp;quot;tweet-text&amp;quot;
-POFTHEDAY&amp;gt; (defvar *posts*
-             (remove-if-not (lambda (div)
-                              (str:containsp &amp;quot;tweet-text&amp;quot;
-                                             (plump:attribute div &amp;quot;class&amp;quot;)))
-                            (plump:get-elements-by-tag-name *html* &amp;quot;p&amp;quot;)))
-
-POFTHEDAY&amp;gt; (loop for post in (rutils:take 5 *posts*)
-                 for full-text = (plump:render-text post)
-                 for short-text = (str:shorten 40 full-text)
-                 do (format t &amp;quot;- ~A~2%&amp;quot; short-text))
-- 1478 Lighting sketch #onesies https:/...
-
-- Trust Level: Swiss A fridge with cool...
-
-- The arch.pic.twitter.com/gMamJfZ1r4
-
-- &amp;#x3089;&amp;#x304F;&amp;#x304C;&amp;#x304D;&amp;#x3070;&amp;#x304B;&amp;#x308A;&amp;#x30A2;&amp;#x30C3;&amp;#x30D7;&amp;#x3057;&amp;#x3066;&amp;#x3044;&amp;#x305F;&amp;#x3084;&amp;#x3064;&amp;#x3001;&amp;#x4ECA;&amp;#x5EA6;&amp;#x306F;&amp;#x52D5;&amp;#x304D;&amp;#x307E;&amp;#x3059;&amp;#x3002;&amp;#x9031;&amp;#x672B;&amp;#x306B;&amp;#x30D7;&amp;#x30ED;&amp;#x30AF;&amp;#x30EA;&amp;#x30A8;&amp;#x30A4;&amp;#x30C8;&amp;#x3067;&amp;#x63CF;...
-
-- Shit&amp;#039;s broken. Will be back in a few ...&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library has more utils for HTML parsing. Read the documentation to learn more.&lt;/p&gt;
-&lt;p&gt;If you are going to write crawlers  in Common lisp, I recommend you to use Plump together with another @shimera&apos;s library - &lt;a href=&quot;https://shinmera.github.io/CLSS/&quot;&gt;clss&lt;/a&gt; but we&apos;ll play with it tomorrow :)&lt;/p&gt;
-</description>
-            <pubDate>Mon, 18 May 2020 21:08:33 +0300</pubDate>
         </item>
     </channel>
 </rss>
