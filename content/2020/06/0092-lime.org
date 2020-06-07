@@ -1,0 +1,129 @@
+* lime :slime:swank:repl:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+Lime is a standalone SWANK client. It can be used to programmatically
+connect to the SWANK server without Emacs.
+
+One useful thing, you might do is to make a command line client to send
+commandd to your server. One practical task is code hot-reload. Here is
+an [[https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload][example]] how to implement it using [[http://quickdocs.org/swank-client/][another SWANK client]].
+
+Example from Lime's sources show how to create a REPL connected to the
+SWANK. However, this example creates SWANK server in the same process. I
+think it will be more realistic to connect from one lisp to another.
+
+So, I modified example to make it connect to the localhost 20100, where
+we'll start a separate ClozureCL process with SWANK:
+
+#+begin_src lisp
+
+Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
+
+For more information about CCL, please see http://ccl.clozure.com.
+
+CCL is free software.  It is distributed under the terms of the Apache
+Licence, Version 2.0.
+? (ql:quickload :swank)
+To load "swank":
+  Load 1 ASDF system:
+    swank
+; Loading "swank"
+
+? (swank:create-server :port 20100 :dont-close t :style :spawn)
+;; Swank started at port: 20100.
+20100
+
+#+end_src
+
+Now we need a function which will make a connection and provide us the
+remote REPL.
+
+I just removed the code which starts  SWANK in the same process and
+replaced ~(uiop:hostname)~ with "localhost", because ~(uiop:hostname)~
+didn't worked for me.
+
+#+begin_src lisp
+
+POFTHEDAY> (defun repl ()
+             "Start the REPL."
+             (let ((conn (lime:make-connection "localhost"
+                                               20100)))
+               (lime:connect conn)
+
+               (format t "Swank server running on ~A ~A~%"
+                       (lime:connection-implementation-name conn)
+                       (lime:connection-implementation-version conn))
+               
+               (loop
+                 ;; Read all events
+                 (sleep 0.05)
+                 (let ((events (lime:pull-all-events conn)))
+                   (loop for event in events do
+                     (typecase event
+                       (lime:write-string-event
+                        (write-string (lime:event-string event)))
+                       (lime:debugger-event
+                        (write-string "Entered debugger!"))
+                       (t
+                        t))))
+                 ;; Take input
+                 (if (lime:connection-reader-waiting-p conn)
+                     ;; Read a line to send as standard input
+                     (progn
+                       (format t "~%Read: ")
+                       (let ((input (read-line)))
+                         (lime:send-input conn input)))
+                     ;; Read regular code
+                     (progn
+                       (format t "~A> " (lime:connection-package conn))
+                       (let ((input (read)))
+                         (lime:evaluate conn
+                                        (with-standard-io-syntax
+                                          (prin1-to-string input)))))))))
+
+#+end_src
+
+#+begin_src lisp
+
+;; We are connecting from SBCL to CCL
+POFTHEDAY> (lisp-implementation-type)
+"SBCL"
+POFTHEDAY> (lisp-implementation-version)
+"2.0.2"
+
+POFTHEDAY> (repl)
+Swank server running on ccl Version 1.12 (v1.12) DarwinX8664
+
+COMMON-LISP-USER> (lisp-implementation-type)
+"Clozure Common Lisp"
+
+COMMON-LISP-USER> (lisp-implementation-version)
+"Version 1.12 (v1.12) DarwinX8664"
+
+COMMON-LISP-USER> (+ 1 2)
+3
+
+#+end_src
+
+If you are going to try ~Lime~ on CCL, use the patched ~swank-protocol~
+system with [[https://github.com/eudoxia0/swank-protocol/pull/2][this fix]]. Without the fix Lime will not work because of the
+following error:
+
+#+begin_src lisp
+
+ <INFO> [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
+  Read message SWANK-PROTOCOL::RESULT: (:READER-ERROR
+                                        "(:emacs-rex (swank-repl:listener-eval #A((7) common-lisp:base-char . \"(+ 1 2)\")) \"COMMON-LISP-USER\" :repl-thread 5)
+"
+                                        "Reader error on #<STRING-INPUT-STREAM  :CLOSED #x30200139FB9D>:
+reader macro #A used without a rank integer")
+#+end_src
+
+I experienced the same error with [[https://github.com/cxxxr/lem][Lem]] editor. And it was fixed with a [[https://github.com/cxxxr/lem/pull/471/files][similar patch]].

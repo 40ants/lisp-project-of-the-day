@@ -9,6 +9,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 04 June - [[content/2020/06/0089-lambda-fiddle.org][lambda-fiddle]] ([[http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html][twitter]])
 - 05 June - [[content/2020/06/0090-defmain.org][defmain]] ([[https://twitter.com/svetlyak40wt/status/1268991267490484224][twitter]])
 - 06 June - [[content/2020/06/0091-defclass-std.org][defclass-std]] ([[https://twitter.com/svetlyak40wt/status/1269343729724338181][twitter]])
+- 07 June - [[content/2020/06/0092-lime.org][lime]]
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
