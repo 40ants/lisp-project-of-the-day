@@ -1051,5 +1051,10 @@ files, and extracting their ":defsystem-depends-on".
 - http://quickdocs.org/legit
 - https://github.com/Shinmera/modularize
 - http://quickdocs.org/modularize-hooks/
+- https://github.com/markcox80/lisp-executable
+- https://github.com/kidd/cl-vcr
+- http://clast.sourceforge.net/
+- https://github.com/s-expressionists/Trucler
+- https://github.com/bufferswap/ViralityEngine
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
