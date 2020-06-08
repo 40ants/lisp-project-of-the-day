@@ -1,4 +1,4 @@
-* atomics :threading:
+* atomics :threads:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
