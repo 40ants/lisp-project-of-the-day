@@ -911,11 +911,11 @@ files and write html:
 
 #+BEGIN_SRC lisp
 
-(defun render-site (&key (with-tags t))
+(defun render-site (&key (no-tags nil))
   (let ((files (read-files)))
     (mapc #'render-file files)
     (render-index files)
-    (when with-tags
+    (unless no-tags
       (render-all-tag-pages files))
     (render-patrons)
     (render-rss files)
