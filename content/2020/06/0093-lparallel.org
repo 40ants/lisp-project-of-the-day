@@ -9,12 +9,12 @@
 :END:
 
 Today I want to tell you about this great library which makes it very
-easy to speed up you programm in easy way.
+easy to speed up your program in an easy way.
 
-LParallel provides a convenient to use thread pool. It allows you to run
+LParallel provides a convenient to use a thread pool. It allows you to run
 your code on multiple CPUs without bothering with threading et all.
 
-Here is a quick demo which allows to run calculations in parallel by
+Here is a quick demo which allows us to run calculations in parallel by
 changing a call to ~mapcar~ with a call to ~lparallel:pmapcar~:
 
 #+begin_src lisp
@@ -56,18 +56,18 @@ POFTHEDAY> (lparallel:pmapcar
 
 #+end_src
 
-A number of workers depends on the reason why do you want to parallelize
+A number of workers depend on the reason why do you want to parallelize
 execution. There are two possible situations:
 
 - you have a CPU intensive tasks and want to use more power;
-- you have an IO bound tasks and want to make more operations in
+- you have an IO-bound tasks and want to make more operations in
   parallel.
 
-In first case there is no sence to make more workers than a number of
-CPU's on your machine. In second scenario a number of workers can be
+In the first case there is no sense to make more workers than a number of
+CPU's on your machine. In the second scenario, the number of workers can be
 higher.
 
-There is also a lower level API for offloading work to workers through
+There is also a lower-level API for offloading work to workers through
 channels. In the next example, I pass a function to the pool and then
 receive the result:
 
@@ -93,7 +93,7 @@ POFTHEDAY> (lparallel:receive-result *chan*)
 #+end_src
 
 LParallel has more great features like promises, futures and many ways
-to run jobs in parallel. It is one of the few Lisp projects that have
-excellent documentation. I recommend you to read it:
+to run jobs in parallel. It is one of the few Common Lisp projects that
+have excellent documentation. I recommend you to read it:
 
 https://lparallel.org/

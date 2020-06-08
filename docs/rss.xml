@@ -6,6 +6,69 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lparallel</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html</link>
+            <description>&lt;p&gt;Today I want to tell you about this great library which makes it very easy to speed up your program in an easy way.&lt;/p&gt;
+&lt;p&gt;LParallel provides a convenient to use a thread pool. It allows you to run your code on multiple CPUs without bothering with threading et all.&lt;/p&gt;
+&lt;p&gt;Here is a quick demo which allows us to run calculations in parallel by changing a call to &lt;code&gt;mapcar&lt;/code&gt; with a call to &lt;code&gt;lparallel:pmapcar&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First we need to create a pool of 4 workers:
+POFTHEDAY&amp;gt; (setf lparallel:*kernel*
+                 (lparallel:make-kernel 4))
+#&amp;lt;LPARALLEL.KERNEL:KERNEL
+   :NAME &amp;quot;lparallel&amp;quot;
+   :WORKER-COUNT 4
+   :USE-CALLER NIL
+   :ALIVE T
+   :SPIN-COUNT 2000 {1002FB64D3}&amp;gt;
+
+;; And here is the easiest way to use it:
+POFTHEDAY&amp;gt; (lparallel:pmapcar
+            (lambda (idx)
+              (loop for iteration from 1 to 10
+                    do (format t &amp;quot;~A task is processing ~A iteration~%&amp;quot;
+                               idx iteration)
+                       (sleep (random 1.0))
+                    finally (return (format nil &amp;quot;~A worker result&amp;quot;
+                                            idx))))
+              (alexandria:iota 10))
+0 task is processing 1 iteration
+3 task is processing 1 iteration
+0 task is processing 2 iteration
+3 task is processing 2 iteration
+3 task is processing 3 iteration
+0 task is processing 3 iteration
+...
+7 task is processing 7 iteration
+7 task is processing 8 iteration
+7 task is processing 9 iteration
+7 task is processing 10 iteration
+(&amp;quot;0 worker result&amp;quot; &amp;quot;1 worker result&amp;quot; &amp;quot;2 worker result&amp;quot; &amp;quot;3 worker result&amp;quot;
+ &amp;quot;4 worker result&amp;quot; &amp;quot;5 worker result&amp;quot; &amp;quot;6 worker result&amp;quot; &amp;quot;7 worker result&amp;quot;
+ &amp;quot;8 worker result&amp;quot; &amp;quot;9 worker result&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A number of workers depend on the reason why do you want to parallelize execution. There are two possible situations:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;you have a CPU intensive tasks and want to use more power;&lt;/li&gt;&lt;li&gt;you have an IO-bound tasks and want to make more operations in   parallel.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;In the first case there is no sense to make more workers than a number of CPU&apos;s on your machine. In the second scenario, the number of workers can be higher.&lt;/p&gt;
+&lt;p&gt;There is also a lower-level API for offloading work to workers through channels. In the next example, I pass a function to the pool and then receive the result:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *chan*
+             (lparallel:make-channel))
+
+POFTHEDAY&amp;gt; (lparallel:submit-task
+            *chan*
+            (lambda (param)
+              (format t &amp;quot;Processing ~A~%&amp;quot; param)
+              (sleep 3)
+              (format t &amp;quot;Processing is done~%&amp;quot;)
+              :result-of-processing)
+            100500)
+; No values
+Processing 100500
+Processing is done
+POFTHEDAY&amp;gt; (lparallel:receive-result *chan*)
+:RESULT-OF-PROCESSING&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;LParallel has more great features like promises, futures and many ways to run jobs in parallel. It is one of the few Common Lisp projects that have excellent documentation. I recommend you to read it:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lparallel.org/&quot;&gt;https://lparallel.org/&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Mon, 08 Jun 2020 19:06:26 +0300</pubDate>
+        </item>
+        <item>
             <title>lime</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0092-lime.html</link>
             <description>&lt;p&gt;Lime is a standalone SWANK client. It can be used to programmatically connect to the SWANK server without Emacs.&lt;/p&gt;
@@ -88,7 +151,7 @@ COMMON-LISP-USER&amp;gt; (+ 1 2)
                                         &amp;quot;Reader error on #&amp;lt;STRING-INPUT-STREAM  :CLOSED #x30200139FB9D&amp;gt;:
 reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I experienced the same error with &lt;a href=&quot;https://github.com/cxxxr/lem&quot;&gt;Lem&lt;/a&gt; editor. And it was fixed with a &lt;a href=&quot;https://github.com/cxxxr/lem/pull/471/files&quot;&gt;similar patch&lt;/a&gt;.&lt;/p&gt;
 </description>
-            <pubDate>Mon, 08 Jun 2020 00:27:06 +0300</pubDate>
+            <pubDate>Mon, 08 Jun 2020 00:36:34 +0300</pubDate>
         </item>
         <item>
             <title>defclass-std</title>
@@ -1481,71 +1544,6 @@ LQUERY-FUNCS::SHORTEN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use it to make
   &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other &lt;code&gt;define-*&lt;/code&gt; macros in &lt;code&gt;lquery&lt;/code&gt; as well. Read its documentation to learn more about how to extend it. It would be nice if &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@shinmera&lt;/a&gt; add more examples on how to extend &lt;code&gt;lquery&lt;/code&gt;!&lt;/p&gt;
 </description>
             <pubDate>Wed, 20 May 2020 20:06:02 +0300</pubDate>
-        </item>
-        <item>
-            <title>clss</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html</link>
-            <description>&lt;p&gt;Today we continue to review web crawling tools from &lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@shinmera&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This review will be short because I&apos;ll reuse code from the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;previous post&lt;/a&gt; and improve it by replacing four lines with only one.&lt;/p&gt;
-&lt;p&gt;A system CLSS allows you to use CSS3 selectors when working with HTML nodes produced by &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;Plump&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Here is how we can improve our simple Twitter crawler:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *raw-html*
-             (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
-
-POFTHEDAY&amp;gt; (defvar *html* (plump:parse *raw-html*))
-
-           ;; Now I&amp;#039;ll replaced these lines
-           ;; with one clss:select call:
-           ;;
-           ;; (remove-if-not (lambda (div)
-           ;;                  (str:containsp &amp;quot;tweet-text&amp;quot;
-           ;;                                 (plump:attribute div &amp;quot;class&amp;quot;)))
-           ;;                (plump:get-elements-by-tag-name *html* &amp;quot;p&amp;quot;))
-POFTHEDAY&amp;gt; (defparameter *posts*
-             (clss:select &amp;quot;.tweet-text&amp;quot; *html*))
-
-POFTHEDAY&amp;gt; (type-of *posts*)
-(VECTOR T 40)
-
-POFTHEDAY&amp;gt; (loop repeat 5
-                 for post across *posts*
-                 for full-text = (plump:render-text post)
-                 for short-text = (str:shorten 40 full-text)
-                 do (format t &amp;quot;- ~A~2%&amp;quot; short-text))
-- Hi, I&amp;#039;m a #gamedev. My latest project...
-
-- &amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q
-
-- The logic of Splatoon.pic.twitter.com...
-
-- The AI is extremely rough still, but ...
-
-- pic.twitter.com/Cpvqytce5G&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As a bonus, I want to show you that &lt;code&gt;CLSS&lt;/code&gt; supports even pseudoclasses:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (plump:parse &amp;quot;
-&amp;lt;ul&amp;gt;
-  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Second item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;)
-#&amp;lt;PLUMP-DOM:ROOT {10031A93A3}&amp;gt;
-
-POFTHEDAY&amp;gt; (clss:select &amp;quot;li:first-child&amp;quot;
-                        *)
-#(#&amp;lt;PLUMP-DOM:ELEMENT li {100322C883}&amp;gt;)
-
-POFTHEDAY&amp;gt; (plump:serialize * nil)
-&amp;quot;&amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, the documentation says only that it supports almost all CSS3 selectors, but don&apos;t enumerate them. However, we can learn this from sources:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (rutils:hash-table-keys
-            clss::*pseudo-selectors*)
-(&amp;quot;ROOT&amp;quot; &amp;quot;NTH-CHILD&amp;quot; &amp;quot;NTH-LAST-CHILD&amp;quot; &amp;quot;NTH-OF-TYPE&amp;quot; &amp;quot;NTH-LAST-OF-TYPE&amp;quot;
- &amp;quot;FIRST-CHILD&amp;quot; &amp;quot;LAST-CHILD&amp;quot; &amp;quot;FIRST-OF-TYPE&amp;quot; &amp;quot;LAST-OF-TYPE&amp;quot; &amp;quot;ONLY-CHILD&amp;quot;
- &amp;quot;ONLY-OF-TYPE&amp;quot; &amp;quot;EMPTY&amp;quot; &amp;quot;LINK&amp;quot; &amp;quot;VISITED&amp;quot; &amp;quot;ACTIVE&amp;quot; &amp;quot;HOVER&amp;quot; &amp;quot;FOCUS&amp;quot; &amp;quot;TARGET&amp;quot;
- &amp;quot;LANG&amp;quot; &amp;quot;ENABLED&amp;quot; &amp;quot;DISABLED&amp;quot; &amp;quot;CHECKED&amp;quot; &amp;quot;FIRST-LINE&amp;quot; &amp;quot;FIRST-LETTER&amp;quot; &amp;quot;BEFORE&amp;quot;
- &amp;quot;AFTER&amp;quot; &amp;quot;WARNING&amp;quot; &amp;quot;NOT&amp;quot; &amp;quot;FIRST-ONLY&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is a &lt;code&gt;clss:define-pseudo-selector&lt;/code&gt; macro which allows defining a custom pseudo-selector.&lt;/p&gt;
-&lt;p&gt;Yesterday we&apos;ll learn about a more sophisticated tool for web scraping - lQuery.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 19 May 2020 23:11:00 +0300</pubDate>
         </item>
     </channel>
 </rss>
