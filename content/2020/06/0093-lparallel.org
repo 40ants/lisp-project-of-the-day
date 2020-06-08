@@ -1,0 +1,99 @@
+* lparallel :threads:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today I want to tell you about this great library which makes it very
+easy to speed up you programm in easy way.
+
+LParallel provides a convenient to use thread pool. It allows you to run
+your code on multiple CPUs without bothering with threading et all.
+
+Here is a quick demo which allows to run calculations in parallel by
+changing a call to ~mapcar~ with a call to ~lparallel:pmapcar~:
+
+#+begin_src lisp
+
+;; First we need to create a pool of 4 workers:
+POFTHEDAY> (setf lparallel:*kernel*
+                 (lparallel:make-kernel 4))
+#<LPARALLEL.KERNEL:KERNEL
+   :NAME "lparallel"
+   :WORKER-COUNT 4
+   :USE-CALLER NIL
+   :ALIVE T
+   :SPIN-COUNT 2000 {1002FB64D3}>
+
+;; And here is the easiest way to use it:
+POFTHEDAY> (lparallel:pmapcar
+            (lambda (idx)
+              (loop for iteration from 1 to 10
+                    do (format t "~A task is processing ~A iteration~%"
+                               idx iteration)
+                       (sleep (random 1.0))
+                    finally (return (format nil "~A worker result"
+                                            idx))))
+              (alexandria:iota 10))
+0 task is processing 1 iteration
+3 task is processing 1 iteration
+0 task is processing 2 iteration
+3 task is processing 2 iteration
+3 task is processing 3 iteration
+0 task is processing 3 iteration
+...
+7 task is processing 7 iteration
+7 task is processing 8 iteration
+7 task is processing 9 iteration
+7 task is processing 10 iteration
+("0 worker result" "1 worker result" "2 worker result" "3 worker result"
+ "4 worker result" "5 worker result" "6 worker result" "7 worker result"
+ "8 worker result" "9 worker result")
+
+#+end_src
+
+A number of workers depends on the reason why do you want to parallelize
+execution. There are two possible situations:
+
+- you have a CPU intensive tasks and want to use more power;
+- you have an IO bound tasks and want to make more operations in
+  parallel.
+
+In first case there is no sence to make more workers than a number of
+CPU's on your machine. In second scenario a number of workers can be
+higher.
+
+There is also a lower level API for offloading work to workers through
+channels. In the next example, I pass a function to the pool and then
+receive the result:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *chan*
+             (lparallel:make-channel))
+
+POFTHEDAY> (lparallel:submit-task
+            *chan*
+            (lambda (param)
+              (format t "Processing ~A~%" param)
+              (sleep 3)
+              (format t "Processing is done~%")
+              :result-of-processing)
+            100500)
+; No values
+Processing 100500
+Processing is done
+POFTHEDAY> (lparallel:receive-result *chan*)
+:RESULT-OF-PROCESSING
+
+#+end_src
+
+LParallel has more great features like promises, futures and many ways
+to run jobs in parallel. It is one of the few Lisp projects that have
+excellent documentation. I recommend you to read it:
+
+https://lparallel.org/
