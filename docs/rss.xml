@@ -66,7 +66,7 @@ POFTHEDAY&amp;gt; (lparallel:receive-result *chan*)
 :RESULT-OF-PROCESSING&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;LParallel has more great features like promises, futures and many ways to run jobs in parallel. It is one of the few Common Lisp projects that have excellent documentation. I recommend you to read it:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://lparallel.org/&quot;&gt;https://lparallel.org/&lt;/a&gt;&lt;/p&gt;
 </description>
-            <pubDate>Mon, 08 Jun 2020 19:06:26 +0300</pubDate>
+            <pubDate>Mon, 08 Jun 2020 19:14:17 +0300</pubDate>
         </item>
         <item>
             <title>lime</title>

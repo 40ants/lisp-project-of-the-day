@@ -1,0 +1,108 @@
+* lfarm :networking:thread:multiprocessing:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is similar to Python's multiprocessing which is also
+[[https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing.connection][able to run processes on different hosts]].
+
+Use ~lfarm~ when you need to run jobs on the cluster.
+
+The cool ~lfarm~'s feature is ability to run jobs on workers, running on
+different Common Lisp implementation.
+
+To demonstrate how it works, I started a LispWorks Personal edition on
+my laptop and SBCL with ClozureCL in the Docker containers.
+
+#+begin_src lisp
+
+(ql:quickload :lfarm-server)
+
+;; This how I started it on LispWorks
+(lfarm-server:start-server "127.0.0.1" 10003)
+
+;; inside the Docker:
+(lfarm-server:start-server "0.0.0.0" 10000)
+
+#+end_src
+
+After that, I created a workers pool in my SBCL repl and called
+~broadcast-task~ to run a function on every worker:
+
+#+begin_src lisp
+
+POFTHEDAY> (setf lfarm:*kernel* (lfarm:make-kernel '(("127.0.0.1" 10001)
+                                                     ("127.0.0.1" 10002)
+                                                     ("127.0.0.1" 10003))))
+#<LFARM-CLIENT.KERNEL:KERNEL :WORKER-COUNT 3 {1004E7C7C3}>
+
+POFTHEDAY> (lfarm:broadcast-task
+            (lambda ()
+              (list :lisp (lisp-implementation-type)
+                    :lisp-version (lisp-implementation-version)
+                    :system (string-trim
+                             (list #\Newline #\Space)
+                             (with-output-to-string (s)
+                               (uiop:run-program "uname -s -m -n"
+                                                 :output s))))))
+#((:LISP "LispWorks Personal Edition"
+   :LISP-VERSION "7.1.2"
+   :SYSTEM "Darwin lispbook x86_64")
+  (:LISP "SBCL"
+   :LISP-VERSION "1.5.6"
+   :SYSTEM "Linux 5d4cc1b96f7e x86_64")
+  (:LISP "Clozure Common Lisp"
+   :LISP-VERSION "Version 1.11.5/v1.11.5  (LinuxX8664)"
+   :SYSTEM "Linux d2c83144fce3 x86_64"))
+
+#+end_src
+
+Another great feature is API compatibility with ~lparallel~, [[http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html][reviewed
+yesterday]].
+
+I took our yesterday code and modified it to be able to distinguish a
+machine processed a task:
+
+#+begin_src lisp
+
+POFTHEDAY> (lfarm:pmapcar
+            (lambda (idx)
+              (loop for iteration from 1 to 10
+                    do (format t "~A task is processing ~A iteration~%"
+                               idx iteration)
+                       (sleep (random 1.0))
+                    finally (return (format nil "~A result processed by ~A"
+                                            idx
+                                            (lisp-implementation-type)))))
+              (alexandria:iota 10))
+("0 result processed by Clozure Common Lisp"
+ "1 result processed by Clozure Common Lisp"
+ "2 result processed by Clozure Common Lisp"
+ "3 result processed by Clozure Common Lisp"
+ "4 result processed by SBCL"
+ "5 result processed by SBCL"
+ "6 result processed by SBCL"
+ "7 result processed by LispWorks Personal Edition"
+ "8 result processed by LispWorks Personal Edition"
+ "9 result processed by LispWorks Personal Edition")
+
+#+end_src
+
+The bad news is that ~lfarm~ is not suite well to the cloud environment,
+where workers can disappear at any time and become available later.
+
+Some time ago, I tried to use ~lfarm~ in Ultralisp, to run some jobs in
+separate containers, but found that ~lfarm~ does not like when worker
+process disconnects.
+
+For example, if some of workers aren't running, ~make-kernel~ will hang
+forever. Or if some of workers will go offline, then ~broadcast-task~ also
+will hang.
+
+Tomorrow I'll tell you about another solution which helped me to solve
+this problem.
