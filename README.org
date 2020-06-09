@@ -11,7 +11,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them [[https://twi
 - 06 June - [[content/2020/06/0091-defclass-std.org][defclass-std]] ([[https://twitter.com/svetlyak40wt/status/1269343729724338181][twitter]])
 - 07 June - [[content/2020/06/0092-lime.org][lime]] ([[https://twitter.com/svetlyak40wt/status/1269742654277005312][twitter]])
 - 08 June - [[content/2020/06/0093-lparallel.org][lparallel]] ([[https://twitter.com/svetlyak40wt/status/1270024901227929602][twitter]])
-- 09 June - [[content/2020/06/0094-lfarm.org][lfarm]]
+- 09 June - [[content/2020/06/0094-lfarm.org][lfarm]] ([[https://twitter.com/svetlyak40wt/status/1270417617166258176][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])

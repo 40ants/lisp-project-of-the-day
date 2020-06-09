@@ -1,4 +1,4 @@
-* lfarm :networking:thread:multiprocessing:
+* lfarm :network:threads:multiprocessing:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -13,7 +13,7 @@ This library is similar to Python's multiprocessing which is also
 
 Use ~lfarm~ when you need to run jobs on the cluster.
 
-The cool ~lfarm~'s feature is ability to run jobs on workers, running on
+The cool ~lfarm~'s feature is the ability to run jobs on workers, running on
 different Common Lisp implementation.
 
 To demonstrate how it works, I started a LispWorks Personal edition on
@@ -31,7 +31,7 @@ my laptop and SBCL with ClozureCL in the Docker containers.
 
 #+end_src
 
-After that, I created a workers pool in my SBCL repl and called
+After that, I created a workers pool in my SBCL REPL and called
 ~broadcast-task~ to run a function on every worker:
 
 #+begin_src lisp
@@ -100,8 +100,8 @@ Some time ago, I tried to use ~lfarm~ in Ultralisp, to run some jobs in
 separate containers, but found that ~lfarm~ does not like when worker
 process disconnects.
 
-For example, if some of workers aren't running, ~make-kernel~ will hang
-forever. Or if some of workers will go offline, then ~broadcast-task~ also
+For example, if some of the workers aren't running, ~make-kernel~ will hang
+forever. Or if some of the workers will go offline, then ~broadcast-task~ also
 will hang.
 
 Tomorrow I'll tell you about another solution which helped me to solve

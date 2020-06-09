@@ -6,6 +6,70 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lfarm</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html</link>
+            <description>&lt;p&gt;This library is similar to Python&apos;s multiprocessing which is also &lt;a href=&quot;https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing.connection&quot;&gt;able to run processes on different hosts&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Use &lt;code&gt;lfarm&lt;/code&gt; when you need to run jobs on the cluster.&lt;/p&gt;
+&lt;p&gt;The cool &lt;code&gt;lfarm&lt;/code&gt;&apos;s feature is the ability to run jobs on workers, running on different Common Lisp implementation.&lt;/p&gt;
+&lt;p&gt;To demonstrate how it works, I started a LispWorks Personal edition on my laptop and SBCL with ClozureCL in the Docker containers.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(ql:quickload :lfarm-server)
+
+;; This how I started it on LispWorks
+(lfarm-server:start-server &amp;quot;127.0.0.1&amp;quot; 10003)
+
+;; inside the Docker:
+(lfarm-server:start-server &amp;quot;0.0.0.0&amp;quot; 10000)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After that, I created a workers pool in my SBCL REPL and called &lt;code&gt;broadcast-task&lt;/code&gt; to run a function on every worker:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (setf lfarm:*kernel* (lfarm:make-kernel &amp;#039;((&amp;quot;127.0.0.1&amp;quot; 10001)
+                                                     (&amp;quot;127.0.0.1&amp;quot; 10002)
+                                                     (&amp;quot;127.0.0.1&amp;quot; 10003))))
+#&amp;lt;LFARM-CLIENT.KERNEL:KERNEL :WORKER-COUNT 3 {1004E7C7C3}&amp;gt;
+
+POFTHEDAY&amp;gt; (lfarm:broadcast-task
+            (lambda ()
+              (list :lisp (lisp-implementation-type)
+                    :lisp-version (lisp-implementation-version)
+                    :system (string-trim
+                             (list #\Newline #\Space)
+                             (with-output-to-string (s)
+                               (uiop:run-program &amp;quot;uname -s -m -n&amp;quot;
+                                                 :output s))))))
+#((:LISP &amp;quot;LispWorks Personal Edition&amp;quot;
+   :LISP-VERSION &amp;quot;7.1.2&amp;quot;
+   :SYSTEM &amp;quot;Darwin lispbook x86_64&amp;quot;)
+  (:LISP &amp;quot;SBCL&amp;quot;
+   :LISP-VERSION &amp;quot;1.5.6&amp;quot;
+   :SYSTEM &amp;quot;Linux 5d4cc1b96f7e x86_64&amp;quot;)
+  (:LISP &amp;quot;Clozure Common Lisp&amp;quot;
+   :LISP-VERSION &amp;quot;Version 1.11.5/v1.11.5  (LinuxX8664)&amp;quot;
+   :SYSTEM &amp;quot;Linux d2c83144fce3 x86_64&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another great feature is API compatibility with &lt;code&gt;lparallel&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I took our yesterday code and modified it to be able to distinguish a machine processed a task:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lfarm:pmapcar
+            (lambda (idx)
+              (loop for iteration from 1 to 10
+                    do (format t &amp;quot;~A task is processing ~A iteration~%&amp;quot;
+                               idx iteration)
+                       (sleep (random 1.0))
+                    finally (return (format nil &amp;quot;~A result processed by ~A&amp;quot;
+                                            idx
+                                            (lisp-implementation-type)))))
+              (alexandria:iota 10))
+(&amp;quot;0 result processed by Clozure Common Lisp&amp;quot;
+ &amp;quot;1 result processed by Clozure Common Lisp&amp;quot;
+ &amp;quot;2 result processed by Clozure Common Lisp&amp;quot;
+ &amp;quot;3 result processed by Clozure Common Lisp&amp;quot;
+ &amp;quot;4 result processed by SBCL&amp;quot;
+ &amp;quot;5 result processed by SBCL&amp;quot;
+ &amp;quot;6 result processed by SBCL&amp;quot;
+ &amp;quot;7 result processed by LispWorks Personal Edition&amp;quot;
+ &amp;quot;8 result processed by LispWorks Personal Edition&amp;quot;
+ &amp;quot;9 result processed by LispWorks Personal Edition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The bad news is that &lt;code&gt;lfarm&lt;/code&gt; is not suite well to the cloud environment, where workers can disappear at any time and become available later.&lt;/p&gt;
+&lt;p&gt;Some time ago, I tried to use &lt;code&gt;lfarm&lt;/code&gt; in Ultralisp, to run some jobs in separate containers, but found that &lt;code&gt;lfarm&lt;/code&gt; does not like when worker process disconnects.&lt;/p&gt;
+&lt;p&gt;For example, if some of the workers aren&apos;t running, &lt;code&gt;make-kernel&lt;/code&gt; will hang forever. Or if some of the workers will go offline, then &lt;code&gt;broadcast-task&lt;/code&gt; also will hang.&lt;/p&gt;
+&lt;p&gt;Tomorrow I&apos;ll tell you about another solution which helped me to solve this problem.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 09 Jun 2020 21:06:00 +0300</pubDate>
+        </item>
+        <item>
             <title>lparallel</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html</link>
             <description>&lt;p&gt;Today I want to tell you about this great library which makes it very easy to speed up your program in an easy way.&lt;/p&gt;
@@ -1506,44 +1570,6 @@ POFTHEDAY&amp;gt; (let ((user (make-instance
 &amp;lt;/ul&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The Common Lisp Project of the Day&apos;s blog uses &lt;code&gt;cl-who&lt;/code&gt; only because this is a dependency of the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0018-cl-bootstrap.html&quot;&gt;cl-bootstrap&lt;/a&gt;. Personally, I prefer &lt;code&gt;spinneret&lt;/code&gt; and probably will rewrite #poftheday site to use it.&lt;/p&gt;
 </description>
             <pubDate>Thu, 21 May 2020 21:21:13 +0300</pubDate>
-        </item>
-        <item>
-            <title>lquery</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0074-lquery.html</link>
-            <description>&lt;p&gt;Yesterday I&apos;ve &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0073-clss.html&quot;&gt;reviewed a library&lt;/a&gt; to apply CSS3 selectors to the HTML nodes, produced by &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html&quot;&gt;Plump&lt;/a&gt;. And this allowed making our Twitter crawler more concise.&lt;/p&gt;
-&lt;p&gt;lQuery will take it to the next stage because it makes possible to describe a whole HTML processing pipeline in a very declarative way:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:$ (initialize (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
-             &amp;quot;.tweet-text&amp;quot;
-             (render-text)
-             (map (alexandria:curry
-                   #&amp;#039;str:shorten 40))
-             (lt 5))
-#(&amp;quot;Hi, I&amp;#039;m a #gamedev. My latest project...&amp;quot;
-  &amp;quot;Aw thank you, here&amp;#039;s the whole story ...&amp;quot;
-  &amp;quot;&amp;#x96E8;&amp;#x6797;pic.twitter.com/BFwcd0AWSE&amp;quot;
-  &amp;quot;&amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q&amp;quot;
-  &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Each &quot;call&quot; here is a special function which is applied either to a set of &lt;code&gt;HTML&lt;/code&gt; nodes or to a single node in a set.&lt;/p&gt;
-&lt;p&gt;All &lt;code&gt;lquery&lt;/code&gt; functions are defined in the &lt;code&gt;lquery-funcs&lt;/code&gt; package and documented &lt;a href=&quot;https://shinmera.github.io/lquery/#PACKAGE%20LQUERY-FUNCS&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;You can add your own functions for data processing, using &lt;a href=&quot;https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-FUNCTION&quot;&gt;define-lquery-function&lt;/a&gt; and &lt;a href=&quot;https://shinmera.github.io/lquery/#MACRO-FUNCTION%20LQUERY%3ADEFINE-LQUERY-LIST-FUNCTION&quot;&gt;define-lquery-list-function&lt;/a&gt;. This can be useful if some operation is frequent. For example, let&apos;s write a function to make strings shorter!&lt;/p&gt;
-&lt;p&gt;First, we need to define lQuery function. It will process one node at a time:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:define-lquery-function shorten (text max-length)
-             (check-type text string)
-             (check-type max-length (integer 0 65535))
-             (str:shorten max-length text))
-
-LQUERY-FUNCS::SHORTEN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use it to make our web crawler even more beautiful!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lquery:$ (initialize (dex:get &amp;quot;https://twitter.com/shinmera&amp;quot;))
-             &amp;quot;.tweet-text&amp;quot;
-             (render-text)
-             (shorten 40)
-             (lt 5))
-#(&amp;quot;Hi, I&amp;#039;m a #gamedev. My latest project...&amp;quot;
-  &amp;quot;Aw thank you, here&amp;#039;s the whole story ...&amp;quot;
-  &amp;quot;&amp;#x96E8;&amp;#x6797;pic.twitter.com/BFwcd0AWSE&amp;quot;
-  &amp;quot;&amp;#x3044;&amp;#x3089;&amp;#x3063;&amp;#x3057;&amp;#x3083;&amp;#x3044;&amp;#x307E;&amp;#x305B;&amp;#xFF5E;&amp;#xFF01;pic.twitter.com/wwaWDD6B3Q&amp;quot;
-  &amp;quot;The logic of Splatoon.pic.twitter.com...&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other &lt;code&gt;define-*&lt;/code&gt; macros in &lt;code&gt;lquery&lt;/code&gt; as well. Read its documentation to learn more about how to extend it. It would be nice if &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@shinmera&lt;/a&gt; add more examples on how to extend &lt;code&gt;lquery&lt;/code&gt;!&lt;/p&gt;
-</description>
-            <pubDate>Wed, 20 May 2020 20:06:02 +0300</pubDate>
         </item>
     </channel>
 </rss>
