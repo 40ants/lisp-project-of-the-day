@@ -243,7 +243,7 @@ that:
           ,@(when title
               `((:title (cl-who:esc ,title))))
           (:link :rel "alternate"
-                 :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
+                 :href "https://40ants.com/lisp-project-of-the-day/rss.xml"
                  :type "application/rss+xml")
           ,*google-code*
           (:link
@@ -283,10 +283,10 @@ h1 .tags {
          (:body 
           (cl-bootstrap:bs-container ()
             (cl-bootstrap:bs-row
-              (:a :href "http://40ants.com/lisp-project-of-the-day/rss.xml"
+              (:a :href "https://40ants.com/lisp-project-of-the-day/rss.xml"
                   :style "display: block; float: right;"
                   (:img :alt "RSS Feed"
-                        :src "http://40ants.com/lisp-project-of-the-day/media/images/rss.png"))
+                        :src "https://40ants.com/lisp-project-of-the-day/media/images/rss.png"))
               (:header
                (:h1 :style "text-align: center"
                     (if ,index-uri
@@ -302,7 +302,7 @@ h1 .tags {
                  (:h3 "You can support this project by donating at:")
                  (:a :href "https://www.patreon.com/bePatron?u=33868637"
                      (:img :alt "Donate using Patreon"
-                           :src "http://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png"
+                           :src "https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png"
                            :width "160"))
                  (:a :href "https://liberapay.com/poftheday/donate"
                      (:img :alt "Donate using Liberapay"

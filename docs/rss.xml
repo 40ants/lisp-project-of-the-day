@@ -67,7 +67,7 @@ POFTHEDAY&amp;gt; (lfarm:broadcast-task
 &lt;p&gt;For example, if some of the workers aren&apos;t running, &lt;code&gt;make-kernel&lt;/code&gt; will hang forever. Or if some of the workers will go offline, then &lt;code&gt;broadcast-task&lt;/code&gt; also will hang.&lt;/p&gt;
 &lt;p&gt;Tomorrow I&apos;ll tell you about another solution which helped me to solve this problem.&lt;/p&gt;
 </description>
-            <pubDate>Tue, 09 Jun 2020 21:06:00 +0300</pubDate>
+            <pubDate>Tue, 09 Jun 2020 21:38:47 +0300</pubDate>
         </item>
         <item>
             <title>lparallel</title>
