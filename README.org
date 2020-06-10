@@ -1,5 +1,8 @@
 # -*- encoding:utf-8 Mode: POLY-ORG;  -*- ---
-Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
+Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on
+Twitter account svetlyak40wt]].
+
+[[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
 ** June
