@@ -81,7 +81,7 @@ Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
                                      (lambda (arg job)
                                        (declare (ignorable job))
                                        (reverse arg)))
-             (loop (cl-gearman:work worker)))</code></pre><p>This is how we can call these functions from console:</p>
+             (loop (cl-gearman:work worker)))</code></pre><p>This is how we can call these functions from the console:</p>
 <pre><code class=' bash'>[art@poftheday:~]% echo &#039;Hello Lisp World!&#039; | gearman -f reverse
 !dlroW psiL olleH
 
@@ -97,10 +97,10 @@ SBCL 2.0.2</code></pre><p>This way you can communicate with the Lisp from the ou
 OTHER-LISP&gt; (cl-gearman:with-client (client &quot;localhost:4730&quot;)
               (format t &quot;~A&quot;
                       (cl-gearman:submit-job client &quot;get-implementation&quot;)))
-SBCL 2.0.2</code></pre><p>Gearman uses very simple protocol. Every function accepts only one string as it's argument. If you want to pass something complex, you'll need to use some sort of serialization.</p>
+SBCL 2.0.2</code></pre><p>Gearman uses a very simple protocol. Every function accepts only one string as its argument. If you want to pass something complex, you'll need to use some sort of serialization.</p>
 <p>For example, here is how I use <code>cl-store</code> and <code>base64</code> to pass lisp data-structures between a worker and a client in Ultralisp.org:</p>
 <p><a href="https://github.com/ultralisp/ultralisp/blob/f52411bd89dc5b0bcb6701e4ba0712dd5aee128b/src/rpc/core.lisp#L23-L47">https://github.com/ultralisp/ultralisp/blob/f52411bd89dc5b0bcb6701e4ba0712dd5aee128b/src/rpc/core.lisp#L23-L47</a></p>
-<p>That is it for today. Play with both <code>lfarm</code> and <code>cl-gearman</code> to decide what is better suite for your task.</p>
+<p>That is it for today. Play with both <code>lfarm</code> and <code>cl-gearman</code> to decide which one is better suited for your task.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

@@ -15,10 +15,10 @@ software developers answer the questions. I wondered if there was a
 discussion around Lisp in the Space?
 
 But this post has about 8000 comments and I didn't found a search in a
-single post's comments on the Reddid. So, I decided to use ~cl-reddit~ to
+single post's comments on the Reddit. So, I decided to use ~cl-reddit~ to
 fetch all post comments and to search through them a "lisp" term.
 
-Here is how you can connect to the Reddit and list all yout subreddits:
+Here is how you can connect to the Reddit and list of your subreddits:
 
 #+begin_src lisp
 
@@ -62,9 +62,9 @@ POFTHEDAY> (length *)
 
 #+end_src
 
-Hovewer, real comments count is about 7.7k. We received only part of the
-comments tree. Other items either replies or ~CL-REDDIT:MORE~ objects
-which contains ids of the replies:
+Well, we received 151 comments, but real comments count is about 7.7k.
+This is because other items either replies or ~CL-REDDIT:MORE~ objects
+which contain ids of the replies:
 
 #+begin_src 
 
@@ -123,16 +123,18 @@ POFTHEDAY> (let ((post-id "gxb7j1"))
 
 #+end_src
 
-When I started this code first time, it broke my Lisp. A quick
+When I started this code the first time, it broke my Lisp. A quick
 investigation showed a resource leak. This library uses [[https://edicl.github.io/drakma/][Drakma]] for data
 fetching and instead of receiving response bodies, request a stream.
 
 Drakma's documentation says, that you might need to close the stream. If
-you don't - a connection to the server remains opened.
+you don't - a connection to the server remains opene.
+
+Seems, the library's author never used it for making thousands of requests.
 
 I've fixed this leak, but comments fetching still was too slow - about 2
-comments per second. This is because ~MORE~ items contains comment ids and
-I have to fetch them individually.
+comments per second. This is because ~MORE~ item contains comment ids and
+I have to fetch them individually one by one.
 
 I tried to parallelize the fetching process using lparallel, reviewed
 two days ago:
@@ -204,4 +206,4 @@ bug - it is not able to work in multiple threads:
 https://github.com/fukamachi/dexador/issues/88
 
 So, we'll never know if SpaceX developers are using Lisp in their space
-sheeps :)
+ships :)

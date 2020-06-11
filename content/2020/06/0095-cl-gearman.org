@@ -61,7 +61,7 @@ POFTHEDAY> (cl-gearman:with-worker (worker "localhost:4730")
 #+end_src
 
 
-This is how we can call these functions from console:
+This is how we can call these functions from the console:
 
 #+begin_src bash
 
@@ -93,8 +93,8 @@ SBCL 2.0.2
 
 #+end_src
 
-Gearman uses very simple protocol. Every function accepts only one
-string as it's argument. If you want to pass something complex, you'll
+Gearman uses a very simple protocol. Every function accepts only one
+string as its argument. If you want to pass something complex, you'll
 need to use some sort of serialization.
 
 For example, here is how I use ~cl-store~ and ~base64~ to pass lisp
@@ -102,5 +102,5 @@ data-structures between a worker and a client in Ultralisp.org:
 
 https://github.com/ultralisp/ultralisp/blob/f52411bd89dc5b0bcb6701e4ba0712dd5aee128b/src/rpc/core.lisp#L23-L47
 
-That is it for today. Play with both ~lfarm~ and ~cl-gearman~ to decide what
-is better suite for your task.
+That is it for today. Play with both ~lfarm~ and ~cl-gearman~ to decide
+which one is better suited for your task.

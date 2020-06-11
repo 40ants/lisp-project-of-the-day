@@ -15,6 +15,8 @@ Twitter account svetlyak40wt]].
 - 07 June - [[content/2020/06/0092-lime.org][lime]] ([[https://twitter.com/svetlyak40wt/status/1269742654277005312][twitter]])
 - 08 June - [[content/2020/06/0093-lparallel.org][lparallel]] ([[https://twitter.com/svetlyak40wt/status/1270024901227929602][twitter]])
 - 09 June - [[content/2020/06/0094-lfarm.org][lfarm]] ([[https://twitter.com/svetlyak40wt/status/1270417617166258176][twitter]])
+- 10 June - [[content/2020/06/0095-cl-gearman][cl-gearman]] ([[https://twitter.com/svetlyak40wt/status/1270782560096989184][twitter]])
+- 11 June - [[content/2020/06/0096-cl-reddit.org][cl-reddit]] ([[https://twitter.com/svetlyak40wt/status/1271181659057070083][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
@@ -701,15 +703,10 @@ from. This was useful for debugging:
                                        :reverse t
                                        :format "%at %s")))
          (lines (str:split #\Newline all-commits))
-         (line-we-want (loop for line in lines
-                             when (str:contains? "publish" line :ignore-case t)
-                             do (return line)
-                             finally (return (first lines))))
          (first-timestamp
            (parse-integer (first (str:split #\Space
-                                            line-we-want)))))
-    (values (local-time:unix-to-timestamp first-timestamp)
-            line-we-want)))
+                                            (first lines))))))
+    (local-time:unix-to-timestamp first-timestamp)))
 
 #+END_SRC
 
@@ -1060,5 +1057,6 @@ files, and extracting their ":defsystem-depends-on".
 - http://clast.sourceforge.net/
 - https://github.com/s-expressionists/Trucler
 - https://github.com/bufferswap/ViralityEngine
+- http://quickdocs.org/cl-mechanize/
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
