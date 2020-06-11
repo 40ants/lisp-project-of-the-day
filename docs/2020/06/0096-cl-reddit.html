@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-reddit
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-reddit</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-reddit<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a><a href='../../tags/api.html'><span class='label label-default'>api</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This is an API wrapper for Reddit.</p>
+<p>Today I also found an interesting thread from SpaceX, where it's software developers answer the questions. I woundered if there was a discussion around Lisp in the Space.</p>
+<p>But this post has about 8000 comments and I didn't found a search in a single post's comments on the Reddid. So, I decided to use <code>cl-reddit</code> to fetch all post comments and to search through them a "lisp" term.</p>
+<p>Here is how you can connect to the Reddit and list all yout subreddits:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defvar *user*
+             (cl-reddit:api-login
+              :username &quot;svetlyak40wt&quot;
+              :password *password*))
+
+;; This is how we can retrieve a list of my subreddits:
+
+POFTHEDAY&gt; (mapcar #&#039;cl-reddit:subreddit-title
+                   (cl-reddit::get-reddits-mine *user*))
+(&quot;programming&quot; &quot;Lisp Advocates&quot; &quot;Lisp&quot; &quot;Scheme Programming Language articles&quot;
+ &quot;M-x emacs-reddit&quot; &quot;Web Startups&quot; &quot;Common Lisp&quot; &quot;Filmmakers&quot; &quot;coding&quot;
+ &quot;Github: social coding&quot; &quot;EarthPorn: Amazing images of light and landscape&quot;
+ &quot;LISP ja&quot; &quot;Learn Lisp&quot; &quot;Startup Accelerators&quot; &quot;defunkydrummer&quot; &quot;&quot; &quot;&quot; &quot;&quot;
+ &quot;Steel Bank Common Lisp&quot;
+ &quot;(find-if (alexandria:conjoin #&#039;funny-p #&#039;about-lisp-p) *reddit*)&quot;)</code></pre><p>But we want to run a search in the post comments, right?</p>
+<p>Then we need to extract post id from this link:</p>
+<p><a href="https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/">https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/</a></p>
+<p>and to fetch comments tree using <code>cl-reddit</code>:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (cl-reddit::get-comments &quot;gxb7j1&quot; *user*)
+
+(#&lt;CL-REDDIT:COMMENT {1002009693}&gt; #&lt;CL-REDDIT:COMMENT {10020098F3}&gt;
+ #&lt;CL-REDDIT:COMMENT {1002016BF3}&gt; #&lt;CL-REDDIT:COMMENT {1002016CB3}&gt;
+ ...
+ #&lt;CL-REDDIT:COMMENT {1002016D73}&gt; #&lt;CL-REDDIT:MORE {1002016E33}&gt;)
+
+POFTHEDAY&gt; (length *)
+151</code></pre><p>Hovewer, real comments count is about 7.7k. We received only part of the comments tree. Other items either replies or <code>CL-REDDIT:MORE</code> objects which contains ids of the replies:</p>
+<pre><code class=' '>POFTHEDAY&gt; (defparameter *comments*
+              (cl-reddit::get-comments &quot;gxb7j1&quot; *user*))
+
+POFTHEDAY&gt; (rutils:last-elt *comments*)
+#&lt;CL-REDDIT:MORE {1002016E33}&gt;
+
+POFTHEDAY&gt; (cl-reddit:more-children *)
+(&quot;ft35r7m&quot; &quot;ft0rpxi&quot; &quot;ft0jn61&quot; &quot;ft34002&quot; &quot;ft4b6z4&quot;
+ ...
+ &quot;ft0pado&quot; ...)
+
+POFTHEDAY&gt; (cl-reddit:comment-replies
+               (first *comments*))
+(#&lt;CL-REDDIT:MORE {1003607093}&gt;)
+
+POFTHEDAY&gt; (cl-reddit:comment-replies
+               (second *comments*))
+(#&lt;CL-REDDIT:COMMENT {1007607293}&gt;)
+
+POFTHEDAY&gt;</code></pre><p>We need to write a comment walker which <code>cl-reddit</code> does not provide.</p>
+<p>This walker will expand all <code>MORE</code> items and collect comments into the flat list:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((post-id &quot;gxb7j1&quot;))
+             (uiop:while-collecting (collect)
+               (labels ((visit (item)
+                          (etypecase item
+                            (cl-reddit:comment
+                             (collect item)
+                             (mapc #&#039;visit
+                                   (cl-reddit:comment-replies
+                                    item)))
+                            (cl-reddit:more
+                             (expand-more item))))
+                        (expand-more (more)
+                          (loop for id in (cl-reddit:more-children more)
+                                for comments = (cl-reddit::get-comments
+                                                post-id
+                                                *user*
+                                                :comment id)
+                                do (mapc #&#039;visit
+                                         comments))))
+                 (mapcar #&#039;visit
+                         (cl-reddit::get-comments post-id
+                                                  *user*)))))</code></pre><p>When I started this code first time, it broke my Lisp. A quick investigation showed a resource leak. This library uses <a href="https://edicl.github.io/drakma/">Drakma</a> for data fetching and instead of receiving response bodies, request a stream.</p>
+<p>Drakma's documentation says, that you might need to close the stream. If you don't - a connection to the server remains opened.</p>
+<p>I've fixed this leak, but comments fetching still was too slow - about 2 comments per second. This is because <code>MORE</code> items contains comment ids and I have to fetch them individually.</p>
+<p>I tried to parallelize the fetching process using lparallel, reviewed two days ago:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *all-comments*
+             (let ((post-id &quot;gxb7j1&quot;)
+                 (counter 0))
+               (uiop:while-collecting (collect)
+                 (labels ((visit (item)
+                            (etypecase item
+                              (cl-reddit:comment
+                               (collect item)
+                               (incf counter)
+                               (when (zerop (mod counter 10))
+                                 (log:info &quot;~A comments collected&quot;
+                                           counter))
+                               (mapc #&#039;visit (cl-reddit:comment-replies item)))
+                              (cl-reddit:more
+                               (expand-more item))))
+                          (expand-more (more)
+                            (log:info &quot;Expanding&quot; more)
+                            (loop with more-ids = (cl-reddit:more-children more)
+                                  with replies = (lparallel:pmapcar
+                                                  (lambda (id)
+                                                    (cl-reddit::get-comments
+                                                     post-id
+                                                     *user*
+                                                     :comment id))
+                                                  more-ids)
+                                  for comments in replies
+                                  do (lparallel:pmapc #&#039;visit comments))))
+                   (lparallel:pmapc #&#039;visit
+                           (cl-reddit::get-comments post-id
+                                                    *user*))))))</code></pre><p>But encountered these strange errors:</p>
+<pre><code class=' lisp'>The condition Socket error in &quot;connect&quot;: EINTR (Interrupted system call) occurred with errno: 0.
+
+Condition USOCKET:TIMEOUT-ERROR was signalled.
+   [Condition of type USOCKET:TIMEOUT-ERROR]
+
+Restarts:
+ 0: [TRANSFER-ERROR] Transfer this error to a dependent thread, if one exists.
+ 1: [KILL-ERRORS] Kill errors in workers (remove debugger instances).
+ 2: [ABORT] abort thread (#&lt;THREAD &quot;lparallel&quot; RUNNING {10071B3DE3}&gt;)
+
+Backtrace:
+ 0: (USOCKET::HANDLE-CONDITION #&lt;SB-EXT:TIMEOUT {10059E7C53}&gt; #&lt;USOCKET:STREAM-USOCKET {100871AB43}&gt; &quot;www.reddit.com&quot;)
+ 1: (SB-KERNEL::%SIGNAL #&lt;SB-EXT:TIMEOUT {10059E7C53}&gt;)
+ 2: (ERROR SB-EXT:TIMEOUT)
+ 3: (USOCKET:SOCKET-CONNECT &quot;www.reddit.com&quot; 80 :PROTOCOL :STREAM :ELEMENT-TYPE FLEXI-STREAMS:OCTET :TIMEOUT 20 :DEADLINE NIL :NODELAY :IF-SUPPORTED :LOCAL-HOST NIL :LOCAL-PORT NIL)
+ 4: (DRAKMA:HTTP-REQUEST #&lt;PURI:URI http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl&gt; :METHOD :GET :USER-AGENT &quot;cl-reddit/0.2 (common lisp api wrapper)&quot; :COOKIE-JAR #&lt;DRAKMA:COOKIE-JAR (with 5 c..
+ 5: (CL-REDDIT::GET-JSON &quot;http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl&quot; #&lt;CL-REDDIT:USER {10079B9973}&gt;)
+ 6: (CL-REDDIT:GET-COMMENTS &quot;gxb7j1&quot; #&lt;CL-REDDIT:USER {10079B9973}&gt; :ARTICLE NIL :COMMENT &quot;ft3odzl&quot; :CONTEXT NIL :DEPTH NIL :LIMIT NIL :SORT NIL :THREADED NIL :SHOWMORE NIL)</code></pre><p>Tried to switch to the Dexador instead of Drakma, but found another bug - it is not able to work in multiple threads:</p>
+<p><a href="https://github.com/fukamachi/dexador/issues/88">https://github.com/fukamachi/dexador/issues/88</a></p>
+<p>So, we'll never know if SpaceX developers are using Lisp in their space sheeps :)</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

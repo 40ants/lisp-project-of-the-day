@@ -1,0 +1,207 @@
+* cl-reddit :web:api:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is an API wrapper for Reddit.
+
+Today I found [[https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/][an interesting thread from SpaceX]], where it's
+software developers answer the questions. I wondered if there was a
+discussion around Lisp in the Space?
+
+But this post has about 8000 comments and I didn't found a search in a
+single post's comments on the Reddid. So, I decided to use ~cl-reddit~ to
+fetch all post comments and to search through them a "lisp" term.
+
+Here is how you can connect to the Reddit and list all yout subreddits:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *user*
+             (cl-reddit:api-login
+              :username "svetlyak40wt"
+              :password *password*))
+
+;; This is how we can retrieve a list of my subreddits:
+
+POFTHEDAY> (mapcar #'cl-reddit:subreddit-title
+                   (cl-reddit::get-reddits-mine *user*))
+("programming" "Lisp Advocates" "Lisp" "Scheme Programming Language articles"
+ "M-x emacs-reddit" "Web Startups" "Common Lisp" "Filmmakers" "coding"
+ "Github: social coding" "EarthPorn: Amazing images of light and landscape"
+ "LISP ja" "Learn Lisp" "Startup Accelerators" "defunkydrummer" "" "" ""
+ "Steel Bank Common Lisp"
+ "(find-if (alexandria:conjoin #'funny-p #'about-lisp-p) *reddit*)")
+
+#+end_src
+
+But we want to run a search in the post comments, right?
+
+Then we need to extract post id from this link:
+
+https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/
+
+and to fetch comments tree using ~cl-reddit~:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-reddit::get-comments "gxb7j1" *user*)
+
+(#<CL-REDDIT:COMMENT {1002009693}> #<CL-REDDIT:COMMENT {10020098F3}>
+ #<CL-REDDIT:COMMENT {1002016BF3}> #<CL-REDDIT:COMMENT {1002016CB3}>
+ ...
+ #<CL-REDDIT:COMMENT {1002016D73}> #<CL-REDDIT:MORE {1002016E33}>)
+
+POFTHEDAY> (length *)
+151
+
+#+end_src
+
+Hovewer, real comments count is about 7.7k. We received only part of the
+comments tree. Other items either replies or ~CL-REDDIT:MORE~ objects
+which contains ids of the replies:
+
+#+begin_src 
+
+POFTHEDAY> (defparameter *comments*
+              (cl-reddit::get-comments "gxb7j1" *user*))
+
+POFTHEDAY> (rutils:last-elt *comments*)
+#<CL-REDDIT:MORE {1002016E33}>
+
+POFTHEDAY> (cl-reddit:more-children *)
+("ft35r7m" "ft0rpxi" "ft0jn61" "ft34002" "ft4b6z4"
+ ...
+ "ft0pado" ...)
+
+POFTHEDAY> (cl-reddit:comment-replies
+               (first *comments*))
+(#<CL-REDDIT:MORE {1003607093}>)
+
+POFTHEDAY> (cl-reddit:comment-replies
+               (second *comments*))
+(#<CL-REDDIT:COMMENT {1007607293}>)
+
+POFTHEDAY> 
+
+#+end_src
+
+We need to write a comment walker which ~cl-reddit~ does not provide.
+
+This walker will expand all ~MORE~ items and collect comments into the
+flat list:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((post-id "gxb7j1"))
+             (uiop:while-collecting (collect)
+               (labels ((visit (item)
+                          (etypecase item
+                            (cl-reddit:comment
+                             (collect item)
+                             (mapc #'visit
+                                   (cl-reddit:comment-replies
+                                    item)))
+                            (cl-reddit:more
+                             (expand-more item))))
+                        (expand-more (more)
+                          (loop for id in (cl-reddit:more-children more)
+                                for comments = (cl-reddit::get-comments
+                                                post-id
+                                                *user*
+                                                :comment id)
+                                do (mapc #'visit
+                                         comments))))
+                 (mapcar #'visit
+                         (cl-reddit::get-comments post-id
+                                                  *user*)))))
+
+#+end_src
+
+When I started this code first time, it broke my Lisp. A quick
+investigation showed a resource leak. This library uses [[https://edicl.github.io/drakma/][Drakma]] for data
+fetching and instead of receiving response bodies, request a stream.
+
+Drakma's documentation says, that you might need to close the stream. If
+you don't - a connection to the server remains opened.
+
+I've fixed this leak, but comments fetching still was too slow - about 2
+comments per second. This is because ~MORE~ items contains comment ids and
+I have to fetch them individually.
+
+I tried to parallelize the fetching process using lparallel, reviewed
+two days ago:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *all-comments*
+             (let ((post-id "gxb7j1")
+                 (counter 0))
+               (uiop:while-collecting (collect)
+                 (labels ((visit (item)
+                            (etypecase item
+                              (cl-reddit:comment
+                               (collect item)
+                               (incf counter)
+                               (when (zerop (mod counter 10))
+                                 (log:info "~A comments collected"
+                                           counter))
+                               (mapc #'visit (cl-reddit:comment-replies item)))
+                              (cl-reddit:more
+                               (expand-more item))))
+                          (expand-more (more)
+                            (log:info "Expanding" more)
+                            (loop with more-ids = (cl-reddit:more-children more)
+                                  with replies = (lparallel:pmapcar
+                                                  (lambda (id)
+                                                    (cl-reddit::get-comments
+                                                     post-id
+                                                     *user*
+                                                     :comment id))
+                                                  more-ids)
+                                  for comments in replies
+                                  do (lparallel:pmapc #'visit comments))))
+                   (lparallel:pmapc #'visit
+                           (cl-reddit::get-comments post-id
+                                                    *user*))))))
+
+#+end_src
+
+But encountered these strange errors:
+
+#+begin_src lisp
+
+The condition Socket error in "connect": EINTR (Interrupted system call) occurred with errno: 0.
+
+Condition USOCKET:TIMEOUT-ERROR was signalled.
+   [Condition of type USOCKET:TIMEOUT-ERROR]
+
+Restarts:
+ 0: [TRANSFER-ERROR] Transfer this error to a dependent thread, if one exists.
+ 1: [KILL-ERRORS] Kill errors in workers (remove debugger instances).
+ 2: [ABORT] abort thread (#<THREAD "lparallel" RUNNING {10071B3DE3}>)
+
+Backtrace:
+ 0: (USOCKET::HANDLE-CONDITION #<SB-EXT:TIMEOUT {10059E7C53}> #<USOCKET:STREAM-USOCKET {100871AB43}> "www.reddit.com")
+ 1: (SB-KERNEL::%SIGNAL #<SB-EXT:TIMEOUT {10059E7C53}>)
+ 2: (ERROR SB-EXT:TIMEOUT)
+ 3: (USOCKET:SOCKET-CONNECT "www.reddit.com" 80 :PROTOCOL :STREAM :ELEMENT-TYPE FLEXI-STREAMS:OCTET :TIMEOUT 20 :DEADLINE NIL :NODELAY :IF-SUPPORTED :LOCAL-HOST NIL :LOCAL-PORT NIL)
+ 4: (DRAKMA:HTTP-REQUEST #<PURI:URI http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl> :METHOD :GET :USER-AGENT "cl-reddit/0.2 (common lisp api wrapper)" :COOKIE-JAR #<DRAKMA:COOKIE-JAR (with 5 c..
+ 5: (CL-REDDIT::GET-JSON "http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl" #<CL-REDDIT:USER {10079B9973}>)
+ 6: (CL-REDDIT:GET-COMMENTS "gxb7j1" #<CL-REDDIT:USER {10079B9973}> :ARTICLE NIL :COMMENT "ft3odzl" :CONTEXT NIL :DEPTH NIL :LIMIT NIL :SORT NIL :THREADED NIL :SHOWMORE NIL)
+
+
+#+end_src
+
+Tried to switch to the Dexador instead of Drakma, but found another
+bug - it is not able to work in multiple threads:
+
+https://github.com/fukamachi/dexador/issues/88
+
+So, we'll never know if SpaceX developers are using Lisp in their space
+sheeps :)
