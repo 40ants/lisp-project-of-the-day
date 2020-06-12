@@ -1,0 +1,65 @@
+* sblint :language:tooling:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today I want to review not a library but a tool. ~SBLint~ is a program,
+which can be run from the command-line. It loads your lisp code and
+outputs all warnings and notes from SBCL compiler.
+
+I must admit, that SBLint's output is very readable. You'll see where
+you left unused variables or called a function with wrong parameters.
+
+To show you an example, I've added this bad code to one of my libraries:
+
+#+begin_src lisp
+
+(declaim (ftype (function (fixnum fixnum)
+                          fixnum)
+                foo))
+(defun foo (a b)
+  (+ a 10))
+
+
+(defun bar ()
+  (foo))
+
+
+(defun blah ()
+  (foo 2
+       3.14))
+
+#+end_src
+
+This code is full of problems :)
+Let's see how SBLint will highlight them!
+
+#+begin_src bash
+
+[art@poftheday] sblint
+src/appenders.lisp:41:0: style-warning: \
+    The variable B is defined but never used.
+src/appenders.lisp:46:2: simple-warning: \
+    The function FOO is called with zero arguments, but wants exactly two.
+src/appenders.lisp:50:2: type-warning: \
+    Constant 3.14 conflicts with its asserted type FIXNUM.
+WARNING: Compilation failed in a system "log4cl-extras".
+
+# But return code is still SUCCESS:
+[art@poftheday] echo $?
+0
+
+#+end_src
+
+As you can see, all errors are caught. However, ~SBLint~ itself exited
+with 0 exit code. Because of this, we can't add it into our CI pipeline.
+
+I consider this is a bug and will made a pull-request to fix it. Hopefully,
+the current maintainer will merge it soon:
+
+https://github.com/cxxxr/sblint/pull/19
