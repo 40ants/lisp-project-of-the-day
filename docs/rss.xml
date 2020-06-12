@@ -6,6 +6,43 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>sblint</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html</link>
+            <description>&lt;p&gt;Today I want to review not a library but a tool. &lt;code&gt;SBLint&lt;/code&gt; is a program, which can be run from the command-line. It loads your lisp code and outputs all warnings and notes from SBCL compiler.&lt;/p&gt;
+&lt;p&gt;I must admit, that SBLint&apos;s output is very readable. You&apos;ll see where you left unused variables or called a function with wrong parameters.&lt;/p&gt;
+&lt;p&gt;To show you an example, I&apos;ve added this bad code to one of my libraries:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(declaim (ftype (function (fixnum fixnum)
+                          fixnum)
+                foo))
+(defun foo (a b)
+  (+ a 10))
+
+
+(defun bar ()
+  (foo))
+
+
+(defun blah ()
+  (foo 2
+       3.14))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is full of problems :) Let&apos;s see how SBLint will highlight them!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;[art@poftheday] sblint
+src/appenders.lisp:41:0: style-warning: \
+    The variable B is defined but never used.
+src/appenders.lisp:46:2: simple-warning: \
+    The function FOO is called with zero arguments, but wants exactly two.
+src/appenders.lisp:50:2: type-warning: \
+    Constant 3.14 conflicts with its asserted type FIXNUM.
+WARNING: Compilation failed in a system &amp;quot;log4cl-extras&amp;quot;.
+
+# But return code is still SUCCESS:
+[art@poftheday] echo $?
+0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, all errors are caught. However, &lt;code&gt;SBLint&lt;/code&gt; itself exited with 0 exit code. Because of this, we can&apos;t add it into our CI pipeline.&lt;/p&gt;
+&lt;p&gt;I consider this is a bug and will made a pull-request to fix it. Hopefully, the current maintainer will merge it soon:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cxxxr/sblint/pull/19&quot;&gt;https://github.com/cxxxr/sblint/pull/19&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Fri, 12 Jun 2020 23:43:40 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-reddit</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0096-cl-reddit.html</link>
             <description>&lt;p&gt;This is an API wrapper for Reddit.&lt;/p&gt;
@@ -1500,113 +1537,6 @@ POFTHEDAY&amp;gt; (flet ((read-lines (s)
 &lt;p&gt;&lt;a href=&quot;https://github.com/alxchk/cl-libssh2/pull/7&quot;&gt;https://github.com/alxchk/cl-libssh2/pull/7&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Sun, 24 May 2020 20:54:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>named-readtables</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0077-named-readtables.html</link>
-            <description>&lt;p&gt;This system is highly recommended if you are writing a code which modifies a &lt;code&gt;*readtable*&lt;/code&gt; because it allows to define and switch between readtables as you do with Lisp packages.&lt;/p&gt;
-&lt;p&gt;If you are not familiar with what &lt;code&gt;*readtable*&lt;/code&gt; is, then read this article:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://lisper.in/reader-macros&quot;&gt;https://lisper.in/reader-macros&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;but pay attention, that the article manipulates with &lt;code&gt;*readtable*&lt;/code&gt; instead of using &lt;code&gt;named-readtables&lt;/code&gt;. This is bad. Use &lt;code&gt;named-readtables&lt;/code&gt; instead.&lt;/p&gt;
-&lt;p&gt;First, let&apos;s see how to use &lt;code&gt;named-readtables&lt;/code&gt; to switch between read-tables. As an example, we&apos;ll see how to use &lt;code&gt;cl-interpol&lt;/code&gt; and &lt;code&gt;rutils&lt;/code&gt; readtables.&lt;/p&gt;
-&lt;p&gt;This is how you can lookup which tables are available:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (ql:quickload &amp;#039;(:cl-interpol :rutils))
-
-POFTHEDAY&amp;gt; (named-readtables:list-all-named-readtables)
-(#&amp;lt;NAMED-READTABLE :COMMON-LISP {1000024B73}&amp;gt;
- #&amp;lt;NAMED-READTABLE :CURRENT {1000025663}&amp;gt;
- #&amp;lt;NAMED-READTABLE RUTILS.READTABLE:RUTILS-READTABLE {1004A960E3}&amp;gt;
- #&amp;lt;NAMED-READTABLE RUTILS.READTABLE:STANDARD-READTABLE {1004A96133}&amp;gt;
- #&amp;lt;NAMED-READTABLE :INTERPOL-SYNTAX {1001D19853}&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s see how does switching work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First I&amp;#039;ll switch to the interpol&amp;#039;s syntax:
-POFTHEDAY&amp;gt; (named-readtables:in-readtable :interpol-syntax)
-
-POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
-             #?&amp;quot;Hello ${username}!&amp;quot;)
-&amp;quot;Hello Bob!&amp;quot;
-
-;; Rutils readtable is not active, and we can&amp;#039;t
-;; use it&amp;#039;s syntax for hashes:
-POFTHEDAY&amp;gt; #h(:foo &amp;quot;bar&amp;quot;)
-; Debugger entered on #&amp;lt;SB-INT:SIMPLE-READER-ERROR
-; &amp;quot;no dispatch function defined for ~S&amp;quot; {10068D4C63}&amp;gt;
-
-;; We have to activate  it first
-POFTHEDAY&amp;gt; (named-readtables:in-readtable
-            rutils:rutils-readtable)
-
-POFTHEDAY&amp;gt; #h(:foo &amp;quot;bar&amp;quot;)
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {10068B9013}&amp;gt;
-
-;; But now we are unable to use iterpol&amp;#039;s syntax:
-POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
-             #?&amp;quot;Hello ${username}!&amp;quot;)
-; Debugger entered on #&amp;lt;SB-INT:SIMPLE-READER-ERROR
-; &amp;quot;no dispatch function defined for ~S&amp;quot; {1006AE93F3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if we want to use both readtables from &lt;code&gt;cl-interpol&lt;/code&gt; and from &lt;code&gt;rutils&lt;/code&gt;?&lt;/p&gt;
-&lt;p&gt;It is possible if we merge them together and create a new readtable:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:defreadtable
-               :poftheday
-             (:merge
-              rutils:rutils-readtable
-              :interpol-syntax))
-
-POFTHEDAY&amp;gt; (named-readtables:in-readtable
-            :poftheday)
-
-POFTHEDAY&amp;gt; (let ((username &amp;quot;Bob&amp;quot;))
-             #h(:greeting #?&amp;quot;Hello ${username}!&amp;quot;))
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 1 {1003054C23}&amp;gt;
-
-POFTHEDAY&amp;gt; (rutils:print-ht *)
-#{
-  :GREETING &amp;quot;Hello Bob!&amp;quot;
- }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll define a literal syntax for lambda from &lt;code&gt;rutils&lt;/code&gt; as a separate named read-table:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; &apos;&gt;POFTHEDAY&amp;gt; (defmacro trivial-positional-lambda (body)
-             `(lambda (&amp;amp;optional % %%)
-                (declare (ignorable %) (ignorable %%))
-                ,body))
-
-POFTHEDAY&amp;gt; (defun |^-reader| (stream char)
-             (declare (ignore char))
-             (let ((sexp (read stream t nil t)))
-               `(trivial-positional-lambda
-                 ,(if (and (listp sexp) (listp (car sexp)))
-                      (cons &amp;#039;progn sexp)
-                      sexp))))
-
-POFTHEDAY&amp;gt; (named-readtables:defreadtable
-               :lambda
-             (:merge :standard)
-             (:macro-char #\^ #&amp;#039;|^-reader|))
-
-;; Now we can switch to the new readtable
-;; and use new syntax for lambdas:
-POFTHEDAY&amp;gt; (named-readtables:in-readtable :lambda)
-
-POFTHEDAY&amp;gt; ^(+ % %%)
-#&amp;lt;FUNCTION (LAMBDA (&amp;amp;OPTIONAL % %%)) {2252593B}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *
-                    2
-                    3)
-5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Named readtables has yet another useful feature - it integrates with SLIME. When you have a &lt;code&gt;(in-readtable)&lt;/code&gt; call after you package definition, SLIME will know what &lt;code&gt;readtable&lt;/code&gt; to use when you hit &lt;code&gt;Ctrl-C Ctrl-C&lt;/code&gt; on defuns.&lt;/p&gt;
-&lt;p&gt;That is what &lt;code&gt;in-readtable&lt;/code&gt; expands to:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (named-readtables:in-readtable :interpol-syntax)
-
-;; It expands to:
-(eval-when (:compile-toplevel
-            :load-toplevel
-            :execute)
-  (setf *readtable*
-        (named-readtables:ensure-readtable
-         &amp;#039;:interpol-syntax))
-  (when (find-package :swank)
-    (named-readtables::%frob-swank-readtable-alist
-     *package*
-     *readtable*)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This &lt;code&gt;%frob-swank-readtable-alist&lt;/code&gt; modifies &lt;code&gt;swank:*readtable-alist*&lt;/code&gt; to make it know what readtable should be used for the package. But a comment to this code says it is a &lt;code&gt;KLUDGE&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Interesting, how this will or should work in the LispWorks?&lt;/p&gt;
-</description>
-            <pubDate>Sat, 23 May 2020 21:18:23 +0300</pubDate>
         </item>
     </channel>
 </rss>
