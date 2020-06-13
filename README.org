@@ -18,6 +18,7 @@ Twitter account svetlyak40wt]].
 - 10 June - [[content/2020/06/0095-cl-gearman][cl-gearman]] ([[https://twitter.com/svetlyak40wt/status/1270782560096989184][twitter]])
 - 11 June - [[content/2020/06/0096-cl-reddit.org][cl-reddit]] ([[https://twitter.com/svetlyak40wt/status/1271181659057070083][twitter]])
 - 12 June - [[content/2020/06/0097-sblint.org][sblint]] ([[https://twitter.com/svetlyak40wt/status/1271542482338304001][twitter]])
+- 13 June - [[content/2020-06-13/0098-cl-store.org][cl-store]]
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])

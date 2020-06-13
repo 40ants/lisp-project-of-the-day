@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-store
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-store</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-store<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a><a href='../../tags/data-formats.html'><span class='label label-default'>data-formats</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>I use this library in a few of my projects. It is much like Python's <a href="https://docs.python.org/3/library/pickle.html">pickle module</a>, but a lot more extensible.</p>
+<p>CL-Store is able to store and restore back almost any Lisp object. For example, <code>lfarm</code>, <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html">reviewed four days ago</a> uses it to serialize and deserialize parameters when executing remote jobs on the server.</p>
+<p>To demonstrate how it works, I'll create a vector of objects. Then we'll save this vector to the file and restore it back:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defclass user ()
+             ((name :initarg :name
+                    :reader user-name)))
+
+POFTHEDAY&gt; (defmethod print-object ((user user) stream)
+             (print-unreadable-object (user stream :type t)
+               (format stream &quot;~A&quot;
+                       (user-name user))))
+
+POFTHEDAY&gt; (defparameter *users*
+             (make-array 2
+                         :initial-contents
+                         (list (make-instance &#039;user :name &quot;Bob&quot;)
+                               (make-instance &#039;user :name &quot;Alice&quot;))))
+
+POFTHEDAY&gt; *users*
+#(#&lt;USER Bob&gt; #&lt;USER Alice&gt;)
+
+;; Now we are ready to store our data to the file
+POFTHEDAY&gt; (cl-store:store *users* #P&quot;/tmp/users.bin&quot;)
+
+;; and to restore it back:
+POFTHEDAY&gt; (cl-store:restore #P&quot;/tmp/users.bin&quot;)
+#(#&lt;USER Bob&gt; #&lt;USER Alice&gt;)</code></pre><p>Here is the resulting file. Don't be deceived by the readable content. This is the binary format and it might contain nonreadable characters:</p>
+<pre><code class=' text'>[art@poftheday] cat /tmp/users.bin
+CLCL
+#USER#  POFTHEDAY
+#NAMEBobAlice</code></pre><p>CL-Store can be extended. Originally it also provided a backend to serialize data into the XML. But now this backend is considered as deprecated.</p>
+<p>Previously I didn't write backends for CL-Store, but today I found in its docs an example, <a href="https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19">how to write a backend</a>, compatible with  Python's pickle.</p>
+<p>Documentation is 13 years old, let's see if we'll be able to reproduce it!</p>
+<p>First, we need to define a new backend:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (cl-store:defbackend pickle
+             :stream-type &#039;character)
+#&lt;PICKLE {100369EBB3}&gt;
+
+;; This small call expands into this huge amount of code:
+
+(eval-when (:load-toplevel :execute)
+  (eval-when (:compile-toplevel :load-toplevel :execute)
+    (defclass pickle (cl-store:backend) nil
+              (:documentation
+               &quot;Autogenerated cl-store class for backend pickle.&quot;))
+    (defmacro defstore-pickle
+              ((cl-store::var type stream &amp;optional cl-store::qualifier)
+               &amp;body cl-store::body)
+      (cl-store::with-gensyms (cl-store::gbackend)
+        `(defmethod cl-store:internal-store-object ,@(if cl-store::qualifier
+                                                         (list
+                                                          cl-store::qualifier)
+                                                         nil)
+                    ((,cl-store::gbackend ,&#039;pickle) (,cl-store::var ,type)
+                     ,stream)
+           ,(format nil &quot;Definition for storing an object of type ~A with ~
+ backend ~A&quot;
+                    type &#039;pickle)
+           (declare (ignorable ,cl-store::gbackend))
+           ,@cl-store::body)))
+    (defmacro defrestore-pickle
+              ((type cl-store::place &amp;optional cl-store::qualifier)
+               &amp;body cl-store::body)
+      (cl-store::with-gensyms (cl-store::gbackend cl-store::gtype)
+        `(defmethod cl-store::internal-restore-object ,@(if cl-store::qualifier
+                                                            (list
+                                                             cl-store::qualifier)
+                                                            nil)
+                    ((,cl-store::gbackend ,&#039;pickle)
+                     (,cl-store::gtype (eql &#039;,type)) (,cl-store::place t))
+           (declare (ignorable ,cl-store::gbackend ,cl-store::gtype))
+           ,@cl-store::body))))
+  (cl-store::register-backend &#039;pickle &#039;pickle nil &#039;character &#039;nil &#039;nil))</code></pre><p>Now we can use <code>defstore-pickle</code> and <code>defrestore-pickle</code> macroses to define rules for the processing of different data types.</p>
+<p>Here is where all real work is done:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (defvar *pickle-mapping*
+             &#039;((#\S . string))
+             &quot;A mapping from Pickle&#039;s char codes
+              to a Lisp data type&quot;)
+
+POFTHEDAY&gt; (defmethod cl-store:get-next-reader ((backend pickle) (stream stream))
+             &quot;This method is responsible for recognizing what
+              type of object should be read next.&quot;
+             (let ((type-code (read-char stream)))
+               (or (cdr (assoc type-code *pickle-mapping*))
+                   (values nil (format nil &quot;Type ~A&quot; type-code)))))
+
+POFTHEDAY&gt; (defrestore-pickle (noop stream)
+             &quot;We&#039;ll skip unknown objects&quot;)
+
+POFTHEDAY&gt; (defstore-pickle (obj string stream)
+             &quot;Here is how string should be written in Pickle&#039;s format.&quot;
+             (format stream &quot;S&#039;~A&#039;~%p0~%.&quot; obj))
+
+POFTHEDAY&gt; (defrestore-pickle (string stream)
+             &quot;And this is a code to read string back&quot;
+             (let ((val (read-line stream)))
+               (read-line stream) ;; remove the PUSH op
+               (read-line stream) ;; remove the END op
+               (subseq val 1 (1- (length val)))))</code></pre><p>It is time to test our functions. To make this old example work, I had to use old Python2.7, because Python3's pickle serializes into a little bit different format.</p>
+<pre><code class=' python'>[art@poftheday] python2.7
+
+&gt;&gt;&gt; with open(&#039;/tmp/word.pickle&#039;, &#039;w&#039;) as f:
+...     pickle.dump(&#039;Hello Lisp World!&#039;, f, protocol=0)
+...
+&gt;&gt;&gt; ^D
+
+[art@poftheday] cat /tmp/word.pickle
+S&#039;Hello Lisp World!&#039;
+p0
+.
+
+# Here is what I&#039;ve got under Python3:
+
+In [9]: with open(&#039;/tmp/word.pickle&#039;, &#039;bw&#039;) as f:
+   ...:     pickle.dump(&#039;Hello Lisp World!&#039;, f, protocol=0)
+   ...:
+
+In [10]: !cat /tmp/word.pickle
+VHello Lisp World!
+p0
+.
+# This cl-store backend does not support V type code.
+# Seems, it stands for a Unicode string.</code></pre><p>Now we can read this file from Lisp and write it back:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (cl-store:restore #P&quot;/tmp/word.pickle&quot;
+                             &#039;pickle)
+&quot;Hello Lisp World!&quot;
+
+POFTHEDAY&gt; (cl-store:store &quot;Howdy, Python!&quot;
+                           #P&quot;/tmp/word.pickle&quot;
+                           &#039;pickle)
+&quot;Howdy, Python!&quot;</code></pre><p>And finally, to ensure our backend works as expected, we'll read this response in Python2:</p>
+<pre><code class=' python'>&gt;&gt;&gt; import pickle
+&gt;&gt;&gt; with open(&#039;/tmp/word.pickle&#039;) as f:
+...     pickle.load(f)
+...
+&#039;Howdy, Python!&#039;</code></pre><p>That is it. If you need a time-proved serialization library, check out the CL-Store! To extend it, just read the <a href="https://common-lisp.net/project/cl-store/docs/cl-store.html">docs</a>.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

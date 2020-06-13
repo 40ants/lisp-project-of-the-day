@@ -1,14 +1,14 @@
 * cl-store :data_structures:data_formats:
 :PROPERTIES:
 :Documentation: :)
-:Docstrings: :(
+:Docstrings: :)
 :Tests:    :)
-:Examples: :(
+:Examples: :)
 :RepositoryActivity: :(
 :CI:       :(
 :END:
 
-I use this library in few of my projects. It is much like Python's
+I use this library in a few of my projects. It is much like Python's
 [[https://docs.python.org/3/library/pickle.html][pickle module]], but a lot more extensible.
 
 CL-Store is able to store and restore back almost any Lisp object.
@@ -64,11 +64,11 @@ CL-Store can be extended. Originally it also provided a backend to
 serialize data into the XML. But now this backend is considered as
 deprecated.
 
-Previosly I didn't write a backends for CL-Store, but today I found in
-it's docs an example, [[https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19][how to write a backend]], compatible with  Python's
+Previously I didn't write backends for CL-Store, but today I found in
+its docs an example, [[https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19][how to write a backend]], compatible with  Python's
 pickle.
 
-Documentation is 13 years old, lets we if we'll be able to reproduce it!
+Documentation is 13 years old, let's see if we'll be able to reproduce it!
 
 First, we need to define a new backend:
 
@@ -117,19 +117,100 @@ POFTHEDAY> (cl-store:defbackend pickle
 #+end_src
 
 Now we can use ~defstore-pickle~ and ~defrestore-pickle~ macroses to define
-rules for processing of different data types:
+rules for the processing of different data types.
 
+Here is where all real work is done:
 
+#+begin_src lisp
 
-#+begin_src python
+POFTHEDAY> (defvar *pickle-mapping*
+             '((#\S . string))
+             "A mapping from Pickle's char codes
+              to a Lisp data type")
 
-In [1]: with open('/tmp/word.pickle', 'bw') as f:
-   ...:     pickle.dump('Hello Lisp World!', f)
-   ...:
+POFTHEDAY> (defmethod cl-store:get-next-reader ((backend pickle) (stream stream))
+             "This method is responsible for recognizing what
+              type of object should be read next."
+             (let ((type-code (read-char stream)))
+               (or (cdr (assoc type-code *pickle-mapping*))
+                   (values nil (format nil "Type ~A" type-code)))))
 
-In [2]: !cat /tmp/word.pickle
-�XHello Lisp World!q.
+POFTHEDAY> (defrestore-pickle (noop stream)
+             "We'll skip unknown objects")
+
+POFTHEDAY> (defstore-pickle (obj string stream)
+             "Here is how string should be written in Pickle's format."
+             (format stream "S'~A'~%p0~%." obj))
+
+POFTHEDAY> (defrestore-pickle (string stream)
+             "And this is a code to read string back"
+             (let ((val (read-line stream)))
+               (read-line stream) ;; remove the PUSH op
+               (read-line stream) ;; remove the END op
+               (subseq val 1 (1- (length val)))))
 
 #+end_src
 
-Here are [[https://common-lisp.net/project/cl-store/docs/cl-store.html][docs on cl-store]].
+It is time to test our functions. To make this old example work, I had
+to use old Python2.7, because Python3's pickle serializes into a little
+bit different format.
+
+#+begin_src python
+
+[art@poftheday] python2.7
+
+>>> with open('/tmp/word.pickle', 'w') as f:
+...     pickle.dump('Hello Lisp World!', f, protocol=0)
+...
+>>> ^D
+
+[art@poftheday] cat /tmp/word.pickle
+S'Hello Lisp World!'
+p0
+.
+
+# Here is what I've got under Python3:
+
+In [9]: with open('/tmp/word.pickle', 'bw') as f:
+   ...:     pickle.dump('Hello Lisp World!', f, protocol=0)
+   ...:
+
+In [10]: !cat /tmp/word.pickle
+VHello Lisp World!
+p0
+.
+# This cl-store backend does not support V type code.
+# Seems, it stands for a Unicode string.
+
+#+end_src
+
+Now we can read this file from Lisp and write it back:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-store:restore #P"/tmp/word.pickle"
+                             'pickle)
+"Hello Lisp World!"
+
+POFTHEDAY> (cl-store:store "Howdy, Python!"
+                           #P"/tmp/word.pickle"
+                           'pickle)
+"Howdy, Python!"
+
+#+end_src
+
+And finally, to ensure our backend works as expected, we'll read this
+response in Python2:
+
+#+begin_src python
+
+>>> import pickle
+>>> with open('/tmp/word.pickle') as f:
+...     pickle.load(f)
+...
+'Howdy, Python!'
+
+#+end_src
+
+That is it. If you need a time-proved serialization library, check out
+the CL-Store! To extend it, just read the [[https://common-lisp.net/project/cl-store/docs/cl-store.html][docs]].
