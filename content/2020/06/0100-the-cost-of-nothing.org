@@ -1,0 +1,221 @@
+* the-cost-of-nothing :performance:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :|
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This is a library by Marco Heisig. It is convenient to use when you want
+to decide which datastructure to use or whether some function is too
+slow.
+
+Of cause, you can measure execution time with the ~time~ macro. But in
+this case you'll have to select a number of iteration and to parse
+~time~'s output and do some time manipulation.
+
+The-cost-of-nothing does everything for you. It runs given form in
+chunks, measures an execution time for each chunks, divides and
+calculates average execution time.
+
+Let's see how long does it take to access element in the hash-table.
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (time
+              (loop repeat 1000000000
+                    do (gethash :foo h))))
+Evaluation took:
+  0.271 seconds of real time
+  0.270554 seconds of total run time (0.270170 user, 0.000384 system)
+  100.00% CPU
+  597,543,804 processor cycles
+  0 bytes consed
+
+;; Now we have to calculate a speed of the
+;; single operation:
+POFTHEDAY> (/ 0.271
+              1000000000)
+2.71e-10
+
+#+end_src
+
+I had to guess a number of iteration to get meaningful execution time
+and also did some arithmetics after that.
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (the-cost-of-nothing:benchmark
+              (gethash :foo h)))
+1.11d-8
+
+;; You also can receive a human readable value:
+POFTHEDAY> (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+11.36 nanoseconds
+
+#+end_src
+
+Here we see result 11 nanoseconds, however with ~time~ macro we received
+only 0.271 nanoseconds. Probably this is because the overhead introduced
+by ~the-cost-of-nothing~. It tries to substract overhead time from the
+result, but seems it does works for very fast operations.
+
+In case if you are measuring the cost of very fast operations it is
+better to make a loop even when using the-cost-of-nothing:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (/ (the-cost-of-nothing:benchmark
+                 (loop repeat 1000
+                       do (gethash :foo h)))
+                1000))
+2.59d-10
+
+#+end_src
+
+How does ~benchmark~ macro work?
+
+It has two parameters: ~timeout~ and ~min-sample-time~. A tested form gets
+wrapped into the lambda function and executed in the loop a number of
+times to measure samples.
+
+On each iteration, the form is executed in another loop where the number
+of iterations is automatically tuned to make this inner loop run no less
+than ~min-sample-time~.
+
+After that, an everage over all sampled times is calculated and ~overhead~
+time is substracted. Overhead time is precalculated as the cost of nil
+form execution.
+
+On my system, overhead value is 2.7e-9.
+
+I tried to rewrite the function which measures a sample's time to make
+calculation more fair, but without significant result.
+
+Here is what I've got.
+
+#+begin_src lisp
+
+(defun sample-execution-time-of-thunk (thunk min-sample-time)
+  "Measure the execution time of invoking THUNK more and more often, until
+the execution time exceeds MIN-SAMPLE-TIME."
+  (declare (optimize (speed 3) (debug 1)))
+  
+  (loop with started-at of-type integer = (get-internal-run-time)
+        with run-until of-type integer = (+ started-at
+                                             (round (* min-sample-time
+                                                       internal-time-units-per-second)))
+        for iterations of-type integer = 1 then (* iterations 2)
+        summing iterations into total-iterations
+        do (loop repeat iterations
+                 do (funcall thunk))
+        when (>= (get-internal-run-time)
+                 run-until)
+          do (return (/ (- (get-internal-run-time)
+                            started-at)
+                        internal-time-units-per-second
+                        total-iterations))))
+
+#+end_src
+
+I removed a call to additional function and to
+~local-time:timestamp-difference~, but result is not much better - only
+10.71 nanoseconds.
+
+Am I missing something? Maybe compiler does some optimizations, when it
+see a gethash call in a loop which does not changes the dict?
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+10.71 nanoseconds
+
+#+end_src
+
+
+Another interesting thing about ~the-cost-of-nothing~ is that it includes
+a benchmark which measures some the cost of some common operations.
+
+Even if they are not precise, it is interesting to compare their
+relative values. Here are numbers received on my Macbook Pro.
+
+Pay attention how does cost grow for calling the function with multiple
+keyword arguments:
+
+#+begin_src lisp
+
+POFTHEDAY> (asdf:test-system :the-cost-of-nothing)
+
+= The Cost Of Nothing =
+Implementation: SBCL 2.0.2
+Machine: X86-64 Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+Hostname: art-2osx
+
+== Memory Management ==
+Cost of allocating a cons cell: 6.76 nanoseconds
+Cost of garbage collection: 10.68 milliseconds
+Cost of full garbage collection: 107.05 milliseconds
+
+== Functions ==
+FUNCALL with zero mandatory arguments: 2.71 nanoseconds
+FUNCALL with one mandatory argument: 2.68 nanoseconds
+FUNCALL with two mandatory arguments: 2.52 nanoseconds
+FUNCALL with three mandatory arguments: 2.43 nanoseconds
+FUNCALL with four mandatory arguments: 2.74 nanoseconds
+FUNCALL with five mandatory arguments: 2.62 nanoseconds
+FUNCALL with six mandatory arguments: 2.78 nanoseconds
+FUNCALL with zero optional arguments: 2.71 nanoseconds
+FUNCALL with one optional argument: 3.24 nanoseconds
+FUNCALL with two optional arguments: 3.00 nanoseconds
+FUNCALL with three optional arguments: 3.23 nanoseconds
+FUNCALL with four optional arguments: 3.09 nanoseconds
+FUNCALL with five optional arguments: 3.42 nanoseconds
+FUNCALL with six optional arguments: 3.38 nanoseconds
+FUNCALL with zero keyword arguments: 2.71 nanoseconds
+FUNCALL with one keyword argument: 5.35 nanoseconds
+FUNCALL with two keyword arguments: 5.76 nanoseconds
+FUNCALL with three keyword arguments: 8.34 nanoseconds
+FUNCALL with four keyword arguments: 12.45 nanoseconds
+FUNCALL with five keyword arguments: 14.88 nanoseconds
+FUNCALL with six keyword arguments: 17.58 nanoseconds
+FUNCALL with zero rest arguments: 2.71 nanoseconds
+FUNCALL with one rest argument: 2.65 nanoseconds
+FUNCALL with two rest arguments: 2.53 nanoseconds
+FUNCALL with three rest arguments: 2.48 nanoseconds
+FUNCALL with four rest arguments: 2.79 nanoseconds
+FUNCALL with five rest arguments: 2.91 nanoseconds
+FUNCALL with six rest arguments: 2.66 nanoseconds
+
+== Numerics ==
+Flops (single-float): 4.25 gigaflops
+Flops (double-float): 2.71 gigaflops
+
+#+end_src
+
+I think it would be great to make this library to output some statistics
+about collected samples - a number of samples, standard deviation, like
+IPython does:
+
+#+begin_src python
+
+Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.14.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: d = {'what': 42}
+
+In [2]: %timeit d['what']
+35.7 ns ± 0.405 ns per loop (mean ± std. dev. of 7 runs, 10000000 loops each)
+
+In [3]:
+
+#+end_src
