@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>the-cost-of-nothing
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>the-cost-of-nothing</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>the-cost-of-nothing<span class='tags'><a href='../../tags/performance.html'><span class='label label-default'>performance</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This is a library by Marco Heisig. It is convenient to use when you want to decide which data structure to use or whether some function is too slow.</p>
+<p>Of cause, you can measure execution time with the <code>time</code> macro. But in this case, you'll have to select a number of iteration and to parse <code>time</code>'s output and do some time manipulation.</p>
+<p>The-cost-of-nothing does everything for you. It runs given form in chunks, measures an execution time for each chunk, divides and calculates average execution time.</p>
+<p>Let's see how long does it take to access an element in the hash-table.</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+             (time
+              (loop repeat 1000000000
+                    do (gethash :foo h))))
+Evaluation took:
+  0.271 seconds of real time
+  0.270554 seconds of total run time (0.270170 user, 0.000384 system)
+  100.00% CPU
+  597,543,804 processor cycles
+  0 bytes consed
+
+;; Now we have to calculate a speed of the
+;; single operation:
+POFTHEDAY&gt; (/ 0.271
+              1000000000)
+2.71e-10</code></pre><p>I had to guess a number of iteration to get meaningful execution time and also did some arithmetics after that.</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:benchmark
+              (gethash :foo h)))
+1.11d-8
+
+;; You also can receive a human readable value:
+POFTHEDAY&gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+11.36 nanoseconds</code></pre><p>Here we see result 11 nanoseconds, however with <code>time</code> macro we received only 0.271 nanoseconds. Probably this is because the overhead introduced by <code>the-cost-of-nothing</code>. It tries to subtract overhead time from the result, but seems it does works for very fast operations.</p>
+<p>In case if you are measuring the cost of very fast operations it is better to make a loop even when using the-cost-of-nothing:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+             (/ (the-cost-of-nothing:benchmark
+                 (loop repeat 1000
+                       do (gethash :foo h)))
+                1000))
+2.59d-10</code></pre><p>How does <code>benchmark</code> macro work?</p>
+<p>It has two parameters: <code>timeout</code> and <code>min-sample-time</code>. A tested form gets wrapped into the lambda function and executed in the loop a number of times to measure samples.</p>
+<p>On each iteration, the form is executed in another loop where the number of iterations is automatically tuned to make this inner loop run no less than <code>min-sample-time</code>.</p>
+<p>After that, an average overall sampled times is calculated and <code>overhead</code> time is subtracted. Overhead time is precalculated as the cost of nil form execution.</p>
+<p>On my system, overhead value is 2.7e-9.</p>
+<p>I tried to rewrite the function which measures a sample's time to make the calculation fairer, but without significant result.</p>
+<p>Here is what I've got:</p>
+<pre><code class=' lisp'>(defun sample-execution-time-of-thunk (thunk min-sample-time)
+  &quot;Measure the execution time of invoking THUNK more and more often, until
+the execution time exceeds MIN-SAMPLE-TIME.&quot;
+  (declare (optimize (speed 3) (debug 1)))
+  
+  (loop with started-at of-type integer = (get-internal-run-time)
+        with run-until of-type integer = (+ started-at
+                                             (round (* min-sample-time
+                                                       internal-time-units-per-second)))
+        for iterations of-type integer = 1 then (* iterations 2)
+        summing iterations into total-iterations
+        do (loop repeat iterations
+                 do (funcall thunk))
+        when (&gt;= (get-internal-run-time)
+                 run-until)
+          do (return (/ (- (get-internal-run-time)
+                            started-at)
+                        internal-time-units-per-second
+                        total-iterations))))</code></pre><p>I removed a call to an additional function and to <code>local-time:timestamp-difference</code>, but result is not much better - only 10.71 nanoseconds.</p>
+<p>Am I missing something? Maybe compiler does some optimizations, when it sees a gethash call in a loop which does not change the dict?</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+10.71 nanoseconds</code></pre><p>Another interesting thing about <code>the-cost-of-nothing</code> is that it includes a benchmark which measures some the cost of some common operations.</p>
+<p>Even if they are not precise, it is interesting to compare their relative values. Here are numbers received on my Macbook Pro.</p>
+<p>Pay attention to how does cost grow for calling the function with multiple keyword arguments:</p>
+<pre><code class=' lisp'>POFTHEDAY&gt; (asdf:test-system :the-cost-of-nothing)
+
+= The Cost Of Nothing =
+Implementation: SBCL 2.0.2
+Machine: X86-64 Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+Hostname: art-2osx
+
+== Memory Management ==
+Cost of allocating a cons cell: 6.76 nanoseconds
+Cost of garbage collection: 10.68 milliseconds
+Cost of full garbage collection: 107.05 milliseconds
+
+== Functions ==
+FUNCALL with zero mandatory arguments: 2.71 nanoseconds
+FUNCALL with one mandatory argument: 2.68 nanoseconds
+FUNCALL with two mandatory arguments: 2.52 nanoseconds
+FUNCALL with three mandatory arguments: 2.43 nanoseconds
+FUNCALL with four mandatory arguments: 2.74 nanoseconds
+FUNCALL with five mandatory arguments: 2.62 nanoseconds
+FUNCALL with six mandatory arguments: 2.78 nanoseconds
+FUNCALL with zero optional arguments: 2.71 nanoseconds
+FUNCALL with one optional argument: 3.24 nanoseconds
+FUNCALL with two optional arguments: 3.00 nanoseconds
+FUNCALL with three optional arguments: 3.23 nanoseconds
+FUNCALL with four optional arguments: 3.09 nanoseconds
+FUNCALL with five optional arguments: 3.42 nanoseconds
+FUNCALL with six optional arguments: 3.38 nanoseconds
+FUNCALL with zero keyword arguments: 2.71 nanoseconds
+FUNCALL with one keyword argument: 5.35 nanoseconds
+FUNCALL with two keyword arguments: 5.76 nanoseconds
+FUNCALL with three keyword arguments: 8.34 nanoseconds
+FUNCALL with four keyword arguments: 12.45 nanoseconds
+FUNCALL with five keyword arguments: 14.88 nanoseconds
+FUNCALL with six keyword arguments: 17.58 nanoseconds
+FUNCALL with zero rest arguments: 2.71 nanoseconds
+FUNCALL with one rest argument: 2.65 nanoseconds
+FUNCALL with two rest arguments: 2.53 nanoseconds
+FUNCALL with three rest arguments: 2.48 nanoseconds
+FUNCALL with four rest arguments: 2.79 nanoseconds
+FUNCALL with five rest arguments: 2.91 nanoseconds
+FUNCALL with six rest arguments: 2.66 nanoseconds
+
+== Numerics ==
+Flops (single-float): 4.25 gigaflops
+Flops (double-float): 2.71 gigaflops</code></pre><p>I think it would be great to make this library to output some statistics about collected samples - a number of samples, standard deviation, like IPython does:</p>
+<pre><code class=' python'>Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type &#039;copyright&#039;, &#039;credits&#039; or &#039;license&#039; for more information
+IPython 7.14.0 -- An enhanced Interactive Python. Type &#039;?&#039; for help.
+
+In [1]: d = {&#039;what&#039;: 42}
+
+In [2]: %timeit d[&#039;what&#039;]
+35.7 ns &#xB1; 0.405 ns per loop (mean &#xB1; std. dev. of 7 runs, 10000000 loops each)
+
+In [3]:</code></pre>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

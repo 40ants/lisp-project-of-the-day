@@ -6,6 +6,135 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>the-cost-of-nothing</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0100-the-cost-of-nothing.html</link>
+            <description>&lt;p&gt;This is a library by Marco Heisig. It is convenient to use when you want to decide which data structure to use or whether some function is too slow.&lt;/p&gt;
+&lt;p&gt;Of cause, you can measure execution time with the &lt;code&gt;time&lt;/code&gt; macro. But in this case, you&apos;ll have to select a number of iteration and to parse &lt;code&gt;time&lt;/code&gt;&apos;s output and do some time manipulation.&lt;/p&gt;
+&lt;p&gt;The-cost-of-nothing does everything for you. It runs given form in chunks, measures an execution time for each chunk, divides and calculates average execution time.&lt;/p&gt;
+&lt;p&gt;Let&apos;s see how long does it take to access an element in the hash-table.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+             (time
+              (loop repeat 1000000000
+                    do (gethash :foo h))))
+Evaluation took:
+  0.271 seconds of real time
+  0.270554 seconds of total run time (0.270170 user, 0.000384 system)
+  100.00% CPU
+  597,543,804 processor cycles
+  0 bytes consed
+
+;; Now we have to calculate a speed of the
+;; single operation:
+POFTHEDAY&amp;gt; (/ 0.271
+              1000000000)
+2.71e-10&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I had to guess a number of iteration to get meaningful execution time and also did some arithmetics after that.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:benchmark
+              (gethash :foo h)))
+1.11d-8
+
+;; You also can receive a human readable value:
+POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+11.36 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here we see result 11 nanoseconds, however with &lt;code&gt;time&lt;/code&gt; macro we received only 0.271 nanoseconds. Probably this is because the overhead introduced by &lt;code&gt;the-cost-of-nothing&lt;/code&gt;. It tries to subtract overhead time from the result, but seems it does works for very fast operations.&lt;/p&gt;
+&lt;p&gt;In case if you are measuring the cost of very fast operations it is better to make a loop even when using the-cost-of-nothing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+             (/ (the-cost-of-nothing:benchmark
+                 (loop repeat 1000
+                       do (gethash :foo h)))
+                1000))
+2.59d-10&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;How does &lt;code&gt;benchmark&lt;/code&gt; macro work?&lt;/p&gt;
+&lt;p&gt;It has two parameters: &lt;code&gt;timeout&lt;/code&gt; and &lt;code&gt;min-sample-time&lt;/code&gt;. A tested form gets wrapped into the lambda function and executed in the loop a number of times to measure samples.&lt;/p&gt;
+&lt;p&gt;On each iteration, the form is executed in another loop where the number of iterations is automatically tuned to make this inner loop run no less than &lt;code&gt;min-sample-time&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;After that, an average overall sampled times is calculated and &lt;code&gt;overhead&lt;/code&gt; time is subtracted. Overhead time is precalculated as the cost of nil form execution.&lt;/p&gt;
+&lt;p&gt;On my system, overhead value is 2.7e-9.&lt;/p&gt;
+&lt;p&gt;I tried to rewrite the function which measures a sample&apos;s time to make the calculation fairer, but without significant result.&lt;/p&gt;
+&lt;p&gt;Here is what I&apos;ve got:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun sample-execution-time-of-thunk (thunk min-sample-time)
+  &amp;quot;Measure the execution time of invoking THUNK more and more often, until
+the execution time exceeds MIN-SAMPLE-TIME.&amp;quot;
+  (declare (optimize (speed 3) (debug 1)))
+  
+  (loop with started-at of-type integer = (get-internal-run-time)
+        with run-until of-type integer = (+ started-at
+                                             (round (* min-sample-time
+                                                       internal-time-units-per-second)))
+        for iterations of-type integer = 1 then (* iterations 2)
+        summing iterations into total-iterations
+        do (loop repeat iterations
+                 do (funcall thunk))
+        when (&amp;gt;= (get-internal-run-time)
+                 run-until)
+          do (return (/ (- (get-internal-run-time)
+                            started-at)
+                        internal-time-units-per-second
+                        total-iterations))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I removed a call to an additional function and to &lt;code&gt;local-time:timestamp-difference&lt;/code&gt;, but result is not much better - only 10.71 nanoseconds.&lt;/p&gt;
+&lt;p&gt;Am I missing something? Maybe compiler does some optimizations, when it sees a gethash call in a loop which does not change the dict?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+             (the-cost-of-nothing:bench
+              (gethash :foo h)))
+10.71 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting thing about &lt;code&gt;the-cost-of-nothing&lt;/code&gt; is that it includes a benchmark which measures some the cost of some common operations.&lt;/p&gt;
+&lt;p&gt;Even if they are not precise, it is interesting to compare their relative values. Here are numbers received on my Macbook Pro.&lt;/p&gt;
+&lt;p&gt;Pay attention to how does cost grow for calling the function with multiple keyword arguments:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf:test-system :the-cost-of-nothing)
+
+= The Cost Of Nothing =
+Implementation: SBCL 2.0.2
+Machine: X86-64 Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+Hostname: art-2osx
+
+== Memory Management ==
+Cost of allocating a cons cell: 6.76 nanoseconds
+Cost of garbage collection: 10.68 milliseconds
+Cost of full garbage collection: 107.05 milliseconds
+
+== Functions ==
+FUNCALL with zero mandatory arguments: 2.71 nanoseconds
+FUNCALL with one mandatory argument: 2.68 nanoseconds
+FUNCALL with two mandatory arguments: 2.52 nanoseconds
+FUNCALL with three mandatory arguments: 2.43 nanoseconds
+FUNCALL with four mandatory arguments: 2.74 nanoseconds
+FUNCALL with five mandatory arguments: 2.62 nanoseconds
+FUNCALL with six mandatory arguments: 2.78 nanoseconds
+FUNCALL with zero optional arguments: 2.71 nanoseconds
+FUNCALL with one optional argument: 3.24 nanoseconds
+FUNCALL with two optional arguments: 3.00 nanoseconds
+FUNCALL with three optional arguments: 3.23 nanoseconds
+FUNCALL with four optional arguments: 3.09 nanoseconds
+FUNCALL with five optional arguments: 3.42 nanoseconds
+FUNCALL with six optional arguments: 3.38 nanoseconds
+FUNCALL with zero keyword arguments: 2.71 nanoseconds
+FUNCALL with one keyword argument: 5.35 nanoseconds
+FUNCALL with two keyword arguments: 5.76 nanoseconds
+FUNCALL with three keyword arguments: 8.34 nanoseconds
+FUNCALL with four keyword arguments: 12.45 nanoseconds
+FUNCALL with five keyword arguments: 14.88 nanoseconds
+FUNCALL with six keyword arguments: 17.58 nanoseconds
+FUNCALL with zero rest arguments: 2.71 nanoseconds
+FUNCALL with one rest argument: 2.65 nanoseconds
+FUNCALL with two rest arguments: 2.53 nanoseconds
+FUNCALL with three rest arguments: 2.48 nanoseconds
+FUNCALL with four rest arguments: 2.79 nanoseconds
+FUNCALL with five rest arguments: 2.91 nanoseconds
+FUNCALL with six rest arguments: 2.66 nanoseconds
+
+== Numerics ==
+Flops (single-float): 4.25 gigaflops
+Flops (double-float): 2.71 gigaflops&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I think it would be great to make this library to output some statistics about collected samples - a number of samples, standard deviation, like IPython does:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type &amp;#039;copyright&amp;#039;, &amp;#039;credits&amp;#039; or &amp;#039;license&amp;#039; for more information
+IPython 7.14.0 -- An enhanced Interactive Python. Type &amp;#039;?&amp;#039; for help.
+
+In [1]: d = {&amp;#039;what&amp;#039;: 42}
+
+In [2]: %timeit d[&amp;#039;what&amp;#039;]
+35.7 ns &amp;#xB1; 0.405 ns per loop (mean &amp;#xB1; std. dev. of 7 runs, 10000000 loops each)
+
+In [3]:&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Mon, 15 Jun 2020 22:19:19 +0300</pubDate>
+        </item>
+        <item>
             <title>teddy</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0099-teddy.html</link>
             <description>&lt;p&gt;I always wanted to work from Common Lisp with data like we do in Python. That is how does Teddy born.&lt;/p&gt;
@@ -1581,94 +1710,6 @@ POFTHEDAY&amp;gt; (ppcre:regex-replace-all
 &amp;quot;Hll, Lspr! Hw r y?&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Isn&apos;t this cool!? 🤪&lt;/p&gt;
 </description>
             <pubDate>Wed, 27 May 2020 20:38:40 +0300</pubDate>
-        </item>
-        <item>
-            <title>jose</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0080-jose.html</link>
-            <description>&lt;p&gt;JOSE is an implementation of &lt;a href=&quot;https://datatracker.ietf.org/wg/jose/documents/&quot;&gt;Javascript Object Signing and Encryption&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;@nitro_idiot&apos;s&lt;/a&gt; library implements a &lt;a href=&quot;https://tools.ietf.org/html/rfc7515&quot;&gt;JSON Web Signature&lt;/a&gt; and allows to encode, decode and inspect JWT tokens.&lt;/p&gt;
-&lt;p&gt;JOSE can be useful to implement signed token exchange between microservices.&lt;/p&gt;
-&lt;p&gt;I found a &lt;a href=&quot;https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3&quot;&gt;great article on what JWT, JWS and JWE are&lt;/a&gt;. Read it you want more about them. To demonstrate, how does token inspection work, I took a JWT token from the article and parsed it with Common Lisp JOSE:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (jose/jwt:inspect-token
-            &amp;quot;eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc4YjRjZjIzNjU2ZGMzOTUzNjRmMWI2YzAyOTA3NjkxZjJjZGZmZTEifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEwNTAyMjUxMTU4OTIwMTQ3NzMyIiwiYXpwIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiZW1haWwiOiJwcmFiYXRoQHdzbzIuY29tIiwiYXRfaGFzaCI6InpmODZ2TnVsc0xCOGdGYXFSd2R6WWciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXVkIjoiODI1MjQ5ODM1NjU5LXRlOHFnbDcwMWtnb25ub21ucDRzcXY3ZXJodTEyMTFzLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiaGQiOiJ3c28yLmNvbSIsImlhdCI6MTQwMTkwODI3MSwiZXhwIjoxNDAxOTEyMTcxfQ.TVKv-pdyvk2gW8sGsCbsnkqsrS0T-H00xnY6ETkIfgIxfotvFn5IwKm3xyBMpy0FFe0Rb5Ht8AEJV6PdWyxz8rMgX2HROWqSo_RfEfUpBb4iOsq4W28KftW5H0IA44VmNZ6zU4YTqPSt4TPhyFC9fP2D_Hg7JQozpQRUfbWTJI&amp;quot;)
-
-((&amp;quot;exp&amp;quot; . 1401912171) (&amp;quot;iat&amp;quot; . 1401908271) (&amp;quot;hd&amp;quot; . &amp;quot;wso2.com&amp;quot;)
- (&amp;quot;aud&amp;quot;
-  . &amp;quot;825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com&amp;quot;)
- (&amp;quot;email_verified&amp;quot; . T) (&amp;quot;at_hash&amp;quot; . &amp;quot;zf86vNulsLB8gFaqRwdzYg&amp;quot;)
- (&amp;quot;email&amp;quot; . &amp;quot;prabath@wso2.com&amp;quot;)
- (&amp;quot;azp&amp;quot;
-  . &amp;quot;825249835659-te8qgl701kgonnomnp4sqv7erhu1211s.apps.googleusercontent.com&amp;quot;)
- (&amp;quot;sub&amp;quot; . &amp;quot;110502251158920147732&amp;quot;) (&amp;quot;iss&amp;quot; . &amp;quot;accounts.google.com&amp;quot;))
-
-((&amp;quot;alg&amp;quot; . &amp;quot;RS256&amp;quot;) (&amp;quot;kid&amp;quot; . &amp;quot;78b4cf23656dc395364f1b6c02907691f2cdffe1&amp;quot;))
-
-#(77 82 175 250 151 114 190 77 160 91 203 6 176 38 236 158 74 172 173 45 19 248
-  125 52 198 118 58 17 57 8 126 2 49 126 139 111 22 126 72 192 169 183 199 32
-  76 167 45 5 21 237 17 111 145 237 240 1 9 87 163 221 91 44 115 242 179 32 95
-  97 209 57 106 146 163 244 95 17 245 41 5 190 34 58 202 184 91 111 10 126 213
-  185 31 66 0 227 133 102 53 158 179 83 134 19 168 244 173 225 51 225 200 80
-  189 124 253 131 252 120 59 37 10 51 165 4 84 125 181 147 36)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Inspect returns payload, headers and the signature.&lt;/p&gt;
-&lt;p&gt;There are also two methods &lt;code&gt;encode&lt;/code&gt; and &lt;code&gt;decode&lt;/code&gt;. Here is how we can use them to issue and verify JWT token:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter
-               *secret* (ironclad:ascii-string-to-byte-array
-                         &amp;quot;I Love Common Lisp!&amp;quot;))
-
-POFTHEDAY&amp;gt; (defparameter
-               *token*
-             (jose:encode :hs256 *secret*
-                          &amp;#039;((&amp;quot;user&amp;quot;  . &amp;quot;Bob&amp;quot;)
-                            (&amp;quot;email&amp;quot; . &amp;quot;bob@gmail.com&amp;quot;))))
-
-;; Now this token can be sent to the authenticated
-;; user so that user can pass it back during API calls:
-POFTHEDAY&amp;gt; *token*
-&amp;quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiQm9iIiwiZW1haWwiOiJib2JAZ21haWwuY29tIn0.NLgg5RxlKDNqw1cqFU0_HysIu-zO7JBYUQN2IZF6c6w&amp;quot;
-
-;; And when we&amp;#039;ll receive such API call,
-;; we can know who this user is.
-POFTHEDAY&amp;gt; (jose:decode :hs256 *secret*
-                        *token*)
-((&amp;quot;user&amp;quot; . &amp;quot;Bob&amp;quot;) (&amp;quot;email&amp;quot; . &amp;quot;bob@gmail.com&amp;quot;))
-((&amp;quot;alg&amp;quot; . &amp;quot;HS256&amp;quot;) (&amp;quot;typ&amp;quot; . &amp;quot;JWT&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A cool feature of JWT token is that it is signed and you can trust the payload&apos;s content. Let&apos;s pretend, that Bob is the &quot;evil hacker&quot; who wants to get access to another account.&lt;/p&gt;
-&lt;p&gt;To do this, Bob will modify payload and use header and sign from the original token:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun replace-payload (token new-payload)
-             (rutils:with (((original-header rutils:_ original-sign)
-                            (str:split &amp;quot;.&amp;quot; token))
-                           (json-payload
-                            (jonathan:to-json new-payload :from :alist))
-                           (new-encoded-payload
-                            (jose/base64:base64url-encode json-payload)))
-               (str:join &amp;quot;.&amp;quot;
-                         (list original-header
-                               new-encoded-payload
-                               original-sign))))
-
-POFTHEDAY&amp;gt; (defparameter *new-token*
-             (replace-payload *token*
-                              &amp;#039;((&amp;quot;user&amp;quot;  . &amp;quot;Alice&amp;quot;)
-                                (&amp;quot;email&amp;quot; . &amp;quot;alice@wonderland.in&amp;quot;))))
-
-;; Now we&amp;#039;ll try to decode token on the server-side
-;; and receive error from JOSE:
-POFTHEDAY&amp;gt; (jose:decode :hs256 *secret*
-                        *new-token*)
-; Debugger entered on #&amp;lt;JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}&amp;gt;
-[1] POFTHEDAY&amp;gt; 
-; Evaluation aborted on #&amp;lt;JOSE/ERRORS:JWS-VERIFICATION-ERROR {1005C37033}&amp;gt;
-
-;; But we still can inspect bad token because
-;; it&amp;#039;s content is not encrypted:
-POFTHEDAY&amp;gt; (jose:inspect-token *new-token*)
-
-((&amp;quot;email&amp;quot; . &amp;quot;alice@wonderland.in&amp;quot;) (&amp;quot;user&amp;quot; . &amp;quot;Alice&amp;quot;))
-
-((&amp;quot;alg&amp;quot; . &amp;quot;HS256&amp;quot;) (&amp;quot;typ&amp;quot; . &amp;quot;JWT&amp;quot;))
-
-#(52 184 32 229 28 101 40 51 106 195 87 42 21 77 63 31 43 8 187 236 206 236 144
-  88 81 3 118 33 145 122 115 172)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;BTW, as you can see, tokens are not encoded, they are signed. Because of that, you should pass them only over encrypted channels.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 26 May 2020 19:53:38 +0300</pubDate>
         </item>
     </channel>
 </rss>

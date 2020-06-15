@@ -9,18 +9,18 @@
 :END:
 
 This is a library by Marco Heisig. It is convenient to use when you want
-to decide which datastructure to use or whether some function is too
+to decide which data structure to use or whether some function is too
 slow.
 
 Of cause, you can measure execution time with the ~time~ macro. But in
-this case you'll have to select a number of iteration and to parse
+this case, you'll have to select a number of iteration and to parse
 ~time~'s output and do some time manipulation.
 
 The-cost-of-nothing does everything for you. It runs given form in
-chunks, measures an execution time for each chunks, divides and
+chunks, measures an execution time for each chunk, divides and
 calculates average execution time.
 
-Let's see how long does it take to access element in the hash-table.
+Let's see how long does it take to access an element in the hash-table.
 
 #+begin_src lisp
 
@@ -63,7 +63,7 @@ POFTHEDAY> (let ((h (make-hash-table)))
 
 Here we see result 11 nanoseconds, however with ~time~ macro we received
 only 0.271 nanoseconds. Probably this is because the overhead introduced
-by ~the-cost-of-nothing~. It tries to substract overhead time from the
+by ~the-cost-of-nothing~. It tries to subtract overhead time from the
 result, but seems it does works for very fast operations.
 
 In case if you are measuring the cost of very fast operations it is
@@ -90,16 +90,16 @@ On each iteration, the form is executed in another loop where the number
 of iterations is automatically tuned to make this inner loop run no less
 than ~min-sample-time~.
 
-After that, an everage over all sampled times is calculated and ~overhead~
-time is substracted. Overhead time is precalculated as the cost of nil
+After that, an average overall sampled times is calculated and ~overhead~
+time is subtracted. Overhead time is precalculated as the cost of nil
 form execution.
 
 On my system, overhead value is 2.7e-9.
 
 I tried to rewrite the function which measures a sample's time to make
-calculation more fair, but without significant result.
+the calculation fairer, but without significant result.
 
-Here is what I've got.
+Here is what I've got:
 
 #+begin_src lisp
 
@@ -125,12 +125,12 @@ the execution time exceeds MIN-SAMPLE-TIME."
 
 #+end_src
 
-I removed a call to additional function and to
+I removed a call to an additional function and to
 ~local-time:timestamp-difference~, but result is not much better - only
 10.71 nanoseconds.
 
 Am I missing something? Maybe compiler does some optimizations, when it
-see a gethash call in a loop which does not changes the dict?
+sees a gethash call in a loop which does not change the dict?
 
 #+begin_src lisp
 
@@ -148,7 +148,7 @@ a benchmark which measures some the cost of some common operations.
 Even if they are not precise, it is interesting to compare their
 relative values. Here are numbers received on my Macbook Pro.
 
-Pay attention how does cost grow for calling the function with multiple
+Pay attention to how does cost grow for calling the function with multiple
 keyword arguments:
 
 #+begin_src lisp
