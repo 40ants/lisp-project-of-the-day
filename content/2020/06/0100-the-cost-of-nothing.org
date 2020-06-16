@@ -219,3 +219,43 @@ In [2]: %timeit d['what']
 In [3]:
 
 #+end_src
+
+* Update
+
+As @guicho271828 [[https://twitter.com/guicho271828/status/1272616501187678209][noted]], SBCL is able to figure out that gethash's
+results aren't used in the loop and optimizes it away.
+
+I've checked this hypothesis, and with ~gethash~ wrapped with a function
+results of "time" macro and "benchmark" macro are the same:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun get-value (h)
+             (gethash :foo h))
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (time
+              (loop repeat 1000000000
+                    do (get-value h))))
+Evaluation took:
+  12.968 seconds of real time
+  12.966402 seconds of total run time (12.958497 user, 0.007905 system)
+  99.98% CPU
+  28,634,122,802 processor cycles
+  0 bytes consed
+  
+POFTHEDAY> (/ 12.968
+              1000000000)
+1.2968e-8
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (the-cost-of-nothing:benchmark
+              (get-value h)))
+1.1339696e-8
+
+POFTHEDAY> (let ((h (make-hash-table)))
+             (the-cost-of-nothing:benchmark
+              (gethash :foo h)))
+1.0396756e-8
+
+#+end_src

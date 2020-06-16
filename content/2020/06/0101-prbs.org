@@ -12,8 +12,8 @@
 for error detection in communication streams. It will be useful, if you
 are building own protocol over UDP, for example.
 
-Here is how it works. There are is a function which creates a sequence
-generator. It's result is a lambda function which can return a requested
+Here is how it works. There is a function which creates a sequence
+generator. Its result is a lambda function which can return a requested
 number of random bits:
 
 #+begin_src lisp
@@ -32,7 +32,7 @@ POFTHEDAY> (funcall *generator* 10)
 
 #+end_src
 
-There is also a function to check if these pieces match desired
+There is also a function to check if these pieces match the desired
 sequence. It should be used on the "receiver" to check if the message
 was corrupted or some packets were lost.
 
@@ -76,11 +76,11 @@ RECEIVER> (funcall *tracker*
 #+end_src
 
 In case of found errors, ~tracker~ returns their number as the first
-value. Second value is the total number of processed bits. This way we
-can calculate an error rate. In this case tracker decided there are 520
+value. The second value is the total number of processed bits. This way we
+can calculate an error rate. In this case, tracker decided there are 520
 bits which have wrong values.
 
-Let's simulate a another situation, when it received the second chunk,
+Let's simulate another situation when it received the second chunk,
 but 10 bits were corrupted and their value was flipped:
 
 #+begin_src lisp
