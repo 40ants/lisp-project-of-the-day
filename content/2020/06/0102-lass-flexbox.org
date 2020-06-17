@@ -1,0 +1,125 @@
+* lass-flexbox :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This is an addon to the ~lass~ library, reviewed in [[https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html][#0021 post]].
+~Lass-flexbox~ adds to ~lass~ an ability to expand Flexbox CSS properties
+into browser-specific vendor prefixes:
+
+#+begin_src lisp
+
+POFTHEDAY> (lass:compile-and-write
+            '(.container :flexbox
+              (.item :align-self "center")))
+".container{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.container .item{
+    -webkit-align-self: center;
+    -moz-align-self: center;
+    -ms-flex-item-align: center;
+    align-self: center;
+}"
+
+#+end_src
+
+I found a great [[https://css-tricks.com/snippets/css/a-guide-to-flexbox/][illustrated article]] on how does Flexbox works and now
+we'll try to reproduce some layout from this article:
+
+#+begin_src lisp
+
+POFTHEDAY> (format t "<style>~A</style>
+                      <div class=\"example\">
+                        <div class=\"item\">One</div>
+                        <div class=\"item\">Two</div>
+                        <div class=\"item\">Three</div>
+                      </div>
+                     "
+                   (lass:compile-and-write
+                    '(.example
+                      :flexbox
+                      :align-items "flex-end"
+                      :justify-content "space-around"
+                      :border 1px solid gray
+                      (.item :margin 0.5rem
+                             :padding 0.5rem)
+                      ((:and .item (:nth-child 1))
+                       :background lime
+                       :flex 1
+                       :height 30px)
+                      ((:and .item (:nth-child 2))
+                       :background orange
+                       :flex 2
+                       :height 70px)
+                      ((:and .item (:nth-child 3))
+                       :background purple
+                       :flex 3
+                       :height 50px))))
+
+#+end_src
+
+This lisp code will generate us these CSS and HTML:
+
+#+begin_src html :render
+
+<style>.example{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+    -webkit-align-items: flex-end;
+    -moz-align-items: flex-end;
+    align-items: flex-end;
+    -ms-flex-pack: distribute;
+    -webkit-justify-content: space-around;
+    -moz-justify-content: space-around;
+    justify-content: space-around;
+    border: 1px solid gray;
+}
+
+.example .item{
+    margin: 0.5rem;
+    padding: 0.5rem;
+}
+
+.example .item:nth-child(1){
+    background: lime;
+    flex: 1;
+    height: 30px;
+}
+
+.example .item:nth-child(2){
+    background: orange;
+    flex: 2;
+    height: 70px;
+}
+
+.example .item:nth-child(3){
+    background: purple;
+    flex: 3;
+    height: 50px;
+}</style>
+
+<div class="example">
+  <div class="item">One</div>
+  <div class="item">Two</div>
+  <div class="item">Three</div>
+</div>
+
+#+end_src
+
+Exciting, isn't it!?
