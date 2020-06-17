@@ -22,6 +22,7 @@ Twitter account svetlyak40wt]].
 - 14 June - [[content/2020/06/0099-teddy.org][teddy]] ([[https://twitter.com/svetlyak40wt/status/1272258802683916288][twitter]])
 - 15 June - [[content/2020/06/0100-the-cost-of-nothing.org][the-cost-of-nothing]] ([[https://twitter.com/svetlyak40wt/status/1272611434422304768][twitter]])
 - 16 June - [[content/2020/06/0101-prbs.org][prbs]] ([[https://twitter.com/svetlyak40wt/status/1272974146218201088][twitter]])
+- 17 June - [[content/2020/06/0102-lass-flexbox.org][lass-flexbox]]
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
