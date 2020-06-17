@@ -56,7 +56,7 @@ h1 .tags {
 <p>But :pango-markup is not a parser, it's purpose is to render text and attributes into this format.</p>
 <p>You should provide it a plain text and a separate list of regions with attributes.</p>
 <p>For example, is we would like to make the word "Bob" in "Hello Bob!", then we need to do:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (pango-markup:markup-regions
+<pre><code class='lisp'>POFTHEDAY&gt; (pango-markup:markup-regions
             &quot;Hello Bob!&quot;
             &#039;((6 9 :font (:weight :bold))))
 &quot;Hello &lt;span font_weight=&#039;bold&#039;&gt;Bob&lt;/span&gt;!&quot;

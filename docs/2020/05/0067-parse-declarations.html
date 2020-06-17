@@ -53,7 +53,7 @@ h1 .tags {
 <p>I wasn't able to imagine a good enough example, but luckily, this library has <a href="https://common-lisp.net/project/parse-declarations/manual/html_node/Examples.html#Examples">great documentation</a> and I stole this example from it.</p>
 <p>It is an analogue of the standard <code>let*</code> form which expands into multiple <code>let</code> forms. Maybe you know, <code>let*</code> can have declarations inside. But to process them correctly, you need to place a declaration related to each variable into its own <code>let</code> form.</p>
 <p>Here is how this can be done with <code>parse-declarations</code>:</p>
-<pre><code class=' lisp'>;; System and package names are different:
+<pre><code class='lisp'>;; System and package names are different:
 POFTHEDAY&gt; (ql:quickload :parse-declarations-1.0)
 
 POFTHEDAY&gt; (import &#039;(tcr.parse-declarations-1.0::parse-body
@@ -86,7 +86,7 @@ POFTHEDAY&gt; (defmacro custom-let* (bindings &amp;body body &amp;environment ma
             (generate-nested-lets (mapcar #&#039;normalize-binding bindings)))))))</code></pre><p>Pay attention that <code>parse-body</code> function is intentionally is not exported to not conflict with <code>alexandria:parse-body</code>. Author considered that many lispers do import all alexandria's symbols into their packages.</p>
 <p>By the way, Alexandria implements only a simple version of the <code>parse-body</code> function and does not support all advanced features of <code>parse-declarations</code>.</p>
 <p>But let's see how our macro will expand!</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (custom-let* ((a 1)
+<pre><code class='lisp'>POFTHEDAY&gt; (custom-let* ((a 1)
                          (b (* a 0.01)))
              (declare (type fixnum a)
                       (type single-float b))

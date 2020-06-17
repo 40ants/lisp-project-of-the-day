@@ -53,7 +53,7 @@ h1 .tags {
 <p>Memory-mapped files are useful when you need to process a large amount of data which may not fit into the RAM. At the end I'll give a link to the article which more detail, but now let's see how it works on a small example.</p>
 <p>The main entry point is the "with-mmap-file" it opens the file and maps its content into the memory.</p>
 <p>Also, "trivial-mmap" provides few functions for sequential reads from the file by "char" or by "byte":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (trivial-mmap:with-mmap-file (file &quot;/tmp/the-file.dat&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (trivial-mmap:with-mmap-file (file &quot;/tmp/the-file.dat&quot;)
              (loop for i upto 16
                    collect (trivial-mmap:mmap-read-char file)))
 (#\H #\e #\l #\l #\o #\  #\L #\i #\s #\p #\  #\W #\o #\r #\l #\d #\!)
@@ -62,7 +62,7 @@ POFTHEDAY&gt; (coerce * &#039;string)
 <p>Usually, this technique is used by databases and image/video processing software.</p>
 <p>When using mmap, you can access the content of the file like you do with a usual memory array. But in Common Lisp, you will need to use CFFI.</p>
 <p>Here is a function which reads a "byte" from the memory-mapped file. It increments a pointer and fetches an unsigned byte from the array:</p>
-<pre><code class=' lisp'>(defun %mmap-read-byte (pointer-to-mmap-file offset)
+<pre><code class='lisp'>(defun %mmap-read-byte (pointer-to-mmap-file offset)
   &quot;Reads and returns one byte from a memory-mapped file pointed to by
 the POINTER-TO-MMAP-FILE pointer, offset by OFFSET bytes.&quot;
   (cffi:mem-aref (cffi:inc-pointer pointer-to-mmap-file offset) :uint8))</code></pre><p>On top of this, you may implement your own data structures. By the way, for serialization/deserialization you may try <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0028-cl-conspack.html">cl-conspack</a>, reviewed a week ago.</p>

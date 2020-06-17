@@ -52,7 +52,7 @@ h1 .tags {
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>data-table</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>data-table<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library provides a few methods to work with data tables. Think about it as a limited version of <a href="https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html">Pandas Dataframe</a> for Common Lisp.</p>
 <p><code>Data-table</code> abilities are really modest. For example, it does not provide methods to investigate data in the table.</p>
 <p>To overcome this limitation, we'll use another library - <code>cl-ascii-table</code> and define a <code>describe-object</code> method for data tables:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *dt*
              (make-instance &#039;data-table:data-table
                             :column-names &#039;(&quot;Name&quot; &quot;Birthday&quot; &quot;Age&quot;)
                             :rows &#039;((&quot;Bob&quot; &quot;1985-05-17&quot; 35)
@@ -87,7 +87,7 @@ POFTHEDAY&gt; (describe *dt*)
 | John  | 2000-01-03 |  20 |
 +-------+------------+-----+</code></pre><p>Now let's see what capabilities for data slicing does it have.</p>
 <p>Here is how we can retrieve columns. Pay attention, column names are case insensitive. But if case mismatch, column names of the resulting table will be different. Maybe this is a bug:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (describe
+<pre><code class='lisp'>POFTHEDAY&gt; (describe
             (data-table:select-columns *dt*
                                        &#039;(&quot;Name&quot; &quot;Age&quot;)))
 +-------+-----+
@@ -109,7 +109,7 @@ POFTHEDAY&gt; (describe
 | John  |  20 |
 +-------+-----+</code></pre><p>There is also a way to select a subtable using indices.</p>
 <p>This is how we can select contiguous columns with "Name" and "Age" labels:</p>
-<pre><code class=' lisp'>;; We have to do call this method first.
+<pre><code class='lisp'>;; We have to do call this method first.
 ;; It will fill a list of datatypes.
 ;; Without filled list of datatypes, make-sub-table will fail :(
 
@@ -125,7 +125,7 @@ POFTHEDAY&gt; (describe
 | 1989-02-23 |  31 |
 | 2000-01-03 |  20 |
 +------------+-----+</code></pre><p>If we want to select only the last two rows, then we have to do some math:</p>
-<pre><code class=' lisp'>;; In pandas.DataFrame this will be just: dt.tail(2)
+<pre><code class='lisp'>;; In pandas.DataFrame this will be just: dt.tail(2)
 ;;
 POFTHEDAY&gt; (let ((rows-count (data-table:number-of-rows *dt*)))
              (describe
@@ -139,7 +139,7 @@ POFTHEDAY&gt; (let ((rows-count (data-table:number-of-rows *dt*)))
 | John  | 2000-01-03 |  20 |
 +-------+------------+-----+</code></pre><p>Also, we can combine column selection by name with make-sub-table. But this will create an intermediate table.</p>
 <p>There is also a method <code>overlay-region</code> to combine two tables. Let's use it to add email for Genry and Mary:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *dt*
              (data-table:plists-to-data-table
               &#039;((:id 1 :name &quot;Bob&quot;)
                 (:id 2 :name &quot;Genry&quot;)
@@ -171,7 +171,7 @@ POFTHEDAY&gt; (describe *dt*)
 +------------------+-------+
 
 POFTHEDAY&gt; ;; Oh, this method modified the original table :(((</code></pre><p>To fix the issue, we need to recreate an original table and to specify indexes for applied overlay:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *dt*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *dt*
              (data-table:plists-to-data-table
               &#039;((:id 1 :name &quot;Bob&quot;)
                 (:id 2 :name &quot;Genry&quot;)

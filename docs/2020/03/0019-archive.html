@@ -53,7 +53,7 @@ h1 .tags {
 <p>It does not support gzipped or bzipped archive.</p>
 <p>I have a tar gzipped archive of the lisp system here.</p>
 <p>Attempt to read gzipped archive leads to a nasty error:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (archive:with-open-archive
+<pre><code class='lisp'>POFTHEDAY&gt; (archive:with-open-archive
                (archive
                 &quot;/tmp/archive-20160318-git.tgz&quot;
                 :direction :input)
@@ -63,7 +63,7 @@ h1 .tags {
 ; Debugger entered on #&lt;SIMPLE-ERROR &quot;Invalid byte: ~A in ~A&quot; {1004E9FE73}&gt;
 [1] POFTHEDAY&gt;</code></pre><p>We can try to use another system for working with compressed streams - "gzip-stream".</p>
 <p>Consider this snippet as a bonus. Only today we are presenting two projects of the day simultaneously! :)</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
                (archive:with-open-archive
                    (archive stream :direction :input)
                  (archive:do-archive-entries (entry archive)
@@ -88,7 +88,7 @@ h1 .tags {
 #&lt;Tar-Entry archive-20160318-git/stream.lisp&gt;
 #&lt;Tar-Entry archive-20160318-git/tar.lisp&gt;</code></pre><p>Now, how to read some file's content?</p>
 <p>Easy! Let's pretend, we need to extract asd file from the archive. We will find it and read it from the stream, provided by "archive".</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (gzip-stream:with-open-gzip-file (stream &quot;/tmp/archive-20160318-git.tgz&quot;)
              (archive:with-open-archive (archive stream :direction :input)
                (archive:do-archive-entries (entry archive)
                  (when (cl-strings:ends-with (archive:name entry)

@@ -53,7 +53,7 @@ h1 .tags {
 <p>I already reviewed the "heredoc" library providing a similar functionality:</p>
 <p><a href="http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html">http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html</a></p>
 <p>Here is how <code>pythonic-string-reader</code> can be used:</p>
-<pre><code class=' lisp'>;; Enable the syntax:
+<pre><code class='lisp'>;; Enable the syntax:
 POFTHEDAY&gt; (named-readtables:in-readtable
             pythonic-string-reader:pythonic-string-syntax)
 
@@ -80,7 +80,7 @@ POFTHEDAY&gt; (documentation &#039;FOO
                  to itself.
              &quot;</code></pre><p>Whereas <code>cl-heredoc</code> package allowed you to choose a string which will denote the end of the string literal, <code>pythonic-string-reader</code> supports only 3 or 4 double-quotes.</p>
 <p>4 double-quotes might be useful if you want to use 3 double quotes in the text:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun foo ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defun foo ()
              &quot;&quot;&quot;&quot;
              You also might enter text with 3 double quotes:
 

@@ -52,7 +52,7 @@ h1 .tags {
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-store</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-store<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a><a href='../../tags/data-formats.html'><span class='label label-default'>data-formats</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>I use this library in a few of my projects. It is much like Python's <a href="https://docs.python.org/3/library/pickle.html">pickle module</a>, but a lot more extensible.</p>
 <p>CL-Store is able to store and restore back almost any Lisp object. For example, <code>lfarm</code>, <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html">reviewed four days ago</a> uses it to serialize and deserialize parameters when executing remote jobs on the server.</p>
 <p>To demonstrate how it works, I'll create a vector of objects. Then we'll save this vector to the file and restore it back:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defclass user ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defclass user ()
              ((name :initarg :name
                     :reader user-name)))
 
@@ -76,14 +76,14 @@ POFTHEDAY&gt; (cl-store:store *users* #P&quot;/tmp/users.bin&quot;)
 ;; and to restore it back:
 POFTHEDAY&gt; (cl-store:restore #P&quot;/tmp/users.bin&quot;)
 #(#&lt;USER Bob&gt; #&lt;USER Alice&gt;)</code></pre><p>Here is the resulting file. Don't be deceived by the readable content. This is the binary format and it might contain nonreadable characters:</p>
-<pre><code class=' text'>[art@poftheday] cat /tmp/users.bin
+<pre><code class='text'>[art@poftheday] cat /tmp/users.bin
 CLCL
 #USER#  POFTHEDAY
 #NAMEBobAlice</code></pre><p>CL-Store can be extended. Originally it also provided a backend to serialize data into the XML. But now this backend is considered as deprecated.</p>
 <p>Previously I didn't write backends for CL-Store, but today I found in its docs an example, <a href="https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19">how to write a backend</a>, compatible with  Python's pickle.</p>
 <p>Documentation is 13 years old, let's see if we'll be able to reproduce it!</p>
 <p>First, we need to define a new backend:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-store:defbackend pickle
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-store:defbackend pickle
              :stream-type &#039;character)
 #&lt;PICKLE {100369EBB3}&gt;
 
@@ -123,7 +123,7 @@ CLCL
            ,@cl-store::body))))
   (cl-store::register-backend &#039;pickle &#039;pickle nil &#039;character &#039;nil &#039;nil))</code></pre><p>Now we can use <code>defstore-pickle</code> and <code>defrestore-pickle</code> macroses to define rules for the processing of different data types.</p>
 <p>Here is where all real work is done:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defvar *pickle-mapping*
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *pickle-mapping*
              &#039;((#\S . string))
              &quot;A mapping from Pickle&#039;s char codes
               to a Lisp data type&quot;)
@@ -148,7 +148,7 @@ POFTHEDAY&gt; (defrestore-pickle (string stream)
                (read-line stream) ;; remove the PUSH op
                (read-line stream) ;; remove the END op
                (subseq val 1 (1- (length val)))))</code></pre><p>It is time to test our functions. To make this old example work, I had to use old Python2.7, because Python3's pickle serializes into a little bit different format.</p>
-<pre><code class=' python'>[art@poftheday] python2.7
+<pre><code class='python'>[art@poftheday] python2.7
 
 &gt;&gt;&gt; with open(&#039;/tmp/word.pickle&#039;, &#039;w&#039;) as f:
 ...     pickle.dump(&#039;Hello Lisp World!&#039;, f, protocol=0)
@@ -172,7 +172,7 @@ p0
 .
 # This cl-store backend does not support V type code.
 # Seems, it stands for a Unicode string.</code></pre><p>Now we can read this file from Lisp and write it back:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-store:restore #P&quot;/tmp/word.pickle&quot;
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-store:restore #P&quot;/tmp/word.pickle&quot;
                              &#039;pickle)
 &quot;Hello Lisp World!&quot;
 
@@ -180,7 +180,7 @@ POFTHEDAY&gt; (cl-store:store &quot;Howdy, Python!&quot;
                            #P&quot;/tmp/word.pickle&quot;
                            &#039;pickle)
 &quot;Howdy, Python!&quot;</code></pre><p>And finally, to ensure our backend works as expected, we'll read this response in Python2:</p>
-<pre><code class=' python'>&gt;&gt;&gt; import pickle
+<pre><code class='python'>&gt;&gt;&gt; import pickle
 &gt;&gt;&gt; with open(&#039;/tmp/word.pickle&#039;) as f:
 ...     pickle.load(f)
 ...

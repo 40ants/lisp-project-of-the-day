@@ -69,7 +69,7 @@ provided by the rate monotonic manager may be used by any application
 which requires periodic tasks.</pre></blockquote>
 <p>In other words, this library is useful when you have some function which should be called exactly in desired intervals.</p>
 <p>For example, we want to do some work every 100 milliseconds. The naive approach will be:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((started-at (get-internal-real-time)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((started-at (get-internal-real-time)))
              (dotimes (i 11)
                (format t &quot;i: ~A time: ~A~%&quot;
                        i
@@ -96,7 +96,7 @@ i: 8 time: 1.286
 i: 9 time: 1.46
 i: 10 time: 1.616</code></pre><p>As you can see, all iterations took 1.6s, however, we wanted each iteration to run every 100ms, and in summary, they should take a 1s.</p>
 <p>Here is how rate-monotonic can help here:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (rm:with-timer-period () 
+<pre><code class='lisp'>POFTHEDAY&gt; (rm:with-timer-period () 
              (let ((p (rm:make-timer-period))
                    (started-at (get-internal-real-time)))
                (dotimes (i 11)

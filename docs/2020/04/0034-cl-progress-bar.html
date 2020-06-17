@@ -52,7 +52,7 @@ h1 .tags {
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-progress-bar</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-progress-bar<span class='tags'><a href='../../tags/commandline.html'><span class='label label-default'>commandline</span></a><a href='../../tags/terminal.html'><span class='label label-default'>terminal</span></a><a href='../../tags/ui.html'><span class='label label-default'>ui</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This small library provides a facility to display simple progress-bars in the REPL or command-line app.</p>
 <p>The progress bar is hidden by default and you need to set a variable to make it rendered. This can be useful in apps which can be running as a part of the UNIX pipeline.</p>
 <p>In this small example, I create a progress bar and update it in a loop:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-progress-bar:with-progress-bar
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-progress-bar:with-progress-bar
                (100 &quot;Testing the progressbar&quot;)
              (loop for i from 1 upto 100
                    do (cl-progress-bar:update 1)
@@ -61,7 +61,7 @@ h1 .tags {
 Testing the progressbar
 ==================================================
 Finished in 10.26 seconds</code></pre><p>The renderer is very simple and can be ruined by any other output, your program produce during the loop:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-progress-bar:with-progress-bar
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-progress-bar:with-progress-bar
                  (100 &quot;Testing the progressbar&quot;)
                (loop for i from 1 upto 100
                      do (cl-progress-bar:update 1)
@@ -87,7 +87,7 @@ Finished in 10.28 seconds</code></pre><p>It is interesting, is it possible to de
 <p><img style="max-width: 100%" src="https://raw.githubusercontent.com/tqdm/tqdm/master/images/tqdm.gif"/></p>
 <p>By the way, I found, this library uses <a href="http://quickdocs.org/documentation-utils/">documentation-utils</a> and keeps it's docstrings in a separate file. So, when you navigate to the function source, you will not see docstrings.</p>
 <p>But if you hit C-c C-d C-d in Emacs, it will show you this nice description:</p>
-<pre><code class=' text'>CL-PROGRESS-BAR:WITH-PROGRESS-BAR
+<pre><code class='text'>CL-PROGRESS-BAR:WITH-PROGRESS-BAR
   [symbol]
 
 WITH-PROGRESS-BAR names a macro:
@@ -111,7 +111,7 @@ WITH-PROGRESS-BAR names a macro:
      contain correct steps-count.
   Source file: /Users/art/poftheday/.qlot/...</code></pre><p>I think this is inconvenient. What do you think about this way of keeping documentation for the code?</p>
 <h2>Update on code documentation</h2><p>What if somebody create an extended defun macro which will make it possible to combine type annotations and documentation like that:</p>
-<pre><code class=' lisp'>(defun* update ((unit-count (integer 1 *)
+<pre><code class='lisp'>(defun* update ((unit-count (integer 1 *)
                             &quot;How many steps has been finished?&quot;)
                 &amp;optional
                 (progress-bar (or null cl-progress-bar.progress:progress-bar)

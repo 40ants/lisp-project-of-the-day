@@ -53,7 +53,7 @@ h1 .tags {
 <p>This review will be short because I'll reuse code from the <a href="http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html">previous post</a> and improve it by replacing four lines with only one.</p>
 <p>A system CLSS allows you to use CSS3 selectors when working with HTML nodes produced by <a href="http://40ants.com/lisp-project-of-the-day/2020/05/0072-plump.html">Plump</a>.</p>
 <p>Here is how we can improve our simple Twitter crawler:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defvar *raw-html*
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *raw-html*
              (dex:get &quot;https://twitter.com/shinmera&quot;))
 
 POFTHEDAY&gt; (defvar *html* (plump:parse *raw-html*))
@@ -85,7 +85,7 @@ POFTHEDAY&gt; (loop repeat 5
 - The AI is extremely rough still, but ...
 
 - pic.twitter.com/Cpvqytce5G</code></pre><p>As a bonus, I want to show you that <code>CLSS</code> supports even pseudoclasses:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (plump:parse &quot;
+<pre><code class='lisp'>POFTHEDAY&gt; (plump:parse &quot;
 &lt;ul&gt;
   &lt;li&gt;First item&lt;/li&gt;
   &lt;li&gt;Second item&lt;/li&gt;
@@ -100,7 +100,7 @@ POFTHEDAY&gt; (clss:select &quot;li:first-child&quot;
 
 POFTHEDAY&gt; (plump:serialize * nil)
 &quot;&lt;li&gt;First item&lt;/li&gt;&quot;</code></pre><p>Sadly, the documentation says only that it supports almost all CSS3 selectors, but don't enumerate them. However, we can learn this from sources:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (rutils:hash-table-keys
+<pre><code class='lisp'>POFTHEDAY&gt; (rutils:hash-table-keys
             clss::*pseudo-selectors*)
 (&quot;ROOT&quot; &quot;NTH-CHILD&quot; &quot;NTH-LAST-CHILD&quot; &quot;NTH-OF-TYPE&quot; &quot;NTH-LAST-OF-TYPE&quot;
  &quot;FIRST-CHILD&quot; &quot;LAST-CHILD&quot; &quot;FIRST-OF-TYPE&quot; &quot;LAST-OF-TYPE&quot; &quot;ONLY-CHILD&quot;

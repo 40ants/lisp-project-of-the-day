@@ -53,7 +53,7 @@ h1 .tags {
 <p>I've contacted Mike and he suggested two the most interesting features of "mtlisp" system.</p>
 <p>First interesting part is "ctrace". It solves the problem of interleaved output which you'll have when working with standard trace, builtin into Lisp REPL.</p>
 <p>Let's pretend we have a function we'd like to trace but it prints something to stdout and breaks our nice traces, making them hard to read:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun fib (n &amp;optional (a 0) (b 1) (acc ()))
+<pre><code class='lisp'>POFTHEDAY&gt; (defun fib (n &amp;optional (a 0) (b 1) (acc ()))
              (format t &quot;Producing fibbonachi for ~A~%&quot;
                      n)
              (if (zerop n)
@@ -89,7 +89,7 @@ Producing fibbonachi for 0
 <p>The problem is that it works only in AllegroCL, CCL and ABCL, because uses <a href="https://ccl.clozure.com/docs/ccl.html#advising">function advices</a>.</p>
 <p>I have problems with running ClozureCL and AllegroCL on latest OSX, and mtlisp depends on "acl-compat" which can't be loaded into ABCL. Also, I encounter other problems trying to load the library into ABCL :(</p>
 <p>However, I found it is possible to outcome standard trace's behaviour with rebinding *trace-output* stream:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (with-output-to-string (*trace-output*)
+<pre><code class='lisp'>POFTHEDAY&gt; (with-output-to-string (*trace-output*)
              (fib 5))
 Producing fibbonachi for 5
 Producing fibbonachi for 4
@@ -112,7 +112,7 @@ Producing fibbonachi for 0
 &quot;</code></pre><p>Another interesting feature of "mtlisp" is "closstar" package. It combines features of CLOS with its predecessor - <a href="https://en.wikipedia.org/wiki/Flavors_(programming_language)">Flavors</a>.</p>
 <p>This package is based on previous Mike's work <a href="https://github.com/navoj/clisp-c/blob/master/artificial-flavors.lisp">Artificial Flavors</a> made in 88-89 years. I was only 8 years old, when this man wrote such interesting things!</p>
 <p>Defclass* macro allows to define classes in a more concise way, almost like you do with defstruct:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (closstar:defclass* blah ()
+<pre><code class='lisp'>POFTHEDAY&gt; (closstar:defclass* blah ()
              (foo
               (bar nil)))
 #&lt;STANDARD-CLASS POFTHEDAY::BLAH&gt;
@@ -137,7 +137,7 @@ T
 POFTHEDAY&gt; (slot-value *v* &#039;bar)
 NIL</code></pre><p>Besides brevity, "defclass*" has other interesting features. Take a look at its definition to learn more.</p>
 <p>Closstar has it's own counterpart of "defmethod" - "defmethod*":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (closstar:defmethod* describe-this ((self blah))
+<pre><code class='lisp'>POFTHEDAY&gt; (closstar:defmethod* describe-this ((self blah))
              (format t &quot;A BLAH object with bar=~A~%&quot;
                      bar))
 
@@ -145,7 +145,7 @@ POFTHEDAY&gt; (describe-this *v*)
 A BLAH object with bar=NIL
 NIL</code></pre><p>What is interesting here is that inside method body you can access all object's slots without having to call slot-value or accessor explicitly.</p>
 <p>That is because "defmethod*" calls "with-slots" under the hood:</p>
-<pre><code class=' lisp'>(defmethod describe-this ((self blah))
+<pre><code class='lisp'>(defmethod describe-this ((self blah))
   (with-slots (bar foo)
       self
     (declare (ignorable bar foo))

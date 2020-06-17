@@ -53,12 +53,12 @@ h1 .tags {
 <p>To demonstrate, how it works, I've created a small example with a system which contains only one <a href="https://sass-lang.com/">Sass</a> stylesheet. Sass is a language which compiles into CSS and provides interesting features such as mixins, variables and others.</p>
 <p>To make this example work, you'll need to install <a href="https://sass-lang.com/">Sass</a> compiler.</p>
 <p>On OSX it is as simple, as doing:</p>
-<pre><code class=' bash'>brew install node-sass</code></pre><p>Next, we need to create an ASDF system definition:</p>
-<pre><code class=' lisp'>(defsystem &quot;foo&quot;
+<pre><code class='bash'>brew install node-sass</code></pre><p>Next, we need to create an ASDF system definition:</p>
+<pre><code class='lisp'>(defsystem &quot;foo&quot;
   :defsystem-depends-on (:asdf-linguist)
   :components ((:sass &quot;stylesheet&quot;)))</code></pre><p>Here we are using special component type ":sass" which is predefined by "asdf-linguist". Also, we are telling ASDF to load this extension before building our system.</p>
 <p>After that, we need to create a stylesheet. It will be hierarchical and without semicolons  because this is Sass:</p>
-<pre><code class=' css'>section {
+<pre><code class='css'>section {
     h1 {
         color: red
     }
@@ -66,30 +66,30 @@ h1 .tags {
         font-size: 2em
     }
 }</code></pre><p>Now we can load our system and we'll see how it compiles our stylesheet into the plain CSS:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (asdf:load-system :foo)
+<pre><code class='lisp'>POFTHEDAY&gt; (asdf:load-system :foo)
 ; sass stylesheet.scss stylesheet.css</code></pre><p>Here is the result:</p>
-<pre><code class=' css'>section h1 {
+<pre><code class='css'>section h1 {
   color: red;
 }
 section p {
   font-size: 2em;
 }</code></pre><p>Let's take a look at how "asdf-linguist defines a transformation which makes this magic happen!</p>
 <p>It defines a new component type with this simple call:</p>
-<pre><code class=' lisp'>(define-shell-component sass
+<pre><code class='lisp'>(define-shell-component sass
   :input-type &quot;scss&quot;
   :output-type &quot;css&quot;
   :shell-command &quot;sass&quot;)</code></pre><p>Simple, isn't it?</p>
 <p>There is also another way to define components in case if you want to write it in Lisp.</p>
 <p>Let's pretend we'd like to use a Lass instead of Sass. Lass is a lispy equivalent of Sass, I <a href="http://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html">wrote about it before</a>.</p>
 <p>To do this we'll need to define such a component:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (asdf-linguist::define-component lass
+<pre><code class='lisp'>POFTHEDAY&gt; (asdf-linguist::define-component lass
              :input-type &quot;lass&quot;
              :output-type &quot;css&quot;
              :compile-function (lambda (input-pathname output-pathname)
                       (lass:generate input-pathname
                                      :out output-pathname
                                      :pretty t)))</code></pre><p>In this case, the result will be almost the same as with Sass:</p>
-<pre><code class=' css'>section h1{
+<pre><code class='css'>section h1{
     color: red;
 }
 

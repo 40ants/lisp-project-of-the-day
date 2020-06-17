@@ -55,7 +55,7 @@ h1 .tags {
 <p><img style="max-width: 100%" src="../../media/0095/gearman-cluster.png"/></p>
 <p>A cool feature of Gearman is its language independence. Workers can be written in any language. This means that in your distributed system some functions can be written in Lisp, others in Python or even in Bash and some UNIX tools.</p>
 <p>Now we'll see how to write a simple worker in Common Lisp and call it. But first, let's start Gearman server in the Docker container:</p>
-<pre><code class=' bash'>[art@poftheday:~]% docker run --rm -p 4730:4730 artefactual/gearmand:1.1.19.1-alpine
+<pre><code class='bash'>[art@poftheday:~]% docker run --rm -p 4730:4730 artefactual/gearmand:1.1.19.1-alpine
 Unable to find image &#039;artefactual/gearmand:1.1.19.1-alpine&#039; locally
 1.1.19.1-alpine: Pulling from artefactual/gearmand
 cbdbe7a5bc2a: Pull complete
@@ -70,7 +70,7 @@ Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
    INFO 2020-06-10 13:34:35.000000 [  main ] Starting up with pid 1, verbose is set to INFO
    INFO 2020-06-10 13:34:35.000000 [  main ] Listening on 0.0.0.0:4730 (9)
    INFO 2020-06-10 13:34:35.000000 [  main ] Adding event for listening socket (9)</code></pre><p>Next, we need to start a simple worker which supports two functions. It can reverse any string and report about it's Lisp implementation:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-gearman:with-worker (worker &quot;localhost:4730&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-gearman:with-worker (worker &quot;localhost:4730&quot;)
              (cl-gearman:add-ability worker &quot;get-implementation&quot;
                                      (lambda (arg job)
                                        (declare (ignorable arg job))
@@ -82,13 +82,13 @@ Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
                                        (declare (ignorable job))
                                        (reverse arg)))
              (loop (cl-gearman:work worker)))</code></pre><p>This is how we can call these functions from the console:</p>
-<pre><code class=' bash'>[art@poftheday:~]% echo &#039;Hello Lisp World!&#039; | gearman -f reverse
+<pre><code class='bash'>[art@poftheday:~]% echo &#039;Hello Lisp World!&#039; | gearman -f reverse
 !dlroW psiL olleH
 
 [art@poftheday:~]% echo &#039;&#039; | gearman -f get-implementation
 SBCL 2.0.2</code></pre><p>This way you can communicate with the Lisp from the outer world.</p>
 <p>If we want to call these functions from other Lisp program, then we can do it like this:</p>
-<pre><code class=' lisp'>OTHER-LISP&gt; (cl-gearman:with-client (client &quot;localhost:4730&quot;)
+<pre><code class='lisp'>OTHER-LISP&gt; (cl-gearman:with-client (client &quot;localhost:4730&quot;)
               (format t &quot;~A&quot;
                       (cl-gearman:submit-job client &quot;reverse&quot;
                                              :arg &quot;Hello Lisp World!&quot;)))

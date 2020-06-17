@@ -54,7 +54,7 @@ h1 .tags {
 <ul><li>it provides useful build/startup hooks;</li><li>bundles your binary with dynamic libraries;</li><li>automatically turns on image compression for SBCL.</li></ul>
 <p>And probably something more.</p>
 <p>This is the minimal application which uses "deploy":</p>
-<pre><code class=' lisp'>;; some.asd
+<pre><code class='lisp'>;; some.asd
 (defsystem &quot;some&quot;
   :defsystem-depends-on (:deploy)
   :build-operation &quot;deploy-op&quot;
@@ -72,7 +72,7 @@ h1 .tags {
 
 (defun main ()
   (format t &quot;Hello Somebody!~%&quot;))</code></pre><p>Now we can build this application using standard "asdf:make" call. But during the build, "deploy" will be called to make its magic:</p>
-<pre><code class=' bash'>[poftheday]% qlot exec ros run --eval &#039;(asdf:make :some)&#039;
+<pre><code class='bash'>[poftheday]% qlot exec ros run --eval &#039;(asdf:make :some)&#039;
 
 ; compiling file &quot;/Users/art/poftheday/some.lisp&quot; (written 13 APR 2020 09:44:07 PM):
 ; compiling (DEFPACKAGE #:SOME ...)
@@ -101,7 +101,7 @@ total 25848
 -rwxr-xr-x  1 art  LD\Domain Users    12M Apr 13 21:45 some
 [poftheday]%</code></pre><p>As you might notice, our bin directory contains not only the "some" binary, but also two dynamic libraries it depends on. This directory is completely ready for being delivered to the end-user!</p>
 <p>This binary, it will output additional information about executed hooks and loaded libraries:</p>
-<pre><code class=' bash'>[poftheday]% bin/some
+<pre><code class='bash'>[poftheday]% bin/some
 bin/some
  ==&gt; Performing warm boot.
    -&gt; Runtime directory is //Users/art/poftheday/bin/
@@ -113,7 +113,7 @@ bin/some
 Hello Somebody!
  ==&gt; Epilogue.
  ==&gt; Running quit hooks.</code></pre><p>If you are writing a command-line application, you might want to suppress this additional output. To accomplish this, set deploy:*status-output* to nil:</p>
-<pre><code class=' bash'>[pofthedayday]% qlot exec ros run \
+<pre><code class='bash'>[pofthedayday]% qlot exec ros run \
    --eval &#039;(asdf:load-system :deploy)&#039; \
    --eval &#039;(setf deploy:*status-output* nil)&#039; \
    --eval &#039;(asdf:make :some)&#039;

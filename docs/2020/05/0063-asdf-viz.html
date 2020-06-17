@@ -53,7 +53,7 @@ h1 .tags {
 <p><code>ASDF-VIZ</code> is able to render a graph of ASDF systems. It can be installed as Unix scripts using <a href="https://github.com/roswell/roswell">Roswell</a> or used from the REPL.</p>
 <p>Also, you'll need a <a href="https://www.graphviz.org/">Graphviz</a> program installed.</p>
 <p>Now we'll render a graph of all dependencies of the <code>poftheday</code> system:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (setf cl-dot:*dot-path* &quot;/usr/local/bin/dot&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (setf cl-dot:*dot-path* &quot;/usr/local/bin/dot&quot;)
 
 POFTHEDAY&gt; (asdf-viz:visualize-asdf-hierarchy
             &quot;docs/media/0063/systems.png&quot;
@@ -61,7 +61,7 @@ POFTHEDAY&gt; (asdf-viz:visualize-asdf-hierarchy
 <p><img style="max-width: 100%" src="../../media/0063/systems.png"/></p>
 <p>Interestingly, <code>asdf-viz</code> not only can draw a system's dependencies but also class hierarchies and call graphs.</p>
 <p>Here is a small example, how to render a class hierarchy:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (asdf-viz.class-hierarchy:visualize-class-hierarchy
+<pre><code class='lisp'>POFTHEDAY&gt; (asdf-viz.class-hierarchy:visualize-class-hierarchy
             &quot;docs/media/0063/classes.png&quot;
             (list &#039;cl-org-mode::node))</code></pre><p>And this is the resulting graph:</p>
 <p><img style="max-width: 100%" src="../../media/0063/classes.png"/></p>

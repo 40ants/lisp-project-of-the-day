@@ -53,7 +53,7 @@ h1 .tags {
 <p>But <code>print-html</code> is written in org-mode file which was preprocessed and transformed into usual lisp file. Literate-lisp is an ASDF extension which allows you to load <code>org-mode</code> as usual lisp files.</p>
 <p>All that you need to do is to write <code>:defsystem-depends-on ("literate-lisp")</code> in the system definition file and to use <code>:org</code> type for components.</p>
 <p>Here is the content of my ASD file:</p>
-<pre><code class=' lisp'>(asdf:defsystem &quot;poftheday&quot;
+<pre><code class='lisp'>(asdf:defsystem &quot;poftheday&quot;
   :author &quot;Alexander Artemenko &lt;svetlyak.40wt@gmail.com&gt;&quot;
   :serial t
   :defsystem-depends-on (&quot;literate-lisp&quot;)

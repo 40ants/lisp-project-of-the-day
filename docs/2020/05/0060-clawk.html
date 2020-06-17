@@ -55,19 +55,19 @@ h1 .tags {
 <p>It does not have documentation but there are some examples, based on examples from this AWK book from 1988:</p>
 <p><img style="max-width: 100%" src="../../media/0060/awk-book.png"/></p>
 <p>All examples use file <code>emp.data</code> as an input:</p>
-<pre><code class=' text'>Beth    4.00    0
+<pre><code class='text'>Beth    4.00    0
 Dan     3.75    0
 Kathy   4.00    10
 Mark    5.00    20
 Mary    5.50    22
 Suzie   4.25    18</code></pre><p>An example I want to show you is equivalent to:</p>
-<pre><code class=' bash'>$ awk &#039;$3 &gt; 0 {print $1, $2 * $3}&#039; emp.data
+<pre><code class='bash'>$ awk &#039;$3 &gt; 0 {print $1, $2 * $3}&#039; emp.data
 Kathy 40
 Mark 100
 Mary 121
 Suzie 76.5</code></pre><p>It counts the salary for each employee.</p>
 <p>Here is Common Lisp version which uses CLAWK:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (for-file-lines (&quot;docs/media/0060/emp.data&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (for-file-lines (&quot;docs/media/0060/emp.data&quot;)
               (with-fields ((name payrate hours))
                  (when ($&gt; hours 0)
                     ($print name ($* payrate hours)))))
@@ -77,7 +77,7 @@ Mark 100.0
 Mary 121.0 
 Suzie 76.5</code></pre><p>This code is more semantic because we used named fields. However, you can use $1, $2, $3 if you with as well.</p>
 <p>Above example is expanded into such code:</p>
-<pre><code class=' lisp'>(with-open-file (#:g1 &quot;docs/media/0060/emp.data&quot;
+<pre><code class='lisp'>(with-open-file (#:g1 &quot;docs/media/0060/emp.data&quot;
                       :direction :input
                       :element-type &#039;character
                       :if-does-not-exist :error)

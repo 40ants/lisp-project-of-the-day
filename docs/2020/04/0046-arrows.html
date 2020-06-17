@@ -54,7 +54,7 @@ h1 .tags {
 <ul><li><code>cl-arrows</code></li><li><code>arrow-macros</code></li></ul>
 <p>but <code>arrows</code> have more features.</p>
 <p>Here is an example of two simples arrows:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt; (list :foo
+<pre><code class='lisp'>POFTHEDAY&gt; (arrows:-&gt; (list :foo
                             (list :bar
                                   (list
                                    (list 1 2 3)
@@ -75,7 +75,7 @@ POFTHEDAY&gt; (mapcar #&#039;reverse
                      :foo)
                     :bar))
 ((3 2 1) (C B A))</code></pre><p>There is also <code>->></code> which adds an argument to the end, and <code>->*</code> which uses the last form as an initial value. They could be used in tandem like this:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt;&gt; &#039;((:foo . ((:bar . 8))))
+<pre><code class='lisp'>POFTHEDAY&gt; (arrows:-&gt;&gt; &#039;((:foo . ((:bar . 8))))
              (assoc :foo)
              cdr
              (assoc :bar)
@@ -97,7 +97,7 @@ POFTHEDAY&gt; (expt
                            &#039;((:foo (:bar . 8)))))))
              3)
             2)</code></pre><p>Another interesting macro is <code>as-></code>. It creates a lexical binding and a variable can be used in any place of the nested code:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (arrows:-&gt; &#039;(:foo (:bar 15))
+<pre><code class='lisp'>POFTHEDAY&gt; (arrows:-&gt; &#039;(:foo (:bar 15))
              (getf :foo)
              (getf :bar)
              (arrows:as-&gt; $

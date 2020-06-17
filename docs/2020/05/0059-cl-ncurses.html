@@ -54,7 +54,7 @@ h1 .tags {
 <p><a href="https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html">https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/index.html</a></p>
 <p>It was pretty straightforward to port them to Common Lisp.</p>
 <p>The first example just wait for any key and print this key in bold:</p>
-<pre><code class=' lisp'>(defun main (&amp;rest argv)
+<pre><code class='lisp'>(defun main (&amp;rest argv)
   (declare (ignorable argv))
   (initscr)
   (raw)
@@ -76,7 +76,7 @@ h1 .tags {
     (endwin)))</code></pre><p>Second example a little bit complex. It uses fetches the size of the terminal and prints "Hello Lisp Word!" in the centre. After that, it draws a border using pseudographics:</p>
 <p><img style="max-width: 100%" src="../../media/0059/ncurses-hello.png"/></p>
 <p>Here is the code:</p>
-<pre><code class=' lisp'>(defun main (&amp;rest argv)
+<pre><code class='lisp'>(defun main (&amp;rest argv)
   &quot;This example is based on:
    https://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/windows.html&quot;
   (declare (ignorable argv))

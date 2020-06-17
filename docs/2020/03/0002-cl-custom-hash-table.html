@@ -57,7 +57,7 @@ h1 .tags {
 <p>Let's see, how does SBCL allow you to define custom hash functions using sb-ext:define-hash-table-test macro.</p>
 <p>For example, we want a hash table where we can use the first character of a string, given as a key.</p>
 <p>First, we need to define a comparison function:</p>
-<pre><code class=' lisp '>POFTHEDAY&gt; (defun first-char-equal (left right)
+<pre><code class='lisp'>POFTHEDAY&gt; (defun first-char-equal (left right)
              (char-equal (elt left 0)
                          (elt right 0)))
 FIRST-CHAR-EQUAL
@@ -67,7 +67,7 @@ T
 POFTHEDAY&gt; (first-char-equal &quot;Foo&quot; &quot;Bar&quot;)
 NIL</code></pre><p>Please, note, here I've sacrificed the processing of corner cases when left and right are empty or not a strings in favor of readability.</p>
 <p>Also, we need to define a hash-function:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun first-char-hash (text)
+<pre><code class='lisp'>POFTHEDAY&gt; (defun first-char-hash (text)
              (sxhash (char-downcase (elt text 0))))
 FIRST-CHAR-HASH
 
@@ -76,7 +76,7 @@ POFTHEDAY&gt; (first-char-hash &quot;foo&quot;)
 
 POFTHEDAY&gt; (first-char-hash &quot;Foo&quot;)
 1193941380876393778 (61 bits, #x1091BB5C31C6DD32)</code></pre><p>Now we can to register our custom hash function and to create a hash-table:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (sb-ext:define-hash-table-test first-char-equal first-char-hash)
+<pre><code class='lisp'>POFTHEDAY&gt; (sb-ext:define-hash-table-test first-char-equal first-char-hash)
 FIRST-CHAR-EQUAL
 
 POFTHEDAY&gt; (defparameter *h* (make-hash-table :test &#039;first-char-equal))
@@ -102,7 +102,7 @@ POFTHEDAY&gt; (maphash (lambda (key value)
 Foo -&gt; ANOTHER
 second -&gt; VALUE</code></pre><p>As you can see, this works as expected.</p>
 <p>Now let's try to define the same hash table using cl-custom-hash-table:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-custom-hash-table:define-custom-hash-table-constructor
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-custom-hash-table:define-custom-hash-table-constructor
                make-first-char-hash
              :test first-char-equal
              :hash-function first-char-hash)

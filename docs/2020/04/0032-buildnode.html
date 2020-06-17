@@ -54,7 +54,7 @@ h1 .tags {
 <ul><li>HTML5</li><li>XHTML</li><li>Excel</li><li><a href="https://developer.mozilla.org/en-US/docs/Archive/Mozilla/XUL">XUL</a> - XML User Interface Language, XML-based language for building user interfaces of applications like Firefox.</li><li><a href="https://en.wikipedia.org/wiki/Keyhole_Markup_Language">KML</a> - XML notation for expressing geographic annotation and visualization within two-dimensional maps.</li></ul>
 <p>To test this library, let's make a script which will fetch COVID-19 stats and produce the Excel spreadsheet.</p>
 <p>First, we need a function which will fetch data. It uses "dexador" to make GET http request and "jonathan" to parse received JSON:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun get-data ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defun get-data ()
              (loop with response = (dex:get &quot;https://api.covid19api.com/summary&quot;)
                    with parsed = (jonathan:parse response)
                    for item in (getf parsed :|Countries|)
@@ -77,7 +77,7 @@ POFTHEDAY&gt; (get-data)
   :|TotalDeaths| 17127 :|NewDeaths| 604 :|TotalConfirmed| 135586
   :|NewConfirmed| 3039 :|Slug| &quot;italy&quot; :|CountryCode| &quot;IT&quot; :|Country| &quot;Italy&quot;)
  ...)</code></pre><p>Now we can create Excel document:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (excel:with-excel-workbook ()
+<pre><code class='lisp'>POFTHEDAY&gt; (excel:with-excel-workbook ()
              (ss:worksheet &#039;(&quot;ss:Name&quot; &quot;COVID-19&quot;)
               (ss:table ()
                ;; The first raw will contain a title

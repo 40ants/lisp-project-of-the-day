@@ -53,7 +53,7 @@ h1 .tags {
 <p>Of cause, you can measure execution time with the <code>time</code> macro. But in this case, you'll have to select a number of iteration and to parse <code>time</code>'s output and do some time manipulation.</p>
 <p>The-cost-of-nothing does everything for you. It runs given form in chunks, measures an execution time for each chunk, divides and calculates average execution time.</p>
 <p>Let's see how long does it take to access an element in the hash-table.</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
              (time
               (loop repeat 1000000000
                     do (gethash :foo h))))
@@ -69,7 +69,7 @@ Evaluation took:
 POFTHEDAY&gt; (/ 0.271
               1000000000)
 2.71e-10</code></pre><p>I had to guess a number of iteration to get meaningful execution time and also did some arithmetics after that.</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
              (the-cost-of-nothing:benchmark
               (gethash :foo h)))
 1.11d-8
@@ -80,7 +80,7 @@ POFTHEDAY&gt; (let ((h (make-hash-table)))
               (gethash :foo h)))
 11.36 nanoseconds</code></pre><p>Here we see result 11 nanoseconds, however with <code>time</code> macro we received only 0.271 nanoseconds. Probably this is because the overhead introduced by <code>the-cost-of-nothing</code>. It tries to subtract overhead time from the result, but seems it does works for very fast operations.</p>
 <p>In case if you are measuring the cost of very fast operations it is better to make a loop even when using the-cost-of-nothing:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
              (/ (the-cost-of-nothing:benchmark
                  (loop repeat 1000
                        do (gethash :foo h)))
@@ -92,7 +92,7 @@ POFTHEDAY&gt; (let ((h (make-hash-table)))
 <p>On my system, overhead value is 2.7e-9.</p>
 <p>I tried to rewrite the function which measures a sample's time to make the calculation fairer, but without significant result.</p>
 <p>Here is what I've got:</p>
-<pre><code class=' lisp'>(defun sample-execution-time-of-thunk (thunk min-sample-time)
+<pre><code class='lisp'>(defun sample-execution-time-of-thunk (thunk min-sample-time)
   &quot;Measure the execution time of invoking THUNK more and more often, until
 the execution time exceeds MIN-SAMPLE-TIME.&quot;
   (declare (optimize (speed 3) (debug 1)))
@@ -112,13 +112,13 @@ the execution time exceeds MIN-SAMPLE-TIME.&quot;
                         internal-time-units-per-second
                         total-iterations))))</code></pre><p>I removed a call to an additional function and to <code>local-time:timestamp-difference</code>, but result is not much better - only 10.71 nanoseconds.</p>
 <p>Am I missing something? Maybe compiler does some optimizations, when it sees a gethash call in a loop which does not change the dict?</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((h (make-hash-table)))
              (the-cost-of-nothing:bench
               (gethash :foo h)))
 10.71 nanoseconds</code></pre><p>Another interesting thing about <code>the-cost-of-nothing</code> is that it includes a benchmark which measures some the cost of some common operations.</p>
 <p>Even if they are not precise, it is interesting to compare their relative values. Here are numbers received on my Macbook Pro.</p>
 <p>Pay attention to how does cost grow for calling the function with multiple keyword arguments:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (asdf:test-system :the-cost-of-nothing)
+<pre><code class='lisp'>POFTHEDAY&gt; (asdf:test-system :the-cost-of-nothing)
 
 = The Cost Of Nothing =
 Implementation: SBCL 2.0.2
@@ -163,7 +163,7 @@ FUNCALL with six rest arguments: 2.66 nanoseconds
 == Numerics ==
 Flops (single-float): 4.25 gigaflops
 Flops (double-float): 2.71 gigaflops</code></pre><p>I think it would be great to make this library to output some statistics about collected samples - a number of samples, standard deviation, like IPython does:</p>
-<pre><code class=' python'>Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+<pre><code class='python'>Python 3.7.7 (default, Mar 10 2020, 15:43:33)
 Type &#039;copyright&#039;, &#039;credits&#039; or &#039;license&#039; for more information
 IPython 7.14.0 -- An enhanced Interactive Python. Type &#039;?&#039; for help.
 
@@ -174,7 +174,7 @@ In [2]: %timeit d[&#039;what&#039;]
 
 In [3]:</code></pre><h1>Update<span class='tags'></span></h1><p>As @guicho271828 <a href="https://twitter.com/guicho271828/status/1272616501187678209">noted</a>, SBCL is able to figure out that gethash's results aren't used in the loop and optimizes it away.</p>
 <p>I've checked this hypothesis, and with <code>gethash</code> wrapped with a function results of "time" macro and "benchmark" macro are the same:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun get-value (h)
+<pre><code class='lisp'>POFTHEDAY&gt; (defun get-value (h)
              (gethash :foo h))
 
 POFTHEDAY&gt; (let ((h (make-hash-table)))

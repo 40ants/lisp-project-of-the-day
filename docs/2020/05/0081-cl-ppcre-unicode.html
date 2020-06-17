@@ -53,7 +53,7 @@ h1 .tags {
 <p>What does it mean? It means that after loading <code>cl-ppcre-unicode</code> you'll be able to match against Unicode symbol properties.</p>
 <p>A property matcher has a special syntax in cl-ppcre's regexps: <code>\p{PropertyName}</code>.</p>
 <p>Here is an example:</p>
-<pre><code class=' lisp'>;; This is how we can find out a position
+<pre><code class='lisp'>;; This is how we can find out a position
 ;; of the first Cyrillic letter:
 
 POFTHEDAY&gt; (ppcre:scan &quot;\\p{Cyrillic}&quot;
@@ -68,13 +68,13 @@ POFTHEDAY&gt; (ppcre:regex-replace
             &quot;\\1&quot;)
 &quot;&#x1F917;&#x1F603;&quot;</code></pre><p>We are using two different Unicode classes as properties because these two characters belong to different classes.</p>
 <p>You can use <code>cl-unicode</code> to discover the character's unicode class:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-unicode:code-block #\&#x1F603;)
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-unicode:code-block #\&#x1F603;)
 &quot;Emoticons&quot;
 
 POFTHEDAY&gt; (cl-unicode:code-block #\&#x1F917;)
 &quot;Supplemental Symbols and Pictographs&quot;</code></pre><p>The way, how <code>cl-ppcre-unicode</code> works is very interesting. It turns out that <code>cl-ppcre</code> has a special hook which allows you to define a property resolver.</p>
 <p>For example, if you want to have a special property for vowels, you might do something like that:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun my-property-resolver (property-name)
+<pre><code class='lisp'>POFTHEDAY&gt; (defun my-property-resolver (property-name)
              (if (string-equal property-name
                                &quot;vowel&quot;)
                  (rutils:fn vovel-p (character)

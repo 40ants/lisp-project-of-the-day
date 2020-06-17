@@ -53,7 +53,7 @@ h1 .tags {
 <p>Today I found <a href="https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/">an interesting thread from SpaceX</a>, where it's software developers answer the questions. I wondered if there was a discussion around Lisp in the Space?</p>
 <p>But this post has about 8000 comments and I didn't found a search in a single post's comments on the Reddit. So, I decided to use <code>cl-reddit</code> to fetch all post comments and to search through them a "lisp" term.</p>
 <p>Here is how you can connect to the Reddit and list of your subreddits:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defvar *user*
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *user*
              (cl-reddit:api-login
               :username &quot;svetlyak40wt&quot;
               :password *password*))
@@ -71,7 +71,7 @@ POFTHEDAY&gt; (mapcar #&#039;cl-reddit:subreddit-title
 <p>Then we need to extract post id from this link:</p>
 <p><a href="https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/">https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/</a></p>
 <p>and to fetch comments tree using <code>cl-reddit</code>:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-reddit::get-comments &quot;gxb7j1&quot; *user*)
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-reddit::get-comments &quot;gxb7j1&quot; *user*)
 
 (#&lt;CL-REDDIT:COMMENT {1002009693}&gt; #&lt;CL-REDDIT:COMMENT {10020098F3}&gt;
  #&lt;CL-REDDIT:COMMENT {1002016BF3}&gt; #&lt;CL-REDDIT:COMMENT {1002016CB3}&gt;
@@ -80,7 +80,7 @@ POFTHEDAY&gt; (mapcar #&#039;cl-reddit:subreddit-title
 
 POFTHEDAY&gt; (length *)
 151</code></pre><p>Well, we received 151 comments, but real comments count is about 7.7k. This is because other items either replies or <code>CL-REDDIT:MORE</code> objects which contain ids of the replies:</p>
-<pre><code class=' '>POFTHEDAY&gt; (defparameter *comments*
+<pre><code class=''>POFTHEDAY&gt; (defparameter *comments*
               (cl-reddit::get-comments &quot;gxb7j1&quot; *user*))
 
 POFTHEDAY&gt; (rutils:last-elt *comments*)
@@ -101,7 +101,7 @@ POFTHEDAY&gt; (cl-reddit:comment-replies
 
 POFTHEDAY&gt;</code></pre><p>We need to write a comment walker which <code>cl-reddit</code> does not provide.</p>
 <p>This walker will expand all <code>MORE</code> items and collect comments into the flat list:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((post-id &quot;gxb7j1&quot;))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((post-id &quot;gxb7j1&quot;))
              (uiop:while-collecting (collect)
                (labels ((visit (item)
                           (etypecase item
@@ -127,7 +127,7 @@ POFTHEDAY&gt;</code></pre><p>We need to write a comment walker which <code>cl-re
 <p>Seems, the library's author never used it for making thousands of requests.</p>
 <p>I've fixed this leak, but comments fetching still was too slow - about 2 comments per second. This is because <code>MORE</code> item contains comment ids and I have to fetch them individually one by one.</p>
 <p>I tried to parallelize the fetching process using lparallel, reviewed two days ago:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *all-comments*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *all-comments*
              (let ((post-id &quot;gxb7j1&quot;)
                  (counter 0))
                (uiop:while-collecting (collect)
@@ -157,7 +157,7 @@ POFTHEDAY&gt;</code></pre><p>We need to write a comment walker which <code>cl-re
                    (lparallel:pmapc #&#039;visit
                            (cl-reddit::get-comments post-id
                                                     *user*))))))</code></pre><p>But encountered these strange errors:</p>
-<pre><code class=' lisp'>The condition Socket error in &quot;connect&quot;: EINTR (Interrupted system call) occurred with errno: 0.
+<pre><code class='lisp'>The condition Socket error in &quot;connect&quot;: EINTR (Interrupted system call) occurred with errno: 0.
 
 Condition USOCKET:TIMEOUT-ERROR was signalled.
    [Condition of type USOCKET:TIMEOUT-ERROR]

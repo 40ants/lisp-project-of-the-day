@@ -51,7 +51,7 @@ h1 .tags {
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>physical-quantities</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>physical-quantities<span class='tags'><a href='../../tags/math.html'><span class='label label-default'>math</span></a></span></h1><p>This is a library for handling physical quantities. It supports physical units, values and uncertainties.</p>
 <p>It has good documentation. Here is an example from the README:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let (m c m)
+<pre><code class='lisp'>POFTHEDAY&gt; (let (m c m)
              ;; Define the mass
              (setf m #q(1.00 +/- 0.01 kg))
              ;; The speed of light
@@ -62,7 +62,7 @@ h1 .tags {
              (print #q(e -&gt; PJ)))
 
 #&lt;QUANTITY 89.87552 +/- 1.0 % petajoule {...}&gt;</code></pre><p>As you can see, physical-quantities not only able to tag values with units but also is able to convert from one unit to another:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (q* #q(2 +/- 0.1 m)
+<pre><code class='lisp'>POFTHEDAY&gt; (q* #q(2 +/- 0.1 m)
                #q(3 +/- 0.1 m))
 #&lt;QUANTITY 6 +/- 0.36055514 metre ^ 2 {10021734A3}&gt;
 

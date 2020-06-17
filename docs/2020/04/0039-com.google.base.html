@@ -54,7 +54,7 @@ h1 .tags {
 <p>It contains a simple asdf extension and some helpers for code optimization.</p>
 <p>The extension gives you the ability to tell that some ASDF system's component should be compiled with maximum speed. Also, it is able to manage how fast and unsafe this code should be when you are compiling it for development or production.</p>
 <p>To check how it works, we create a simple system with three components each with its own compiler policies:</p>
-<pre><code class=' lisp'>;; foo.asd file
+<pre><code class='lisp'>;; foo.asd file
   
 (defsystem &quot;foo&quot;
   :defsystem-depends-on (#:com.google.base)
@@ -95,14 +95,14 @@ h1 .tags {
 (defparameter *third*
   (with-output-to-string (*standard-output*)
     (sb-ext:describe-compiler-policy)))</code></pre><p>My default compiler policy is:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (sb-ext:describe-compiler-policy)
+<pre><code class='lisp'>POFTHEDAY&gt; (sb-ext:describe-compiler-policy)
   Basic qualities:
 COMPILATION-SPEED = 1
 DEBUG = 1
 SAFETY = 1
 SPACE = 1
 SPEED = 1</code></pre><p>And here what I've got after "foo" compilation:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; foo::*first*
+<pre><code class='lisp'>POFTHEDAY&gt; foo::*first*
 &quot;  Basic qualities:
 COMPILATION-SPEED = 1
 DEBUG = 1
@@ -135,7 +135,7 @@ POFTHEDAY&gt; com.google.base:*optimize-fast-unsafe*
           (SAFETY 0) (SPACE 1) (SPEED 3))</code></pre><p>As you can see, the first component retained the default policy. The second component changed only "debug" policy to 3 and third component's policy is equal to the policy defined in com.google.base:*optimize-fast-unsafe*.</p>
 <p>But what if for development environment we want to change a compilation policy for all performance-critical parts of the system?</p>
 <p>With "com.google.base" this is an easy task:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((com.google.base:*optimize-fast-unsafe*
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((com.google.base:*optimize-fast-unsafe*
                    &#039;(optimize
                      (compilation-speed 0) (debug 3)
                      (safety 3) (space 1) (speed 1))))

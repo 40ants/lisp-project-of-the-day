@@ -55,7 +55,7 @@ h1 .tags {
 <p>You can replace hundreds of lines of number-crunching code with a single line of APL.</p>
 <p>Personally, I'm not familiar with this language and APL code seems very cryptic to me. But if you are working with numbers and algorithms, probably APL worth thing to look at.</p>
 <p>"April" contains an embedded test suite and a demo. Here is a piece of its demo output:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (april:april (demo))
+<pre><code class='lisp'>POFTHEDAY&gt; (april:april (demo))
 
 ...  
 
@@ -72,7 +72,7 @@ h1 .tags {
     11 12
 
 ...</code></pre><p>Here is how you can eval the same programs from the Lisp REPL:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (april:april &quot;{&#x2375;+3} 3 4 5&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (april:april &quot;{&#x2375;+3} 3 4 5&quot;)
 #(6 7 8)
 
 POFTHEDAY&gt; (april:april &quot;1 2 3 {&#x237A;&#xD7;&#x2375;+3} 3 4 5&quot;)
@@ -80,7 +80,7 @@ POFTHEDAY&gt; (april:april &quot;1 2 3 {&#x237A;&#xD7;&#x2375;+3} 3 4 5&quot;)
 
 POFTHEDAY&gt; (april:april &quot;fn&#x2190;{3+&#x2375;} &#x22C4; {fn 8 &#x2375;} 9&quot;)
 #(11 12)</code></pre><p>The cool thing is that "april:april" is a macro. It is expanded into the Lisp code which can be compiled into the native code and executed very fast:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (macroexpand-1 &#039;(april:april &quot;1 2 3 {&#x237A;&#xD7;&#x2375;+3} 3 4 5&quot;))
+<pre><code class='lisp'>POFTHEDAY&gt; (macroexpand-1 &#039;(april:april &quot;1 2 3 {&#x237A;&#xD7;&#x2375;+3} 3 4 5&quot;))
   
 (PROGN
   NIL

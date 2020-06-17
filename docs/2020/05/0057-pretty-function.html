@@ -51,7 +51,7 @@ h1 .tags {
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>pretty-function</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>pretty-function<span class='tags'><a href='../../tags/utils.html'><span class='label label-default'>utils</span></a><a href='../../tags/debugging.html'><span class='label label-default'>debugging</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This small library makes debugging easier when you are using many anonymous functions. With <code>pretty-functions</code> you can give names to your lambdas.</p>
 <p>Here is a traceback you'll have with ordinal lambda:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun bar ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defun bar ()
              (error &quot;Hello World!&quot;))
 
 POFTHEDAY&gt; (defun foo (func)
@@ -74,7 +74,7 @@ Backtrace:
  1: ((LAMBDA ()))
  2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (LAMBDA NIL (BAR))) #A&lt;NULL-LEXENV&gt;)
  3: (EVAL (FOO (LAMBDA NIL (BAR))))</code></pre><p>With <code>pretty-function</code> we should see the name instead of <code>LAMBDA</code>:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (pretty-function:enable-pretty-function-printing)
+<pre><code class='lisp'>POFTHEDAY&gt; (pretty-function:enable-pretty-function-printing)
 
 POFTHEDAY&gt; (foo (pretty-function:named-lambda bar-caller ()
                   (bar)))
@@ -95,7 +95,7 @@ Backtrace:
  3: (SB-INT:SIMPLE-EVAL-IN-LEXENV (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))) #&lt;NULL-LEXENV&gt;)
  4: (EVAL (FOO (PRETTY-FUNCTION:NAMED-LAMBDA BAR-CALLER NIL (BAR))))</code></pre><p>However, it does not work. Probably, because <code>SLY</code> turns off <code>*pretty-print*</code> when rendering the traceback. At least, it does not work in SBCL.</p>
 <p>Almost the same result we'll get if request a backtrace as a list:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (block test
+<pre><code class='lisp'>POFTHEDAY&gt; (block test
                (handler-bind ((error (lambda (c)
                                        (return-from test
                                          (sb-debug:backtrace-as-list 7)))))
@@ -111,7 +111,7 @@ Backtrace:
  ((LAMBDA ())))</code></pre><p>Named function has its name only when it is rendered as function's argument. But anyway, it is useful.</p>
 <p>Probably, it will work better on other supported implementations: Allegro, Clisp, CMU, Lispworks or MCL.</p>
 <p>More complex example uses another macro - <code>named-lambda*</code>. It allows to use of arbitrary form to return a current name of a lambda function:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *f*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *f*
              (let ((n 0))
                (pretty-function:named-lambda*
                    ;; a form to return a description
@@ -133,7 +133,7 @@ POFTHEDAY&gt; (funcall *f*)
 
 POFTHEDAY&gt; *f*
 #&lt;named-lambda counter=2&gt;</code></pre><p>You might want to make a shorter name like <code><counter=1></code>, then you need to use lower-level macro <code>with-function-printer</code>:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *f*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *f*
              (let ((n 0))
                (pretty-function:with-function-printer
                    ;; A lambda to wriite a description

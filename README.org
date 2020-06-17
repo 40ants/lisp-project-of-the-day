@@ -22,7 +22,7 @@ Twitter account svetlyak40wt]].
 - 14 June - [[content/2020/06/0099-teddy.org][teddy]] ([[https://twitter.com/svetlyak40wt/status/1272258802683916288][twitter]])
 - 15 June - [[content/2020/06/0100-the-cost-of-nothing.org][the-cost-of-nothing]] ([[https://twitter.com/svetlyak40wt/status/1272611434422304768][twitter]])
 - 16 June - [[content/2020/06/0101-prbs.org][prbs]] ([[https://twitter.com/svetlyak40wt/status/1272974146218201088][twitter]])
-- 17 June - [[content/2020/06/0102-lass-flexbox.org][lass-flexbox]]
+- 17 June - [[content/2020/06/0102-lass-flexbox.org][lass-flexbox]] ([[https://twitter.com/svetlyak40wt/status/1273305547740188672][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
@@ -457,12 +457,27 @@ Text node contains code snippets, we need to wrap them into
 #+BEGIN_SRC lisp
 
 (defmethod render-node ((node cl-org-mode::src-node) stream)
-  (cl-who:with-html-output (stream)
-    (:pre
-     (:code :class (string-trim (list #\Newline)
-                                (cl-org-mode::node.emacs-mode node))
-            (cl-who:esc (str:trim
-                         (cl-org-mode::node.text node)))))))
+  (let ((mode (str:trim (cl-org-mode::node.emacs-mode node)))
+        (text (str:trim (cl-org-mode::node.text node))))
+
+    (cond
+      ((and (str:starts-with-p "html " mode)
+            (str:containsp ":render" mode))
+       
+       (cl-who:with-html-output (stream)
+         (:h4 "Code")
+         (:pre
+          (:code :class mode
+                 (cl-who:esc text))))
+
+       (cl-who:with-html-output (stream)
+         (:h4 "Result")
+         (cl-who:str text)))
+      (t
+       (cl-who:with-html-output (stream)
+         (:pre
+          (:code :class mode
+                 (cl-who:esc text))))))))
 
 (defmethod render-node ((node cl-org-mode::closing-delimiter-node) stream)
   ;; Closing delimiters for source code blocks should be ignored.
@@ -1064,5 +1079,6 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/s-expressionists/Trucler
 - https://github.com/bufferswap/ViralityEngine
 - http://quickdocs.org/cl-mechanize/
+- http://quickdocs.org/cl-skip-list/
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

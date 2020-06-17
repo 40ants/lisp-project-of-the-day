@@ -6,11 +6,153 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lass-flexbox</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0102-lass-flexbox.html</link>
+            <description>&lt;p&gt;This is an addon to the &lt;code&gt;lass&lt;/code&gt; library, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;#0021 post&lt;/a&gt;. &lt;code&gt;Lass-flexbox&lt;/code&gt; adds to &lt;code&gt;lass&lt;/code&gt; an ability to expand Flexbox CSS properties into browser-specific vendor prefixes:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lass:compile-and-write
+            &amp;#039;(.container :flexbox
+              (.item :align-self &amp;quot;center&amp;quot;)))
+&amp;quot;.container{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.container .item{
+    -webkit-align-self: center;
+    -moz-align-self: center;
+    -ms-flex-item-align: center;
+    align-self: center;
+}&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I found a great &lt;a href=&quot;https://css-tricks.com/snippets/css/a-guide-to-flexbox/&quot;&gt;illustrated article&lt;/a&gt; on how does Flexbox works and now we&apos;ll try to reproduce some layout from this article:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (format t &amp;quot;&amp;lt;style&amp;gt;~A&amp;lt;/style&amp;gt;
+                      &amp;lt;div class=\&amp;quot;example\&amp;quot;&amp;gt;
+                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;One&amp;lt;/div&amp;gt;
+                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;Two&amp;lt;/div&amp;gt;
+                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;Three&amp;lt;/div&amp;gt;
+                      &amp;lt;/div&amp;gt;
+                     &amp;quot;
+                   (lass:compile-and-write
+                    &amp;#039;(.example
+                      :flexbox
+                      :align-items &amp;quot;flex-end&amp;quot;
+                      :justify-content &amp;quot;space-around&amp;quot;
+                      :border 1px solid gray
+                      (.item :margin 0.5rem
+                             :padding 0.5rem)
+                      ((:and .item (:nth-child 1))
+                       :background lime
+                       :flex 1
+                       :height 30px)
+                      ((:and .item (:nth-child 2))
+                       :background orange
+                       :flex 2
+                       :height 70px)
+                      ((:and .item (:nth-child 3))
+                       :background purple
+                       :flex 3
+                       :height 50px))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This lisp code will generate us these CSS and HTML:&lt;/p&gt;
+&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;style&amp;gt;.example{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+    -webkit-align-items: flex-end;
+    -moz-align-items: flex-end;
+    align-items: flex-end;
+    -ms-flex-pack: distribute;
+    -webkit-justify-content: space-around;
+    -moz-justify-content: space-around;
+    justify-content: space-around;
+    border: 1px solid gray;
+}
+
+.example .item{
+    margin: 0.5rem;
+    padding: 0.5rem;
+}
+
+.example .item:nth-child(1){
+    background: lime;
+    flex: 1;
+    height: 30px;
+}
+
+.example .item:nth-child(2){
+    background: orange;
+    flex: 2;
+    height: 70px;
+}
+
+.example .item:nth-child(3){
+    background: purple;
+    flex: 3;
+    height: 50px;
+}&amp;lt;/style&amp;gt;
+
+&amp;lt;div class=&amp;quot;example&amp;quot;&amp;gt;
+  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;One&amp;lt;/div&amp;gt;
+  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;Two&amp;lt;/div&amp;gt;
+  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;Three&amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;style&gt;.example{
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: end;
+    -ms-flex-align: end;
+    -webkit-align-items: flex-end;
+    -moz-align-items: flex-end;
+    align-items: flex-end;
+    -ms-flex-pack: distribute;
+    -webkit-justify-content: space-around;
+    -moz-justify-content: space-around;
+    justify-content: space-around;
+    border: 1px solid gray;
+}
+
+.example .item{
+    margin: 0.5rem;
+    padding: 0.5rem;
+}
+
+.example .item:nth-child(1){
+    background: lime;
+    flex: 1;
+    height: 30px;
+}
+
+.example .item:nth-child(2){
+    background: orange;
+    flex: 2;
+    height: 70px;
+}
+
+.example .item:nth-child(3){
+    background: purple;
+    flex: 3;
+    height: 50px;
+}&lt;/style&gt;
+
+&lt;div class=&quot;example&quot;&gt;
+  &lt;div class=&quot;item&quot;&gt;One&lt;/div&gt;
+  &lt;div class=&quot;item&quot;&gt;Two&lt;/div&gt;
+  &lt;div class=&quot;item&quot;&gt;Three&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Exciting, isn&apos;t it!?&lt;/p&gt;
+</description>
+            <pubDate>Wed, 17 Jun 2020 20:25:01 +0300</pubDate>
+        </item>
+        <item>
             <title>prbs</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0101-prbs.html</link>
             <description>&lt;p&gt;&lt;a href=&quot;https://github.com/jlowder/prbs&quot;&gt;This library&lt;/a&gt; provides a pseudo-random binary sequence generator useful for error detection in communication streams. It will be useful, if you are building own protocol over UDP, for example.&lt;/p&gt;
 &lt;p&gt;Here is how it works. There is a function which creates a sequence generator. Its result is a lambda function which can return a requested number of random bits:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *generator*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *generator*
              (prbs:bit-gen 33 :seed (get-universal-time)))
 
 POFTHEDAY&amp;gt; (funcall *generator* 10)
@@ -22,7 +164,7 @@ POFTHEDAY&amp;gt; (funcall *generator* 10)
 POFTHEDAY&amp;gt; (funcall *generator* 10)
 #*1011001110&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a function to check if these pieces match the desired sequence. It should be used on the &quot;receiver&quot; to check if the message was corrupted or some packets were lost.&lt;/p&gt;
 &lt;p&gt;Let&apos;s simulate a situation when we send our data in 1024 bit chunks and one chunk was lost:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;SENDER&amp;gt; (defparameter *generator*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;SENDER&amp;gt; (defparameter *generator*
            (prbs:bit-gen 33 :seed (get-universal-time)))
 
 ;; These chunks are generated by the sender side
@@ -54,7 +196,7 @@ RECEIVER&amp;gt; (funcall *tracker*
 520
 2048&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;In case of found errors, &lt;code&gt;tracker&lt;/code&gt; returns their number as the first value. The second value is the total number of processed bits. This way we can calculate an error rate. In this case, tracker decided there are 520 bits which have wrong values.&lt;/p&gt;
 &lt;p&gt;Let&apos;s simulate another situation when it received the second chunk, but 10 bits were corrupted and their value was flipped:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;SENDER&amp;gt; (defparameter *corrupted-second-chunk*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;SENDER&amp;gt; (defparameter *corrupted-second-chunk*
            (copy-seq *second-chunk*))
 
 ;; Accidentally, some bits were corrupted:
@@ -91,7 +233,7 @@ RECEIVER&amp;gt; (funcall *tracker*
 &lt;p&gt;Of cause, you can measure execution time with the &lt;code&gt;time&lt;/code&gt; macro. But in this case, you&apos;ll have to select a number of iteration and to parse &lt;code&gt;time&lt;/code&gt;&apos;s output and do some time manipulation.&lt;/p&gt;
 &lt;p&gt;The-cost-of-nothing does everything for you. It runs given form in chunks, measures an execution time for each chunk, divides and calculates average execution time.&lt;/p&gt;
 &lt;p&gt;Let&apos;s see how long does it take to access an element in the hash-table.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
              (time
               (loop repeat 1000000000
                     do (gethash :foo h))))
@@ -107,7 +249,7 @@ Evaluation took:
 POFTHEDAY&amp;gt; (/ 0.271
               1000000000)
 2.71e-10&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I had to guess a number of iteration to get meaningful execution time and also did some arithmetics after that.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
              (the-cost-of-nothing:benchmark
               (gethash :foo h)))
 1.11d-8
@@ -118,7 +260,7 @@ POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
               (gethash :foo h)))
 11.36 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here we see result 11 nanoseconds, however with &lt;code&gt;time&lt;/code&gt; macro we received only 0.271 nanoseconds. Probably this is because the overhead introduced by &lt;code&gt;the-cost-of-nothing&lt;/code&gt;. It tries to subtract overhead time from the result, but seems it does works for very fast operations.&lt;/p&gt;
 &lt;p&gt;In case if you are measuring the cost of very fast operations it is better to make a loop even when using the-cost-of-nothing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
              (/ (the-cost-of-nothing:benchmark
                  (loop repeat 1000
                        do (gethash :foo h)))
@@ -130,7 +272,7 @@ POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
 &lt;p&gt;On my system, overhead value is 2.7e-9.&lt;/p&gt;
 &lt;p&gt;I tried to rewrite the function which measures a sample&apos;s time to make the calculation fairer, but without significant result.&lt;/p&gt;
 &lt;p&gt;Here is what I&apos;ve got:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defun sample-execution-time-of-thunk (thunk min-sample-time)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun sample-execution-time-of-thunk (thunk min-sample-time)
   &amp;quot;Measure the execution time of invoking THUNK more and more often, until
 the execution time exceeds MIN-SAMPLE-TIME.&amp;quot;
   (declare (optimize (speed 3) (debug 1)))
@@ -150,13 +292,13 @@ the execution time exceeds MIN-SAMPLE-TIME.&amp;quot;
                         internal-time-units-per-second
                         total-iterations))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I removed a call to an additional function and to &lt;code&gt;local-time:timestamp-difference&lt;/code&gt;, but result is not much better - only 10.71 nanoseconds.&lt;/p&gt;
 &lt;p&gt;Am I missing something? Maybe compiler does some optimizations, when it sees a gethash call in a loop which does not change the dict?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
              (the-cost-of-nothing:bench
               (gethash :foo h)))
 10.71 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting thing about &lt;code&gt;the-cost-of-nothing&lt;/code&gt; is that it includes a benchmark which measures some the cost of some common operations.&lt;/p&gt;
 &lt;p&gt;Even if they are not precise, it is interesting to compare their relative values. Here are numbers received on my Macbook Pro.&lt;/p&gt;
 &lt;p&gt;Pay attention to how does cost grow for calling the function with multiple keyword arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf:test-system :the-cost-of-nothing)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf:test-system :the-cost-of-nothing)
 
 = The Cost Of Nothing =
 Implementation: SBCL 2.0.2
@@ -201,7 +343,7 @@ FUNCALL with six rest arguments: 2.66 nanoseconds
 == Numerics ==
 Flops (single-float): 4.25 gigaflops
 Flops (double-float): 2.71 gigaflops&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I think it would be great to make this library to output some statistics about collected samples - a number of samples, standard deviation, like IPython does:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
 Type &amp;#039;copyright&amp;#039;, &amp;#039;credits&amp;#039; or &amp;#039;license&amp;#039; for more information
 IPython 7.14.0 -- An enhanced Interactive Python. Type &amp;#039;?&amp;#039; for help.
 
@@ -212,7 +354,7 @@ In [2]: %timeit d[&amp;#039;what&amp;#039;]
 
 In [3]:&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As @guicho271828 &lt;a href=&quot;https://twitter.com/guicho271828/status/1272616501187678209&quot;&gt;noted&lt;/a&gt;, SBCL is able to figure out that gethash&apos;s results aren&apos;t used in the loop and optimizes it away.&lt;/p&gt;
 &lt;p&gt;I&apos;ve checked this hypothesis, and with &lt;code&gt;gethash&lt;/code&gt; wrapped with a function results of &quot;time&quot; macro and &quot;benchmark&quot; macro are the same:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun get-value (h)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun get-value (h)
              (gethash :foo h))
 
 POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
@@ -248,7 +390,7 @@ POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
 &lt;p&gt;Teddy make it possible to define a data frame full of data, to slice it in different ways, to join data frames, see some statistics about the data and render plots.&lt;/p&gt;
 &lt;p&gt;This is a proof of the concept and API will be changed. Check the ChangeLog.md to learn about new abilities and refactoring details.&lt;/p&gt;
 &lt;p&gt;Here is how we can create a simple data frame:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/data-frame:make-data-frame
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/data-frame:make-data-frame
             &amp;#039;(&amp;quot;Idx&amp;quot; &amp;quot;Integers&amp;quot; &amp;quot;Uniform floats&amp;quot; &amp;quot;Gaussian&amp;quot;)
             :rows
             (loop repeat 10
@@ -273,7 +415,7 @@ POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
 |   8 |       42 |           0.08 |   5.10d0 |
 |   9 |        7 |           0.86 |   5.31d0 |
 +-----+----------+----------------+----------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can slice it by columns, rows or both:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/data-frame:head *d* 2)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/data-frame:head *d* 2)
 +-----+----------+----------------+----------+
 | Idx | Integers | Uniform floats | Gaussian |
 +-----+----------+----------------+----------+
@@ -314,7 +456,7 @@ POFTHEDAY&amp;gt; (teddy/data-frame:slice *d*
 |   4 |   4.72d0 |
 |   5 |   4.73d0 |
 +-----+----------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, we might want to see some descriptive statistical data about our data frame. This is pretty easy with Teddy:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/stats:stats *d*)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/stats:stats *d*)
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+
 | Column         | Min    | p25    | p50    | p75    | Max    | Mean  | SD    | Sum     |
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+
@@ -324,7 +466,7 @@ POFTHEDAY&amp;gt; (teddy/data-frame:slice *d*
 | Gaussian       | 4.72d0 | 4.87d0 | 4.93d0 | 5.15d0 | 5.31d0 |  4.99 |  0.20 | 49.88d0 |
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably, we can make some extandable protocol to calculate other properties.&lt;/p&gt;
 &lt;p&gt;Data frame stores data as columns. Each column is a vector of a particular type. If you want to process a row, you can create an iterator and use it to go through rows like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with iterator = (teddy/data-frame:make-iterator *d*)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with iterator = (teddy/data-frame:make-iterator *d*)
                  for row = (funcall iterator)
                  while row
                  do (format t &amp;quot;Row: ~S~%&amp;quot;
@@ -340,16 +482,16 @@ Row: (7 79 0.59791017 5.2466443304900965d0)
 Row: (8 42 0.076958776 5.103448455243024d0)
 Row: (9 7 0.85732913 5.310498824093041d0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Plotting facilities as rudimentary, but should be improved.. All functions related to plotting are in the &lt;code&gt;teddy/plot&lt;/code&gt; package. Right now &lt;code&gt;GNUPlot&lt;/code&gt; is used via &lt;a href=&quot;http://quickdocs.org/eazy-gnuplot/&quot;&gt;eazy-gnuplot&lt;/a&gt; library.&lt;/p&gt;
 &lt;p&gt;Here is how we can plot our data from all columns:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/plot:plot *d*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/plot:plot *d*
             &amp;quot;docs/media/0099/simple-plot.png&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0099/simple-plot.png&quot;/&gt;&lt;/p&gt;
 &lt;p&gt;If we want to plot only gaussian, then it will be wrong, because we need a histogram type of plot. This feature is &quot;to be done&quot;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/plot:plot
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (teddy/plot:plot
             (teddy/data-frame:slice *d*
                                     :columns &amp;#039;(&amp;quot;Idx&amp;quot; &amp;quot;Gaussian&amp;quot;))
             &amp;quot;docs/media/0099/gaussian.png&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0099/gaussian.png&quot;/&gt;&lt;/p&gt;
 &lt;p&gt;Another type of plots &lt;code&gt;Teddy&lt;/code&gt; is able to render right now is a &quot;timeseries&quot;.&lt;/p&gt;
 &lt;p&gt;Let&apos;s plot how does Moscow&apos;s population was changed over years:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *moscow-population*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *moscow-population*
              (teddy/data-frame:make-data-frame
               &amp;#039;(&amp;quot;Date&amp;quot; &amp;quot;Population&amp;quot;)
               :rows &amp;#039;((&amp;quot;1350-01-01&amp;quot; 30000)
@@ -377,7 +519,7 @@ POFTHEDAY&amp;gt; (teddy/plot:plot-timeseries
             <description>&lt;p&gt;I use this library in a few of my projects. It is much like Python&apos;s &lt;a href=&quot;https://docs.python.org/3/library/pickle.html&quot;&gt;pickle module&lt;/a&gt;, but a lot more extensible.&lt;/p&gt;
 &lt;p&gt;CL-Store is able to store and restore back almost any Lisp object. For example, &lt;code&gt;lfarm&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html&quot;&gt;reviewed four days ago&lt;/a&gt; uses it to serialize and deserialize parameters when executing remote jobs on the server.&lt;/p&gt;
 &lt;p&gt;To demonstrate how it works, I&apos;ll create a vector of objects. Then we&apos;ll save this vector to the file and restore it back:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
              ((name :initarg :name
                     :reader user-name)))
 
@@ -401,14 +543,14 @@ POFTHEDAY&amp;gt; (cl-store:store *users* #P&amp;quot;/tmp/users.bin&amp;quot;)
 ;; and to restore it back:
 POFTHEDAY&amp;gt; (cl-store:restore #P&amp;quot;/tmp/users.bin&amp;quot;)
 #(#&amp;lt;USER Bob&amp;gt; #&amp;lt;USER Alice&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the resulting file. Don&apos;t be deceived by the readable content. This is the binary format and it might contain nonreadable characters:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; text&apos;&gt;[art@poftheday] cat /tmp/users.bin
+&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;[art@poftheday] cat /tmp/users.bin
 CLCL
 #USER#  POFTHEDAY
 #NAMEBobAlice&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;CL-Store can be extended. Originally it also provided a backend to serialize data into the XML. But now this backend is considered as deprecated.&lt;/p&gt;
 &lt;p&gt;Previously I didn&apos;t write backends for CL-Store, but today I found in its docs an example, &lt;a href=&quot;https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19&quot;&gt;how to write a backend&lt;/a&gt;, compatible with  Python&apos;s pickle.&lt;/p&gt;
 &lt;p&gt;Documentation is 13 years old, let&apos;s see if we&apos;ll be able to reproduce it!&lt;/p&gt;
 &lt;p&gt;First, we need to define a new backend:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:defbackend pickle
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:defbackend pickle
              :stream-type &amp;#039;character)
 #&amp;lt;PICKLE {100369EBB3}&amp;gt;
 
@@ -448,7 +590,7 @@ CLCL
            ,@cl-store::body))))
   (cl-store::register-backend &amp;#039;pickle &amp;#039;pickle nil &amp;#039;character &amp;#039;nil &amp;#039;nil))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use &lt;code&gt;defstore-pickle&lt;/code&gt; and &lt;code&gt;defrestore-pickle&lt;/code&gt; macroses to define rules for the processing of different data types.&lt;/p&gt;
 &lt;p&gt;Here is where all real work is done:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *pickle-mapping*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *pickle-mapping*
              &amp;#039;((#\S . string))
              &amp;quot;A mapping from Pickle&amp;#039;s char codes
               to a Lisp data type&amp;quot;)
@@ -473,7 +615,7 @@ POFTHEDAY&amp;gt; (defrestore-pickle (string stream)
                (read-line stream) ;; remove the PUSH op
                (read-line stream) ;; remove the END op
                (subseq val 1 (1- (length val)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to test our functions. To make this old example work, I had to use old Python2.7, because Python3&apos;s pickle serializes into a little bit different format.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;[art@poftheday] python2.7
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;[art@poftheday] python2.7
 
 &amp;gt;&amp;gt;&amp;gt; with open(&amp;#039;/tmp/word.pickle&amp;#039;, &amp;#039;w&amp;#039;) as f:
 ...     pickle.dump(&amp;#039;Hello Lisp World!&amp;#039;, f, protocol=0)
@@ -497,7 +639,7 @@ p0
 .
 # This cl-store backend does not support V type code.
 # Seems, it stands for a Unicode string.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can read this file from Lisp and write it back:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:restore #P&amp;quot;/tmp/word.pickle&amp;quot;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:restore #P&amp;quot;/tmp/word.pickle&amp;quot;
                              &amp;#039;pickle)
 &amp;quot;Hello Lisp World!&amp;quot;
 
@@ -505,7 +647,7 @@ POFTHEDAY&amp;gt; (cl-store:store &amp;quot;Howdy, Python!&amp;quot;
                            #P&amp;quot;/tmp/word.pickle&amp;quot;
                            &amp;#039;pickle)
 &amp;quot;Howdy, Python!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, to ensure our backend works as expected, we&apos;ll read this response in Python2:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; python&apos;&gt;&amp;gt;&amp;gt;&amp;gt; import pickle
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;&amp;gt;&amp;gt;&amp;gt; import pickle
 &amp;gt;&amp;gt;&amp;gt; with open(&amp;#039;/tmp/word.pickle&amp;#039;) as f:
 ...     pickle.load(f)
 ...
@@ -519,7 +661,7 @@ POFTHEDAY&amp;gt; (cl-store:store &amp;quot;Howdy, Python!&amp;quot;
             <description>&lt;p&gt;Today I want to review not a library but a tool. &lt;code&gt;SBLint&lt;/code&gt; is a program, which can be run from the command-line. It loads your lisp code and outputs all warnings and notes from SBCL compiler.&lt;/p&gt;
 &lt;p&gt;I must admit, that SBLint&apos;s output is very readable. You&apos;ll see where you left unused variables or called a function with wrong parameters.&lt;/p&gt;
 &lt;p&gt;To show you an example, I&apos;ve added this bad code to one of my libraries:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(declaim (ftype (function (fixnum fixnum)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(declaim (ftype (function (fixnum fixnum)
                           fixnum)
                 foo))
 (defun foo (a b)
@@ -533,7 +675,7 @@ POFTHEDAY&amp;gt; (cl-store:store &amp;quot;Howdy, Python!&amp;quot;
 (defun blah ()
   (foo 2
        3.14))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is full of problems :) Let&apos;s see how SBLint will highlight them!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;[art@poftheday] sblint
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday] sblint
 src/appenders.lisp:41:0: style-warning: \
     The variable B is defined but never used.
 src/appenders.lisp:46:2: simple-warning: \
@@ -557,7 +699,7 @@ WARNING: Compilation failed in a system &amp;quot;log4cl-extras&amp;quot;.
 &lt;p&gt;Today I found &lt;a href=&quot;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&quot;&gt;an interesting thread from SpaceX&lt;/a&gt;, where it&apos;s software developers answer the questions. I wondered if there was a discussion around Lisp in the Space?&lt;/p&gt;
 &lt;p&gt;But this post has about 8000 comments and I didn&apos;t found a search in a single post&apos;s comments on the Reddit. So, I decided to use &lt;code&gt;cl-reddit&lt;/code&gt; to fetch all post comments and to search through them a &quot;lisp&quot; term.&lt;/p&gt;
 &lt;p&gt;Here is how you can connect to the Reddit and list of your subreddits:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *user*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *user*
              (cl-reddit:api-login
               :username &amp;quot;svetlyak40wt&amp;quot;
               :password *password*))
@@ -575,7 +717,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;cl-reddit:subreddit-title
 &lt;p&gt;Then we need to extract post id from this link:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&quot;&gt;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;and to fetch comments tree using &lt;code&gt;cl-reddit&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-reddit::get-comments &amp;quot;gxb7j1&amp;quot; *user*)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-reddit::get-comments &amp;quot;gxb7j1&amp;quot; *user*)
 
 (#&amp;lt;CL-REDDIT:COMMENT {1002009693}&amp;gt; #&amp;lt;CL-REDDIT:COMMENT {10020098F3}&amp;gt;
  #&amp;lt;CL-REDDIT:COMMENT {1002016BF3}&amp;gt; #&amp;lt;CL-REDDIT:COMMENT {1002016CB3}&amp;gt;
@@ -584,7 +726,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;cl-reddit:subreddit-title
 
 POFTHEDAY&amp;gt; (length *)
 151&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, we received 151 comments, but real comments count is about 7.7k. This is because other items either replies or &lt;code&gt;CL-REDDIT:MORE&lt;/code&gt; objects which contain ids of the replies:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; &apos;&gt;POFTHEDAY&amp;gt; (defparameter *comments*
+&lt;pre&gt;&lt;code class=&apos;&apos;&gt;POFTHEDAY&amp;gt; (defparameter *comments*
               (cl-reddit::get-comments &amp;quot;gxb7j1&amp;quot; *user*))
 
 POFTHEDAY&amp;gt; (rutils:last-elt *comments*)
@@ -605,7 +747,7 @@ POFTHEDAY&amp;gt; (cl-reddit:comment-replies
 
 POFTHEDAY&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We need to write a comment walker which &lt;code&gt;cl-reddit&lt;/code&gt; does not provide.&lt;/p&gt;
 &lt;p&gt;This walker will expand all &lt;code&gt;MORE&lt;/code&gt; items and collect comments into the flat list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((post-id &amp;quot;gxb7j1&amp;quot;))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((post-id &amp;quot;gxb7j1&amp;quot;))
              (uiop:while-collecting (collect)
                (labels ((visit (item)
                           (etypecase item
@@ -631,7 +773,7 @@ POFTHEDAY&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We need to write a comment wa
 &lt;p&gt;Seems, the library&apos;s author never used it for making thousands of requests.&lt;/p&gt;
 &lt;p&gt;I&apos;ve fixed this leak, but comments fetching still was too slow - about 2 comments per second. This is because &lt;code&gt;MORE&lt;/code&gt; item contains comment ids and I have to fetch them individually one by one.&lt;/p&gt;
 &lt;p&gt;I tried to parallelize the fetching process using lparallel, reviewed two days ago:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *all-comments*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *all-comments*
              (let ((post-id &amp;quot;gxb7j1&amp;quot;)
                  (counter 0))
                (uiop:while-collecting (collect)
@@ -661,7 +803,7 @@ POFTHEDAY&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We need to write a comment wa
                    (lparallel:pmapc #&amp;#039;visit
                            (cl-reddit::get-comments post-id
                                                     *user*))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But encountered these strange errors:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;The condition Socket error in &amp;quot;connect&amp;quot;: EINTR (Interrupted system call) occurred with errno: 0.
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;The condition Socket error in &amp;quot;connect&amp;quot;: EINTR (Interrupted system call) occurred with errno: 0.
 
 Condition USOCKET:TIMEOUT-ERROR was signalled.
    [Condition of type USOCKET:TIMEOUT-ERROR]
@@ -693,7 +835,7 @@ Backtrace:
 &lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0095/gearman-cluster.png&quot;/&gt;&lt;/p&gt;
 &lt;p&gt;A cool feature of Gearman is its language independence. Workers can be written in any language. This means that in your distributed system some functions can be written in Lisp, others in Python or even in Bash and some UNIX tools.&lt;/p&gt;
 &lt;p&gt;Now we&apos;ll see how to write a simple worker in Common Lisp and call it. But first, let&apos;s start Gearman server in the Docker container:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;[art@poftheday:~]% docker run --rm -p 4730:4730 artefactual/gearmand:1.1.19.1-alpine
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday:~]% docker run --rm -p 4730:4730 artefactual/gearmand:1.1.19.1-alpine
 Unable to find image &amp;#039;artefactual/gearmand:1.1.19.1-alpine&amp;#039; locally
 1.1.19.1-alpine: Pulling from artefactual/gearmand
 cbdbe7a5bc2a: Pull complete
@@ -708,7 +850,7 @@ Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
    INFO 2020-06-10 13:34:35.000000 [  main ] Starting up with pid 1, verbose is set to INFO
    INFO 2020-06-10 13:34:35.000000 [  main ] Listening on 0.0.0.0:4730 (9)
    INFO 2020-06-10 13:34:35.000000 [  main ] Adding event for listening socket (9)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we need to start a simple worker which supports two functions. It can reverse any string and report about it&apos;s Lisp implementation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-gearman:with-worker (worker &amp;quot;localhost:4730&amp;quot;)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-gearman:with-worker (worker &amp;quot;localhost:4730&amp;quot;)
              (cl-gearman:add-ability worker &amp;quot;get-implementation&amp;quot;
                                      (lambda (arg job)
                                        (declare (ignorable arg job))
@@ -720,13 +862,13 @@ Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
                                        (declare (ignorable job))
                                        (reverse arg)))
              (loop (cl-gearman:work worker)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is how we can call these functions from the console:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; bash&apos;&gt;[art@poftheday:~]% echo &amp;#039;Hello Lisp World!&amp;#039; | gearman -f reverse
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday:~]% echo &amp;#039;Hello Lisp World!&amp;#039; | gearman -f reverse
 !dlroW psiL olleH
 
 [art@poftheday:~]% echo &amp;#039;&amp;#039; | gearman -f get-implementation
 SBCL 2.0.2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This way you can communicate with the Lisp from the outer world.&lt;/p&gt;
 &lt;p&gt;If we want to call these functions from other Lisp program, then we can do it like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;OTHER-LISP&amp;gt; (cl-gearman:with-client (client &amp;quot;localhost:4730&amp;quot;)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;OTHER-LISP&amp;gt; (cl-gearman:with-client (client &amp;quot;localhost:4730&amp;quot;)
               (format t &amp;quot;~A&amp;quot;
                       (cl-gearman:submit-job client &amp;quot;reverse&amp;quot;
                                              :arg &amp;quot;Hello Lisp World!&amp;quot;)))
@@ -749,14 +891,14 @@ SBCL 2.0.2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Gearman uses a very simple protocol.
 &lt;p&gt;Use &lt;code&gt;lfarm&lt;/code&gt; when you need to run jobs on the cluster.&lt;/p&gt;
 &lt;p&gt;The cool &lt;code&gt;lfarm&lt;/code&gt;&apos;s feature is the ability to run jobs on workers, running on different Common Lisp implementation.&lt;/p&gt;
 &lt;p&gt;To demonstrate how it works, I started a LispWorks Personal edition on my laptop and SBCL with ClozureCL in the Docker containers.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(ql:quickload :lfarm-server)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(ql:quickload :lfarm-server)
 
 ;; This how I started it on LispWorks
 (lfarm-server:start-server &amp;quot;127.0.0.1&amp;quot; 10003)
 
 ;; inside the Docker:
 (lfarm-server:start-server &amp;quot;0.0.0.0&amp;quot; 10000)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After that, I created a workers pool in my SBCL REPL and called &lt;code&gt;broadcast-task&lt;/code&gt; to run a function on every worker:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (setf lfarm:*kernel* (lfarm:make-kernel &amp;#039;((&amp;quot;127.0.0.1&amp;quot; 10001)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (setf lfarm:*kernel* (lfarm:make-kernel &amp;#039;((&amp;quot;127.0.0.1&amp;quot; 10001)
                                                      (&amp;quot;127.0.0.1&amp;quot; 10002)
                                                      (&amp;quot;127.0.0.1&amp;quot; 10003))))
 #&amp;lt;LFARM-CLIENT.KERNEL:KERNEL :WORKER-COUNT 3 {1004E7C7C3}&amp;gt;
@@ -780,7 +922,7 @@ POFTHEDAY&amp;gt; (lfarm:broadcast-task
    :LISP-VERSION &amp;quot;Version 1.11.5/v1.11.5  (LinuxX8664)&amp;quot;
    :SYSTEM &amp;quot;Linux d2c83144fce3 x86_64&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another great feature is API compatibility with &lt;code&gt;lparallel&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;I took our yesterday code and modified it to be able to distinguish a machine processed a task:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lfarm:pmapcar
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lfarm:pmapcar
             (lambda (idx)
               (loop for iteration from 1 to 10
                     do (format t &amp;quot;~A task is processing ~A iteration~%&amp;quot;
@@ -812,7 +954,7 @@ POFTHEDAY&amp;gt; (lfarm:broadcast-task
             <description>&lt;p&gt;Today I want to tell you about this great library which makes it very easy to speed up your program in an easy way.&lt;/p&gt;
 &lt;p&gt;LParallel provides a convenient to use a thread pool. It allows you to run your code on multiple CPUs without bothering with threading et all.&lt;/p&gt;
 &lt;p&gt;Here is a quick demo which allows us to run calculations in parallel by changing a call to &lt;code&gt;mapcar&lt;/code&gt; with a call to &lt;code&gt;lparallel:pmapcar&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; First we need to create a pool of 4 workers:
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; First we need to create a pool of 4 workers:
 POFTHEDAY&amp;gt; (setf lparallel:*kernel*
                  (lparallel:make-kernel 4))
 #&amp;lt;LPARALLEL.KERNEL:KERNEL
@@ -849,7 +991,7 @@ POFTHEDAY&amp;gt; (lparallel:pmapcar
 &lt;ul&gt;&lt;li&gt;you have a CPU intensive tasks and want to use more power;&lt;/li&gt;&lt;li&gt;you have an IO-bound tasks and want to make more operations in   parallel.&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;In the first case there is no sense to make more workers than a number of CPU&apos;s on your machine. In the second scenario, the number of workers can be higher.&lt;/p&gt;
 &lt;p&gt;There is also a lower-level API for offloading work to workers through channels. In the next example, I pass a function to the pool and then receive the result:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *chan*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *chan*
              (lparallel:make-channel))
 
 POFTHEDAY&amp;gt; (lparallel:submit-task
@@ -876,7 +1018,7 @@ POFTHEDAY&amp;gt; (lparallel:receive-result *chan*)
 &lt;p&gt;One useful thing, you might do is to make a command-line client to send a command to your server. One practical task is code hot-reload. Here is an &lt;a href=&quot;https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload&quot;&gt;example&lt;/a&gt; of how to implement it using &lt;a href=&quot;http://quickdocs.org/swank-client/&quot;&gt;another SWANK client&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Example from Lime&apos;s sources shows how to create a REPL connected to the SWANK. However, this example creates a SWANK server in the same process. I think it will be more realistic to connect from one lisp to another.&lt;/p&gt;
 &lt;p&gt;So, I modified example to make it connect to the localhost 20100, where we&apos;ll start a separate ClozureCL process with SWANK:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
 
 For more information about CCL, please see http://ccl.clozure.com.
 
@@ -892,7 +1034,7 @@ To load &amp;quot;swank&amp;quot;:
 ;; Swank started at port: 20100.
 20100&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need a function which will make a connection and provide us with the remote REPL.&lt;/p&gt;
 &lt;p&gt;I just removed the code which starts  SWANK in the same process and replaced &lt;code&gt;(uiop:hostname)&lt;/code&gt; with &quot;localhost&quot;, because &lt;code&gt;(uiop:hostname)&lt;/code&gt; didn&apos;t work for me:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun repl ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun repl ()
              &amp;quot;Start the REPL.&amp;quot;
              (let ((conn (lime:make-connection &amp;quot;localhost&amp;quot;
                                                20100)))
@@ -928,7 +1070,7 @@ To load &amp;quot;swank&amp;quot;:
                          (lime:evaluate conn
                                         (with-standard-io-syntax
                                           (prin1-to-string input)))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can connect to our ClozureCL process and have a fun!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; We are connecting from SBCL to CCL
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; We are connecting from SBCL to CCL
 POFTHEDAY&amp;gt; (lisp-implementation-type)
 &amp;quot;SBCL&amp;quot;
 POFTHEDAY&amp;gt; (lisp-implementation-version)
@@ -945,7 +1087,7 @@ COMMON-LISP-USER&amp;gt; (lisp-implementation-version)
 
 COMMON-LISP-USER&amp;gt; (+ 1 2)
 3&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you are going to try &lt;code&gt;Lime&lt;/code&gt; on CCL, use the patched &lt;code&gt;swank-protocol&lt;/code&gt; system with &lt;a href=&quot;https://github.com/eudoxia0/swank-protocol/pull/2&quot;&gt;this fix&lt;/a&gt;. Without the fix Lime will not work because of the following error:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;&amp;lt;INFO&amp;gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;&amp;lt;INFO&amp;gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
   Read message SWANK-PROTOCOL::RESULT: (:READER-ERROR
                                         &amp;quot;(:emacs-rex (swank-repl:listener-eval #A((7) common-lisp:base-char . \&amp;quot;(+ 1 2)\&amp;quot;)) \&amp;quot;COMMON-LISP-USER\&amp;quot; :repl-thread 5)
 &amp;quot;
@@ -959,12 +1101,12 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0091-defclass-std.html</link>
             <description>&lt;p&gt;This library provides a shortcut macro to define &lt;code&gt;CLOS&lt;/code&gt; classes. Today I needed to define a class which will store stock candles data. It will keep data in the columns.&lt;/p&gt;
 &lt;p&gt;With &lt;code&gt;defclass-std&lt;/code&gt; we can define such class like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass-std:defclass/std candles ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass-std:defclass/std candles ()
              ((timestamps
                lows highs
                opens closes
                volumes)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will be expand into the &lt;code&gt;defclass&lt;/code&gt; full of accessors, init forms, etc:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass candles nil
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defclass candles nil
   ((timestamps :accessor timestamps
                :initarg :timestamps
                :initform nil)
@@ -984,7 +1126,7 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
             :initarg :volumes
             :initform nil)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what I really want is a class with custom initforms and readers, prefixed by class name.&lt;/p&gt;
 &lt;p&gt;Here is the class definition I had before discovered the &lt;code&gt;defclass-std&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass candles ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defclass candles ()
   ((timestamps :reader candles-timestamps
                :initform (make-time-vector)
                :initarg :timestamps)
@@ -1005,7 +1147,7 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
             :initarg :volumes))
   (:documentation
    &amp;quot;This is stock candles candles.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how &lt;code&gt;defclass-std&lt;/code&gt; can make this definition shorter and &lt;a href=&quot;https://en.wikipedia.org/wiki/Don%27t_repeat_yourself&quot;&gt;DRY&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass-std:defclass/std candles ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defclass-std:defclass/std candles ()
   ((timestamps
     :ri :with-prefix
     :std (make-time-vector))
@@ -1020,7 +1162,7 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
   (:documentation
    &amp;quot;This is stock candles storage.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will write &lt;code&gt;:initarg&lt;/code&gt; and &lt;code&gt;:reader&lt;/code&gt; for each slot. Also, slot&apos;s &lt;code&gt;:initform&lt;/code&gt; will have the value, provided after the &lt;code&gt;:std&lt;/code&gt; keyword.&lt;/p&gt;
 &lt;p&gt;The syntax can be made even shorter, but such format is not supported yet:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defclass-std:defclass/std candles ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defclass-std:defclass/std candles ()
   ((timestamps
     :std (make-time-vector))
    (volumes
@@ -1038,7 +1180,7 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0090-defmain.html</link>
             <description>&lt;p&gt;Today I want to tell about my own library for command-line arguments parsing. &lt;code&gt;Defmain&lt;/code&gt; provides a macro for defining the main function.&lt;/p&gt;
 &lt;p&gt;All you need is to declare required and optional arguments like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defmain:defmain main
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmain:defmain main
                ((debug &amp;quot;Show traceback instead of short message.&amp;quot;
                        :flag t)
                 (log   &amp;quot;Filename to write log to.&amp;quot;)
@@ -1056,7 +1198,7 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
                      debug
                      log
                      token))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code expands to a lot of low-level code which uses &lt;a href=&quot;https://twitter.com/didierverna&quot;&gt;@didierverna&lt;/a&gt;&apos;s &lt;code&gt;net.didierverna.clon&lt;/code&gt; for actual arguments parsing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(progn
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(progn
  (defun main (&amp;amp;rest defmain/defmain::argv)
    (declare (ignorable))
    (let ((defmain/defmain::synopsis
@@ -1125,10 +1267,10 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
  (setf (get &amp;#039;main :arguments) &amp;#039;(debug log token)
        (documentation &amp;#039;main &amp;#039;function) &amp;quot;Utility to analyze github forks.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s try to call our main function to check how  it processes command-line arguments.&lt;/p&gt;
 &lt;p&gt;Defmain calls &lt;code&gt;uiop:quit&lt;/code&gt; at the end of the function on after the printing help message. To suppress this behaviour, I&apos;ll redefine this function to just print to the screen:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun uiop:quit (&amp;amp;optional (code 0))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun uiop:quit (&amp;amp;optional (code 0))
              (format t &amp;quot;Quit was called with code=~A~%&amp;quot;
                      code))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can pass it different combinations of arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (main)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (main)
 Repositories: 
 Debug: NIL
 Log: NIL
@@ -1182,7 +1324,7 @@ Quit was called with code=1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Defmain
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0089-lambda-fiddle.html</link>
             <description>&lt;p&gt;This library serves a single purpose - to help macro writers to parse lambda lists. In this sense, it is similar to &lt;code&gt;parse-declarations&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html&quot;&gt;reviewed on 13 May&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;The library has a number of functions to extract or remove exact parts of the lambda list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:remove-aux-part
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:remove-aux-part
             &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
 (FOO BAR &amp;amp;KEY BAZ)
 
@@ -1204,14 +1346,14 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
              (list :required req
                    :optional opt))
 (:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It also provides a higher-level macro to extract particular pieces all at once:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
                (:required req :optional opt)
                &amp;#039;(foo bar &amp;amp;optional baz)
              (list :required req
                    :optional opt))
 (:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s &quot;legit&quot; contains &lt;a href=&quot;https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45&quot;&gt;a practical example&lt;/a&gt; of the &lt;code&gt;with-destructured-lambda-list&lt;/code&gt; usage.&lt;/p&gt;
 &lt;p&gt;This code replaces optional arguments with keywords and adds optional predicates which can be used to check if a keyword argument was provided:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(defmacro define-git-wrapper (name &amp;amp;rest argdefs)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defmacro define-git-wrapper (name &amp;amp;rest argdefs)
   (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs
     (let* ((purereq (purify-args req))
            (purekey (purify-args key))
@@ -1245,7 +1387,7 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0088-group-by.html</link>
             <description>&lt;p&gt;This small utility library implements a really handy facility. It allows you to group items by one or many keys.&lt;/p&gt;
 &lt;p&gt;Here is how it works. In the next example we&apos;ll group names by their first letter:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (group-by:group-by
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (group-by:group-by
             &amp;#039;(&amp;quot;Alice&amp;quot;
               &amp;quot;Bob&amp;quot;
               &amp;quot;Ashley&amp;quot;
@@ -1266,7 +1408,7 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
  (#\J &amp;quot;Jessica&amp;quot;
       &amp;quot;Josh&amp;quot;)
  (#\D &amp;quot;Daniel&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we are going to group by the first letter and next by the second, we need to use &lt;code&gt;group-by-repeated&lt;/code&gt; function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
                     (elt name 0))
                   (second-letter (name)
                     (elt name 1)))
@@ -1291,7 +1433,7 @@ POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
  (#\A (#\s &amp;quot;Ashley&amp;quot;)
       (#\l &amp;quot;Alice&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library also provides a way to accumulate grouped items into a special object. This could be useful when you don&apos;t have all items right away, but receiving them one by one from some source.&lt;/p&gt;
 &lt;p&gt;Here is how it can be used in the simplest case. First, we&apos;ll request names from the user and will be collecting them into a special grouped list data structure:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((first-letter (name)
                     (elt name 0))
                   (second-letter (name)
                     (elt name 1))
@@ -1319,7 +1461,7 @@ Enter a name: nil
 #&amp;lt;GROUP-BY:GROUPED-LIST {1006D3EC43}&amp;gt;
 
 POFTHEDAY&amp;gt; (defparameter *grouping* *)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;At any time we can access the data structure to work with already collected items. Let&apos;s write a recursive function to see what we&apos;ve collected so far:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-tree (grouping &amp;amp;optional (depth 0))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-tree (grouping &amp;amp;optional (depth 0))
              (let ((prefix (make-string depth :initial-element #\Space))
                    (key (group-by:key-value grouping))
                    (items (group-by:items-in-group grouping))
@@ -1358,7 +1500,7 @@ M
             <title>cl-cron</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0087-cl-cron.html</link>
             <description>&lt;p&gt;This is a small system which allows you to organize a scheduled function execution in a Cron-like manner.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
             (lambda ()
               (format t &amp;quot;[~A] Cron works!~%&amp;quot;
                       (local-time:now))))
@@ -1387,7 +1529,7 @@ T
 POFTHEDAY&amp;gt; (list-cron-jobs)
 NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Having unnamed cron jobs is not convenient because it is to remove them, you need to get its name using &lt;code&gt;list-cron-jobs&lt;/code&gt; function.&lt;/p&gt;
 &lt;p&gt;But you can provide a &lt;code&gt;hash-key&lt;/code&gt; argument to the &lt;code&gt;make-cron-job&lt;/code&gt; function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
             (lambda ()
               (format t &amp;quot;[~A] Cron works!~%&amp;quot;
                       (local-time:now)))
@@ -1404,7 +1546,7 @@ T
 POFTHEDAY&amp;gt; (list-cron-jobs)
 NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute but at the specified time, you can pass keyword arguments to the &lt;code&gt;make-cron-job&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;For example, this will add a callback to run at 10:00 of every Sunday:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
             (lambda ()
               (format t &amp;quot;Wake Up!~%&amp;quot;))
 
@@ -1417,7 +1559,7 @@ NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute 
             :hash-key :sunday-alarm)
 :SUNDAY-ALARM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I use &lt;code&gt;cl-cron&lt;/code&gt; in the Ultralisp.org, &lt;a href=&quot;https://github.com/ultralisp/ultralisp/blob/517738b087ca5a3eb14de728d855ca70739913c8/src/cron.lisp#L157-L184&quot;&gt;to schedule different tasks&lt;/a&gt;. And another useful trick I do is redefining &lt;code&gt;cl-cron:log-cron-message&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;By default it writes lines to the &lt;code&gt;./cron.log&lt;/code&gt;, but using this definition you can redirect all messages to the &lt;code&gt;log4cl&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; Here we are patching this function because
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here we are patching this function because
 ;; original tries to write into a file cl-cron.log
 (defun cl-cron:log-cron-message (message &amp;amp;optional (type &amp;quot;error&amp;quot;))
   (if (string-equal type &amp;quot;error&amp;quot;)
@@ -1433,7 +1575,7 @@ NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute 
 &lt;p&gt;I already reviewed the &quot;heredoc&quot; library providing a similar functionality:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&quot;&gt;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Here is how &lt;code&gt;pythonic-string-reader&lt;/code&gt; can be used:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; Enable the syntax:
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Enable the syntax:
 POFTHEDAY&amp;gt; (named-readtables:in-readtable
             pythonic-string-reader:pythonic-string-syntax)
 
@@ -1460,7 +1602,7 @@ POFTHEDAY&amp;gt; (documentation &amp;#039;FOO
                  to itself.
              &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Whereas &lt;code&gt;cl-heredoc&lt;/code&gt; package allowed you to choose a string which will denote the end of the string literal, &lt;code&gt;pythonic-string-reader&lt;/code&gt; supports only 3 or 4 double-quotes.&lt;/p&gt;
 &lt;p&gt;4 double-quotes might be useful if you want to use 3 double quotes in the text:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo ()
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo ()
              &amp;quot;&amp;quot;&amp;quot;&amp;quot;
              You also might enter text with 3 double quotes:
 
@@ -1488,12 +1630,12 @@ POFTHEDAY&amp;gt; (foo)
 &lt;p&gt;For this implementation, I needed a type inference to set vector&apos;s type for each column. An inferred type should be generic enough to work for all items in the column.&lt;/p&gt;
 &lt;p&gt;But what if we have positive and negative integers in our data? What type will return the standard &lt;code&gt;type-of&lt;/code&gt;?&lt;/p&gt;
 &lt;p&gt;Here is the answer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (type-of 21)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (type-of 21)
 (INTEGER 0 4611686018427387903)
 
 POFTHEDAY&amp;gt; (type-of -21)
 FIXNUM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, if I&apos;ll make my vector&apos;s type &lt;code&gt;(INTEGER 0 4611686018427387903)&lt;/code&gt; it will raise an error on the second element:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (make-array
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-array
             2
             :element-type &amp;#039;(INTEGER
                             0
@@ -1503,7 +1645,7 @@ FIXNUM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, if I&apos;ll make my vector&apos;s t
 ; #&amp;lt;TYPE-ERROR expected-type:
 ; (UNSIGNED-BYTE 62) datum: -21&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That&apos;s why I started to search the way to make inferred type more generic and found &lt;code&gt;simplified-types&lt;/code&gt; library.&lt;/p&gt;
 &lt;p&gt;Here is how it works:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (mapcar #&amp;#039;type-of
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (mapcar #&amp;#039;type-of
              &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;))
 
 ((INTEGER 0 4611686018427387903)
@@ -1521,7 +1663,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
   DOUBLE-FLOAT
   T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, &lt;code&gt;INTEGER&lt;/code&gt; with bounds still is not what I need for my application. Happily, &lt;a href=&quot;https://github.com/marcoheisig&quot;&gt;Marco Heisig&lt;/a&gt; foresee this need and added a switcher which makes integer types more generic.&lt;/p&gt;
 &lt;p&gt;With this option, the library produces exactly what I need:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((simplified-types::*precise-integer-types* nil))
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((simplified-types::*precise-integer-types* nil))
              (mapcar #&amp;#039;simplified-types:simplified-type-of
                &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;)))
 
@@ -1540,7 +1682,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
 &lt;p&gt;Recently I encounter a task where I needed to print tabulated data. In Python there is really cool library &lt;a href=&quot;https://pypi.org/project/tabulate/&quot;&gt;tabulate&lt;/a&gt; and first thing I did - created &lt;a href=&quot;https://www.reddit.com/r/Common_Lisp/comments/gs115z/looking_for_a_library_to_show_data_frames_and/&quot;&gt;the post on Reddit&lt;/a&gt; asking if there is something similar for Common Lisp exists.&lt;/p&gt;
 &lt;p&gt;Comments didn&apos;t give a  variety of choices, but I found a &lt;code&gt;cl-ascii-table&lt;/code&gt; &lt;a href=&quot;http://quickdocs.org/cl-ascii-table/&quot;&gt;on Quickdocs&lt;/a&gt;. Remember, if you need to solve some problem - search o Quickdocs first! ;-)&lt;/p&gt;
 &lt;p&gt;So, &lt;code&gt;cl-ascii-table&lt;/code&gt; is a little helper to draw nice ASCII tables. It is very easy to use. Just create a table, then add rows, and command it to render the table:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with rows = &amp;#039;((&amp;quot;Bob&amp;quot; 31 &amp;quot;bob@gmail.com&amp;quot; 89.4)
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with rows = &amp;#039;((&amp;quot;Bob&amp;quot; 31 &amp;quot;bob@gmail.com&amp;quot; 89.4)
                                (&amp;quot;Alice&amp;quot; 28 &amp;quot;alice@hot.com&amp;quot; 65.1)
                                (&amp;quot;Garry&amp;quot; 25 &amp;quot;garry@zoumz.in&amp;quot; 76.3))
                  with table = (ascii-table:make-table
@@ -1561,7 +1703,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
 +-------+-----+----------------+--------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is not so featureful as Python&apos;s tabulate, but does it job.&lt;/p&gt;
 &lt;p&gt;By the way, pay attention on the difference between system name and package name. It might be important if you use &lt;a href=&quot;https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html&quot;&gt;package-inferred-system&lt;/a&gt; ASDF extension for your own system.&lt;/p&gt;
 &lt;p&gt;In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from &lt;code&gt;ascii-table&lt;/code&gt; package:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Sat, 30 May 2020 22:00:38 +0300</pubDate>
         </item>
         <item>
@@ -1569,7 +1711,7 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
             <link>http://40ants.com/lisp-project-of-the-day/2020/05/0083-assoc-utils.html</link>
             <description>&lt;p&gt;This is a small utility library by &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;Eitaro Fukamachi&lt;/a&gt;. It serves a single purpose - make working with alists more convenient.&lt;/p&gt;
 &lt;p&gt;The library has good documentation with lots of examples. Here is the excerpt from it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *person*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *person*
              &amp;#039;((&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;)
                (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;)))
 
@@ -1601,7 +1743,7 @@ POFTHEDAY&amp;gt; (assoc-utils:delete-from-alistf *person*
                                            &amp;quot;email&amp;quot;)
 ((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
  (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also conversion functions which automatically converts keys from strings to keywords and vice versa:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; *person*
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; *person*
 ((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;) 
  (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))
 
@@ -1614,159 +1756,6 @@ POFTHEDAY&amp;gt; (assoc-utils:plist-alist *)
  (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/assoc-utils/&quot;&gt;the documentation&lt;/a&gt; to learn more about other functions which allow to compare alists, check their type and to get keys and values.&lt;/p&gt;
 </description>
             <pubDate>Fri, 29 May 2020 21:06:49 +0300</pubDate>
-        </item>
-        <item>
-            <title>data-table</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html</link>
-            <description>&lt;p&gt;This library provides a few methods to work with data tables. Think about it as a limited version of &lt;a href=&quot;https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html&quot;&gt;Pandas Dataframe&lt;/a&gt; for Common Lisp.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;Data-table&lt;/code&gt; abilities are really modest. For example, it does not provide methods to investigate data in the table.&lt;/p&gt;
-&lt;p&gt;To overcome this limitation, we&apos;ll use another library - &lt;code&gt;cl-ascii-table&lt;/code&gt; and define a &lt;code&gt;describe-object&lt;/code&gt; method for data tables:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
-             (make-instance &amp;#039;data-table:data-table
-                            :column-names &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Birthday&amp;quot; &amp;quot;Age&amp;quot;)
-                            :rows &amp;#039;((&amp;quot;Bob&amp;quot; &amp;quot;1985-05-17&amp;quot; 35)
-                                    (&amp;quot;Alice&amp;quot; &amp;quot;1989-02-23&amp;quot; 31)
-                                    (&amp;quot;John&amp;quot; &amp;quot;2000-01-03&amp;quot; 20))))
-
-;; This is what we&amp;#039;ll wee by default:
-POFTHEDAY&amp;gt; (describe *dt*)
-#&amp;lt;DATA-TABLE:DATA-TABLE {1003D50293}&amp;gt;
-  [standard-object]
-
-Slots with :INSTANCE allocation:
-  COLUMN-NAMES                   = (&amp;quot;Name&amp;quot; &amp;quot;Birthday&amp;quot; &amp;quot;Age&amp;quot;)
-  COLUMN-TYPES                   = (STRING STRING (INTEGER 0 4611686018427387903))
-  ROWS                           = ((&amp;quot;Bob&amp;quot; &amp;quot;1985-05-17&amp;quot; 35) (&amp;quot;Alice&amp;quot; &amp;quot;1989-02-23&amp;quot; 31))
-
-;; But with custom method we might make it more
-;; more convenient:
-POFTHEDAY&amp;gt; (defmethod describe-object ((obj data-table:data-table) stream)
-             (loop with table = (ascii-table:make-table
-                                 (data-table:column-names obj))
-                   for row in (data-table:rows obj)
-                   do (ascii-table:add-row table row)
-                   finally (ascii-table:display table)))
-
-POFTHEDAY&amp;gt; (describe *dt*)
-+-------+------------+-----+
-| Name  | Birthday   | Age |
-+-------+------------+-----+
-| Bob   | 1985-05-17 |  35 |
-| Alice | 1989-02-23 |  31 |
-| John  | 2000-01-03 |  20 |
-+-------+------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s see what capabilities for data slicing does it have.&lt;/p&gt;
-&lt;p&gt;Here is how we can retrieve columns. Pay attention, column names are case insensitive. But if case mismatch, column names of the resulting table will be different. Maybe this is a bug:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (describe
-            (data-table:select-columns *dt*
-                                       &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Age&amp;quot;)))
-+-------+-----+
-| Name  | Age |
-+-------+-----+
-| Bob   |  35 |
-| Alice |  31 |
-| John  |  20 |
-+-------+-----+
-; No values
-POFTHEDAY&amp;gt; (describe
-            (data-table:select-columns *dt*
-                                       &amp;#039;(&amp;quot;name&amp;quot; &amp;quot;age&amp;quot;)))
-+-------+-----+
-| name  | age |
-+-------+-----+
-| Bob   |  35 |
-| Alice |  31 |
-| John  |  20 |
-+-------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a way to select a subtable using indices.&lt;/p&gt;
-&lt;p&gt;This is how we can select contiguous columns with &quot;Name&quot; and &quot;Age&quot; labels:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; We have to do call this method first.
-;; It will fill a list of datatypes.
-;; Without filled list of datatypes, make-sub-table will fail :(
-
-POFTHEDAY&amp;gt; (data-table:coerce-data-table-of-strings-to-types *dt*)
-
-POFTHEDAY&amp;gt; (describe
-            (data-table:make-sub-table *dt*
-                                       :lci 1 :uci 3))
-+------------+-----+
-| Birthday   | Age |
-+------------+-----+
-| 1985-05-17 |  35 |
-| 1989-02-23 |  31 |
-| 2000-01-03 |  20 |
-+------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we want to select only the last two rows, then we have to do some math:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;;; In pandas.DataFrame this will be just: dt.tail(2)
-;;
-POFTHEDAY&amp;gt; (let ((rows-count (data-table:number-of-rows *dt*)))
-             (describe
-              (data-table:make-sub-table *dt*
-                                         :lri (- rows-count 2)
-                                         :uri rows-count)))
-+-------+------------+-----+
-| Name  | Birthday   | Age |
-+-------+------------+-----+
-| Alice | 1989-02-23 |  31 |
-| John  | 2000-01-03 |  20 |
-+-------+------------+-----+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, we can combine column selection by name with make-sub-table. But this will create an intermediate table.&lt;/p&gt;
-&lt;p&gt;There is also a method &lt;code&gt;overlay-region&lt;/code&gt; to combine two tables. Let&apos;s use it to add email for Genry and Mary:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
-             (data-table:plists-to-data-table
-              &amp;#039;((:id 1 :name &amp;quot;Bob&amp;quot;)
-                (:id 2 :name &amp;quot;Genry&amp;quot;)
-                (:id 3 :name &amp;quot;Mary&amp;quot;))))
-
-POFTHEDAY&amp;gt; (describe *dt*)
-+----+-------+
-| ID | NAME  |
-+----+-------+
-|  1 | Bob   |
-|  2 | Genry |
-|  3 | Mary  |
-+----+-------+
-
-POFTHEDAY&amp;gt; (data-table:overlay-region
-            (data-table:plists-to-data-table
-             &amp;#039;((:email &amp;quot;genry@gmail.com&amp;quot;)
-               (:email &amp;quot;mary@hormail.com&amp;quot;)))
-            *dt*)
-NIL
-
-POFTHEDAY&amp;gt; (describe *dt*)
-+------------------+-------+
-| ID               | NAME  |
-+------------------+-------+
-| genry@gmail.com  | Bob   |
-| mary@hormail.com | Genry |
-|                3 | Mary  |
-+------------------+-------+
-
-POFTHEDAY&amp;gt; ;; Oh, this method modified the original table :(((&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To fix the issue, we need to recreate an original table and to specify indexes for applied overlay:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos; lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *dt*
-             (data-table:plists-to-data-table
-              &amp;#039;((:id 1 :name &amp;quot;Bob&amp;quot;)
-                (:id 2 :name &amp;quot;Genry&amp;quot;)
-                (:id 3 :name &amp;quot;Mary&amp;quot;))))
-
-POFTHEDAY&amp;gt; (data-table:overlay-region
-            (data-table:plists-to-data-table
-             &amp;#039;((:email &amp;quot;genry@gmail.com&amp;quot;)
-               (:email &amp;quot;mary@hormail.com&amp;quot;)))
-            *dt*
-            :col-idx 2
-            :row-idx 1)
-
-;; But new column has no name now :(
-POFTHEDAY&amp;gt; (describe *dt*)
-+----+-------+------------------+
-| ID | NAME  | NIL              |
-+----+-------+------------------+
-|  1 | Bob   | NIL              |
-|  2 | Genry | genry@gmail.com  |
-|  3 | Mary  | mary@hormail.com |
-+----+-------+------------------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It would be nice to have support for indices and joins &lt;a href=&quot;https://pandas.pydata.org/pandas-docs/stable/getting_started/10min.html#join&quot;&gt;like in Pandas&lt;/a&gt;. That is what I expect from the data manipulation library.&lt;/p&gt;
-&lt;p&gt;We&apos;ve viewed almost all core functions of the &lt;code&gt;data-table&lt;/code&gt; library. There are also data coercion and comparison functions. But I think this library has lots of room for improvement.&lt;/p&gt;
-&lt;p&gt;Maybe &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;@guicho271828&lt;/a&gt; has plans to build a dataframe library as supplementary to his &lt;a href=&quot;https://github.com/numcl/numcl&quot;&gt;NumCL&lt;/a&gt;?&lt;/p&gt;
-</description>
-            <pubDate>Fri, 29 May 2020 00:31:49 +0300</pubDate>
         </item>
     </channel>
 </rss>

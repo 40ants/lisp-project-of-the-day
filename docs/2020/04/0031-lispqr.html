@@ -51,7 +51,7 @@ h1 .tags {
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lispqr</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lispqr<span class='tags'><a href='../../tags/graphics.html'><span class='label label-default'>graphics</span></a></span></h1><p>This small library is able to generate standard QR codes.</p>
 <p>It produces either a matrix, which you can render on your own:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (mare5x.lispqr.encode::encode-&gt;matrix
+<pre><code class='lisp'>POFTHEDAY&gt; (mare5x.lispqr.encode::encode-&gt;matrix
               &quot;Hello Lisp World!&quot;)
 #2A((1 1 1 1 1 1 1 0 0 0 0 0 0 0 1 1 1 1 1 1 1)
     (1 0 0 0 0 0 1 0 1 1 0 1 1 0 1 0 0 0 0 0 1)
@@ -74,7 +74,7 @@ h1 .tags {
     (1 0 1 1 1 0 1 0 1 1 0 1 1 0 0 1 0 0 1 0 0)
     (1 0 0 0 0 0 1 0 1 1 0 0 1 0 0 0 1 1 1 0 0)
     (1 1 1 1 1 1 1 0 1 1 0 0 1 0 1 0 1 0 0 1 0))</code></pre><p>Or it can render the image into a png (internally, it uses <a href="https://twitter.com/xach">@xach</a>'s "zpng", used in my <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0030-skippy-renderer.html">previous post</a> to render a frame from the GIF file):</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (mare5x.lispqr.encode::encode-&gt;image
+<pre><code class='lisp'>POFTHEDAY&gt; (mare5x.lispqr.encode::encode-&gt;image
              &quot;http://40ants.com/lisp-project-of-the-day/&quot;
              &quot;docs/media/0031/qr-code.png&quot;)
 Encoding &quot;http://40ants.com/lisp-project-of-the-day/&quot;

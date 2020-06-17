@@ -51,7 +51,7 @@ h1 .tags {
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-collider</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-collider<span class='tags'><a href='../../tags/sound.html'><span class='label label-default'>sound</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library is an interface to a very interesting algorithmic audio synthesizer - <a href="https://supercollider.github.io/">SuperCollider</a>. SuperCollider itself has a builtin programming language, but <code>cl-collider</code> makes it possible to write music in lisp interactively.</p>
 <p>Here is how a simple program in sclang looks like:</p>
-<pre><code class=' C'>// 60Hz Gabber Rave 1995
+<pre><code class='C'>// 60Hz Gabber Rave 1995
 Server.default.boot;
 
 (
@@ -106,7 +106,7 @@ Ppar([
     ])
 ]).play(TempoClock(210 / 60));
 )</code></pre><p>I wasn't able to translate it into the Lisp form, because <code>cl-collider</code> does not have documentation and diving into it will require too much time. However, there is a working code example from its README, which you can try in the REPL:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (named-readtables:in-readtable :sc)
+<pre><code class='lisp'>POFTHEDAY&gt; (named-readtables:in-readtable :sc)
 POFTHEDAY&gt; (setf sc:*s* (sc:make-external-server
                          &quot;localhost&quot; :port 48800))
 POFTHEDAY&gt; (use-package :sc)
@@ -137,7 +137,7 @@ POFTHEDAY&gt; (make-melody (+ 4 (quant 4)) 16 12)
 POFTHEDAY&gt; (sc:stop)</code></pre><p>Here is a demo, showing how does live coding works with <code>cl-collider</code>:</p>
 <p><a href="https://www.youtube.com/watch?v=pZyuHjztARY">https://www.youtube.com/watch?v=pZyuHjztARY</a></p>
 <p>To try <code>cl-collider</code>, you'll need to install a SuperCollider. On OSX it is as simple as doing:</p>
-<pre><code class=' bash'>brew cask install supercollider</code></pre>
+<pre><code class='bash'>brew cask install supercollider</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

@@ -53,7 +53,7 @@ h1 .tags {
 <p>Game world is full of different entities. Each entity has it a type and characteristics or aspects.</p>
 <p>"Beast" is a simple wrapper over CLOS, which allows you to define aspects and to mix them when defining a new entity type.</p>
 <p>Here is a nice example from projects README:</p>
-<pre><code class=' lisp'>(define-aspect throwable accuracy damage)
+<pre><code class='lisp'>(define-aspect throwable accuracy damage)
 (define-aspect edible nutrition-value)
 
 (define-entity dart (throwable))
@@ -79,7 +79,7 @@ h1 .tags {
     :throwable/accuracy 0.3
     :throwable/damage 5
     :edible/nutrition-value 30))</code></pre><p>Macro <code>(beast:define-aspect throwable accuracy damage)</code> is expanded into such class-definition:</p>
-<pre><code class=' lisp'>(progn
+<pre><code class='lisp'>(progn
  (defclass throwable nil
            ((throwable/accuracy :accessor throwable/accuracy :initarg
              :throwable/accuracy)
@@ -88,14 +88,14 @@ h1 .tags {
  (defun throwable? (beast::object) (typep beast::object &#039;throwable))
  (beast::initialize-aspect-index &#039;throwable)
  (find-class &#039;throwable))</code></pre><p>Macro <code>(beast:define-entity pie (throwable edible))</code> also transformed into a class which inherits all aspects and also has a class-level slot with a list of aspects:</p>
-<pre><code class=' lisp'>(progn
+<pre><code class='lisp'>(progn
  (defclass pie (beast:entity throwable edible)
            ((beast::%beast/aspects :allocation :class :initform
              &#039;(throwable edible))))
  (defun pie? (beast::object) (typep beast::object &#039;pie))
  (find-class &#039;pie))</code></pre><p>Function <code>create-entity</code> not only creates a CLOS instance but also adds it to special indexes of entities of this type and entities having these aspects.</p>
 <p>Macro <code>define-system</code> defines two functions:</p>
-<pre><code class=' lisp'>(progn
+<pre><code class='lisp'>(progn
   (declaim
    (ftype (function ((and beast:entity edible)) (values null &amp;optional))
           rot-food)

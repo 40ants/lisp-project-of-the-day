@@ -53,7 +53,7 @@ h1 .tags {
 <p>These features are:</p>
 <ul><li>compact binary representation;</li><li>support for object references;</li><li>and speed.</li></ul>
 <p>Let's compare it with cl-bert:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (bert:encode (list :hello
+<pre><code class='lisp'>POFTHEDAY&gt; (bert:encode (list :hello
                               :lisp
                               :world!))
 #(131 108 0 0 0 3 115 5 72 69 76 76 79
@@ -69,7 +69,7 @@ POFTHEDAY&gt; (conspack:encode (list :hello
   73 83 80 131 64 6 87 79 82 76 68 33 0)
 POFTHEDAY&gt; (length *)
 27</code></pre><p>As you can see, conspack's result is one byte smaller, but we can squeeze more if we provide some knowledge about data to the "conspack":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (conspack:with-index (:hello :lisp :world!)
+<pre><code class='lisp'>POFTHEDAY&gt; (conspack:with-index (:hello :lisp :world!)
              (conspack:encode (list :hello
                                     :lisp
                                     :world!)))
@@ -81,7 +81,7 @@ POFTHEDAY&gt; (conspack:with-index (:hello :lisp :world!)
 (:HELLO :LISP :WORLD!)
 6</code></pre><p>As you can see, now our data is only 6 bytes. This will work very good when you data uses many duplicate symbols.</p>
 <p>In the next example, we will test how do links work:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defclass node ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defclass node ()
              ((name :type keyword
                     :initarg :name
                     :reader get-name)
@@ -129,7 +129,7 @@ POFTHEDAY&gt; (get-next *)
 #S(CONSPACK::FORWARD-REF :TYPE :CDR :REF (NEXT . &lt;node FIRST&gt;) :DATUM NIL)</code></pre><p>As you can see, "cl-conspack" broke the circular loop, but wasn't able to restore it completely.</p>
 <p>Probably, this could be improved.</p>
 <p>Now let's combine compression with object serialization. In the previous example, serialized data took 103 bytes. Let's see how much we can squeeze:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (conspack:with-index (node name next :first :second)
+<pre><code class='lisp'>POFTHEDAY&gt; (conspack:with-index (node name next :first :second)
              (conspack:tracking-refs ()
                (conspack:encode *first*)))
 #(242 56 2 176 240 177 179 241 178 56 2 176 112 180 113 114)

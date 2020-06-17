@@ -59,7 +59,7 @@ h1 .tags {
 <p><a href="https://ultralisp.org">https://ultralisp.org</a></p>
 <p>Let's try how it works!</p>
 <p>The first example shows how to extract CSS from HTML:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (softdrink:slurp &quot;&lt;div&gt;
+<pre><code class='lisp'>POFTHEDAY&gt; (softdrink:slurp &quot;&lt;div&gt;
                                &lt;foo/&gt;
                                &lt;foo id=\&quot;bla\&quot;
                                     style=\&quot;foo: bar; blah: minor\&quot; /&gt;
@@ -68,7 +68,7 @@ h1 .tags {
     foo: bar;
     blah: minor;
 }&quot;</code></pre><p>The second example embeds CSS into HTML and renders it into the string:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (softdrink:pour
+<pre><code class='lisp'>POFTHEDAY&gt; (softdrink:pour
             (softdrink:mix
              &quot;&lt;foo&gt;
                 &lt;p&gt;Hello Lisp World!&lt;/p&gt;

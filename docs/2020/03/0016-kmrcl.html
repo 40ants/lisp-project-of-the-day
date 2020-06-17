@@ -55,7 +55,7 @@ h1 .tags {
 <p>Here is one interesting macro - if* from AllegroCL.</p>
 <p>Macro itself is not documented, but I found documentation on Franz site: <a href="https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm">https://franz.com/support/documentation/current/doc/operators/excl/if_s.htm</a></p>
 <p>Here is an example:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((score 75))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((score 75))
                  (kmrcl::if* (&lt; score 60) then &quot;F&quot; 
                       elseif (&lt; score 70) then &quot;D&quot;
                       elseif (&lt; score 80) then &quot;C&quot; 

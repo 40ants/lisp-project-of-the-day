@@ -53,7 +53,7 @@ h1 .tags {
 <p>Teddy make it possible to define a data frame full of data, to slice it in different ways, to join data frames, see some statistics about the data and render plots.</p>
 <p>This is a proof of the concept and API will be changed. Check the ChangeLog.md to learn about new abilities and refactoring details.</p>
 <p>Here is how we can create a simple data frame:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (teddy/data-frame:make-data-frame
+<pre><code class='lisp'>POFTHEDAY&gt; (teddy/data-frame:make-data-frame
             &#039;(&quot;Idx&quot; &quot;Integers&quot; &quot;Uniform floats&quot; &quot;Gaussian&quot;)
             :rows
             (loop repeat 10
@@ -78,7 +78,7 @@ h1 .tags {
 |   8 |       42 |           0.08 |   5.10d0 |
 |   9 |        7 |           0.86 |   5.31d0 |
 +-----+----------+----------------+----------+</code></pre><p>Now we can slice it by columns, rows or both:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (teddy/data-frame:head *d* 2)
+<pre><code class='lisp'>POFTHEDAY&gt; (teddy/data-frame:head *d* 2)
 +-----+----------+----------------+----------+
 | Idx | Integers | Uniform floats | Gaussian |
 +-----+----------+----------------+----------+
@@ -119,7 +119,7 @@ POFTHEDAY&gt; (teddy/data-frame:slice *d*
 |   4 |   4.72d0 |
 |   5 |   4.73d0 |
 +-----+----------+</code></pre><p>Also, we might want to see some descriptive statistical data about our data frame. This is pretty easy with Teddy:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (teddy/stats:stats *d*)
+<pre><code class='lisp'>POFTHEDAY&gt; (teddy/stats:stats *d*)
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+
 | Column         | Min    | p25    | p50    | p75    | Max    | Mean  | SD    | Sum     |
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+
@@ -129,7 +129,7 @@ POFTHEDAY&gt; (teddy/data-frame:slice *d*
 | Gaussian       | 4.72d0 | 4.87d0 | 4.93d0 | 5.15d0 | 5.31d0 |  4.99 |  0.20 | 49.88d0 |
 +----------------+--------+--------+--------+--------+--------+-------+-------+---------+</code></pre><p>Probably, we can make some extandable protocol to calculate other properties.</p>
 <p>Data frame stores data as columns. Each column is a vector of a particular type. If you want to process a row, you can create an iterator and use it to go through rows like that:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (loop with iterator = (teddy/data-frame:make-iterator *d*)
+<pre><code class='lisp'>POFTHEDAY&gt; (loop with iterator = (teddy/data-frame:make-iterator *d*)
                  for row = (funcall iterator)
                  while row
                  do (format t &quot;Row: ~S~%&quot;
@@ -145,16 +145,16 @@ Row: (7 79 0.59791017 5.2466443304900965d0)
 Row: (8 42 0.076958776 5.103448455243024d0)
 Row: (9 7 0.85732913 5.310498824093041d0)</code></pre><p>Plotting facilities as rudimentary, but should be improved.. All functions related to plotting are in the <code>teddy/plot</code> package. Right now <code>GNUPlot</code> is used via <a href="http://quickdocs.org/eazy-gnuplot/">eazy-gnuplot</a> library.</p>
 <p>Here is how we can plot our data from all columns:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (teddy/plot:plot *d*
+<pre><code class='lisp'>POFTHEDAY&gt; (teddy/plot:plot *d*
             &quot;docs/media/0099/simple-plot.png&quot;)</code></pre><p><img style="max-width: 100%" src="../../media/0099/simple-plot.png"/></p>
 <p>If we want to plot only gaussian, then it will be wrong, because we need a histogram type of plot. This feature is "to be done":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (teddy/plot:plot
+<pre><code class='lisp'>POFTHEDAY&gt; (teddy/plot:plot
             (teddy/data-frame:slice *d*
                                     :columns &#039;(&quot;Idx&quot; &quot;Gaussian&quot;))
             &quot;docs/media/0099/gaussian.png&quot;)</code></pre><p><img style="max-width: 100%" src="../../media/0099/gaussian.png"/></p>
 <p>Another type of plots <code>Teddy</code> is able to render right now is a "timeseries".</p>
 <p>Let's plot how does Moscow's population was changed over years:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defparameter *moscow-population*
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *moscow-population*
              (teddy/data-frame:make-data-frame
               &#039;(&quot;Date&quot; &quot;Population&quot;)
               :rows &#039;((&quot;1350-01-01&quot; 30000)

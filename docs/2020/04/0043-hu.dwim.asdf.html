@@ -56,13 +56,13 @@ h1 .tags {
 <p>Also, there is <code>optimize-declaration</code> function, which also depends on <code>*load-as-production?*</code> variable and returns either <code>(optimize (speed 3) (debug 0) (safety 0))</code> for production or <code>(optimize (debug 3) (safety 3))</code> for development mode.</p>
 <p>The similar feature you'll find also in <code>com.google.base</code> system, <a href="http://40ants.com/lisp-project-of-the-day/2020/04/0039-com.google.base.html">reviewed on this week</a>.</p>
 <p>In code it can be used like this:</p>
-<pre><code class=' lisp'>(defun foo ()
+<pre><code class='lisp'>(defun foo ()
   (declare #.(optimize-declaration))
   (debug-only
     (format t &quot;Function foo was called~%&quot;))
   (do-some-real-work))</code></pre><p>If you'll set a <code>:class "hu.dwim.asdf:hu.dwim.system"</code> for your ASDF system, then some additional features will be enabled.</p>
 <p>For example, all compiler's output will be stored in a special slot, and you'll be able to inspect it at any time to find out compiler warnings:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-compile-output
+<pre><code class='lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-compile-output
             (asdf:find-system :hu.dwim.logger))
 &quot;; compiling file &quot;/Users/art/poftheday/.../package.lisp&quot;
 ; compiling (IN-PACKAGE :HU.DWIM.DEF)
@@ -78,7 +78,7 @@ POFTHEDAY&gt; (hu.dwim.asdf:system-load-output
 &quot;&quot;</code></pre><p>There are three ASDF system classes:</p>
 <ul><li><code>hu.dwim.system</code></li><li><code>hu.dwim.test-system</code></li><li><code>hu.dwim.documentation-system</code></li></ul>
 <p>When you use them in a combination, <code>hu.dwim.asdf</code> allows to call <code>asdf:test-system</code> on a base system and test suite will be automatically called. But you should also use <code>hu.dwim.stefil</code> test framework:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (asdf:test-system :hu.dwim.logger)
+<pre><code class='lisp'>POFTHEDAY&gt; (asdf:test-system :hu.dwim.logger)
 
 The result of HU.DWIM.LOGGER.TEST::TEST is:
 
@@ -86,7 +86,7 @@ The result of HU.DWIM.LOGGER.TEST::TEST is:
 
 For more details run it from the REPL and use the customized Slime inspector
 to inspect the results (ASDF eats up the return values).</code></pre><p>Also, <code>hu.dwim.test-system</code> class stores a test result and output inside the system object. This allows to extract this information later:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-test-result
+<pre><code class='lisp'>POFTHEDAY&gt; (hu.dwim.asdf:system-test-result
             (asdf:find-system :hu.dwim.logger.test))
 #&lt;test-run: 1 test, 0 assertions, 0 failures in 0.0 sec&gt;
 POFTHEDAY&gt; (hu.dwim.asdf:system-test-output

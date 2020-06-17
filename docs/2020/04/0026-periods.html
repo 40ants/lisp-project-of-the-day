@@ -57,7 +57,7 @@ h1 .tags {
 <p>Let's see how does it work!</p>
 <p>This example shows how to create an infinite sequence of dates with 14 days interval between them.</p>
 <p>I specified a starting date and interval's duration:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (local-time:enable-read-macros)
+<pre><code class='lisp'>POFTHEDAY&gt; (local-time:enable-read-macros)
 
 POFTHEDAY&gt; (periods-series:scan-times @2007-11-18
                                       (periods:duration :days 14))
@@ -70,7 +70,7 @@ POFTHEDAY&gt; (periods-series:scan-times @2007-11-18
    ...</code></pre><p>The library contains other functions for relative date definition.</p>
 <p>I was able to reproduce a more complex example from the documentation.</p>
 <p>It generates an infinite sequence of dates, where each date is the second Friday of month.</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (series:mapping ((time (periods-series:scan-times
+<pre><code class='lisp'>POFTHEDAY&gt; (series:mapping ((time (periods-series:scan-times
                                    (periods::previous-time @2020-04-02
                                                           (periods::relative-time :day 1))
                                    (periods:duration :months 1))))
@@ -89,10 +89,10 @@ POFTHEDAY&gt; (periods-series:scan-times @2007-11-18
    @2020-12-11T03:00:00.000000+03:00
    ...</code></pre><p>Now let's go step by step to understand what happens under the hood.</p>
 <p>This form gives as a date pointing to the beginning of the current month:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (periods::previous-time @2020-04-02
+<pre><code class='lisp'>POFTHEDAY&gt; (periods::previous-time @2020-04-02
                                    (periods::relative-time :day 1))
 @2020-04-01T00:00:00.000000Z</code></pre><p>Next, we are defining a generator which iterates by months starting from the current one:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (periods-series:scan-times
+<pre><code class='lisp'>POFTHEDAY&gt; (periods-series:scan-times
             (periods::previous-time @2020-04-02
                                     (periods::relative-time :day 1))
             (periods:duration :months 1))
@@ -102,7 +102,7 @@ POFTHEDAY&gt; (periods-series:scan-times @2007-11-18
    @2020-08-01T00:00:00.000000Z
    @2020-09-01T00:00:00.000000Z
    ...</code></pre><p>As you might notice, a sequence starts from May, skipping the second Friday of April. Probably it is a bug inside the "scan-times" because it generates a sequence, skipping the initial month:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (series:subseries
+<pre><code class='lisp'>POFTHEDAY&gt; (series:subseries
             (periods-series:scan-times
              @2020-04-01
              (periods:duration :months 1))
@@ -115,13 +115,13 @@ POFTHEDAY&gt; (periods-series:scan-times @2007-11-18
 <p>Anyway, now we have an infinite sequence of dates where each date, is the beginning of the month. We need to shift these dates to the second Friday.</p>
 <p>Function "periods::next-time" combined with "periods::relative-time" does what we need. It moves given time forward according to the given relative time definition.</p>
 <p>For example, today is 2 April, Thursday. But we want to move the date to the next Friday:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (periods::next-time @2020-04-02
+<pre><code class='lisp'>POFTHEDAY&gt; (periods::next-time @2020-04-02
                                (periods::relative-time :day-of-week 5))
 @2020-04-03T00:00:00.000000Z</code></pre><p>But if the current day is already Friday, then this call will give us the next Friday. Beginning of the month can be a Friday. In this case, calling "next-time" twice will give us the third Friday instead of the second.</p>
 <p>To prevent this but, in the code I've shown, the first call to the "next-time" have a special flag ":accept-anchor". It says literally: "Hey, if date already is Friday, then don't move!"</p>
 <p>That is how does this complex example work.</p>
 <p>"Periods" documentation has one more interesting example, where you are iterating by 15 days intervals, but skipping the weekends:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (series:mapping ((time (periods-series:scan-times
+<pre><code class='lisp'>POFTHEDAY&gt; (series:mapping ((time (periods-series:scan-times
                                    @2020-04-04
                                    (periods:duration :days 15))))
              (if (periods:falls-on-weekend-p time)

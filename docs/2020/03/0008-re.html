@@ -59,7 +59,7 @@ h1 .tags {
 <p>Common Lisp version is about 645 lines but is based on a separate parser library.</p>
 <p>I am wondering how does re's performance compare with cl-ppcre? Let's check!</p>
 <p>We will test performance on a simple example. It will extract a subreddit's name from the URL:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-ppcre:register-groups-bind
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-ppcre:register-groups-bind
                (subreddit)
                (&quot;.*/r/(.*?)/&quot;
                 &quot;https://www.reddit.com/r/Common_Lisp/&quot;)
@@ -71,7 +71,7 @@ POFTHEDAY&gt; (first
              (re:match-re #r&quot;.*/r/(.-)/&quot;
                           &quot;https://www.reddit.com/r/Common_Lisp/&quot;)))
 &quot;Common_Lisp&quot;</code></pre><p>Here is what I've got running cl-ppcre 1 million times:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (time
+<pre><code class='lisp'>POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (cl-ppcre:register-groups-bind
                          (subreddit)
@@ -86,7 +86,7 @@ Evaluation took:
   1,614,120,972 processor cycles
   956 page faults
   160,002,992 bytes consed</code></pre><p>And here is the result of the same amount of iterations for 're':</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (time
+<pre><code class='lisp'>POFTHEDAY&gt; (time
             (loop repeat *num-iterations*
                   do (first
                       (re:match-groups

@@ -55,7 +55,7 @@ h1 .tags {
 <p>but pay attention, that the article manipulates with <code>*readtable*</code> instead of using <code>named-readtables</code>. This is bad. Use <code>named-readtables</code> instead.</p>
 <p>First, let's see how to use <code>named-readtables</code> to switch between read-tables. As an example, we'll see how to use <code>cl-interpol</code> and <code>rutils</code> readtables.</p>
 <p>This is how you can lookup which tables are available:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (ql:quickload &#039;(:cl-interpol :rutils))
+<pre><code class='lisp'>POFTHEDAY&gt; (ql:quickload &#039;(:cl-interpol :rutils))
 
 POFTHEDAY&gt; (named-readtables:list-all-named-readtables)
 (#&lt;NAMED-READTABLE :COMMON-LISP {1000024B73}&gt;
@@ -63,7 +63,7 @@ POFTHEDAY&gt; (named-readtables:list-all-named-readtables)
  #&lt;NAMED-READTABLE RUTILS.READTABLE:RUTILS-READTABLE {1004A960E3}&gt;
  #&lt;NAMED-READTABLE RUTILS.READTABLE:STANDARD-READTABLE {1004A96133}&gt;
  #&lt;NAMED-READTABLE :INTERPOL-SYNTAX {1001D19853}&gt;)</code></pre><p>Now let's see how does switching work:</p>
-<pre><code class=' lisp'>;; First I&#039;ll switch to the interpol&#039;s syntax:
+<pre><code class='lisp'>;; First I&#039;ll switch to the interpol&#039;s syntax:
 POFTHEDAY&gt; (named-readtables:in-readtable :interpol-syntax)
 
 POFTHEDAY&gt; (let ((username &quot;Bob&quot;))
@@ -89,7 +89,7 @@ POFTHEDAY&gt; (let ((username &quot;Bob&quot;))
 ; Debugger entered on #&lt;SB-INT:SIMPLE-READER-ERROR
 ; &quot;no dispatch function defined for ~S&quot; {1006AE93F3}&gt;</code></pre><p>But what if we want to use both readtables from <code>cl-interpol</code> and from <code>rutils</code>?</p>
 <p>It is possible if we merge them together and create a new readtable:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (named-readtables:defreadtable
+<pre><code class='lisp'>POFTHEDAY&gt; (named-readtables:defreadtable
                :poftheday
              (:merge
               rutils:rutils-readtable
@@ -106,7 +106,7 @@ POFTHEDAY&gt; (rutils:print-ht *)
 #{
   :GREETING &quot;Hello Bob!&quot;
  }</code></pre><p>Now we'll define a literal syntax for lambda from <code>rutils</code> as a separate named read-table:</p>
-<pre><code class=' '>POFTHEDAY&gt; (defmacro trivial-positional-lambda (body)
+<pre><code class=''>POFTHEDAY&gt; (defmacro trivial-positional-lambda (body)
              `(lambda (&amp;optional % %%)
                 (declare (ignorable %) (ignorable %%))
                 ,body))
@@ -136,7 +136,7 @@ POFTHEDAY&gt; (funcall *
                     3)
 5</code></pre><p>Named readtables has yet another useful feature - it integrates with SLIME. When you have a <code>(in-readtable)</code> call after you package definition, SLIME will know what <code>readtable</code> to use when you hit <code>Ctrl-C Ctrl-C</code> on defuns.</p>
 <p>That is what <code>in-readtable</code> expands to:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (named-readtables:in-readtable :interpol-syntax)
+<pre><code class='lisp'>POFTHEDAY&gt; (named-readtables:in-readtable :interpol-syntax)
 
 ;; It expands to:
 (eval-when (:compile-toplevel

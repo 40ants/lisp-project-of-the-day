@@ -53,7 +53,7 @@ h1 .tags {
 <p>One useful thing, you might do is to make a command-line client to send a command to your server. One practical task is code hot-reload. Here is an <a href="https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload">example</a> of how to implement it using <a href="http://quickdocs.org/swank-client/">another SWANK client</a>.</p>
 <p>Example from Lime's sources shows how to create a REPL connected to the SWANK. However, this example creates a SWANK server in the same process. I think it will be more realistic to connect from one lisp to another.</p>
 <p>So, I modified example to make it connect to the localhost 20100, where we'll start a separate ClozureCL process with SWANK:</p>
-<pre><code class=' lisp'>Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
+<pre><code class='lisp'>Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
 
 For more information about CCL, please see http://ccl.clozure.com.
 
@@ -69,7 +69,7 @@ To load &quot;swank&quot;:
 ;; Swank started at port: 20100.
 20100</code></pre><p>Now we need a function which will make a connection and provide us with the remote REPL.</p>
 <p>I just removed the code which starts  SWANK in the same process and replaced <code>(uiop:hostname)</code> with "localhost", because <code>(uiop:hostname)</code> didn't work for me:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (defun repl ()
+<pre><code class='lisp'>POFTHEDAY&gt; (defun repl ()
              &quot;Start the REPL.&quot;
              (let ((conn (lime:make-connection &quot;localhost&quot;
                                                20100)))
@@ -105,7 +105,7 @@ To load &quot;swank&quot;:
                          (lime:evaluate conn
                                         (with-standard-io-syntax
                                           (prin1-to-string input)))))))))</code></pre><p>Now we can connect to our ClozureCL process and have a fun!</p>
-<pre><code class=' lisp'>;; We are connecting from SBCL to CCL
+<pre><code class='lisp'>;; We are connecting from SBCL to CCL
 POFTHEDAY&gt; (lisp-implementation-type)
 &quot;SBCL&quot;
 POFTHEDAY&gt; (lisp-implementation-version)
@@ -122,7 +122,7 @@ COMMON-LISP-USER&gt; (lisp-implementation-version)
 
 COMMON-LISP-USER&gt; (+ 1 2)
 3</code></pre><p>If you are going to try <code>Lime</code> on CCL, use the patched <code>swank-protocol</code> system with <a href="https://github.com/eudoxia0/swank-protocol/pull/2">this fix</a>. Without the fix Lime will not work because of the following error:</p>
-<pre><code class=' lisp'>&lt;INFO&gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
+<pre><code class='lisp'>&lt;INFO&gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
   Read message SWANK-PROTOCOL::RESULT: (:READER-ERROR
                                         &quot;(:emacs-rex (swank-repl:listener-eval #A((7) common-lisp:base-char . \&quot;(+ 1 2)\&quot;)) \&quot;COMMON-LISP-USER\&quot; :repl-thread 5)
 &quot;

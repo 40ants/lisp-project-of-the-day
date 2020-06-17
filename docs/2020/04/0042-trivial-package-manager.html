@@ -53,7 +53,7 @@ h1 .tags {
 <p>It supports: Apt, Yum, Dnf, Pacman, Yaourt, Brew, Macports, Fink, Choco as well as installation from sources.</p>
 <p>You can use "trivial-package-manager" with ASDF or separately. It is able to install executables and libraries.</p>
 <p>Let's install "wget" binary on my OSX laptop! To be able to see which command will be called, we'll apply TRACE to "uiop:run-program":</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (trace uiop:run-program)
+<pre><code class='lisp'>POFTHEDAY&gt; (trace uiop:run-program)
 
 POFTHEDAY&gt; (tpm:ensure-program &quot;wget&quot;
                                :brew &quot;wget&quot;
@@ -67,7 +67,7 @@ POFTHEDAY&gt; (tpm:ensure-program &quot;wget&quot;
           :OUTPUT :INTERACTIVE :ERROR-OUTPUT
           :INTERACTIVE :INPUT :INTERACTIVE)
   0: UIOP/RUN-PROGRAM:RUN-PROGRAM returned NIL NIL 0</code></pre><p>To install library or program during with you Lisp system installation, you need to call this function from "load-op" method:</p>
-<pre><code class=' lisp'>(defsystem cl-wget
+<pre><code class='lisp'>(defsystem cl-wget
   :components ((:file &quot;cl-wget&quot;))
   :description &quot;Toy system to call wget from Lisp&quot;
   :defsystem-depends-on (:trivial-package-manager)

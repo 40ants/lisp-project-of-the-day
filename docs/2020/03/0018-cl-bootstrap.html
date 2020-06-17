@@ -52,11 +52,11 @@ h1 .tags {
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-bootstrap</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-bootstrap<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><p>This is a library of Twitter Bootstrap widgets for cl-who.</p>
 <p>It has many examples in the README and also an interactive demo where you can see all available components.</p>
 <p>Here is an of example how to use it:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (cl-bootstrap:bs-btn-primary &quot;Hello Lisp World!&quot;)
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-bootstrap:bs-btn-primary &quot;Hello Lisp World!&quot;)
 
 &lt;button type=&#039;button&#039; class=&#039;btn btn-primary&#039;&gt;Hello Lisp World!&lt;/button&gt;
 &quot;&gt;Hello Lisp World!&lt;/button&gt;&quot;</code></pre><p>This macro expands to the following cl-who code:</p>
-<pre><code class=' lisp'>(cl-who:with-html-output (*standard-output*)
+<pre><code class='lisp'>(cl-who:with-html-output (*standard-output*)
   (:button :type &quot;button&quot; :class
    (concatenate &#039;string &quot;btn&quot;
                 (if &quot;primary&quot;
@@ -64,7 +64,7 @@ h1 .tags {
                 (if nil
                     (format nil &quot; btn-~a&quot; nil)))
    &quot;Hello Lisp World!&quot;))</code></pre><p>This is a more complex example from cl-bootstrap's README:</p>
-<pre><code class=' lisp'>(bs-navbar (:inverse t :brand &quot;Brand&quot;)
+<pre><code class='lisp'>(bs-navbar (:inverse t :brand &quot;Brand&quot;)
 	(bs-navbar-nav ()
 		(bs-nav-li (:href &quot;/panels&quot;) &quot;Panels&quot;)
 		(bs-nav-dropdown (:title &quot;Components&quot;)

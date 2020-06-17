@@ -53,7 +53,7 @@ h1 .tags {
 <p>Recently I encounter a task where I needed to print tabulated data. In Python there is really cool library <a href="https://pypi.org/project/tabulate/">tabulate</a> and first thing I did - created <a href="https://www.reddit.com/r/Common_Lisp/comments/gs115z/looking_for_a_library_to_show_data_frames_and/">the post on Reddit</a> asking if there is something similar for Common Lisp exists.</p>
 <p>Comments didn't give a  variety of choices, but I found a <code>cl-ascii-table</code> <a href="http://quickdocs.org/cl-ascii-table/">on Quickdocs</a>. Remember, if you need to solve some problem - search o Quickdocs first! ;-)</p>
 <p>So, <code>cl-ascii-table</code> is a little helper to draw nice ASCII tables. It is very easy to use. Just create a table, then add rows, and command it to render the table:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (loop with rows = &#039;((&quot;Bob&quot; 31 &quot;bob@gmail.com&quot; 89.4)
+<pre><code class='lisp'>POFTHEDAY&gt; (loop with rows = &#039;((&quot;Bob&quot; 31 &quot;bob@gmail.com&quot; 89.4)
                                (&quot;Alice&quot; 28 &quot;alice@hot.com&quot; 65.1)
                                (&quot;Garry&quot; 25 &quot;garry@zoumz.in&quot; 76.3))
                  with table = (ascii-table:make-table
@@ -74,7 +74,7 @@ h1 .tags {
 +-------+-----+----------------+--------+</code></pre><p>It is not so featureful as Python's tabulate, but does it job.</p>
 <p>By the way, pay attention on the difference between system name and package name. It might be important if you use <a href="https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html">package-inferred-system</a> ASDF extension for your own system.</p>
 <p>In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from <code>ascii-table</code> package:</p>
-<pre><code class=' lisp'>(register-system-packages &quot;cl-ascii-table&quot; &#039;(#:ascii-table))</code></pre>
+<pre><code class='lisp'>(register-system-packages &quot;cl-ascii-table&quot; &#039;(#:ascii-table))</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

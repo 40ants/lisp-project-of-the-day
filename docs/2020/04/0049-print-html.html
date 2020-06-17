@@ -53,7 +53,7 @@ h1 .tags {
 <p>The first distinction is that <code>print-html</code> is written in the literate programmings style and have very succinct code which can be read in 5-10 minutes.</p>
 <p>The second distinction is that <code>print-html</code> is based on generics and you can define a method to print some classes into HTML.</p>
 <p>Let's try this!</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (print-html:print-html-to-string
+<pre><code class='lisp'>POFTHEDAY&gt; (print-html:print-html-to-string
             (print-html:html
               (:article
                ((:section :class &quot;intro&quot;)
@@ -64,7 +64,7 @@ h1 .tags {
 &lt;/section&gt;
 &lt;/article&gt;
 &quot;</code></pre><p>Now I'll create a class of user which can be serialized into HTML:</p>
-<pre><code class=' lisp'>;; This is our buisiness logic:
+<pre><code class='lisp'>;; This is our buisiness logic:
 POFTHEDAY&gt; (defclass user ()
              ((name :initarg :name
                     :reader get-name)))

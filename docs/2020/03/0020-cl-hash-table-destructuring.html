@@ -53,7 +53,7 @@ h1 .tags {
 <p>The simplest case is when your hash table has symbols as its keys. Macro establishes local names for keys you need and these names are setf-able.</p>
 <p>Setfable place is such name or form for which you can apply a setf operation to change its value.</p>
 <p>In this example I create an empty hash table and set two keys:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table)))
              (cl-hash-table-destructuring:with-hash-table-items
                  (foo bar)
                  the-hash
@@ -73,7 +73,7 @@ FOO -&gt; &quot;Hello&quot;
 BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains two similar macroses:</p>
 <ul><li>with-hash-table-items - makes names setf-able by expanding into symbol-macrolet.</li><li>with-hash-table-values - don't.</li></ul>
 <p>Macro with-has-table-items expands into:</p>
-<pre><code class=' lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
+<pre><code class='lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
   (let ((#:hash-table (the hash-table the-hash)))
     (let ((#:foo (funcall #:keyfn &#039;foo))
           (#:bar (funcall #:keyfn &#039;bar)))
@@ -81,7 +81,7 @@ BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains 
                         (bar (gethash #:bar #:hash-table)))
         (setf foo &quot;Hello&quot;)
         (setf bar &quot;World&quot;)))))</code></pre><p>Attempt to use setf when using "with-has-table-values" will not issue any errors and will not change the state of the hash, because this macro will expand into:</p>
-<pre><code class=' lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
+<pre><code class='lisp'>(let ((#:keyfn cl-hash-table-destructuring:*keyfn*))
   (let ((#:hash-table (the hash-table the-hash)))
     (let ((foo (gethash (funcall #:keyfn &#039;foo) #:hash-table))
           (bar (gethash (funcall #:keyfn &#039;bar) #:hash-table)))
@@ -89,7 +89,7 @@ BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains 
       (setf bar &quot;World&quot;))))</code></pre><p>Of couse, not all hash tables has only symbols in their keys. If your keys have other types, then there are two ways to use "cl-hash-table-destructuring".</p>
 <p>You can give it key's value explicitly like you can do when using "with-slots" with custom slot names.</p>
 <p>In this example, we use strings as keys:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
              (cl-hash-table-destructuring:with-hash-table-items
                  ((foo &quot;Foo&quot;) (bar &quot;Bar&quot;))
                  the-hash
@@ -108,7 +108,7 @@ BAR -&gt; &quot;World&quot;</code></pre><p>Pay attention, this package contains 
 &quot;Foo&quot; -&gt; &quot;Hello&quot;
 &quot;Bar&quot; -&gt; &quot;World&quot;</code></pre><p>Or, you can provide a function to convert symbols into the keys:</p>
 <p>In this example, we will use a function to make keys with symbols converted to pascal-styled strings.</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((the-hash (make-hash-table :test &#039;equal)))
              (cl-hash-table-destructuring:with-hash-table-items-fn
                  (some-key-name)
                  (the-hash (lambda (symbol)

@@ -53,12 +53,12 @@ h1 .tags {
 <p>For this implementation, I needed a type inference to set vector's type for each column. An inferred type should be generic enough to work for all items in the column.</p>
 <p>But what if we have positive and negative integers in our data? What type will return the standard <code>type-of</code>?</p>
 <p>Here is the answer:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (type-of 21)
+<pre><code class='lisp'>POFTHEDAY&gt; (type-of 21)
 (INTEGER 0 4611686018427387903)
 
 POFTHEDAY&gt; (type-of -21)
 FIXNUM</code></pre><p>So, if I'll make my vector's type <code>(INTEGER 0 4611686018427387903)</code> it will raise an error on the second element:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (make-array
+<pre><code class='lisp'>POFTHEDAY&gt; (make-array
             2
             :element-type &#039;(INTEGER
                             0
@@ -68,7 +68,7 @@ FIXNUM</code></pre><p>So, if I'll make my vector's type <code>(INTEGER 0 4611686
 ; #&lt;TYPE-ERROR expected-type:
 ; (UNSIGNED-BYTE 62) datum: -21&gt;</code></pre><p>That's why I started to search the way to make inferred type more generic and found <code>simplified-types</code> library.</p>
 <p>Here is how it works:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (mapcar #&#039;type-of
+<pre><code class='lisp'>POFTHEDAY&gt; (mapcar #&#039;type-of
              &#039;(21 -23 1.23 4.56d0 &quot;string&quot;))
 
 ((INTEGER 0 4611686018427387903)
@@ -86,7 +86,7 @@ POFTHEDAY&gt; (mapcar #&#039;simplified-types:simplified-type-of
   DOUBLE-FLOAT
   T)</code></pre><p>However, <code>INTEGER</code> with bounds still is not what I need for my application. Happily, <a href="https://github.com/marcoheisig">Marco Heisig</a> foresee this need and added a switcher which makes integer types more generic.</p>
 <p>With this option, the library produces exactly what I need:</p>
-<pre><code class=' lisp'>POFTHEDAY&gt; (let ((simplified-types::*precise-integer-types* nil))
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((simplified-types::*precise-integer-types* nil))
              (mapcar #&#039;simplified-types:simplified-type-of
                &#039;(21 -23 1.23 4.56d0 &quot;string&quot;)))
 
