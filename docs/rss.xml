@@ -6,6 +6,49 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-tco</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0103-trivial-tco.html</link>
+            <description>&lt;p&gt;This library could be considered as a &lt;a href=&quot;http://portability.cl/&quot;&gt;portability layer&lt;/a&gt; for tail call optimization.&lt;/p&gt;
+&lt;p&gt;When I first found it, I decided it implements a TCO for implementations which do not support it by doing a trampolining trick &lt;a href=&quot;https://macropy3.readthedocs.io/en/latest/tco.html#trampolining&quot;&gt;like this&lt;/a&gt;. But I was wrong.&lt;/p&gt;
+&lt;p&gt;It does ensure the proper declaration is used on implementations which support a proper TCO and signals warning or error on others.&lt;/p&gt;
+&lt;p&gt;Here is an example on SBCL, which supports TCO only if &lt;code&gt;speed&lt;/code&gt; declared to be greater or equal to &lt;code&gt;debug&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 3) (speed 1))
+
+POFTHEDAY&amp;gt; (labels ((sum-aux (acc x)
+                        (if (zerop x)
+                            acc
+                            (sum-aux (+ acc x) (- x 1))))
+                      (sum (n)
+                        (sum-aux 0 n)))
+               (sum 1000000))
+Control stack guard page temporarily disabled: proceed with caution
+; Debugger entered on #&amp;lt;SB-KERNEL::CONTROL-STACK-EXHAUSTED {1004F12E73}&amp;gt;
+[1] POFTHEDAY&amp;gt; 
+; Evaluation aborted on #&amp;lt;SB-KERNEL::CONTROL-STACK-EXHAUSTED {1004F12E73}&amp;gt;
+
+POFTHEDAY&amp;gt; (tco:with-tail-call-optimization ()
+             (labels ((sum-aux (acc x)
+                        (if (zerop x)
+                            acc
+                            (sum-aux (+ acc x) (- x 1))))
+                      (sum (n)
+                        (sum-aux 0 n)))
+               (sum 1000000)))
+500000500000 (39 bits, #x746A5A2920)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This macro gets expanded into:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(let ()
+  (declare (optimize (speed 3)))
+  (labels ((sum-aux (acc x)
+             (if (zerop x)
+                 acc
+                 (sum-aux (+ acc x) (- x 1))))
+           (sum (n)
+             (sum-aux 0 n)))
+    (sum 1000000)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. Use this library, if you want to employ a tail call and want to ensure they a properly optimized by your Lisp implementation.&lt;/p&gt;
+&lt;p&gt;Maybe &lt;a href=&quot;https://0branch.com/notes/tco-cl.html&quot;&gt;this article&lt;/a&gt; by Marc Simpson will be interesting for you. It investigates which Common Lisp implementations have a proper TCO implementation.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 19 Jun 2020 00:35:23 +0300</pubDate>
+        </item>
+        <item>
             <title>lass-flexbox</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0102-lass-flexbox.html</link>
             <description>&lt;p&gt;This is an addon to the &lt;code&gt;lass&lt;/code&gt; library, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;#0021 post&lt;/a&gt;. &lt;code&gt;Lass-flexbox&lt;/code&gt; adds to &lt;code&gt;lass&lt;/code&gt; an ability to expand Flexbox CSS properties into browser-specific vendor prefixes:&lt;/p&gt;
@@ -1705,57 +1748,6 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
 &lt;p&gt;In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from &lt;code&gt;ascii-table&lt;/code&gt; package:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Sat, 30 May 2020 22:00:38 +0300</pubDate>
-        </item>
-        <item>
-            <title>assoc-utils</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0083-assoc-utils.html</link>
-            <description>&lt;p&gt;This is a small utility library by &lt;a href=&quot;https://twitter.com/nitro_idiot&quot;&gt;Eitaro Fukamachi&lt;/a&gt;. It serves a single purpose - make working with alists more convenient.&lt;/p&gt;
-&lt;p&gt;The library has good documentation with lots of examples. Here is the excerpt from it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *person*
-             &amp;#039;((&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;)
-               (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;)))
-
-POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;name&amp;quot;)
-&amp;quot;Eitaro&amp;quot;
-
-POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;address&amp;quot;)
-NIL
-
-POFTHEDAY&amp;gt; (assoc-utils:aget *person* &amp;quot;address&amp;quot;
-                             ;; This is default
-                             &amp;quot;Tokyo, Japan&amp;quot;)
-&amp;quot;Tokyo, Japan&amp;quot;
-
-;; The alist remains the same
-POFTHEDAY&amp;gt; *person*
-((&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;) (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;))
-
-;; But aget is setf-able:
-POFTHEDAY&amp;gt; (setf (assoc-utils:aget *person* &amp;quot;address&amp;quot;)
-                 &amp;quot;Tokyo, Japan&amp;quot;)
-
-POFTHEDAY&amp;gt; *person*
-((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
- (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;)
- (&amp;quot;email&amp;quot; . &amp;quot;e.arrows@gmail.com&amp;quot;))
-
-POFTHEDAY&amp;gt; (assoc-utils:delete-from-alistf *person*
-                                           &amp;quot;email&amp;quot;)
-((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
- (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also conversion functions which automatically converts keys from strings to keywords and vice versa:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; *person*
-((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;) 
- (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))
-
-POFTHEDAY&amp;gt; (assoc-utils:alist-plist *person*)
-(:ADDRESS &amp;quot;Tokyo, Japan&amp;quot;
- :NAME &amp;quot;Eitaro&amp;quot;)
-
-POFTHEDAY&amp;gt; (assoc-utils:plist-alist *)
-((&amp;quot;address&amp;quot; . &amp;quot;Tokyo, Japan&amp;quot;)
- (&amp;quot;name&amp;quot; . &amp;quot;Eitaro&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/assoc-utils/&quot;&gt;the documentation&lt;/a&gt; to learn more about other functions which allow to compare alists, check their type and to get keys and values.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 29 May 2020 21:06:49 +0300</pubDate>
         </item>
     </channel>
 </rss>
