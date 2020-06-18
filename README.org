@@ -270,35 +270,6 @@ that:
           (:script :src "../../highlight/highlight.pack.js")
           (:script "hljs.initHighlightingOnLoad();")
           (:style "
-@media (min-width: 858px) {
-    html {
-        font-size: 12px;
-    }
-}
-
-@media (min-width: 780px) {
-    html {
-        font-size: 11px;
-    }
-}
-
-@media (min-width: 702px) {
-    html {
-        font-size: 10px;
-    }
-}
-
-@media (min-width: 724px) {
-    html {
-        font-size: 9px;
-    }
-}
-
-@media (max-width: 623px) {
-    html {
-        font-size: 8px;
-    }
-}
 
 .tags .label {
     margin-right: 1em;
