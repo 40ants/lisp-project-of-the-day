@@ -14,7 +14,7 @@ is like a baby lparallel.
 ~PCall~ provides a thread pool, few macro to execute and wait parallel
 task and a thread-safe Queue.
 
-Here is a simple demo which runs two task in parallel and then executes
+Here is a simple demo which runs two tasks in parallel and then executes
 a body. A digit on each line is a number of seconds elapsed since the
 form was evaluated:
 
@@ -56,11 +56,14 @@ POFTHEDAY> (let ((started-at (get-universal-time)))
 
 #+end_src
 
-There is a few more interesting functions allowing to execute and wait
-tasks. And a thead-safe queue canbe loaded using standalone system
+There are a few more interesting functions allowing to execute and wait for
+tasks. And a thread-safe queue can be loaded using the standalone system
 ~pcall-queue~.
 
-~PCall~ can be useful when you don't need such sofisticated tool as
+~PCall~ can be useful when you don't need such a sophisticated tool as
 lparallel and just want to use thread pool or queue.
 
-If you are interested in trying ~PCall~, read it's [[http://marijn.haverbeke.nl/pcall/][docs here]].
+If you are interested in trying ~PCall~, read it's [[http://marijn.haverbeke.nl/pcall/][docs here]] because it is
+not hosted on the GitHub and Quickdocs.org does not show it's docs
+either.
+

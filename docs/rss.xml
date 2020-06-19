@@ -6,6 +6,50 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>pcall</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0104-pcall.html</link>
+            <description>&lt;p&gt;This library contains a few primitives for parallel code execution. It is like a baby lparallel.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;PCall&lt;/code&gt; provides a thread pool, few macro to execute and wait parallel task and a thread-safe Queue.&lt;/p&gt;
+&lt;p&gt;Here is a simple demo which runs two tasks in parallel and then executes a body. A digit on each line is a number of seconds elapsed since the form was evaluated:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((started-at (get-universal-time)))
+             (flet ((info (message &amp;amp;rest args)
+                      (let ((seconds-since-start
+                              (- (get-universal-time)
+                                  started-at)))
+                        (format t &amp;quot;~A: ~A~%&amp;quot;
+                                seconds-since-start
+                                (apply #&amp;#039;format nil message
+                                       args)))))
+               (pcall:plet ((foo (progn (info &amp;quot;Creating Foo&amp;quot;)
+                                        (sleep 5)
+                                        (info &amp;quot;Foo was created&amp;quot;)
+                                        :foo-result))
+                            (bar (progn (info &amp;quot;Creating Bar&amp;quot;)
+                                        (sleep 3)
+                                        (info &amp;quot;Bar was created&amp;quot;)
+                                    :bar-result)))
+                 (info &amp;quot;Plet&amp;#039;s body is executed immediately.&amp;quot;)
+                 (info &amp;quot;And it will wait for the result when you access the value.&amp;quot;)
+                 (info &amp;quot;Here is the Bar&amp;#039;s value: ~S&amp;quot;
+                       bar)
+                 (info &amp;quot;Task foo still executing in the background.&amp;quot;)
+                 (info &amp;quot;Here is the Foo&amp;#039;s value: ~S&amp;quot;
+                       foo))))
+0: Plet&amp;#039;s body is executed immediately.
+0: And it will wait for the result when you access the value.
+0: Creating Bar
+0: Creating Foo
+3: Bar was created
+3: Here is the Bar&amp;#039;s value: :BAR-RESULT
+3: Task foo still executing in the background.
+5: Foo was created
+5: Here is the Foo&amp;#039;s value: :FOO-RESULT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few more interesting functions allowing to execute and wait for tasks. And a thread-safe queue can be loaded using the standalone system &lt;code&gt;pcall-queue&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;PCall&lt;/code&gt; can be useful when you don&apos;t need such a sophisticated tool as lparallel and just want to use thread pool or queue.&lt;/p&gt;
+&lt;p&gt;If you are interested in trying &lt;code&gt;PCall&lt;/code&gt;, read it&apos;s &lt;a href=&quot;http://marijn.haverbeke.nl/pcall/&quot;&gt;docs here&lt;/a&gt; because it is not hosted on the GitHub and Quickdocs.org does not show it&apos;s docs either.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 19 Jun 2020 23:16:06 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-tco</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0103-trivial-tco.html</link>
             <description>&lt;p&gt;This library could be considered as a &lt;a href=&quot;http://portability.cl/&quot;&gt;portability layer&lt;/a&gt; for tail call optimization.&lt;/p&gt;
@@ -1717,37 +1761,6 @@ POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
   T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you&apos;d like to work with types in Common Lisp, then you probably might be interested in the library I&apos;ve reviewed recently - &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html&quot;&gt;trivialib.type-unify&lt;/a&gt;. It allows us to do pattern-matching on type specifiers.&lt;/p&gt;
 </description>
             <pubDate>Sun, 31 May 2020 21:45:22 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-ascii-table</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0084-cl-ascii-table.html</link>
-            <description>&lt;p&gt;Today I want to cheat and to review a library you&apos;ve already seen in action in the &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0082-data-table.html&quot;&gt;data-table&apos;s review&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Recently I encounter a task where I needed to print tabulated data. In Python there is really cool library &lt;a href=&quot;https://pypi.org/project/tabulate/&quot;&gt;tabulate&lt;/a&gt; and first thing I did - created &lt;a href=&quot;https://www.reddit.com/r/Common_Lisp/comments/gs115z/looking_for_a_library_to_show_data_frames_and/&quot;&gt;the post on Reddit&lt;/a&gt; asking if there is something similar for Common Lisp exists.&lt;/p&gt;
-&lt;p&gt;Comments didn&apos;t give a  variety of choices, but I found a &lt;code&gt;cl-ascii-table&lt;/code&gt; &lt;a href=&quot;http://quickdocs.org/cl-ascii-table/&quot;&gt;on Quickdocs&lt;/a&gt;. Remember, if you need to solve some problem - search o Quickdocs first! ;-)&lt;/p&gt;
-&lt;p&gt;So, &lt;code&gt;cl-ascii-table&lt;/code&gt; is a little helper to draw nice ASCII tables. It is very easy to use. Just create a table, then add rows, and command it to render the table:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with rows = &amp;#039;((&amp;quot;Bob&amp;quot; 31 &amp;quot;bob@gmail.com&amp;quot; 89.4)
-                               (&amp;quot;Alice&amp;quot; 28 &amp;quot;alice@hot.com&amp;quot; 65.1)
-                               (&amp;quot;Garry&amp;quot; 25 &amp;quot;garry@zoumz.in&amp;quot; 76.3))
-                 with table = (ascii-table:make-table
-                               &amp;#039;(&amp;quot;Name&amp;quot; &amp;quot;Age&amp;quot; &amp;quot;Email&amp;quot; &amp;quot;Weight&amp;quot;)
-                               ;; this is optional
-                               :header &amp;quot;Sport Group&amp;quot;)
-                 for row in  rows
-                 do (ascii-table:add-row table row)
-                 finally (ascii-table:display table))
-.---------------------------------------.
-|              Sport Group              |
-+-------+-----+----------------+--------+
-| Name  | Age | Email          | Weight |
-+-------+-----+----------------+--------+
-| Bob   |  31 | bob@gmail.com  |   89.4 |
-| Alice |  28 | alice@hot.com  |   65.1 |
-| Garry |  25 | garry@zoumz.in |   76.3 |
-+-------+-----+----------------+--------+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is not so featureful as Python&apos;s tabulate, but does it job.&lt;/p&gt;
-&lt;p&gt;By the way, pay attention on the difference between system name and package name. It might be important if you use &lt;a href=&quot;https://common-lisp.net/project/asdf/asdf/The-package_002dinferred_002dsystem-extension.html&quot;&gt;package-inferred-system&lt;/a&gt; ASDF extension for your own system.&lt;/p&gt;
-&lt;p&gt;In this case, you can put this line into your ASD file. This will let ASDF to know which system should be loaded when you are importing symbols from &lt;code&gt;ascii-table&lt;/code&gt; package:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(register-system-packages &amp;quot;cl-ascii-table&amp;quot; &amp;#039;(#:ascii-table))&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Sat, 30 May 2020 22:00:38 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -24,6 +24,7 @@ Twitter account svetlyak40wt]].
 - 16 June - [[content/2020/06/0101-prbs.org][prbs]] ([[https://twitter.com/svetlyak40wt/status/1272974146218201088][twitter]])
 - 17 June - [[content/2020/06/0102-lass-flexbox.org][lass-flexbox]] ([[https://twitter.com/svetlyak40wt/status/1273305547740188672][twitter]])
 - 18 June - [[content/2020/06/0103-trivial-tco.org][trivial-tco]] ([[https://twitter.com/svetlyak40wt/status/1273708246243647488][twitter]])
+- 19 June - [[content/2020/06/0104-pcall.org][pcall]] ([[https://twitter.com/svetlyak40wt/status/1274073411128623106][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])
