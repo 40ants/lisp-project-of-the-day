@@ -1,0 +1,66 @@
+* pcall :threads:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library contains a few primitives for parallel code execution. It
+is like a baby lparallel.
+
+~PCall~ provides a thread pool, few macro to execute and wait parallel
+task and a thread-safe Queue.
+
+Here is a simple demo which runs two task in parallel and then executes
+a body. A digit on each line is a number of seconds elapsed since the
+form was evaluated:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((started-at (get-universal-time)))
+             (flet ((info (message &rest args)
+                      (let ((seconds-since-start
+                              (- (get-universal-time)
+                                  started-at)))
+                        (format t "~A: ~A~%"
+                                seconds-since-start
+                                (apply #'format nil message
+                                       args)))))
+               (pcall:plet ((foo (progn (info "Creating Foo")
+                                        (sleep 5)
+                                        (info "Foo was created")
+                                        :foo-result))
+                            (bar (progn (info "Creating Bar")
+                                        (sleep 3)
+                                        (info "Bar was created")
+                                    :bar-result)))
+                 (info "Plet's body is executed immediately.")
+                 (info "And it will wait for the result when you access the value.")
+                 (info "Here is the Bar's value: ~S"
+                       bar)
+                 (info "Task foo still executing in the background.")
+                 (info "Here is the Foo's value: ~S"
+                       foo))))
+0: Plet's body is executed immediately.
+0: And it will wait for the result when you access the value.
+0: Creating Bar
+0: Creating Foo
+3: Bar was created
+3: Here is the Bar's value: :BAR-RESULT
+3: Task foo still executing in the background.
+5: Foo was created
+5: Here is the Foo's value: :FOO-RESULT
+
+#+end_src
+
+There is a few more interesting functions allowing to execute and wait
+tasks. And a thead-safe queue canbe loaded using standalone system
+~pcall-queue~.
+
+~PCall~ can be useful when you don't need such sofisticated tool as
+lparallel and just want to use thread pool or queue.
+
+If you are interested in trying ~PCall~, read it's [[http://marijn.haverbeke.nl/pcall/][docs here]].
