@@ -6,6 +6,81 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>clack</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0105-clack.html</link>
+            <description>&lt;p&gt;Today we begin our sprint around Fukamachi&apos;s web tools and will start from the Clack.&lt;/p&gt;
+&lt;p&gt;Clack is an intermediate layer between the real webserver and your application code. It unifies requests parsing and you don&apos;t need to rewrite an app if you&apos;ll decide to run your app under another webserver.&lt;/p&gt;
+&lt;p&gt;Today it supports FCGI, Hunchentoot, Toot, Woo, Wookie. Woo and Wookie are asynchronous and can be used to serve hundreds of simultaneous connections.&lt;/p&gt;
+&lt;p&gt;Another interesting feature of Clack is that application is the only a lambda function. Because of this, the application code can be wrapped with middlewares. There are a number of middlewares: for logging, handling errors, serving static files, etc.&lt;/p&gt;
+&lt;p&gt;Here is an example of the simplest app. A function should return a list of status-code, headers plist and the content. The content should be a list of strings, a vector of bytes or pathname:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *server*
+             (clack:clackup
+              (lambda (env)
+                (declare (ignore env))
+                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                  (&amp;quot;Hello, Lisp World!&amp;quot;)))
+              :port 8000))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.
+
+POFTHEDAY&amp;gt; (nth-value 0
+             (dex:get &amp;quot;http://localhost:8000&amp;quot;))
+&amp;quot;Hello, Lisp World!&amp;quot;
+
+POFTHEDAY&amp;gt; (clack:stop *server*)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Compare this with plain Hunchentoot application:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (hunchentoot:define-easy-handler (say-yo :uri &amp;quot;/&amp;quot;) ()
+             (setf (hunchentoot:content-type*)
+                   &amp;quot;text/plain&amp;quot;)
+             &amp;quot;Hello Lisp World&amp;quot;)
+
+POFTHEDAY&amp;gt; (hunchentoot:start
+            (make-instance &amp;#039;hunchentoot:easy-acceptor
+                           :port 8002))
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8002/&amp;quot;
+                    :headers &amp;#039;((&amp;quot;Custom-Header&amp;quot; . &amp;quot;Hello&amp;quot;)))
+127.0.0.1 - [2020-06-20 20:58:04] &amp;quot;GET / HTTP/1.1&amp;quot; 200 16 &amp;quot;-&amp;quot; 
+            &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
+&amp;quot;Hello Lisp World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Clack version is more coherent. All request parameters are in one place and it is obvious how to return a status code or the headers.&lt;/p&gt;
+&lt;p&gt;Here is the content of the env var passed by the Clack to the application function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; For this request:
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8000/some/path&amp;quot;
+                    :headers &amp;#039;((&amp;quot;Custom-Header&amp;quot; . &amp;quot;Hello&amp;quot;)))
+
+;; This plist will be passed as env argument
+;; to the function:
+(:REQUEST-METHOD :GET
+ :SCRIPT-NAME &amp;quot;&amp;quot;
+ :PATH-INFO &amp;quot;/some/path&amp;quot;
+ :SERVER-NAME &amp;quot;localhost&amp;quot;
+ :SERVER-PORT 8000
+ :SERVER-PROTOCOL :HTTP/1.1
+ :REQUEST-URI &amp;quot;/some/path&amp;quot;
+ :URL-SCHEME &amp;quot;http&amp;quot;
+ :REMOTE-ADDR &amp;quot;127.0.0.1&amp;quot;
+ :REMOTE-PORT 51325
+ :QUERY-STRING NIL
+ :RAW-BODY #&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {1009183813}&amp;gt;
+ :CONTENT-LENGTH 0
+ :CONTENT-TYPE NIL
+ :CLACK.STREAMING T
+ :CLACK.IO #&amp;lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {1009183863}&amp;gt;
+ :HEADERS #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 4 {1009183AE3}&amp;gt;)
+
+;; And here is the content of the HEADERS:
+POFTHEDAY&amp;gt; (rutils:print-hash-table
+            (getf * :headers))
+#{EQUAL
+  &amp;quot;user-agent&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
+  &amp;quot;host&amp;quot; &amp;quot;localhost:8000&amp;quot;
+  &amp;quot;accept&amp;quot; &amp;quot;*/*&amp;quot;
+  &amp;quot;custom-header&amp;quot; &amp;quot;Hello&amp;quot;
+ }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review a Clack middleware and see how to apply to the app.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 20 Jun 2020 21:12:07 +0300</pubDate>
+        </item>
+        <item>
             <title>pcall</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0104-pcall.html</link>
             <description>&lt;p&gt;This library contains a few primitives for parallel code execution. It is like a baby lparallel.&lt;/p&gt;
@@ -1709,58 +1784,6 @@ POFTHEDAY&amp;gt; (foo)
              \&amp;quot;\&amp;quot;\&amp;quot;
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Mon, 01 Jun 2020 21:10:55 +0300</pubDate>
-        </item>
-        <item>
-            <title>simplified-types</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/05/0085-simplified-types.html</link>
-            <description>&lt;p&gt;Yesterday I wrote a simple implementation of dataframe. A dataframe stores data columns as simple vectors of some type.&lt;/p&gt;
-&lt;p&gt;For this implementation, I needed a type inference to set vector&apos;s type for each column. An inferred type should be generic enough to work for all items in the column.&lt;/p&gt;
-&lt;p&gt;But what if we have positive and negative integers in our data? What type will return the standard &lt;code&gt;type-of&lt;/code&gt;?&lt;/p&gt;
-&lt;p&gt;Here is the answer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (type-of 21)
-(INTEGER 0 4611686018427387903)
-
-POFTHEDAY&amp;gt; (type-of -21)
-FIXNUM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, if I&apos;ll make my vector&apos;s type &lt;code&gt;(INTEGER 0 4611686018427387903)&lt;/code&gt; it will raise an error on the second element:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-array
-            2
-            :element-type &amp;#039;(INTEGER
-                            0
-                            4611686018427387903)
-            :initial-contents &amp;#039;(21 -21))
-; Debugger entered on
-; #&amp;lt;TYPE-ERROR expected-type:
-; (UNSIGNED-BYTE 62) datum: -21&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That&apos;s why I started to search the way to make inferred type more generic and found &lt;code&gt;simplified-types&lt;/code&gt; library.&lt;/p&gt;
-&lt;p&gt;Here is how it works:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (mapcar #&amp;#039;type-of
-             &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;))
-
-((INTEGER 0 4611686018427387903)
-  FIXNUM
-  SINGLE-FLOAT
-  DOUBLE-FLOAT
-  (SIMPLE-ARRAY CHARACTER (6)))
-    
-POFTHEDAY&amp;gt; (mapcar #&amp;#039;simplified-types:simplified-type-of
-             &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;))
-
-((INTEGER 21 21)
- (INTEGER -23 -23)
-  SINGLE-FLOAT
-  DOUBLE-FLOAT
-  T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, &lt;code&gt;INTEGER&lt;/code&gt; with bounds still is not what I need for my application. Happily, &lt;a href=&quot;https://github.com/marcoheisig&quot;&gt;Marco Heisig&lt;/a&gt; foresee this need and added a switcher which makes integer types more generic.&lt;/p&gt;
-&lt;p&gt;With this option, the library produces exactly what I need:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((simplified-types::*precise-integer-types* nil))
-             (mapcar #&amp;#039;simplified-types:simplified-type-of
-               &amp;#039;(21 -23 1.23 4.56d0 &amp;quot;string&amp;quot;)))
-
-((INTEGER * *)
- (INTEGER * *)
-  SINGLE-FLOAT
-  DOUBLE-FLOAT
-  T)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you&apos;d like to work with types in Common Lisp, then you probably might be interested in the library I&apos;ve reviewed recently - &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/04/0033-trivialib.type-unify.html&quot;&gt;trivialib.type-unify&lt;/a&gt;. It allows us to do pattern-matching on type specifiers.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 31 May 2020 21:45:22 +0300</pubDate>
         </item>
     </channel>
 </rss>

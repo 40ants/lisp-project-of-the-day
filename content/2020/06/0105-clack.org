@@ -13,17 +13,17 @@ from the Clack.
 
 Clack is an intermediate layer between the real webserver and your
 application code. It unifies requests parsing and you don't need to
-rewrite an app if you'll decided to run your app under another
+rewrite an app if you'll decide to run your app under another
 webserver.
 
-Today Clack supports FCGI, Hunchentoot, Toot, Woo, Wookie. Woo and
-Wookie are asynchronous and can be used to serve hungreds simulteneously
-connections.
+Today it supports FCGI, Hunchentoot, Toot, Woo, Wookie. Woo and
+Wookie are asynchronous and can be used to serve hundreds of
+simultaneous connections.
 
 Another interesting feature of Clack is that application is the only a
-lambda function. Because of this, application code can be wrapped with
-middlewares. There are number of middlewares: for logging, handling
-errors, serving static files, etc.
+lambda function. Because of this, the application code can be wrapped
+with middlewares. There are a number of middlewares: for logging,
+handling errors, serving static files, etc.
 
 Here is an example of the simplest app. A function should return a list
 of status-code, headers plist and the content. The content should be a
@@ -114,3 +114,6 @@ POFTHEDAY> (rutils:print-hash-table
  } 
 
 #+end_src
+
+Tomorrow we'll review a Clack middleware and see how to apply to the
+app.
