@@ -1,0 +1,116 @@
+* clack :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+Today we begin our sprint around Fukamachi's web tools and will start
+from the Clack.
+
+Clack is an intermediate layer between the real webserver and your
+application code. It unifies requests parsing and you don't need to
+rewrite an app if you'll decided to run your app under another
+webserver.
+
+Today Clack supports FCGI, Hunchentoot, Toot, Woo, Wookie. Woo and
+Wookie are asynchronous and can be used to serve hungreds simulteneously
+connections.
+
+Another interesting feature of Clack is that application is the only a
+lambda function. Because of this, application code can be wrapped with
+middlewares. There are number of middlewares: for logging, handling
+errors, serving static files, etc.
+
+Here is an example of the simplest app. A function should return a list
+of status-code, headers plist and the content. The content should be a
+list of strings, a vector of bytes or pathname:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *server*
+             (clack:clackup
+              (lambda (env)
+                (declare (ignore env))
+                '(200 (:content-type "text/plain")
+                  ("Hello, Lisp World!")))
+              :port 8000))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.
+
+POFTHEDAY> (nth-value 0
+             (dex:get "http://localhost:8000"))
+"Hello, Lisp World!"
+
+POFTHEDAY> (clack:stop *server*)
+T
+
+#+end_src
+
+Compare this with plain Hunchentoot application:
+
+#+begin_src lisp
+
+POFTHEDAY> (hunchentoot:define-easy-handler (say-yo :uri "/") ()
+             (setf (hunchentoot:content-type*)
+                   "text/plain")
+             "Hello Lisp World")
+
+POFTHEDAY> (hunchentoot:start
+            (make-instance 'hunchentoot:easy-acceptor
+                           :port 8002))
+
+POFTHEDAY> (dex:get "http://localhost:8002/"
+                    :headers '(("Custom-Header" . "Hello")))
+127.0.0.1 - [2020-06-20 20:58:04] "GET / HTTP/1.1" 200 16 "-" 
+            "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
+"Hello Lisp World"
+
+#+end_src
+
+Clack version is more coherent. All request parameters are in one place
+and it is obvious how to return a status code or the headers.
+
+Here is the content of the env var passed by the Clack to the
+application function:
+
+#+begin_src lisp
+
+;; For this request:
+POFTHEDAY> (dex:get "http://localhost:8000/some/path"
+                    :headers '(("Custom-Header" . "Hello")))
+
+;; This plist will be passed as env argument
+;; to the function:
+(:REQUEST-METHOD :GET
+ :SCRIPT-NAME ""
+ :PATH-INFO "/some/path"
+ :SERVER-NAME "localhost"
+ :SERVER-PORT 8000
+ :SERVER-PROTOCOL :HTTP/1.1
+ :REQUEST-URI "/some/path"
+ :URL-SCHEME "http"
+ :REMOTE-ADDR "127.0.0.1"
+ :REMOTE-PORT 51325
+ :QUERY-STRING NIL
+ :RAW-BODY #<FLEXI-STREAMS:FLEXI-IO-STREAM {1009183813}>
+ :CONTENT-LENGTH 0
+ :CONTENT-TYPE NIL
+ :CLACK.STREAMING T
+ :CLACK.IO #<CLACK.HANDLER.HUNCHENTOOT::CLIENT {1009183863}>
+ :HEADERS #<HASH-TABLE :TEST EQUAL :COUNT 4 {1009183AE3}>)
+
+;; And here is the content of the HEADERS:
+POFTHEDAY> (rutils:print-hash-table
+            (getf * :headers))
+#{EQUAL
+  "user-agent" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
+  "host" "localhost:8000"
+  "accept" "*/*"
+  "custom-header" "Hello"
+ } 
+
+#+end_src
