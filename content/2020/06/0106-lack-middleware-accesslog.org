@@ -1,0 +1,106 @@
+* lack-middleware-accesslog                                             :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+Yesterday, I've showed you how does Clack work. A web app is a function
+which returns a list with the response or a function which should
+return create such list pass it to provided callback.
+
+Now we'll add a logging to our app with a ~lack-middleware-accesslog~.
+To do this, we must wrap our app's function into another function like
+this:
+
+#+begin_src lisp
+
+;; Now we'll create a simple app
+POFTHEDAY> (defparameter *app*
+             (lambda (env)
+               '(200 (:content-type "text/plain")
+                 ("Hello, World"))))
+
+;; And wrap it into the middleware.
+;; Here we pass a :logger to redefine
+;; it to use log4cl instead of writing log to the *standard-output*.
+POFTHEDAY> (defparameter *app-with-access-log*
+             (funcall lack.middleware.accesslog:*lack-middleware-accesslog*
+                      *app*))
+
+;; Now it's time to start our app
+POFTHEDAY> (clack:clackup *app-with-access-log*
+                          :port 8000)
+
+Woo server is started.
+Listening on 127.0.0.1:8000.
+
+;; And to make a test request
+POFTHEDAY> (values (dex:get "http://localhost:8000/"))
+127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] "GET / HTTP/1.1" 200 12 "-" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
+"Hello, World"
+
+#+end_src
+
+Look how a log message was printed to the STDOUT.
+
+
+Now let's see how does this middleware works. Here is its content. It is
+a little bit complicated because the middleware needs to handle cases
+when app returns a function instead of the normal response:
+
+#+begin_src lisp
+
+(defparameter *lack-middleware-accesslog*
+  (let ((no-body '#:no-body))
+    (lambda (app &key
+              (logger
+               (lambda (output) (format t "~&~A~%" output)))
+              (formatter #'default-formatter))
+      (lambda (env)
+        (funcall-with-cb
+         app env
+         (lambda (res)
+           (funcall logger
+                    (funcall formatter env res (now)))
+           res)))))
+  "Middleware for logging requests")
+
+#+end_src
+
+I'll show you a simple version of this logging middleware:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun simple-logging (app)
+             (lambda (env)
+               (let ((response
+                       (funcall app env)))
+                 (format t "~A ~A -> ~A~%"
+                         (getf env :request-method)
+                         (getf env :path-info)
+                         (car response))
+                 response)))
+
+POFTHEDAY> (defparameter *app-with-simple-log*
+             (simple-logging *app*))
+
+POFTHEDAY> (clack:clackup *app-with-simple-log*
+                          :port 8000)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.
+
+POFTHEDAY> (values (dex:get "http://localhost:8000/"))
+GET / -> 200
+"Hello, World"
+
+POFTHEDAY> (values (dex:get "http://localhost:8000/foo/bar"))
+GET /foo/bar -> 200
+"Hello, World"
+
+#+end_src
+
+Tomorrow we'll try the better way to apply middlewares to a Clack app.
