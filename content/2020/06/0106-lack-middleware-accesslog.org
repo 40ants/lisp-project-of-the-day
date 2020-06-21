@@ -10,37 +10,38 @@
 
 Yesterday, I've showed you how does Clack work. A web app is a function
 which returns a list with the response or a function which should
-return create such list pass it to provided callback.
+return create such list pass it to the provided callback.
 
-Now we'll add a logging to our app with a ~lack-middleware-accesslog~.
+Now we'll add a logging to our app with the ~lack-middleware-accesslog~
+system.
+
 To do this, we must wrap our app's function into another function like
 this:
 
 #+begin_src lisp
 
-;; Now we'll create a simple app
+;; Now we'll create a simple app:
 POFTHEDAY> (defparameter *app*
              (lambda (env)
                '(200 (:content-type "text/plain")
                  ("Hello, World"))))
 
-;; And wrap it into the middleware.
-;; Here we pass a :logger to redefine
-;; it to use log4cl instead of writing log to the *standard-output*.
+;; And wrap it into the middleware:
 POFTHEDAY> (defparameter *app-with-access-log*
              (funcall lack.middleware.accesslog:*lack-middleware-accesslog*
                       *app*))
 
-;; Now it's time to start our app
+;; Now it's time to start our app:
 POFTHEDAY> (clack:clackup *app-with-access-log*
                           :port 8000)
 
 Woo server is started.
 Listening on 127.0.0.1:8000.
 
-;; And to make a test request
+;; And to make a test request:
 POFTHEDAY> (values (dex:get "http://localhost:8000/"))
-127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] "GET / HTTP/1.1" 200 12 "-" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
+127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] "GET / HTTP/1.1" 
+  200 12 "-" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
 "Hello, World"
 
 #+end_src
@@ -50,7 +51,7 @@ Look how a log message was printed to the STDOUT.
 
 Now let's see how does this middleware works. Here is its content. It is
 a little bit complicated because the middleware needs to handle cases
-when app returns a function instead of the normal response:
+when an app returns a function instead of the normal response:
 
 #+begin_src lisp
 
@@ -71,10 +72,11 @@ when app returns a function instead of the normal response:
 
 #+end_src
 
-I'll show you a simple version of this logging middleware:
+I'll show you a simpler version of this logging middleware:
 
 #+begin_src lisp
 
+;; Here is the middleware:
 POFTHEDAY> (defun simple-logging (app)
              (lambda (env)
                (let ((response
@@ -85,6 +87,7 @@ POFTHEDAY> (defun simple-logging (app)
                          (car response))
                  response)))
 
+;; And this is an example how we can apply it to our app:
 POFTHEDAY> (defparameter *app-with-simple-log*
              (simple-logging *app*))
 

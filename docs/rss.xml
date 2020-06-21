@@ -6,6 +6,80 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack-middleware-accesslog</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html</link>
+            <description>&lt;p&gt;Yesterday, I&apos;ve showed you how does Clack work. A web app is a function which returns a list with the response or a function which should return create such list pass it to the provided callback.&lt;/p&gt;
+&lt;p&gt;Now we&apos;ll add a logging to our app with the &lt;code&gt;lack-middleware-accesslog&lt;/code&gt; system.&lt;/p&gt;
+&lt;p&gt;To do this, we must wrap our app&apos;s function into another function like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Now we&amp;#039;ll create a simple app:
+POFTHEDAY&amp;gt; (defparameter *app*
+             (lambda (env)
+               &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                 (&amp;quot;Hello, World&amp;quot;))))
+
+;; And wrap it into the middleware:
+POFTHEDAY&amp;gt; (defparameter *app-with-access-log*
+             (funcall lack.middleware.accesslog:*lack-middleware-accesslog*
+                      *app*))
+
+;; Now it&amp;#039;s time to start our app:
+POFTHEDAY&amp;gt; (clack:clackup *app-with-access-log*
+                          :port 8000)
+
+Woo server is started.
+Listening on 127.0.0.1:8000.
+
+;; And to make a test request:
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/&amp;quot;))
+127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] &amp;quot;GET / HTTP/1.1&amp;quot; 
+  200 12 &amp;quot;-&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
+&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Look how a log message was printed to the STDOUT.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s see how does this middleware works. Here is its content. It is a little bit complicated because the middleware needs to handle cases when an app returns a function instead of the normal response:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defparameter *lack-middleware-accesslog*
+  (let ((no-body &amp;#039;#:no-body))
+    (lambda (app &amp;amp;key
+              (logger
+               (lambda (output) (format t &amp;quot;~&amp;amp;~A~%&amp;quot; output)))
+              (formatter #&amp;#039;default-formatter))
+      (lambda (env)
+        (funcall-with-cb
+         app env
+         (lambda (res)
+           (funcall logger
+                    (funcall formatter env res (now)))
+           res)))))
+  &amp;quot;Middleware for logging requests&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ll show you a simpler version of this logging middleware:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here is the middleware:
+POFTHEDAY&amp;gt; (defun simple-logging (app)
+             (lambda (env)
+               (let ((response
+                       (funcall app env)))
+                 (format t &amp;quot;~A ~A -&amp;gt; ~A~%&amp;quot;
+                         (getf env :request-method)
+                         (getf env :path-info)
+                         (car response))
+                 response)))
+
+;; And this is an example how we can apply it to our app:
+POFTHEDAY&amp;gt; (defparameter *app-with-simple-log*
+             (simple-logging *app*))
+
+POFTHEDAY&amp;gt; (clack:clackup *app-with-simple-log*
+                          :port 8000)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/&amp;quot;))
+GET / -&amp;gt; 200
+&amp;quot;Hello, World&amp;quot;
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/foo/bar&amp;quot;))
+GET /foo/bar -&amp;gt; 200
+&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll try the better way to apply middlewares to a Clack app.&lt;/p&gt;
+</description>
+            <pubDate>Sun, 21 Jun 2020 23:20:42 +0300</pubDate>
+        </item>
+        <item>
             <title>clack</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0105-clack.html</link>
             <description>&lt;p&gt;Today we begin our sprint around Fukamachi&apos;s web tools and will start from the Clack.&lt;/p&gt;
@@ -1729,61 +1803,6 @@ NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute 
       (log:info message)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably, I&apos;ll make a pull-request with these fixes soon. But seems the author of this library is not very active neither at BitBucket nor at the GitHub.&lt;/p&gt;
 </description>
             <pubDate>Tue, 02 Jun 2020 23:04:49 +0300</pubDate>
-        </item>
-        <item>
-            <title>pythonic-string-reader</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0086-pythonic-string-reader.html</link>
-            <description>&lt;p&gt;This is a small package which adds a new syntax for writing multiline string as you do in Python.&lt;/p&gt;
-&lt;p&gt;I already reviewed the &quot;heredoc&quot; library providing a similar functionality:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&quot;&gt;http://40ants.com/lisp-project-of-the-day/2020/05/0055-cl-heredoc.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Here is how &lt;code&gt;pythonic-string-reader&lt;/code&gt; can be used:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Enable the syntax:
-POFTHEDAY&amp;gt; (named-readtables:in-readtable
-            pythonic-string-reader:pythonic-string-syntax)
-
-;; Using it from the REPL:
-POFTHEDAY&amp;gt; &amp;quot;&amp;quot;&amp;quot;
-Hello &amp;quot;Lisp World!&amp;quot;
-&amp;quot;&amp;quot;&amp;quot;
-&amp;quot;
-Hello \&amp;quot;Lisp World!\&amp;quot;
-&amp;quot;
-
-;; Using it for function&amp;#039;s docstring:
-POFTHEDAY&amp;gt; (defun foo (x)
-             &amp;quot;&amp;quot;&amp;quot; This is a function
-                 which multiplies &amp;quot;x&amp;quot;
-                 to itself.
-             &amp;quot;&amp;quot;&amp;quot;
-             (* x x))
-FOO
-POFTHEDAY&amp;gt; (documentation &amp;#039;FOO
-                          &amp;#039;function)
-&amp;quot; This is a function
-                 which multiplies \&amp;quot;x\&amp;quot;
-                 to itself.
-             &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Whereas &lt;code&gt;cl-heredoc&lt;/code&gt; package allowed you to choose a string which will denote the end of the string literal, &lt;code&gt;pythonic-string-reader&lt;/code&gt; supports only 3 or 4 double-quotes.&lt;/p&gt;
-&lt;p&gt;4 double-quotes might be useful if you want to use 3 double quotes in the text:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo ()
-             &amp;quot;&amp;quot;&amp;quot;&amp;quot;
-             You also might enter text with 3 double quotes:
-
-             &amp;quot;&amp;quot;&amp;quot;
-             Just use 4 double quotes when starting such string
-             literal.
-             &amp;quot;&amp;quot;&amp;quot;
-&amp;quot;&amp;quot;&amp;quot;&amp;quot;)
-
-POFTHEDAY&amp;gt; (foo)
-&amp;quot;
-             You also might enter text with 3 double quotes:
-
-             \&amp;quot;\&amp;quot;\&amp;quot;
-             Just use 4 double quotes when starting such string
-             literal.
-             \&amp;quot;\&amp;quot;\&amp;quot;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Mon, 01 Jun 2020 21:10:55 +0300</pubDate>
         </item>
     </channel>
 </rss>

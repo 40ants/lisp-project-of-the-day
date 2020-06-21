@@ -51,33 +51,33 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-accesslog</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-accesslog<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Yesterday, I've showed you how does Clack work. A web app is a function which returns a list with the response or a function which should return create such list pass it to provided callback.</p>
-<p>Now we'll add a logging to our app with a <code>lack-middleware-accesslog</code>. To do this, we must wrap our app's function into another function like this:</p>
-<pre><code class='lisp'>;; Now we&#039;ll create a simple app
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-accesslog</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-accesslog<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>:</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Yesterday, I've showed you how does Clack work. A web app is a function which returns a list with the response or a function which should return create such list pass it to the provided callback.</p>
+<p>Now we'll add a logging to our app with the <code>lack-middleware-accesslog</code> system.</p>
+<p>To do this, we must wrap our app's function into another function like this:</p>
+<pre><code class='lisp'>;; Now we&#039;ll create a simple app:
 POFTHEDAY&gt; (defparameter *app*
              (lambda (env)
                &#039;(200 (:content-type &quot;text/plain&quot;)
                  (&quot;Hello, World&quot;))))
 
-;; And wrap it into the middleware.
-;; Here we pass a :logger to redefine
-;; it to use log4cl instead of writing log to the *standard-output*.
+;; And wrap it into the middleware:
 POFTHEDAY&gt; (defparameter *app-with-access-log*
              (funcall lack.middleware.accesslog:*lack-middleware-accesslog*
                       *app*))
 
-;; Now it&#039;s time to start our app
+;; Now it&#039;s time to start our app:
 POFTHEDAY&gt; (clack:clackup *app-with-access-log*
                           :port 8000)
 
 Woo server is started.
 Listening on 127.0.0.1:8000.
 
-;; And to make a test request
+;; And to make a test request:
 POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8000/&quot;))
-127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] &quot;GET / HTTP/1.1&quot; 200 12 &quot;-&quot; &quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&quot;
+127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] &quot;GET / HTTP/1.1&quot; 
+  200 12 &quot;-&quot; &quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&quot;
 &quot;Hello, World&quot;</code></pre><p>Look how a log message was printed to the STDOUT.</p>
-<p>Now let's see how does this middleware works. Here is its content. It is a little bit complicated because the middleware needs to handle cases when app returns a function instead of the normal response:</p>
+<p>Now let's see how does this middleware works. Here is its content. It is a little bit complicated because the middleware needs to handle cases when an app returns a function instead of the normal response:</p>
 <pre><code class='lisp'>(defparameter *lack-middleware-accesslog*
   (let ((no-body &#039;#:no-body))
     (lambda (app &amp;key
@@ -91,8 +91,9 @@ POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8000/&quot;))
            (funcall logger
                     (funcall formatter env res (now)))
            res)))))
-  &quot;Middleware for logging requests&quot;)</code></pre><p>I'll show you a simple version of this logging middleware:</p>
-<pre><code class='lisp'>POFTHEDAY&gt; (defun simple-logging (app)
+  &quot;Middleware for logging requests&quot;)</code></pre><p>I'll show you a simpler version of this logging middleware:</p>
+<pre><code class='lisp'>;; Here is the middleware:
+POFTHEDAY&gt; (defun simple-logging (app)
              (lambda (env)
                (let ((response
                        (funcall app env)))
@@ -102,6 +103,7 @@ POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8000/&quot;))
                          (car response))
                  response)))
 
+;; And this is an example how we can apply it to our app:
 POFTHEDAY&gt; (defparameter *app-with-simple-log*
              (simple-logging *app*))
 
