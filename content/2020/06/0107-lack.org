@@ -1,0 +1,75 @@
+* lack :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+~Lack~ is a library, used by ~Clack~ to compose web apps from
+middlewares.
+
+Yesterday [[https://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html][we've used]] the ~lack-middleware-accesslog~ system to log every
+request to our webapp. But app configuration was not convenint. ~Lack~
+provides a macro to compose application from middlewares:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *app*
+             (lack:builder
+              ;; middlewares
+              :accesslog
+              ;; the app
+              (lambda (env)
+                (declare (ignorable env))
+                '(200 (:content-type "text/plain")
+                  ("Hello, World")))))
+
+POFTHEDAY> (clack:clackup *app*
+                          :port 8080)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8080.
+
+POFTHEDAY> (values (dex:get "http://localhost:8080/foo/bar"))
+127.0.0.1 - [22/Jun/2020:22:15:23 +03:00] "GET /foo/bar HTTP/1.1"
+         200 12 "-" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
+"Hello, World"
+
+#+end_src
+
+Multiple middlewares can be passed to the ~lack:builder~.
+
+When we are specifying the middleware's name as a keyword, lack tries to
+search a middleware function using ~lack.util:find-middleware~.
+
+#+begin_src lisp
+
+POFTHEDAY> (lack.util:find-middleware :accesslog)
+
+#<FUNCTION (LAMBDA (LACK.MIDDLEWARE.ACCESSLOG::APP &KEY :LOGGER :FORMATTER)
+             :IN
+             "/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/\
+  ultralisp/software/fukamachi-lack-20200524065357/src/middleware/accesslog.lisp")
+  {22D1F6CB}>
+
+#+end_src
+
+If you intend to create an opensource library providing ~Lack~ middleware
+and want this discovery work for it, then you have to follow these
+rules.
+
+Your system have to define a package prefixed with ~LACK.MIDDLEWARE.~ and
+it should export a variable with name matched to the pattern
+~*LACK-MIDDLEWARE-...*~. This variable should be bound to a middleware
+function.
+
+For example, access log middleware defines the
+~LACK.MIDDLEWARE.ACCESSLOG:*LACK-MIDDLEWARE-ACCESSLOG*~ variable.
+
+Another interesting feature, I didn't covered yet is ability to write an
+app which delays it's response or stream it back. Luckly, these kinds of
+applications [[https://github.com/fukamachi/lack#delayed-response-and-streaming-body][are covered by]] ~Lack~'s documentation.
+
+Yesterday, we'll look at some ~Lack's~ middleware.
