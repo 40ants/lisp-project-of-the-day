@@ -6,6 +6,69 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0107-lack.html</link>
+            <description>&lt;p&gt;&lt;code&gt;Lack&lt;/code&gt; is a library, used by &lt;code&gt;Clack&lt;/code&gt; to compose web apps from middlewares.&lt;/p&gt;
+&lt;p&gt;Yesterday &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html&quot;&gt;we&apos;ve used&lt;/a&gt; the &lt;code&gt;lack-middleware-accesslog&lt;/code&gt; system to log every request to our webapp. But app configuration was not convenient. &lt;code&gt;Lack&lt;/code&gt; provides a macro to compose an application from middlewares:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
+             (lack:builder
+              ;; middlewares
+              :accesslog
+              ;; the app
+              (lambda (env)
+                (declare (ignorable env))
+                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                  (&amp;quot;Hello, World&amp;quot;)))))
+
+POFTHEDAY&amp;gt; (clack:clackup *app*
+                          :port 8080)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8080.
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8080/foo/bar&amp;quot;))
+127.0.0.1 - [22/Jun/2020:22:15:23 +03:00] &amp;quot;GET /foo/bar HTTP/1.1&amp;quot;
+         200 12 &amp;quot;-&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
+&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can pass a middleware as a keyword or as a s-exp. In the slatter case, all values except the first one, will be passed to the middleware functions.&lt;/p&gt;
+&lt;p&gt;This way a middleware can be configured. Here is for example, how we can replace a logging function to use &lt;code&gt;log4cl&lt;/code&gt; (by the way, remind me to tell you about &lt;code&gt;log4cl&lt;/code&gt;, it is wonderful!):&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
+             (lack:builder
+              ;; middlewares
+              (:accesslog :logger
+                          (lambda (message)
+                            (log:info message)))
+              ;; the app
+              (lambda (env)
+                (declare (ignorable env))
+                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                  (&amp;quot;Hello, World&amp;quot;)))))
+
+POFTHEDAY&amp;gt; (clack:clackup *app*
+                          :port 8081)
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8081/foo/bar&amp;quot;))
+
+ &amp;lt;INFO&amp;gt; [22:38:06] poftheday () -
+  POFTHEDAY::MESSAGE: &amp;quot;127.0.0.1 - [22/Jun/2020:22:38:06 +03:00] 
+                \&amp;quot;GET /foo/bar HTTP/1.1\&amp;quot; 200 12 \&amp;quot;-\&amp;quot;
+                \&amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0\&amp;quot;&amp;quot;
+  
+&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Multiple middlewares can be passed to the &lt;code&gt;lack:builder&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When we are specifying the middleware&apos;s name as a keyword, lack tries to search a middleware function using &lt;code&gt;lack.util:find-middleware&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lack.util:find-middleware :accesslog)
+
+#&amp;lt;FUNCTION (LAMBDA (LACK.MIDDLEWARE.ACCESSLOG::APP &amp;amp;KEY :LOGGER :FORMATTER)
+             :IN
+             &amp;quot;/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/\
+  ultralisp/software/fukamachi-lack-20200524065357/src/middleware/accesslog.lisp&amp;quot;)
+  {22D1F6CB}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you intend to create an opensource library providing &lt;code&gt;Lack&lt;/code&gt; middleware and want this discovery work for it, then you have to follow these rules.&lt;/p&gt;
+&lt;p&gt;Your system has to define a package prefixed with &lt;code&gt;LACK.MIDDLEWARE.&lt;/code&gt; And it should export a variable with name matched to the pattern &lt;code&gt;*LACK-MIDDLEWARE-...*&lt;/code&gt;. This variable should be bound to a middleware function.&lt;/p&gt;
+&lt;p&gt;For example, access log middleware defines the &lt;code&gt;LACK.MIDDLEWARE.ACCESSLOG:*LACK-MIDDLEWARE-ACCESSLOG*&lt;/code&gt; variable.&lt;/p&gt;
+&lt;p&gt;Another interesting feature, I didn&apos;t cover yet the ability to write an app which delays it&apos;s response or stream it back. Luckily, these kinds of applications &lt;a href=&quot;https://github.com/fukamachi/lack#delayed-response-and-streaming-body&quot;&gt;are covered by&lt;/a&gt; &lt;code&gt;Lack&lt;/code&gt;&apos;s documentation.&lt;/p&gt;
+&lt;p&gt;Tomorrow, we&apos;ll look at some &lt;code&gt;Lack&apos;s&lt;/code&gt; middleware.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 22 Jun 2020 22:32:36 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-accesslog</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html</link>
             <description>&lt;p&gt;Yesterday, I&apos;ve showed you how does Clack work. A web app is a function which returns a list with the response or a function which should return create such list pass it to the provided callback.&lt;/p&gt;
@@ -1731,78 +1794,6 @@ M
   - Markus&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library is powerful enough to have it in your toolbox. Go and group something now!&lt;/p&gt;
 </description>
             <pubDate>Wed, 03 Jun 2020 20:44:42 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-cron</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0087-cl-cron.html</link>
-            <description>&lt;p&gt;This is a small system which allows you to organize a scheduled function execution in a Cron-like manner.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
-            (lambda ()
-              (format t &amp;quot;[~A] Cron works!~%&amp;quot;
-                      (local-time:now))))
-#:|cron743|
-
-POFTHEDAY&amp;gt; (cl-cron:start-cron)
-#&amp;lt;SB-THREAD:THREAD &amp;quot;Anonymous thread&amp;quot; RUNNING {1004D8CB93}&amp;gt;
-
-[2020-06-02T22:29:00.328017+03:00] Cron works!
-[2020-06-02T22:30:00.321083+03:00] Cron works!
-
-POFTHEDAY&amp;gt; (cl-cron:stop-cron)
-NIL
-
-POFTHEDAY&amp;gt; (defun list-cron-jobs ()
-             (loop for key being the hash-key
-                     of cl-cron::*cron-jobs-hash*
-                   collect key))
-
-POFTHEDAY&amp;gt; (list-cron-jobs)
-(#:|cron743|)
-
-POFTHEDAY&amp;gt; (cl-cron:delete-cron-job (first *))
-T
-
-POFTHEDAY&amp;gt; (list-cron-jobs)
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Having unnamed cron jobs is not convenient because it is to remove them, you need to get its name using &lt;code&gt;list-cron-jobs&lt;/code&gt; function.&lt;/p&gt;
-&lt;p&gt;But you can provide a &lt;code&gt;hash-key&lt;/code&gt; argument to the &lt;code&gt;make-cron-job&lt;/code&gt; function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
-            (lambda ()
-              (format t &amp;quot;[~A] Cron works!~%&amp;quot;
-                      (local-time:now)))
-            :hash-key :print-every-minute)
-:PRINT-EVERY-MINUTE
-
-POFTHEDAY&amp;gt; (list-cron-jobs)
-(:PRINT-EVERY-MINUTE)
-
-POFTHEDAY&amp;gt; (cl-cron:delete-cron-job
-            :print-every-minute)
-T
-
-POFTHEDAY&amp;gt; (list-cron-jobs)
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make a task which runs not every minute but at the specified time, you can pass keyword arguments to the &lt;code&gt;make-cron-job&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;For example, this will add a callback to run at 10:00 of every Sunday:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-cron:make-cron-job
-            (lambda ()
-              (format t &amp;quot;Wake Up!~%&amp;quot;))
-
-            ;; Days of week are numbered from 0,
-            ;; where 0 is Monday.
-            ;; Run every Sunday:
-            :day-of-week 6
-            :hour 10
-            :minute 0
-            :hash-key :sunday-alarm)
-:SUNDAY-ALARM&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I use &lt;code&gt;cl-cron&lt;/code&gt; in the Ultralisp.org, &lt;a href=&quot;https://github.com/ultralisp/ultralisp/blob/517738b087ca5a3eb14de728d855ca70739913c8/src/cron.lisp#L157-L184&quot;&gt;to schedule different tasks&lt;/a&gt;. And another useful trick I do is redefining &lt;code&gt;cl-cron:log-cron-message&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;By default it writes lines to the &lt;code&gt;./cron.log&lt;/code&gt;, but using this definition you can redirect all messages to the &lt;code&gt;log4cl&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here we are patching this function because
-;; original tries to write into a file cl-cron.log
-(defun cl-cron:log-cron-message (message &amp;amp;optional (type &amp;quot;error&amp;quot;))
-  (if (string-equal type &amp;quot;error&amp;quot;)
-      (log:error message)
-      (log:info message)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably, I&apos;ll make a pull-request with these fixes soon. But seems the author of this library is not very active neither at BitBucket nor at the GitHub.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 02 Jun 2020 23:04:49 +0300</pubDate>
         </item>
     </channel>
 </rss>

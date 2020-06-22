@@ -51,8 +51,8 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p><code>Lack</code> is a library, used by <code>Clack</code> to compose webapps from middlewares.</p>
-<p>Yesterday <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html">we've used</a> the <code>lack-middleware-accesslog</code> system to log every request to our webapp. But app configuration was not convenint. <code>Lack</code> provides a macro to compose application from middlewares:</p>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p><code>Lack</code> is a library, used by <code>Clack</code> to compose web apps from middlewares.</p>
+<p>Yesterday <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html">we've used</a> the <code>lack-middleware-accesslog</code> system to log every request to our webapp. But app configuration was not convenient. <code>Lack</code> provides a macro to compose an application from middlewares:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *app*
              (lack:builder
               ;; middlewares
@@ -71,6 +71,30 @@ Listening on 127.0.0.1:8080.
 POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8080/foo/bar&quot;))
 127.0.0.1 - [22/Jun/2020:22:15:23 +03:00] &quot;GET /foo/bar HTTP/1.1&quot;
          200 12 &quot;-&quot; &quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&quot;
+&quot;Hello, World&quot;</code></pre><p>You can pass a middleware as a keyword or as a s-exp. In the slatter case, all values except the first one, will be passed to the middleware functions.</p>
+<p>This way a middleware can be configured. Here is for example, how we can replace a logging function to use <code>log4cl</code> (by the way, remind me to tell you about <code>log4cl</code>, it is wonderful!):</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *app*
+             (lack:builder
+              ;; middlewares
+              (:accesslog :logger
+                          (lambda (message)
+                            (log:info message)))
+              ;; the app
+              (lambda (env)
+                (declare (ignorable env))
+                &#039;(200 (:content-type &quot;text/plain&quot;)
+                  (&quot;Hello, World&quot;)))))
+
+POFTHEDAY&gt; (clack:clackup *app*
+                          :port 8081)
+
+POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8081/foo/bar&quot;))
+
+ &lt;INFO&gt; [22:38:06] poftheday () -
+  POFTHEDAY::MESSAGE: &quot;127.0.0.1 - [22/Jun/2020:22:38:06 +03:00] 
+                \&quot;GET /foo/bar HTTP/1.1\&quot; 200 12 \&quot;-\&quot;
+                \&quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0\&quot;&quot;
+  
 &quot;Hello, World&quot;</code></pre><p>Multiple middlewares can be passed to the <code>lack:builder</code>.</p>
 <p>When we are specifying the middleware's name as a keyword, lack tries to search a middleware function using <code>lack.util:find-middleware</code>.</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (lack.util:find-middleware :accesslog)
@@ -80,10 +104,10 @@ POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8080/foo/bar&quot;))
              &quot;/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/\
   ultralisp/software/fukamachi-lack-20200524065357/src/middleware/accesslog.lisp&quot;)
   {22D1F6CB}&gt;</code></pre><p>If you intend to create an opensource library providing <code>Lack</code> middleware and want this discovery work for it, then you have to follow these rules.</p>
-<p>Your system have to define a package prefixed with <code>LACK.MIDDLEWARE.</code> and it should export a variable with name matched to the pattern <code>*LACK-MIDDLEWARE-...*</code>. This variable should be bound to a middleware function.</p>
+<p>Your system has to define a package prefixed with <code>LACK.MIDDLEWARE.</code> And it should export a variable with name matched to the pattern <code>*LACK-MIDDLEWARE-...*</code>. This variable should be bound to a middleware function.</p>
 <p>For example, access log middleware defines the <code>LACK.MIDDLEWARE.ACCESSLOG:*LACK-MIDDLEWARE-ACCESSLOG*</code> variable.</p>
-<p>Another interesting feature, I didn't covered yet is ability to write an app which delays it's response or stream it back. Luckly, these kinds of applications <a href="https://github.com/fukamachi/lack#delayed-response-and-streaming-body">are covered by</a> <code>Lack</code>'s documentation.</p>
-<p>Yesterday, we'll look at some <code>Lack's</code> middleware.</p>
+<p>Another interesting feature, I didn't cover yet the ability to write an app which delays it's response or stream it back. Luckily, these kinds of applications <a href="https://github.com/fukamachi/lack#delayed-response-and-streaming-body">are covered by</a> <code>Lack</code>'s documentation.</p>
+<p>Tomorrow, we'll look at some <code>Lack's</code> middleware.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
