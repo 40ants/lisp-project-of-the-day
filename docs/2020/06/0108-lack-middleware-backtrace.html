@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>lack-middleware-backtrace
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-backtrace</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-backtrace<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>You might consider this a cheating, but I really want to review all Lack middlewares regardless most of them are from the same <code>Lack</code> project. These middlewares are loadable as separate ASDF systems.</p>
+<p>The problem of Lack middlewares is that they are not documented.</p>
+<p>This middleware will output a backtrace and all request parameters to the stream or a file.</p>
+<p>If you are using <code>clack:clackup</code> function to start your app, it will apply a <code>backtrace</code> middleware to it, unless <code>:use-default-middlewares nil</code> argument was given. Without configuration, all backtraces will be written to <code>*error-output*</code> stream.</p>
+<p>Let's see how does it work!</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *app*
+             (lambda (env)
+               (declare (ignorable env))
+               (error &quot;Oh my God!&quot;)))
+*APP*
+POFTHEDAY&gt; (clack:clackup *app*
+                          :port 8085)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8085.
+
+POFTHEDAY&gt; (values (dex:get &quot;http://localhost:8085/foo/bar&quot;))
+Backtrace for: #&lt;SB-THREAD:THREAD &quot;hunchentoot-worker-127.0.0.1:56469&quot; RUNNING {1007707373}&gt;
+0: ((LAMBDA NIL :IN UIOP/IMAGE:PRINT-BACKTRACE))
+1: ((FLET &quot;THUNK&quot; :IN UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX))
+2: (SB-IMPL::%WITH-STANDARD-IO-SYNTAX #&lt;CLOSURE (FLET &quot;THUNK&quot; :IN UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX) {D85A24B}&gt;)
+3: (UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX #&lt;CLOSURE (LAMBDA NIL :IN UIOP/IMAGE:PRINT-BACKTRACE) {100791B9EB}&gt; :PACKAGE :CL)
+4: (UIOP/IMAGE:PRINT-CONDITION-BACKTRACE #&lt;SIMPLE-ERROR &quot;Oh my God!&quot; {100791B943}&gt; :STREAM #&lt;SYNONYM-STREAM :SYMBOL SLYNK::*CURRENT-ERROR-OUTPUT* {1001541093}&gt; :COUNT NIL)
+5: (LACK.MIDDLEWARE.BACKTRACE::PRINT-ERROR #&lt;SIMPLE-ERROR &quot;Oh my God!&quot; {100791B943}&gt; (:REQUEST-METHOD :GET :SCRIPT-NAME &quot;&quot; :PATH-INFO &quot;/foo/bar&quot; :SERVER-NAME &quot;localhost&quot; :SERVER-PORT 8085 :SERVER-PROTOCOL :HTTP/1.1 ...) #&lt;SYNONYM-STREAM :SYMBOL SLYNK::*CURRENT-ERROR-OUTPUT* {1001541093}&gt;)
+6: ((FLET LACK.MIDDLEWARE.BACKTRACE::OUTPUT-BACKTRACE :IN &quot;/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/ultralisp/software/fukamachi-lack-20200524065357/src/middleware/backtrace.lisp&quot;) #&lt;SIMPLE-ERROR &quot;Oh my God!&quot; {100791B943}&gt; (:REQUEST-METHOD :GET :SCRIPT-NAME &quot;&quot; :PATH-INFO &quot;/foo/bar&quot; :SERVER-NAME &quot;localhost&quot; :SERVER-PORT 8085 :SERVER-PROTOCOL :HTTP/1.1 ...))
+...
+31: (SB-THREAD::NEW-LISP-THREAD-TRAMPOLINE #&lt;SB-THREAD:THREAD &quot;hunchentoot-worker-127.0.0.1:56469&quot; RUNNING {1007707373}&gt; NIL #&lt;CLOSURE (LABELS BORDEAUX-THREADS::%BINDING-DEFAULT-SPECIALS-WRAPPER :IN BORDEAUX-THREADS::BINDING-DEFAULT-SPECIALS) {100770731B}&gt; NIL)
+32: (&quot;foreign function: call_into_lisp&quot;)
+33: (&quot;foreign function: new_thread_trampoline&quot;)
+Above backtrace due to this condition:
+Oh my God!
+
+Request:
+    REQUEST-METHOD: :GET
+    SCRIPT-NAME: &quot;&quot;
+    PATH-INFO: &quot;/foo/bar&quot;
+    SERVER-NAME: &quot;localhost&quot;
+    SERVER-PORT: 8085
+    SERVER-PROTOCOL: :HTTP/1.1
+    REQUEST-URI: &quot;/foo/bar&quot;
+    URL-SCHEME: &quot;http&quot;
+    REMOTE-ADDR: &quot;127.0.0.1&quot;
+    REMOTE-PORT: 56469
+    QUERY-STRING: NIL
+    RAW-BODY: #&lt;FLEXI-STREAMS:FLEXI-IO-STREAM {100791B313}&gt;
+    CONTENT-LENGTH: 0
+    CONTENT-TYPE: NIL
+    CLACK.STREAMING: T
+    CLACK.IO: #&lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {100791B363}&gt;
+    HEADERS:
+        user-agent: &quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&quot;
+        host: &quot;localhost:8085&quot;
+        accept: &quot;*/*&quot;</code></pre><p>The problem here is that I did not receive a 500 error. An interactive debugger popped up instead and HTTP request finished with timeout. To solve this problem, we need to pass a <code>:debug nil</code> parameter to <code>clackup</code>:</p>
+<pre><code class='lisp'>(clack:clackup *app*
+               :port 8085
+               :debug nil)</code></pre><p>Now we'll try other configuration of this backtrace middleware.</p>
+<p>To write output to the file, you need to specify output option. It can be either a string or a pathname:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+            (lack:builder
+             (:backtrace :output &quot;/tmp/errors.log&quot;)
+             *app*)
+            :port 8089
+            :debug nil
+            ;; If you don&#039;t turn off this,
+            ;; backtrace also will be written to the
+            ;; *error-output*.
+            :use-default-middlewares nil)</code></pre><p>Also you can pass as the output a variable pointing to the stream:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+            (lack:builder
+             (:backtrace :output *trace-output*)
+             *app*)
+            :port 8090
+            :debug nil
+            :use-default-middlewares nil)</code></pre><p>Another interesting option is <code>:result-on-error</code> it can be a function or a list with the response data. This way we can return a customized error response:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+            (lack:builder
+             (:backtrace :output &quot;/tmp/errors.log&quot;
+                         :result-on-error
+                         &#039;(500 (:content-type &quot;text/plain&quot;)
+                           (&quot;Stay patient. &quot;
+                            &quot;We already fixing this error in the REPL&quot;)))
+             *app*)
+            :port 8092
+            :debug nil
+            :use-default-middlewares nil)
+
+POFTHEDAY&gt; (handler-case (dex:get &quot;http://localhost:8092/foo/bar&quot;)
+             (error (condition)
+               condition))
+
+#&lt;DEXADOR.ERROR:HTTP-REQUEST-INTERNAL-SERVER-ERROR {1009B3BA03}&gt;
+
+POFTHEDAY&gt; (dexador:response-status *)
+500
+POFTHEDAY&gt; (dexador:response-body **)
+&quot;Stay patient. We already fixing this error in the REPL&quot;</code></pre><p>Specifying a function as error handler allows you to render an error response using information from unhandled condition:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+            (lack:builder
+             (:backtrace :output &quot;/tmp/errors.log&quot;
+                         :result-on-error
+                         #&#039;make-error-response)
+             *app*)
+            :port 8093
+            :use-default-middlewares nil)
+
+POFTHEDAY&gt; (handler-case (dex:get &quot;http://localhost:8093/foo/bar&quot;)
+             (error (condition)
+               (values (dex:response-status condition)
+                       (dex:response-body condition))))
+500
+&quot;Unhandled error: Oh my God!&quot;</code></pre><p>Notice, I didn't specify a <code>:debug nil</code> argument for <code>clackup</code>. When you are using <code>:result-on-error</code> argument on backtrace middleware, it will return a response before the lisp debugger will have a chance to pop up.</p>
+<p>If you want to invoke debugger in some cases, you can call a <code>(invoke-debugger condition)</code> somewhere inside <code>make-error-response</code>.</p>
+<p>Yesterday we'll review some other Lack's middleware.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
