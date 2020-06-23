@@ -102,11 +102,11 @@ Request:
     HEADERS:
         user-agent: &quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&quot;
         host: &quot;localhost:8085&quot;
-        accept: &quot;*/*&quot;</code></pre><p>The problem here is that I did not receive a 500 error. An interactive debugger popped up instead and HTTP request finished with timeout. To solve this problem, we need to pass a <code>:debug nil</code> parameter to <code>clackup</code>:</p>
+        accept: &quot;*/*&quot;</code></pre><p>The problem here is that I did not receive a 500 error. An interactive debugger popped up instead and HTTP request finished with a timeout. To solve this problem, we need to pass a <code>:debug nil</code> argument to <code>clackup</code>:</p>
 <pre><code class='lisp'>(clack:clackup *app*
                :port 8085
                :debug nil)</code></pre><p>Now we'll try other configuration of this backtrace middleware.</p>
-<p>To write output to the file, you need to specify output option. It can be either a string or a pathname:</p>
+<p>To write output to the file, you need to specify the output option. It can be either a string or a pathname:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
             (lack:builder
              (:backtrace :output &quot;/tmp/errors.log&quot;)
@@ -116,14 +116,14 @@ Request:
             ;; If you don&#039;t turn off this,
             ;; backtrace also will be written to the
             ;; *error-output*.
-            :use-default-middlewares nil)</code></pre><p>Also you can pass as the output a variable pointing to the stream:</p>
+            :use-default-middlewares nil)</code></pre><p>Also, you can pass as the output a variable pointing to the stream:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
             (lack:builder
              (:backtrace :output *trace-output*)
              *app*)
             :port 8090
             :debug nil
-            :use-default-middlewares nil)</code></pre><p>Another interesting option is <code>:result-on-error</code> it can be a function or a list with the response data. This way we can return a customized error response:</p>
+            :use-default-middlewares nil)</code></pre><p>Another interesting option is <code>:result-on-error</code>. It can be a function or a list with the response data. This way we can return a customized error response:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
             (lack:builder
              (:backtrace :output &quot;/tmp/errors.log&quot;
@@ -145,8 +145,14 @@ POFTHEDAY&gt; (handler-case (dex:get &quot;http://localhost:8092/foo/bar&quot;)
 POFTHEDAY&gt; (dexador:response-status *)
 500
 POFTHEDAY&gt; (dexador:response-body **)
-&quot;Stay patient. We already fixing this error in the REPL&quot;</code></pre><p>Specifying a function as error handler allows you to render an error response using information from unhandled condition:</p>
-<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+&quot;Stay patient. We already fixing this error in the REPL&quot;</code></pre><p>Specifying a function as an error handler allows you to render an error response using information from the unhandled condition:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun make-error-response (condition)
+             (list 500 &#039;(:content-type &quot;text/plain&quot;)
+                   (list (format nil
+                                 &quot;Unhandled error: ~A&quot;
+                                 condition))))
+
+POFTHEDAY&gt; (clack:clackup
             (lack:builder
              (:backtrace :output &quot;/tmp/errors.log&quot;
                          :result-on-error
@@ -161,7 +167,7 @@ POFTHEDAY&gt; (handler-case (dex:get &quot;http://localhost:8093/foo/bar&quot;)
                        (dex:response-body condition))))
 500
 &quot;Unhandled error: Oh my God!&quot;</code></pre><p>Notice, I didn't specify a <code>:debug nil</code> argument for <code>clackup</code>. When you are using <code>:result-on-error</code> argument on backtrace middleware, it will return a response before the lisp debugger will have a chance to pop up.</p>
-<p>If you want to invoke debugger in some cases, you can call a <code>(invoke-debugger condition)</code> somewhere inside <code>make-error-response</code>.</p>
+<p>If you want to invoke debugger in some cases, you can call a <code>(invoke-debugger condition)</code> somewhere inside <code>make-error-response</code> function.</p>
 <p>Yesterday we'll review some other Lack's middleware.</p>
 
 <script src="https://utteranc.es/client.js"

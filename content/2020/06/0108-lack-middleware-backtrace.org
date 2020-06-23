@@ -77,8 +77,8 @@ Request:
 #+end_src
 
 The problem here is that I did not receive a 500 error. An interactive
-debugger popped up instead and HTTP request finished with timeout. To
-solve this problem, we need to pass a ~:debug nil~ parameter to ~clackup~:
+debugger popped up instead and HTTP request finished with a timeout. To
+solve this problem, we need to pass a ~:debug nil~ argument to ~clackup~:
 
 #+begin_src lisp
 
@@ -90,7 +90,7 @@ solve this problem, we need to pass a ~:debug nil~ parameter to ~clackup~:
 
 Now we'll try other configuration of this backtrace middleware.
 
-To write output to the file, you need to specify output option. It can
+To write output to the file, you need to specify the output option. It can
 be either a string or a pathname:
 
 #+begin_src lisp
@@ -108,7 +108,7 @@ POFTHEDAY> (clack:clackup
 
 #+end_src
 
-Also you can pass as the output a variable pointing to the stream:
+Also, you can pass as the output a variable pointing to the stream:
 
 #+begin_src lisp
 
@@ -122,7 +122,7 @@ POFTHEDAY> (clack:clackup
 
 #+end_src
 
-Another interesting option is ~:result-on-error~ it can be a function or a
+Another interesting option is ~:result-on-error~. It can be a function or a
 list with the response data. This way we can return a customized error
 response:
 
@@ -153,10 +153,16 @@ POFTHEDAY> (dexador:response-body **)
 
 #+end_src
 
-Specifying a function as error handler allows you to render an error
-response using information from unhandled condition:
+Specifying a function as an error handler allows you to render an error
+response using information from the unhandled condition:
 
 #+begin_src lisp
+
+POFTHEDAY> (defun make-error-response (condition)
+             (list 500 '(:content-type "text/plain")
+                   (list (format nil
+                                 "Unhandled error: ~A"
+                                 condition))))
 
 POFTHEDAY> (clack:clackup
             (lack:builder
@@ -181,6 +187,7 @@ using ~:result-on-error~ argument on backtrace middleware, it will return
 a response before the lisp debugger will have a chance to pop up.
 
 If you want to invoke debugger in some cases, you can call a
-~(invoke-debugger condition)~ somewhere inside ~make-error-response~.
+~(invoke-debugger condition)~ somewhere inside ~make-error-response~
+function.
 
 Yesterday we'll review some other Lack's middleware.
