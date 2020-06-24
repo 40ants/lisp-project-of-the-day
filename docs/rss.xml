@@ -6,6 +6,53 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack-middleware-mount</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html</link>
+            <description>&lt;p&gt;We continue to review Lack&apos;s middlewares and this one gives you the ability to route requests to different apps depending on the path.&lt;/p&gt;
+&lt;p&gt;Here is a quick example. We want to plug a &lt;code&gt;blog&lt;/code&gt; and &lt;code&gt;admin&lt;/code&gt; into our main app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *main-app*
+             (lambda (env)
+               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
+                     (list (format nil &amp;quot;~A~%This is main app!&amp;quot;
+                                   (getf env :path-info))))))
+
+POFTHEDAY&amp;gt; (defparameter *blog*
+             (lambda (env)
+               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
+                     (list (format nil &amp;quot;~A~%The Blog.&amp;quot;
+                                   (getf env :path-info))))))
+
+POFTHEDAY&amp;gt; (defparameter *admin*
+             (lambda (env)
+               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
+                     (list (format nil &amp;quot;~A~%Administration interface.&amp;quot;
+                                   (getf env :path-info))))))
+
+POFTHEDAY&amp;gt; (clack:clackup
+            (lack:builder
+             (:mount &amp;quot;/blog&amp;quot; *blog*)
+             (:mount &amp;quot;/admin&amp;quot; *admin*)
+             *main-app*)
+            :port 8044)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8044.
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/some/page&amp;quot;)
+&amp;quot;/some/page
+This is main app!&amp;quot;
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/blog/post-1&amp;quot;)
+&amp;quot;/post-1
+The Blog.&amp;quot;
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/admin/blog/posts?id=1&amp;quot;)
+&amp;quot;/blog/posts
+Administration interface.&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to paths, returned as the first line of each response. It is relative to the mount point. This middleware rewrites the path so that an app can be mounted with any prefix.&lt;/p&gt;
+&lt;p&gt;That is it for today. Yesterday we&apos;ll see how we can serve static with Lack.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 24 Jun 2020 22:50:22 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-backtrace</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0108-lack-middleware-backtrace.html</link>
             <description>&lt;p&gt;You might consider this a cheating, but I really want to review all Lack middlewares regardless most of them are from the same &lt;code&gt;Lack&lt;/code&gt; project. These middlewares are loadable as separate ASDF systems.&lt;/p&gt;
@@ -1741,69 +1788,6 @@ Quit was called with code=1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Defmain
 &lt;p&gt;If you are looking to something simpler, you might take a look at &lt;code&gt;unix-opts&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html&quot;&gt;reviewed in the #0006 #poftheday&lt;/a&gt; post.&lt;/p&gt;
 </description>
             <pubDate>Fri, 05 Jun 2020 22:24:53 +0300</pubDate>
-        </item>
-        <item>
-            <title>lambda-fiddle</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0089-lambda-fiddle.html</link>
-            <description>&lt;p&gt;This library serves a single purpose - to help macro writers to parse lambda lists. In this sense, it is similar to &lt;code&gt;parse-declarations&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/05/0067-parse-declarations.html&quot;&gt;reviewed on 13 May&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;The library has a number of functions to extract or remove exact parts of the lambda list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:remove-aux-part
-            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
-(FOO BAR &amp;amp;KEY BAZ)
-
-POFTHEDAY&amp;gt; (lambda-fiddle:aux-lambda-vars
-            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
-(SOMETHING ALTOGETHER)
-
-POFTHEDAY&amp;gt; (lambda-fiddle:extract-all-lambda-vars
-            &amp;#039;(foo bar &amp;amp;key baz &amp;amp;aux (something else) altogether))
-(FOO BAR BAZ SOMETHING ALTOGETHER)
-
-POFTHEDAY&amp;gt; (lambda-fiddle:split-lambda-list
-            &amp;#039;(&amp;amp;whole wide world &amp;amp;key roles))
-((WORLD) WIDE NIL NIL NIL NIL (ROLES) NIL)
-
-POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
-               (:required req :optional opt)
-               &amp;#039;(foo bar &amp;amp;optional baz)
-             (list :required req
-                   :optional opt))
-(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It also provides a higher-level macro to extract particular pieces all at once:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lambda-fiddle:with-destructured-lambda-list
-               (:required req :optional opt)
-               &amp;#039;(foo bar &amp;amp;optional baz)
-             (list :required req
-                   :optional opt))
-(:REQUIRED (FOO BAR) :OPTIONAL (BAZ))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s &quot;legit&quot; contains &lt;a href=&quot;https://github.com/Shinmera/legit/blob/f822ac7aa8ed5aec7f2c63b146f790b0410f8502/toolkit.lisp#L31-L45&quot;&gt;a practical example&lt;/a&gt; of the &lt;code&gt;with-destructured-lambda-list&lt;/code&gt; usage.&lt;/p&gt;
-&lt;p&gt;This code replaces optional arguments with keywords and adds optional predicates which can be used to check if a keyword argument was provided:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defmacro define-git-wrapper (name &amp;amp;rest argdefs)
-  (lambda-fiddle:with-destructured-lambda-list (:required req :optional opt :key key) argdefs
-    (let* ((purereq (purify-args req))
-           (purekey (purify-args key))
-           (pureopt (purify-args opt))
-           (augkeys (mapcar (lambda (a)
-                              `(,a NIL ,(p-symb a)))
-                            (append pureopt purekey))))
-      `(defun ,name (,@purereq &amp;amp;key ,@augkeys)
-         (declare (ignorable ,@(mapcar #&amp;#039;third augkeys)))
-         (run-git
-          ,(subseq (string-downcase name) 4)
-          ,@(loop for arg in req 
-                  when (front-arg-p arg)
-                    collect (parse-rargdef arg))
-          ,@(loop for arg in opt
-                  when (front-arg-p arg)
-                    collect (parse-oargdef arg))
-          ,@(mapcar #&amp;#039;parse-kargdef key)
-          ,@(loop for arg in req
-                  unless (front-arg-p arg)
-                    collect (parse-rargdef arg))
-          ,@(loop for arg in opt
-                  unless (front-arg-p arg)
-                    collect
-                    (parse-oargdef arg)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. If you want to parse lambda lists, use this little helper instead of searching &amp;optional, &amp;rest, &amp;misc, etc by hand.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 04 Jun 2020 23:51:31 +0300</pubDate>
         </item>
     </channel>
 </rss>

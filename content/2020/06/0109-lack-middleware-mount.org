@@ -8,8 +8,8 @@
 :CI:       :)
 :END:
 
-We continue to review Lack's middlewares and this one gives you ability
-to route requests to different apps depending on the path.
+We continue to review Lack's middlewares and this one gives you the
+ability to route requests to different apps depending on the path.
 
 Here is a quick example. We want to plug a ~blog~ and ~admin~ into our main
 app:
@@ -57,9 +57,9 @@ Administration interface."
 
 #+end_src
 
-Pay attention to paths, returned as the first line of the each
+Pay attention to paths, returned as the first line of each
 response. It is relative to the mount point. This middleware rewrites
-the path so that app can be mounted with any prefix.
+the path so that an app can be mounted with any prefix.
 
 That is it for today. Yesterday we'll see how we can serve static with
 Lack.
