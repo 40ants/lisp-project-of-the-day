@@ -1,0 +1,65 @@
+* lack-middleware-mount :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+We continue to review Lack's middlewares and this one gives you ability
+to route requests to different apps depending on the path.
+
+Here is a quick example. We want to plug a ~blog~ and ~admin~ into our main
+app:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *main-app*
+             (lambda (env)
+               (list 200 '(:content-type "text/plain")
+                     (list (format nil "~A~%This is main app!"
+                                   (getf env :path-info))))))
+
+POFTHEDAY> (defparameter *blog*
+             (lambda (env)
+               (list 200 '(:content-type "text/plain")
+                     (list (format nil "~A~%The Blog."
+                                   (getf env :path-info))))))
+
+POFTHEDAY> (defparameter *admin*
+             (lambda (env)
+               (list 200 '(:content-type "text/plain")
+                     (list (format nil "~A~%Administration interface."
+                                   (getf env :path-info))))))
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             (:mount "/blog" *blog*)
+             (:mount "/admin" *admin*)
+             *main-app*)
+            :port 8044)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8044.
+
+POFTHEDAY> (dex:get "http://localhost:8044/some/page")
+"/some/page
+This is main app!"
+
+POFTHEDAY> (dex:get "http://localhost:8044/blog/post-1")
+"/post-1
+The Blog."
+
+POFTHEDAY> (dex:get "http://localhost:8044/admin/blog/posts?id=1")
+"/blog/posts
+Administration interface."
+
+#+end_src
+
+Pay attention to paths, returned as the first line of the each
+response. It is relative to the mount point. This middleware rewrites
+the path so that app can be mounted with any prefix.
+
+That is it for today. Yesterday we'll see how we can serve static with
+Lack.
