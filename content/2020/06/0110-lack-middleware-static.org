@@ -14,7 +14,7 @@ inefficient because a few lambdas are created on each request.
 
 The middleware should be parametrized with two arguments: ~path~ and ~root~.
 
-Path is a prefix from the URL. Root is the root directory on the local
+The ~path~ is a prefix from the URL. The ~root~ is the root directory on the local
 filesystem. For example, if ~root~ is ~/tmp/files/~ and ~path~ is ~/static/~
 then for URL ~http://my-site.com/static/some/file.txt~ Lack will return
 content of the ~/tmp/files/some/file.txt~.
@@ -54,7 +54,7 @@ POFTHEDAY> (values (dex:get "http://localhost:8082/other/path"))
 #+end_src
 
 Also, you can pass a function as a ~path~ argument. This way some sort of
-filtering maybe done. The function should return another path and you
+filtering may be done. The function should return another path and you
 probably will need to remove a prefix from it.
 
 For example, if we want to serve only a ~css~ files from the ~static-files~
@@ -99,6 +99,9 @@ POFTHEDAY> (dex:get "http://localhost:8085/static/README.txt")
 "A main app's response"
 
 #+end_src
+
+There is no any way to return 404 or 403 error in this case. This should
+be done on the main app's level.
 
 That is it for today. Tomorrow we'll how to protect your app with basic
 auth!

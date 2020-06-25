@@ -6,6 +6,80 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack-middleware-static</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html</link>
+            <description>&lt;p&gt;This middleware can be used to serve files from a directory. However, I don&apos;t recommend using it for production because it should be inefficient because a few lambdas are created on each request.&lt;/p&gt;
+&lt;p&gt;The middleware should be parametrized with two arguments: &lt;code&gt;path&lt;/code&gt; and &lt;code&gt;root&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;path&lt;/code&gt; is a prefix from the URL. The &lt;code&gt;root&lt;/code&gt; is the root directory on the local filesystem. For example, if &lt;code&gt;root&lt;/code&gt; is &lt;code&gt;/tmp/files/&lt;/code&gt; and &lt;code&gt;path&lt;/code&gt; is &lt;code&gt;/static/&lt;/code&gt; then for URL &lt;code&gt;http://my-site.com/static/some/file.txt&lt;/code&gt; Lack will return content of the &lt;code&gt;/tmp/files/some/file.txt&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Here is a small example, showing how does it work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
+             (lambda (env)
+               &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                 (&amp;quot;A main app&amp;#039;s response&amp;quot;))))
+
+POFTHEDAY&amp;gt; (clack:clackup
+            (lack:builder
+             (:static
+              ;; This is a path of URL
+              ;; to serve static files
+              :path &amp;quot;/static/&amp;quot;
+              ;; from this directory
+              ;; on the filesystem
+              :root #P&amp;quot;./static-files/&amp;quot;)
+             *app*)
+            :port 8082)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8082.
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/static/the-file.txt&amp;quot;))
+&amp;quot;My static file&amp;quot;
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/static/missing.txt&amp;quot;))
+; Debugger entered on #&amp;lt;DEXADOR.ERROR:HTTP-REQUEST-NOT-FOUND {100B944133}&amp;gt;
+
+POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/other/path&amp;quot;))
+&amp;quot;A main app&amp;#039;s response&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can pass a function as a &lt;code&gt;path&lt;/code&gt; argument. This way some sort of filtering may be done. The function should return another path and you probably will need to remove a prefix from it.&lt;/p&gt;
+&lt;p&gt;For example, if we want to serve only a &lt;code&gt;css&lt;/code&gt; files from the &lt;code&gt;static-files&lt;/code&gt; directory:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (alexandria:write-string-into-file
+            &amp;quot;Some secret README&amp;quot;
+            #P&amp;quot;static-files/README.txt&amp;quot;)
+
+POFTHEDAY&amp;gt; (alexandria:write-string-into-file
+            &amp;quot;Just CSS file&amp;quot;
+            #P&amp;quot;static-files/the.css&amp;quot;)
+
+POFTHEDAY&amp;gt; (clack:clackup
+            (lack:builder
+             (:static
+              ;; This is a function to filter filename
+              ;; of the served static files:
+              :path (lambda (original-path)
+                      ;; When this function returns nil,
+                      ;; the request is passed to the main application.
+                      (when (and (str:ends-with-p &amp;quot;.css&amp;quot;
+                                                  original-path)
+                                 (str:starts-with-p &amp;quot;/static/&amp;quot;
+                                                    original-path))
+                        ;; you need to rewrite the path manually:
+                        (subseq original-path 7)))
+              ;; from this directory
+              ;; on the filesystem
+              :root #P&amp;quot;./static-files/&amp;quot;)
+             *app*)
+            :port 8085)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8085.
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8085/static/the.css&amp;quot;)
+&amp;quot;Just CSS file&amp;quot;
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8085/static/README.txt&amp;quot;)
+&amp;quot;A main app&amp;#039;s response&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is no any way to return 404 or 403 error in this case. This should be done on the main app&apos;s level.&lt;/p&gt;
+&lt;p&gt;That is it for today. Tomorrow we&apos;ll how to protect your app with basic auth!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 25 Jun 2020 21:15:21 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-mount</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html</link>
             <description>&lt;p&gt;We continue to review Lack&apos;s middlewares and this one gives you the ability to route requests to different apps depending on the path.&lt;/p&gt;
@@ -1644,150 +1718,6 @@ reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&
    &amp;quot;This is stock candles storage.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can make class definitions as concise as defstruct.&lt;/p&gt;
 </description>
             <pubDate>Sat, 06 Jun 2020 20:58:34 +0300</pubDate>
-        </item>
-        <item>
-            <title>defmain</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0090-defmain.html</link>
-            <description>&lt;p&gt;Today I want to tell about my own library for command-line arguments parsing. &lt;code&gt;Defmain&lt;/code&gt; provides a macro for defining the main function.&lt;/p&gt;
-&lt;p&gt;All you need is to declare required and optional arguments like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmain:defmain main
-               ((debug &amp;quot;Show traceback instead of short message.&amp;quot;
-                       :flag t)
-                (log   &amp;quot;Filename to write log to.&amp;quot;)
-                (token &amp;quot;GitHub personal access token.&amp;quot;
-                       :env-var &amp;quot;TOKEN&amp;quot;)
-                &amp;amp;rest repositories)
-             &amp;quot;Utility to analyze github forks.&amp;quot;
-             
-             (format t
-                     &amp;quot;Repositories: ~{~S~^, ~}~%~
-                      Debug: ~S~%~
-                      Log: ~S~%~
-                      Token: ~S~%&amp;quot;
-                     repositories
-                     debug
-                     log
-                     token))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code expands to a lot of low-level code which uses &lt;a href=&quot;https://twitter.com/didierverna&quot;&gt;@didierverna&lt;/a&gt;&apos;s &lt;code&gt;net.didierverna.clon&lt;/code&gt; for actual arguments parsing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(progn
- (defun main (&amp;amp;rest defmain/defmain::argv)
-   (declare (ignorable))
-   (let ((defmain/defmain::synopsis
-          (net.didierverna.clon:defsynopsis (:postfix &amp;quot;REPOSITORY...&amp;quot;
-                                             :make-default nil)
-            (defmain/defmain::text :contents &amp;quot;Utility to analyze github forks.&amp;quot;)
-            (defmain/defmain::flag :long-name &amp;quot;help&amp;quot; :env-var nil :description
-             &amp;quot;Show help on this program.&amp;quot; :short-name &amp;quot;h&amp;quot;)
-            (defmain/defmain::flag :long-name &amp;quot;debug&amp;quot; :env-var nil :description
-             &amp;quot;Show traceback instead of short message.&amp;quot; :short-name &amp;quot;d&amp;quot;)
-            (defmain/defmain::stropt :long-name &amp;quot;log&amp;quot; :env-var nil :description
-             &amp;quot;Filename to write log to.&amp;quot; :short-name &amp;quot;l&amp;quot;)
-            (defmain/defmain::stropt :long-name &amp;quot;token&amp;quot; :env-var &amp;quot;TOKEN&amp;quot;
-             :description &amp;quot;GitHub personal access token.&amp;quot; :short-name &amp;quot;t&amp;quot;)))
-         (defmain/defmain::argv
-          (or defmain/defmain::argv (uiop/image:command-line-arguments))))
-     (change-class defmain/defmain::synopsis &amp;#039;defmain/defmain::cool-synopsis
-                   :command &amp;#039;main)
-     (net.didierverna.clon:make-context :cmdline
-                                        (cons &amp;quot;main&amp;quot; defmain/defmain::argv)
-                                        :synopsis defmain/defmain::synopsis))
-   (let ((defmain/defmain::%rest-arguments (net.didierverna.clon:remainder)))
-     (declare (ignorable defmain/defmain::%rest-arguments))
-     (flet ((defmain/defmain::%pop-argument (defmain/defmain::name)
-              &amp;quot;This local function is used to pop positional arguments from the command line.&amp;quot;
-              (unless defmain/defmain::%rest-arguments
-                (check-type defmain/defmain::name symbol)
-                (error &amp;#039;defmain/defmain::argument-is-required-error :name
-                       defmain/defmain::name))
-              (pop defmain/defmain::%rest-arguments)))
-       (let ((net.didierverna.clon:help
-              (net.didierverna.clon:getopt :long-name &amp;quot;help&amp;quot;))
-             (debug (net.didierverna.clon:getopt :long-name &amp;quot;debug&amp;quot;))
-             (log (net.didierverna.clon:getopt :long-name &amp;quot;log&amp;quot;))
-             (token (net.didierverna.clon:getopt :long-name &amp;quot;token&amp;quot;)))
-         (when net.didierverna.clon:help
-           (net.didierverna.clon:help)
-           (uiop/image:quit 1))
-         (handler-bind ((sb-sys:interactive-interrupt
-                         (lambda (defmain/defmain::c)
-                           (declare (ignorable defmain/defmain::c))
-                           (uiop/image:quit 0)))
-                        (defmain/defmain::argument-is-required-error
-                         (lambda (defmain/defmain::c)
-                           (format t &amp;quot;~A~%&amp;quot; defmain/defmain::c)
-                           (uiop/image:quit 1)))
-                        (error
-                         (lambda (condition)
-                           (uiop/image:print-condition-backtrace condition
-                                                                 :stream
-                                                                 *error-output*)
-                           (uiop/image:quit 1))))
-           (let ((repositories defmain/defmain::%rest-arguments))
-             (flet ()
-               (setf (logical-pathname-translations &amp;quot;TEMPORARY-FILES&amp;quot;)
-                       `((&amp;quot;*.*.*&amp;quot;
-                          ,(uiop/package:symbol-call :cl-fad
-                                                     &amp;#039;defmain/defmain::get-default-temporary-directory))))
-               (uiop/stream:setup-temporary-directory)
-               (format t &amp;quot;Repositories: ~{~S~^, ~}~%~
-                          Debug: ~S~%~
-                          Log: ~S~%~
-                          Token: ~S~%&amp;quot;
-                       repositories debug log token)
-               nil)))))))
- (setf (get &amp;#039;main :arguments) &amp;#039;(debug log token)
-       (documentation &amp;#039;main &amp;#039;function) &amp;quot;Utility to analyze github forks.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s try to call our main function to check how  it processes command-line arguments.&lt;/p&gt;
-&lt;p&gt;Defmain calls &lt;code&gt;uiop:quit&lt;/code&gt; at the end of the function on after the printing help message. To suppress this behaviour, I&apos;ll redefine this function to just print to the screen:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun uiop:quit (&amp;amp;optional (code 0))
-             (format t &amp;quot;Quit was called with code=~A~%&amp;quot;
-                     code))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can pass it different combinations of arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (main)
-Repositories: 
-Debug: NIL
-Log: NIL
-Token: NIL
-
-POFTHEDAY&amp;gt; (main &amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
-Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
-Debug: NIL
-Log: NIL
-Token: NIL
-
-POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
-Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
-Debug: T
-Log: NIL
-Token: NIL
-
-POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;--log&amp;quot; &amp;quot;app.log&amp;quot;&amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
-Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
-Debug: T
-Log: &amp;quot;app.log&amp;quot;
-Token: NIL
-
-;; Now we&amp;#039;ll check how it will
-;; process environment variable:
-POFTHEDAY&amp;gt; (setf (uiop:getenv &amp;quot;TOKEN&amp;quot;)
-                 &amp;quot;$ome $ecret 7oken&amp;quot;)
-
-POFTHEDAY&amp;gt; (main &amp;quot;--debug&amp;quot; &amp;quot;--log&amp;quot; &amp;quot;app.log&amp;quot;&amp;quot;Foo&amp;quot; &amp;quot;Bar&amp;quot;)
-Repositories: &amp;quot;Foo&amp;quot;, &amp;quot;Bar&amp;quot;
-Debug: T
-Log: &amp;quot;app.log&amp;quot;
-Token: &amp;quot;$ome $ecret 7oken&amp;quot;
-NIL
-POFTHEDAY&amp;gt; (main &amp;quot;--help&amp;quot;)
-Usage: main main [-hd] [OPTIONS] REPOSITORY...
-
-Utility to analyze github forks.
-  -h, --help                  Show help on this program.
-  -d, --debug                 Show traceback instead of short message.
-  -l, --log=STR               Filename to write log to.
-  -t, --token=STR             GitHub personal access token.
-                              Environment: TOKEN
-Quit was called with code=1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Defmain&lt;/code&gt; is not in Quicklisp distribution, but you can install it from &lt;a href=&quot;https://ultralisp.org/&quot;&gt;Ultralisp.org&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If you are looking to something simpler, you might take a look at &lt;code&gt;unix-opts&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/03/0006-unix-opts.html&quot;&gt;reviewed in the #0006 #poftheday&lt;/a&gt; post.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 05 Jun 2020 22:24:53 +0300</pubDate>
         </item>
     </channel>
 </rss>
