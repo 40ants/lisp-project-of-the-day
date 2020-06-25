@@ -1,0 +1,104 @@
+* lack-middleware-static :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This middleware can be used to serve files from a directory.
+However, I don't recommend using it for production because it should be
+inefficient because a few lambdas are created on each request.
+
+The middleware should be parametrized with two arguments: ~path~ and ~root~.
+
+Path is a prefix from the URL. Root is the root directory on the local
+filesystem. For example, if ~root~ is ~/tmp/files/~ and ~path~ is ~/static/~
+then for URL ~http://my-site.com/static/some/file.txt~ Lack will return
+content of the ~/tmp/files/some/file.txt~.
+
+Here is a small example, showing how does it work:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *app*
+             (lambda (env)
+               '(200 (:content-type "text/plain")
+                 ("A main app's response"))))
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             (:static
+              ;; This is a path of URL
+              ;; to serve static files
+              :path "/static/"
+              ;; from this directory
+              ;; on the filesystem
+              :root #P"./static-files/")
+             *app*)
+            :port 8082)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8082.
+
+POFTHEDAY> (values (dex:get "http://localhost:8082/static/the-file.txt"))
+"My static file"
+
+POFTHEDAY> (values (dex:get "http://localhost:8082/static/missing.txt"))
+; Debugger entered on #<DEXADOR.ERROR:HTTP-REQUEST-NOT-FOUND {100B944133}>
+
+POFTHEDAY> (values (dex:get "http://localhost:8082/other/path"))
+"A main app's response"
+
+#+end_src
+
+Also, you can pass a function as a ~path~ argument. This way some sort of
+filtering maybe done. The function should return another path and you
+probably will need to remove a prefix from it.
+
+For example, if we want to serve only a ~css~ files from the ~static-files~
+directory:
+
+#+begin_src lisp
+
+POFTHEDAY> (alexandria:write-string-into-file
+            "Some secret README"
+            #P"static-files/README.txt")
+
+POFTHEDAY> (alexandria:write-string-into-file
+            "Just CSS file"
+            #P"static-files/the.css")
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             (:static
+              ;; This is a function to filter filename
+              ;; of the served static files:
+              :path (lambda (original-path)
+                      ;; When this function returns nil,
+                      ;; the request is passed to the main application.
+                      (when (and (str:ends-with-p ".css"
+                                                  original-path)
+                                 (str:starts-with-p "/static/"
+                                                    original-path))
+                        ;; you need to rewrite the path manually:
+                        (subseq original-path 7)))
+              ;; from this directory
+              ;; on the filesystem
+              :root #P"./static-files/")
+             *app*)
+            :port 8085)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8085.
+
+POFTHEDAY> (dex:get "http://localhost:8085/static/the.css")
+"Just CSS file"
+
+POFTHEDAY> (dex:get "http://localhost:8085/static/README.txt")
+"A main app's response"
+
+#+end_src
+
+That is it for today. Tomorrow we'll how to protect your app with basic
+auth!
