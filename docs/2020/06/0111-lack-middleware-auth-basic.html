@@ -52,8 +52,8 @@ h1 .tags {
     </style>
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-auth-basic</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-auth-basic<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This Lack middleware is also undocumented, but it is short enough to understand from sources how to configure it.</p>
-<p>When configuring this middleware, you should pass it a function which accepts username and password and returns a <code>t</code> if password is correct. Also, this function may return a user object as a second value. Returned use or original username from the HTTP header will be added to the environment plist as <code>:remote-user</code>.</p>
-<p>Here is the example:</p>
+<p>When configuring this middleware, you should pass it a function which accepts username and password and returns a <code>t</code> if the password is correct. Also, this function may return a user object as a second value. Returned user or original username from the HTTP header will be added to the environment plist as <code>:remote-user</code>.</p>
+<p>Here is an example:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *app*
              (lambda (env)
                (list 200 &#039;(:content-type &quot;text/plain&quot;)
@@ -85,8 +85,8 @@ POFTHEDAY&gt; (handler-case (dex:get &quot;http://localhost:8080/foo/bar&quot;)
 POFTHEDAY&gt; (dex:get &quot;http://localhost:8080/foo/bar&quot;
                     :basic-auth &#039;(&quot;bob&quot; . &quot;$ecret&quot;))
 &quot;Hello Bob The Admin!&quot;
-200</code></pre><p>That is it.</p>
-<p>But please, don't hardcode passwords in the sources like I did :)</p>
+200</code></pre><p>That is it. Very simple, isn't it?</p>
+<p>But please, don't hardcode passwords in the sources as I did :)</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
