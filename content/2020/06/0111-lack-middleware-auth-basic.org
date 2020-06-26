@@ -1,0 +1,61 @@
+* lack-middleware-auth-basic                                            :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This Lack middleware is also undocumented, but it is short enough to
+understand from sources how to configure it.
+
+When configuring this middleware, you should pass it a function which
+accepts username and password and returns a ~t~ if the password is correct.
+Also, this function may return a user object as a second value. Returned
+user or original username from the HTTP header will be added to the
+environment plist as ~:remote-user~.
+
+Here is an example:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *app*
+             (lambda (env)
+               (list 200 '(:content-type "text/plain")
+                     (list (format nil
+                                   "Hello ~A!"
+                                   (getf env :remote-user))))))
+
+POFTHEDAY> (defun auth (user pass)
+             (when (and (string= user "bob")
+                        (string= pass "$ecret"))
+               (values t
+                       "Bob The Admin")))
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             (:auth-basic :authenticator #'auth)
+             *app*)
+            :port 8080)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8080.
+
+POFTHEDAY> (handler-case (dex:get "http://localhost:8080/foo/bar")
+             (error (condition)
+               (values (dex:response-status condition)
+                       (dex:response-body condition))))
+401 (9 bits, #x191)
+"Authorization required"
+
+POFTHEDAY> (dex:get "http://localhost:8080/foo/bar"
+                    :basic-auth '("bob" . "$ecret"))
+"Hello Bob The Admin!"
+200
+
+#+end_src
+
+That is it. Very simple, isn't it?
+
+But please, don't hardcode passwords in the sources as I did :)
