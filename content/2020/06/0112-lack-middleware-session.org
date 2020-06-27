@@ -1,0 +1,91 @@
+* lack-middleware-session :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+
+#+begin_src lisp
+
+POFTHEDAY> (defun login (env)
+             (let* ((params (getf env :body-parameters))
+                    (login (alexandria:assoc-value
+                            params
+                            "login" :test #'string=))
+                    (password (alexandria:assoc-value
+                               params
+                               "password" :test #'string=))
+                    (session (getf env
+                                   :lack.session)))
+               (cond
+                 ((and (string= login
+                                "bob")
+                       (string= password
+                                "$ecret"))
+                  (setf (gethash :login
+                                 session)
+                        login)
+                  '(200 (:content-type "text/plain")
+                    ("Dear Bob, you welcome!")))
+                 (t
+                  '(200 (:content-type "text/plain")
+                    ("Wrong password!"))))))
+
+#+end_src
+
+#+begin_src lisp
+
+POFTHEDAY> (defun main (env)
+             (let* ((session (getf env :lack.session))
+                    (login (gethash :login session)))
+               (cond
+                 (login
+                  (list 200 (list :content-type "text/plain")
+                        (list (format nil "Welcome, ~A!"
+                                      login))))
+                 (t
+                  '(403 (:content-type "text/plain")
+                        ("Access denied"))))))
+
+#+end_src
+
+#+begin_src lisp
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             :session
+             (:mount "/login" 'login)
+             (:mount "/logout" 'logout)
+             'main)
+            :port 8089)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8089.
+
+POFTHEDAY> (values (dex:get "http://localhost:8090/"))
+"Access denied"
+
+POFTHEDAY> (multiple-value-bind (response code headers)
+               (dex:post "http://localhost:8090/login"
+                         :content '(("login" . "bob")
+                                    ("password" . "$ecret")))
+             (values response code
+                     (rutils:hash-table-to-alist headers)))
+"Dear Bob, you welcome!"
+200
+(("date" . "Sat, 27 Jun 2020 20:47:13 GMT")
+ ("server" . "Hunchentoot 1.2.38")
+ ("transfer-encoding" . "chunked")
+ ("content-type" . "text/plain")
+ ("set-cookie"
+  "lack.session=b10c66; path=/; expires=Fri, 23 Dec 2140 17:24:51 GMT"))
+
+POFTHEDAY> (let ((headers '((:cookie . "lack.session=b10c66"))))
+             (values (dex:get "http://localhost:8090/"
+                              :headers headers)))
+"Welcome, bob!"
+
+#+end_src
