@@ -1,0 +1,130 @@
+* lack-middleware-csrf                                                  :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This lack middleware provides some level of security for your webapp,
+preventing a [[https://owasp.org/www-community/attacks/csrf][CSRF attacks]]. It has a function ~csrf-html-tag~ which returns
+an hidden ~input~ element to be embedded into a form.
+
+The input stores a special token. Middleware saves this token into the
+current session and ensures the user sentd this token in following
+requests. If he doesn't, a 403 status code will be returned.
+
+Let's take our yesterday's app and make it more secure!
+
+First, we need to rewrite our main application to make it render a login
+form with CSRF token. Pay attention how does it call a ~csrf-html-tag~
+function at the end.
+
+If you are going to develop an application with a lots of forms, then it
+is good idea to define a macro which will apply CSRF protection
+automatically.
+
+#+begin_src lisp
+
+POFTHEDAY> (defun main (env)
+             (let* ((session (getf env :lack.session))
+                    (login (gethash :login session)))
+               (cond
+                 (login
+                  (list 200 (list :content-type "text/plain")
+                        (list (format nil "Welcome, ~A!"
+                                      login))))
+                 (t
+                  (list 200 (list :content-type "text/plain")
+                        (list (format nil "
+<form method=\"POST\" action=\"/login\">
+  <input type=\"text\" name=\"login\"></input>
+  <input type=\"password\" name=\"password\"></input>
+  ~A
+</form>
+"
+                          (lack.middleware.csrf:csrf-html-tag session))))))))
+
+#+end_src
+
+All other apps remain the same, we only need to build the whole app
+including the ~csrf~ middleware.
+
+This middleware should go after the ~:session~ middleware, because it
+depends on it:
+
+#+begin_src lisp
+
+POFTHEDAY> (clack:clackup
+            (lack:builder
+             :session
+             :csrf
+             (:mount "/login" 'login)
+             (:mount "/logout" 'logout)
+             'main)
+            :port 8091)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8091.
+
+#+end_src
+
+This is how our for is rendered. Note a "hidden" input at the end of the
+form:
+
+#+begin_src lisp
+
+POFTHEDAY> (dex:get "http://localhost:8091/")
+"
+<form method=\"POST\" action=\"/login\">
+  <input type=\"text\" name=\"login\"></input>
+  <input type=\"password\" name=\"password\"></input>
+  <input type=\"hidden\" name=\"_csrf_token\" value=\"8de1c8a47\">
+</form>
+
+#+end_src
+
+If we try to do a ~POST~ request without the token, we'll receive a 400
+error:
+
+#+begin_src lisp
+
+POFTHEDAY> (handler-case
+               (dex:post "http://localhost:8091/login"
+                         :content '(("login" . "bob")
+                                    ("password" . "$ecret"))
+                         :headers '((:cookie . "lack.session=75bccc")))
+             (dexador:http-request-failed (c)
+               (values (dexador:response-status c)
+                       (dexador:response-body c))))
+400 (9 bits, #x190)
+"Bad Request: invalid CSRF token"
+
+#+end_src
+
+Using the code we'll be able to log in:
+
+#+begin_src lisp
+
+POFTHEDAY> (dex:post "http://localhost:8091/login"
+                     :content '(("login" . "bob")
+                                ("password" . "$ecret")
+                                ("_csrf_token" . "8de1c8a47"))
+                     :headers '((:cookie . "lack.session=75bccc")))
+"Dear Bob, you welcome!"
+200
+
+#+end_src
+
+The middleware also has a few settings.
+
+You can set ~:session-key~ to a value other than ~_csrf_token~. But this
+changes only a token's key inside the session. Form field's name remains
+the ~_csrf_token~.
+
+Other option is ~:one-time~. Set it to true if you want to remove token
+from the session after the first successful ~POST~, ~PUT~, ~DELETE~ or ~PATCH~.
+
+And finally, you can define your own handler for the error page. It
+should be a usual Clack app.
