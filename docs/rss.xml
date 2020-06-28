@@ -6,6 +6,97 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack-middleware-session</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0112-lack-middleware-session.html</link>
+            <description>&lt;p&gt;This middleware makes your app stateful and allows to associate some information with the current user.&lt;/p&gt;
+&lt;p&gt;There are two abstractions behind Lack sessions - state and store.&lt;/p&gt;
+&lt;p&gt;State object defines how to keep track of a session. Lack includes only one type of state class. It keeps state id in the browser&apos;s cookies.&lt;/p&gt;
+&lt;p&gt;Store object defines where to store data, associated with a state. There are three store classes in the Lack. The default stores data in memory, using a hash table. There are also &lt;code&gt;dbi&lt;/code&gt; and &lt;code&gt;redis&lt;/code&gt; stores.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s create an app that allows a user to login in and logout.&lt;/p&gt;
+&lt;p&gt;First, we need an app for logging it checks the password as we did in yesterday&apos;s &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0111-lack-middleware-auth-basic.html&quot;&gt;post on basic auth&lt;/a&gt;. If the password is correct, we&apos;ll put a user&apos;s login into a session&apos;s hash:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun login (env)
+             (let* ((params (getf env :body-parameters))
+                    (login (alexandria:assoc-value
+                            params
+                            &amp;quot;login&amp;quot; :test #&amp;#039;string=))
+                    (password (alexandria:assoc-value
+                               params
+                               &amp;quot;password&amp;quot; :test #&amp;#039;string=))
+                    (session (getf env
+                                   :lack.session)))
+               (cond
+                 ((and (string= login
+                                &amp;quot;bob&amp;quot;)
+                       (string= password
+                                &amp;quot;$ecret&amp;quot;))
+                  (setf (gethash :login
+                                 session)
+                        login)
+                  &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                    (&amp;quot;Dear Bob, you welcome!&amp;quot;)))
+                 (t
+                  &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                    (&amp;quot;Wrong password!&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, we need a function to logout. It set&apos;s a special flag to let middleware know that all session data should be wiped from the store:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun logout (env)
+             (setf (getf (getf env :lack.session.options)
+                         :expire)
+                   t)
+             &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+               (&amp;quot;Now you are logged our&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The main app will use data from the session and will show a welcome message if the user is authenticated:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun main (env)
+             (let* ((session (getf env :lack.session))
+                    (login (gethash :login session)))
+               (cond
+                 (login
+                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
+                        (list (format nil &amp;quot;Welcome, ~A!&amp;quot;
+                                      login))))
+                 (t
+                  &amp;#039;(403 (:content-type &amp;quot;text/plain&amp;quot;)
+                        (&amp;quot;Access denied&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we need to combine these apps using &lt;code&gt;mount&lt;/code&gt; middleware (it was &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html&quot;&gt;reviewed a few days ago&lt;/a&gt;) and slap the &lt;code&gt;session&lt;/code&gt; middleware on it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
+            (lack:builder
+             :session
+             (:mount &amp;quot;/login&amp;quot; &amp;#039;login)
+             (:mount &amp;quot;/logout&amp;quot; &amp;#039;logout)
+             &amp;#039;main)
+            :port 8089)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8089.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s try to log in:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8090/&amp;quot;))
+&amp;quot;Access denied&amp;quot;
+
+POFTHEDAY&amp;gt; (multiple-value-bind (response code headers)
+               (dex:post &amp;quot;http://localhost:8090/login&amp;quot;
+                         :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
+                                    (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;)))
+             (values response code
+                     (rutils:hash-table-to-alist headers)))
+&amp;quot;Dear Bob, you welcome!&amp;quot;
+200
+((&amp;quot;date&amp;quot; . &amp;quot;Sat, 27 Jun 2020 20:47:13 GMT&amp;quot;)
+ (&amp;quot;server&amp;quot; . &amp;quot;Hunchentoot 1.2.38&amp;quot;)
+ (&amp;quot;transfer-encoding&amp;quot; . &amp;quot;chunked&amp;quot;)
+ (&amp;quot;content-type&amp;quot; . &amp;quot;text/plain&amp;quot;)
+ (&amp;quot;set-cookie&amp;quot;
+  &amp;quot;lack.session=b10c66; path=/; expires=Fri, 23 Dec 2140 17:24:51 GMT&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The server returned the &quot;set-cookie&quot; header. Usually, the browser will pass this cookie content during the following requests. We&apos;ll emulate this behavior to make a request to the main app:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
+             (values (dex:get &amp;quot;http://localhost:8090/&amp;quot;
+                              :headers headers)))
+&amp;quot;Welcome, bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we&apos;ll check how does log out will work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
+             (values (dex:post &amp;quot;http://localhost:8090/logout&amp;quot;
+                               :headers headers)))
+&amp;quot;Now you are logged out&amp;quot;
+
+POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
+             (dex:get &amp;quot;http://localhost:8090/&amp;quot;
+                              :headers headers))
+&amp;quot;Access denied&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;See!? We&apos;ve built a simple web application using Lack micro-framework! Add something like Spinneret to render HTML and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;Lass&lt;/a&gt; + &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt; to render CSS and JS and we&apos;ll have a full-fledged webapp!&lt;/p&gt;
+</description>
+            <pubDate>Sat, 27 Jun 2020 23:59:57 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-auth-basic</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0111-lack-middleware-auth-basic.html</link>
             <description>&lt;p&gt;This Lack middleware is also undocumented, but it is short enough to understand from sources how to configure it.&lt;/p&gt;
@@ -1596,91 +1687,6 @@ POFTHEDAY&amp;gt; (lparallel:receive-result *chan*)
 &lt;p&gt;&lt;a href=&quot;https://lparallel.org/&quot;&gt;https://lparallel.org/&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Mon, 08 Jun 2020 19:06:26 +0300</pubDate>
-        </item>
-        <item>
-            <title>lime</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0092-lime.html</link>
-            <description>&lt;p&gt;Lime is a standalone SWANK client. It can be used to programmatically connect to the SWANK server without Emacs.&lt;/p&gt;
-&lt;p&gt;One useful thing, you might do is to make a command-line client to send a command to your server. One practical task is code hot-reload. Here is an &lt;a href=&quot;https://lispcookbook.github.io/cl-cookbook/web.html#hot-reload&quot;&gt;example&lt;/a&gt; of how to implement it using &lt;a href=&quot;http://quickdocs.org/swank-client/&quot;&gt;another SWANK client&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Example from Lime&apos;s sources shows how to create a REPL connected to the SWANK. However, this example creates a SWANK server in the same process. I think it will be more realistic to connect from one lisp to another.&lt;/p&gt;
-&lt;p&gt;So, I modified example to make it connect to the localhost 20100, where we&apos;ll start a separate ClozureCL process with SWANK:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;Clozure Common Lisp Version 1.12 (v1.12) DarwinX8664
-
-For more information about CCL, please see http://ccl.clozure.com.
-
-CCL is free software.  It is distributed under the terms of the Apache
-Licence, Version 2.0.
-? (ql:quickload :swank)
-To load &amp;quot;swank&amp;quot;:
-  Load 1 ASDF system:
-    swank
-; Loading &amp;quot;swank&amp;quot;
-
-? (swank:create-server :port 20100 :dont-close t :style :spawn)
-;; Swank started at port: 20100.
-20100&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need a function which will make a connection and provide us with the remote REPL.&lt;/p&gt;
-&lt;p&gt;I just removed the code which starts  SWANK in the same process and replaced &lt;code&gt;(uiop:hostname)&lt;/code&gt; with &quot;localhost&quot;, because &lt;code&gt;(uiop:hostname)&lt;/code&gt; didn&apos;t work for me:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun repl ()
-             &amp;quot;Start the REPL.&amp;quot;
-             (let ((conn (lime:make-connection &amp;quot;localhost&amp;quot;
-                                               20100)))
-               (lime:connect conn)
-
-               (format t &amp;quot;Swank server running on ~A ~A~%&amp;quot;
-                       (lime:connection-implementation-name conn)
-                       (lime:connection-implementation-version conn))
-               
-               (loop
-                 ;; Read all events
-                 (sleep 0.05)
-                 (let ((events (lime:pull-all-events conn)))
-                   (loop for event in events do
-                     (typecase event
-                       (lime:write-string-event
-                        (write-string (lime:event-string event)))
-                       (lime:debugger-event
-                        (write-string &amp;quot;Entered debugger!&amp;quot;))
-                       (t
-                        t))))
-                 ;; Take input
-                 (if (lime:connection-reader-waiting-p conn)
-                     ;; Read a line to send as standard input
-                     (progn
-                       (format t &amp;quot;~%Read: &amp;quot;)
-                       (let ((input (read-line)))
-                         (lime:send-input conn input)))
-                     ;; Read regular code
-                     (progn
-                       (format t &amp;quot;~A&amp;gt; &amp;quot; (lime:connection-package conn))
-                       (let ((input (read)))
-                         (lime:evaluate conn
-                                        (with-standard-io-syntax
-                                          (prin1-to-string input)))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can connect to our ClozureCL process and have a fun!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; We are connecting from SBCL to CCL
-POFTHEDAY&amp;gt; (lisp-implementation-type)
-&amp;quot;SBCL&amp;quot;
-POFTHEDAY&amp;gt; (lisp-implementation-version)
-&amp;quot;2.0.2&amp;quot;
-
-POFTHEDAY&amp;gt; (repl)
-Swank server running on ccl Version 1.12 (v1.12) DarwinX8664
-
-COMMON-LISP-USER&amp;gt; (lisp-implementation-type)
-&amp;quot;Clozure Common Lisp&amp;quot;
-
-COMMON-LISP-USER&amp;gt; (lisp-implementation-version)
-&amp;quot;Version 1.12 (v1.12) DarwinX8664&amp;quot;
-
-COMMON-LISP-USER&amp;gt; (+ 1 2)
-3&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you are going to try &lt;code&gt;Lime&lt;/code&gt; on CCL, use the patched &lt;code&gt;swank-protocol&lt;/code&gt; system with &lt;a href=&quot;https://github.com/eudoxia0/swank-protocol/pull/2&quot;&gt;this fix&lt;/a&gt;. Without the fix Lime will not work because of the following error:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;&amp;lt;INFO&amp;gt; [23:48:47] swank-protocol swank-protocol.lisp (read-message) -
-  Read message SWANK-PROTOCOL::RESULT: (:READER-ERROR
-                                        &amp;quot;(:emacs-rex (swank-repl:listener-eval #A((7) common-lisp:base-char . \&amp;quot;(+ 1 2)\&amp;quot;)) \&amp;quot;COMMON-LISP-USER\&amp;quot; :repl-thread 5)
-&amp;quot;
-                                        &amp;quot;Reader error on #&amp;lt;STRING-INPUT-STREAM  :CLOSED #x30200139FB9D&amp;gt;:
-reader macro #A used without a rank integer&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I experienced the same error with &lt;a href=&quot;https://github.com/cxxxr/lem&quot;&gt;Lem&lt;/a&gt; editor. And it was fixed with a &lt;a href=&quot;https://github.com/cxxxr/lem/pull/471/files&quot;&gt;similar patch&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 08 Jun 2020 00:27:06 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -8,6 +8,23 @@
 :CI:       :)
 :END:
 
+This middleware makes your app stateful and allows to associate some
+information with the current user.
+
+There are two abstractions behind Lack sessions - state and store.
+
+State object defines how to keep track of a session. Lack includes only one
+type of state class. It keeps state id in the browser's cookies.
+
+Store object defines where to store data, associated with a state. There
+are three store classes in the Lack. The default stores data in memory,
+using a hash table. There are also ~dbi~ and ~redis~ stores.
+
+Now let's create an app that allows a user to login in and logout.
+
+First, we need an app for logging it checks the password as we did in
+yesterday's [[https://40ants.com/lisp-project-of-the-day/2020/06/0111-lack-middleware-auth-basic.html][post on basic auth]]. If the password is correct, we'll put a
+user's login into a session's hash:
 
 #+begin_src lisp
 
@@ -37,6 +54,23 @@ POFTHEDAY> (defun login (env)
 
 #+end_src
 
+Also, we need a function to logout. It set's a special flag to let
+middleware know that all session data should be wiped from the store:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun logout (env)
+             (setf (getf (getf env :lack.session.options)
+                         :expire)
+                   t)
+             '(200 (:content-type "text/plain")
+               ("Now you are logged our")))
+
+#+end_src
+
+The main app will use data from the session and will show a welcome
+message if the user is authenticated:
+
 #+begin_src lisp
 
 POFTHEDAY> (defun main (env)
@@ -53,6 +87,9 @@ POFTHEDAY> (defun main (env)
 
 #+end_src
 
+And finally, we need to combine these apps using ~mount~ middleware (it
+was [[https://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html][reviewed a few days ago]]) and slap the ~session~ middleware on it:
+
 #+begin_src lisp
 
 POFTHEDAY> (clack:clackup
@@ -64,6 +101,12 @@ POFTHEDAY> (clack:clackup
             :port 8089)
 Hunchentoot server is started.
 Listening on 127.0.0.1:8089.
+
+#+end_src
+
+Now let's try to log in:
+
+#+begin_src lisp
 
 POFTHEDAY> (values (dex:get "http://localhost:8090/"))
 "Access denied"
@@ -83,9 +126,37 @@ POFTHEDAY> (multiple-value-bind (response code headers)
  ("set-cookie"
   "lack.session=b10c66; path=/; expires=Fri, 23 Dec 2140 17:24:51 GMT"))
 
+#+end_src
+
+The server returned the "set-cookie" header. Usually, the browser will
+pass this cookie content during the following requests. We'll emulate
+this behavior to make a request to the main app:
+
+#+begin_src lisp
+
 POFTHEDAY> (let ((headers '((:cookie . "lack.session=b10c66"))))
              (values (dex:get "http://localhost:8090/"
                               :headers headers)))
 "Welcome, bob!"
 
 #+end_src
+
+And finally, we'll check how does log out will work:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((headers '((:cookie . "lack.session=b10c66"))))
+             (values (dex:post "http://localhost:8090/logout"
+                               :headers headers)))
+"Now you are logged out"
+
+POFTHEDAY> (let ((headers '((:cookie . "lack.session=b10c66"))))
+             (dex:get "http://localhost:8090/"
+                              :headers headers))
+"Access denied"
+
+#+end_src
+
+See!? We've built a simple web application using Lack micro-framework!
+Add something like Spinneret to render HTML and [[https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html][Lass]] + [[https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html][Parenscript]] to
+render CSS and JS and we'll have a full-fledged webapp!
