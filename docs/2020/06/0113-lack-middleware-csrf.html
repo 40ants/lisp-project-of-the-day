@@ -51,10 +51,10 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-csrf</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-csrf<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This lack middleware provides some level of security for your webapp, preventing a <a href="https://owasp.org/www-community/attacks/csrf">CSRF attacks</a>. It has a function <code>csrf-html-tag</code> which returns an hidden <code>input</code> element to be embedded into a form.</p>
-<p>The input stores a special token. Middleware saves this token into the current session and ensures the user sentd this token in following requests. If he doesn't, a 403 status code will be returned.</p>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lack-middleware-csrf</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>lack-middleware-csrf<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This lack middleware provides some level of security for your webapp, preventing a <a href="https://owasp.org/www-community/attacks/csrf">CSRF attacks</a>. It has a function <code>csrf-html-tag</code> which returns a hidden <code>input</code> element to embed into a form.</p>
+<p>The input stores a special token. Middleware saves this token into the current session and ensures the user sends this token in the following requests. If he doesn't, a 400 status code will be returned.</p>
 <p>Let's take our yesterday's app and make it more secure!</p>
-<p>First, we need to rewrite our main application to make it render a login form with CSRF token. Pay attention how does it call a <code>csrf-html-tag</code> function at the end.</p>
+<p>First, we need to rewrite our main application to make it render a login form with CSRF token. Pay attention to how does it call a <code>csrf-html-tag</code> function at the end.</p>
 <p>If you are going to develop an application with a lots of forms, then it is good idea to define a macro which will apply CSRF protection automatically.</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defun main (env)
              (let* ((session (getf env :lack.session))
@@ -84,7 +84,7 @@ h1 .tags {
              &#039;main)
             :port 8091)
 Hunchentoot server is started.
-Listening on 127.0.0.1:8091.</code></pre><p>This is how our for is rendered. Note a "hidden" input at the end of the form:</p>
+Listening on 127.0.0.1:8091.</code></pre><p>This is how our form is rendered. Note a "hidden" input at the end of the form:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:8091/&quot;)
 &quot;
 &lt;form method=\&quot;POST\&quot; action=\&quot;/login\&quot;&gt;
@@ -100,7 +100,7 @@ Listening on 127.0.0.1:8091.</code></pre><p>This is how our for is rendered. Not
              (dexador:http-request-failed (c)
                (values (dexador:response-status c)
                        (dexador:response-body c))))
-400 (9 bits, #x190)
+400
 &quot;Bad Request: invalid CSRF token&quot;</code></pre><p>Using the code we'll be able to log in:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (dex:post &quot;http://localhost:8091/login&quot;
                      :content &#039;((&quot;login&quot; . &quot;bob&quot;)
@@ -110,8 +110,8 @@ Listening on 127.0.0.1:8091.</code></pre><p>This is how our for is rendered. Not
 &quot;Dear Bob, you welcome!&quot;
 200</code></pre><p>The middleware also has a few settings.</p>
 <p>You can set <code>:session-key</code> to a value other than <code>_csrf_token</code>. But this changes only a token's key inside the session. Form field's name remains the <code>_csrf_token</code>.</p>
-<p>Other option is <code>:one-time</code>. Set it to true if you want to remove token from the session after the first successful <code>POST</code>, <code>PUT</code>, <code>DELETE</code> or <code>PATCH</code>.</p>
-<p>And finally, you can define your own handler for the error page. It should be a usual Clack app.</p>
+<p>Other option is <code>:one-time</code>. Set it to true if you want to remove a token from the session after the first successful <code>POST</code>, <code>PUT</code>, <code>DELETE</code> or <code>PATCH</code>.</p>
+<p>And finally, you can define your own handler for the error page and pass it as ":block-app". It should be a usual Clack app.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

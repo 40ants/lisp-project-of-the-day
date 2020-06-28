@@ -6,6 +6,73 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lack-middleware-csrf</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0113-lack-middleware-csrf.html</link>
+            <description>&lt;p&gt;This lack middleware provides some level of security for your webapp, preventing a &lt;a href=&quot;https://owasp.org/www-community/attacks/csrf&quot;&gt;CSRF attacks&lt;/a&gt;. It has a function &lt;code&gt;csrf-html-tag&lt;/code&gt; which returns a hidden &lt;code&gt;input&lt;/code&gt; element to embed into a form.&lt;/p&gt;
+&lt;p&gt;The input stores a special token. Middleware saves this token into the current session and ensures the user sends this token in the following requests. If he doesn&apos;t, a 400 status code will be returned.&lt;/p&gt;
+&lt;p&gt;Let&apos;s take our yesterday&apos;s app and make it more secure!&lt;/p&gt;
+&lt;p&gt;First, we need to rewrite our main application to make it render a login form with CSRF token. Pay attention to how does it call a &lt;code&gt;csrf-html-tag&lt;/code&gt; function at the end.&lt;/p&gt;
+&lt;p&gt;If you are going to develop an application with a lots of forms, then it is good idea to define a macro which will apply CSRF protection automatically.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun main (env)
+             (let* ((session (getf env :lack.session))
+                    (login (gethash :login session)))
+               (cond
+                 (login
+                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
+                        (list (format nil &amp;quot;Welcome, ~A!&amp;quot;
+                                      login))))
+                 (t
+                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
+                        (list (format nil &amp;quot;
+&amp;lt;form method=\&amp;quot;POST\&amp;quot; action=\&amp;quot;/login\&amp;quot;&amp;gt;
+  &amp;lt;input type=\&amp;quot;text\&amp;quot; name=\&amp;quot;login\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
+  &amp;lt;input type=\&amp;quot;password\&amp;quot; name=\&amp;quot;password\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
+  ~A
+&amp;lt;/form&amp;gt;
+&amp;quot;
+                          (lack.middleware.csrf:csrf-html-tag session))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;All other apps remain the same, we only need to build the whole app including the &lt;code&gt;csrf&lt;/code&gt; middleware.&lt;/p&gt;
+&lt;p&gt;This middleware should go after the &lt;code&gt;:session&lt;/code&gt; middleware, because it depends on it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
+            (lack:builder
+             :session
+             :csrf
+             (:mount &amp;quot;/login&amp;quot; &amp;#039;login)
+             (:mount &amp;quot;/logout&amp;quot; &amp;#039;logout)
+             &amp;#039;main)
+            :port 8091)
+Hunchentoot server is started.
+Listening on 127.0.0.1:8091.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is how our form is rendered. Note a &quot;hidden&quot; input at the end of the form:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8091/&amp;quot;)
+&amp;quot;
+&amp;lt;form method=\&amp;quot;POST\&amp;quot; action=\&amp;quot;/login\&amp;quot;&amp;gt;
+  &amp;lt;input type=\&amp;quot;text\&amp;quot; name=\&amp;quot;login\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
+  &amp;lt;input type=\&amp;quot;password\&amp;quot; name=\&amp;quot;password\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
+  &amp;lt;input type=\&amp;quot;hidden\&amp;quot; name=\&amp;quot;_csrf_token\&amp;quot; value=\&amp;quot;8de1c8a47\&amp;quot;&amp;gt;
+&amp;lt;/form&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we try to do a &lt;code&gt;POST&lt;/code&gt; request without the token, we&apos;ll receive a 400 error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (handler-case
+               (dex:post &amp;quot;http://localhost:8091/login&amp;quot;
+                         :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
+                                    (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;))
+                         :headers &amp;#039;((:cookie . &amp;quot;lack.session=75bccc&amp;quot;)))
+             (dexador:http-request-failed (c)
+               (values (dexador:response-status c)
+                       (dexador:response-body c))))
+400
+&amp;quot;Bad Request: invalid CSRF token&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Using the code we&apos;ll be able to log in:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:post &amp;quot;http://localhost:8091/login&amp;quot;
+                     :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
+                                (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;)
+                                (&amp;quot;_csrf_token&amp;quot; . &amp;quot;8de1c8a47&amp;quot;))
+                     :headers &amp;#039;((:cookie . &amp;quot;lack.session=75bccc&amp;quot;)))
+&amp;quot;Dear Bob, you welcome!&amp;quot;
+200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The middleware also has a few settings.&lt;/p&gt;
+&lt;p&gt;You can set &lt;code&gt;:session-key&lt;/code&gt; to a value other than &lt;code&gt;_csrf_token&lt;/code&gt;. But this changes only a token&apos;s key inside the session. Form field&apos;s name remains the &lt;code&gt;_csrf_token&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Other option is &lt;code&gt;:one-time&lt;/code&gt;. Set it to true if you want to remove a token from the session after the first successful &lt;code&gt;POST&lt;/code&gt;, &lt;code&gt;PUT&lt;/code&gt;, &lt;code&gt;DELETE&lt;/code&gt; or &lt;code&gt;PATCH&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;And finally, you can define your own handler for the error page and pass it as &quot;:block-app&quot;. It should be a usual Clack app.&lt;/p&gt;
+</description>
+            <pubDate>Sun, 28 Jun 2020 22:31:02 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-session</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0112-lack-middleware-session.html</link>
             <description>&lt;p&gt;This middleware makes your app stateful and allows to associate some information with the current user.&lt;/p&gt;
@@ -1624,69 +1691,6 @@ POFTHEDAY&amp;gt; (lfarm:broadcast-task
 &lt;p&gt;Tomorrow I&apos;ll tell you about another solution which helped me to solve this problem.&lt;/p&gt;
 </description>
             <pubDate>Tue, 09 Jun 2020 21:06:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>lparallel</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html</link>
-            <description>&lt;p&gt;Today I want to tell you about this great library which makes it very easy to speed up your program in an easy way.&lt;/p&gt;
-&lt;p&gt;LParallel provides a convenient to use a thread pool. It allows you to run your code on multiple CPUs without bothering with threading et all.&lt;/p&gt;
-&lt;p&gt;Here is a quick demo which allows us to run calculations in parallel by changing a call to &lt;code&gt;mapcar&lt;/code&gt; with a call to &lt;code&gt;lparallel:pmapcar&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; First we need to create a pool of 4 workers:
-POFTHEDAY&amp;gt; (setf lparallel:*kernel*
-                 (lparallel:make-kernel 4))
-#&amp;lt;LPARALLEL.KERNEL:KERNEL
-   :NAME &amp;quot;lparallel&amp;quot;
-   :WORKER-COUNT 4
-   :USE-CALLER NIL
-   :ALIVE T
-   :SPIN-COUNT 2000 {1002FB64D3}&amp;gt;
-
-;; And here is the easiest way to use it:
-POFTHEDAY&amp;gt; (lparallel:pmapcar
-            (lambda (idx)
-              (loop for iteration from 1 to 10
-                    do (format t &amp;quot;~A task is processing ~A iteration~%&amp;quot;
-                               idx iteration)
-                       (sleep (random 1.0))
-                    finally (return (format nil &amp;quot;~A worker result&amp;quot;
-                                            idx))))
-              (alexandria:iota 10))
-0 task is processing 1 iteration
-3 task is processing 1 iteration
-0 task is processing 2 iteration
-3 task is processing 2 iteration
-3 task is processing 3 iteration
-0 task is processing 3 iteration
-...
-7 task is processing 7 iteration
-7 task is processing 8 iteration
-7 task is processing 9 iteration
-7 task is processing 10 iteration
-(&amp;quot;0 worker result&amp;quot; &amp;quot;1 worker result&amp;quot; &amp;quot;2 worker result&amp;quot; &amp;quot;3 worker result&amp;quot;
- &amp;quot;4 worker result&amp;quot; &amp;quot;5 worker result&amp;quot; &amp;quot;6 worker result&amp;quot; &amp;quot;7 worker result&amp;quot;
- &amp;quot;8 worker result&amp;quot; &amp;quot;9 worker result&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A number of workers depend on the reason why do you want to parallelize execution. There are two possible situations:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;you have a CPU intensive tasks and want to use more power;&lt;/li&gt;&lt;li&gt;you have an IO-bound tasks and want to make more operations in   parallel.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;In the first case there is no sense to make more workers than a number of CPU&apos;s on your machine. In the second scenario, the number of workers can be higher.&lt;/p&gt;
-&lt;p&gt;There is also a lower-level API for offloading work to workers through channels. In the next example, I pass a function to the pool and then receive the result:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *chan*
-             (lparallel:make-channel))
-
-POFTHEDAY&amp;gt; (lparallel:submit-task
-            *chan*
-            (lambda (param)
-              (format t &amp;quot;Processing ~A~%&amp;quot; param)
-              (sleep 3)
-              (format t &amp;quot;Processing is done~%&amp;quot;)
-              :result-of-processing)
-            100500)
-; No values
-Processing 100500
-Processing is done
-POFTHEDAY&amp;gt; (lparallel:receive-result *chan*)
-:RESULT-OF-PROCESSING&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;LParallel has more great features like promises, futures and many ways to run jobs in parallel. It is one of the few Common Lisp projects that have excellent documentation. I recommend you to read it:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://lparallel.org/&quot;&gt;https://lparallel.org/&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Mon, 08 Jun 2020 19:06:26 +0300</pubDate>
         </item>
     </channel>
 </rss>

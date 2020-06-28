@@ -10,16 +10,16 @@
 
 This lack middleware provides some level of security for your webapp,
 preventing a [[https://owasp.org/www-community/attacks/csrf][CSRF attacks]]. It has a function ~csrf-html-tag~ which returns
-an hidden ~input~ element to be embedded into a form.
+a hidden ~input~ element to embed into a form.
 
 The input stores a special token. Middleware saves this token into the
-current session and ensures the user sentd this token in following
-requests. If he doesn't, a 403 status code will be returned.
+current session and ensures the user sends this token in the following
+requests. If he doesn't, a 400 status code will be returned.
 
 Let's take our yesterday's app and make it more secure!
 
 First, we need to rewrite our main application to make it render a login
-form with CSRF token. Pay attention how does it call a ~csrf-html-tag~
+form with CSRF token. Pay attention to how does it call a ~csrf-html-tag~
 function at the end.
 
 If you are going to develop an application with a lots of forms, then it
@@ -70,7 +70,7 @@ Listening on 127.0.0.1:8091.
 
 #+end_src
 
-This is how our for is rendered. Note a "hidden" input at the end of the
+This is how our form is rendered. Note a "hidden" input at the end of the
 form:
 
 #+begin_src lisp
@@ -98,7 +98,7 @@ POFTHEDAY> (handler-case
              (dexador:http-request-failed (c)
                (values (dexador:response-status c)
                        (dexador:response-body c))))
-400 (9 bits, #x190)
+400
 "Bad Request: invalid CSRF token"
 
 #+end_src
@@ -123,8 +123,8 @@ You can set ~:session-key~ to a value other than ~_csrf_token~. But this
 changes only a token's key inside the session. Form field's name remains
 the ~_csrf_token~.
 
-Other option is ~:one-time~. Set it to true if you want to remove token
+Other option is ~:one-time~. Set it to true if you want to remove a token
 from the session after the first successful ~POST~, ~PUT~, ~DELETE~ or ~PATCH~.
 
-And finally, you can define your own handler for the error page. It
-should be a usual Clack app.
+And finally, you can define your own handler for the error page and pass
+it as ":block-app". It should be a usual Clack app.
