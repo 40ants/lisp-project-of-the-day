@@ -61,5 +61,5 @@ Pay attention to paths, returned as the first line of each
 response. It is relative to the mount point. This middleware rewrites
 the path so that an app can be mounted with any prefix.
 
-That is it for today. Yesterday we'll see how we can serve static with
+That is it for today. Tomorrow we'll see how we can serve static with
 Lack.
