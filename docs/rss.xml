@@ -6,6 +6,21 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>clack-errors</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0114-clack-errors.html</link>
+            <description>&lt;p&gt;This is the Clack middleware which adds a nicely rendered error page for your website. It pretends to be a clone of the RoR&apos;s &lt;a href=&quot;https://github.com/BetterErrors/better_errors&quot;&gt;better_errors&lt;/a&gt; library but has only a limited number of features.&lt;/p&gt;
+&lt;p&gt;Clack-errors is able to show a backtrace and content of the &lt;code&gt;env&lt;/code&gt; variable. But it does not allow you to inspect the variables of stack frames and does not show HTTP headers.&lt;/p&gt;
+&lt;p&gt;It has a demo application which can be loaded as &lt;code&gt;:clack-errors-demo&lt;/code&gt; ASDF system.&lt;/p&gt;
+&lt;p&gt;If you&apos;ll do a &lt;code&gt;(clack-errors-demo:start)&lt;/code&gt; it will start a webserver on the 8000 port.&lt;/p&gt;
+&lt;p&gt;Access the &lt;a href=&quot;http://localhost:8001/error&quot;&gt;http://localhost:8001/error&lt;/a&gt; URL to see the page like this:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0114/clack-errors.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;You can customize the behaviour of the middleware by two options: &lt;code&gt;:debug&lt;/code&gt; and &lt;code&gt;:prod-render&lt;/code&gt;. &lt;code&gt;:debug&lt;/code&gt; is &lt;code&gt;t&lt;/code&gt; by default and if you set it to the &lt;code&gt;nil&lt;/code&gt;, middleware will not show backtrace. It will call &lt;code&gt;:prod-render&lt;/code&gt; function instead.&lt;/p&gt;
+&lt;p&gt;Also, you might override some internal variables like &lt;code&gt;+dev-template+&lt;/code&gt;, &lt;code&gt;*dev-css-path*&lt;/code&gt;, etc. But it is better to send a pull-request which will allow redefining dev renderer.&lt;/p&gt;
+&lt;p&gt;Personally, I&apos;m don&apos;t see the need in such middleware in the Common Lisp web application, because you have much better backtrace inspection tool in the SLIME or other IDE.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 29 Jun 2020 21:21:47 +0300</pubDate>
+        </item>
+        <item>
             <title>lack-middleware-csrf</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0113-lack-middleware-csrf.html</link>
             <description>&lt;p&gt;This lack middleware provides some level of security for your webapp, preventing a &lt;a href=&quot;https://owasp.org/www-community/attacks/csrf&quot;&gt;CSRF attacks&lt;/a&gt;. It has a function &lt;code&gt;csrf-html-tag&lt;/code&gt; which returns a hidden &lt;code&gt;input&lt;/code&gt; element to embed into a form.&lt;/p&gt;
@@ -322,7 +337,7 @@ The Blog.&amp;quot;
 POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/admin/blog/posts?id=1&amp;quot;)
 &amp;quot;/blog/posts
 Administration interface.&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to paths, returned as the first line of each response. It is relative to the mount point. This middleware rewrites the path so that an app can be mounted with any prefix.&lt;/p&gt;
-&lt;p&gt;That is it for today. Yesterday we&apos;ll see how we can serve static with Lack.&lt;/p&gt;
+&lt;p&gt;That is it for today. Tomorrow we&apos;ll see how we can serve static with Lack.&lt;/p&gt;
 </description>
             <pubDate>Wed, 24 Jun 2020 22:50:22 +0300</pubDate>
         </item>
@@ -1627,70 +1642,6 @@ SBCL 2.0.2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Gearman uses a very simple protocol.
 &lt;p&gt;That is it for today. Play with both &lt;code&gt;lfarm&lt;/code&gt; and &lt;code&gt;cl-gearman&lt;/code&gt; to decide which one is better suited for your task.&lt;/p&gt;
 </description>
             <pubDate>Wed, 10 Jun 2020 21:28:59 +0300</pubDate>
-        </item>
-        <item>
-            <title>lfarm</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html</link>
-            <description>&lt;p&gt;This library is similar to Python&apos;s multiprocessing which is also &lt;a href=&quot;https://docs.python.org/3/library/multiprocessing.html#module-multiprocessing.connection&quot;&gt;able to run processes on different hosts&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Use &lt;code&gt;lfarm&lt;/code&gt; when you need to run jobs on the cluster.&lt;/p&gt;
-&lt;p&gt;The cool &lt;code&gt;lfarm&lt;/code&gt;&apos;s feature is the ability to run jobs on workers, running on different Common Lisp implementation.&lt;/p&gt;
-&lt;p&gt;To demonstrate how it works, I started a LispWorks Personal edition on my laptop and SBCL with ClozureCL in the Docker containers.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(ql:quickload :lfarm-server)
-
-;; This how I started it on LispWorks
-(lfarm-server:start-server &amp;quot;127.0.0.1&amp;quot; 10003)
-
-;; inside the Docker:
-(lfarm-server:start-server &amp;quot;0.0.0.0&amp;quot; 10000)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After that, I created a workers pool in my SBCL REPL and called &lt;code&gt;broadcast-task&lt;/code&gt; to run a function on every worker:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (setf lfarm:*kernel* (lfarm:make-kernel &amp;#039;((&amp;quot;127.0.0.1&amp;quot; 10001)
-                                                     (&amp;quot;127.0.0.1&amp;quot; 10002)
-                                                     (&amp;quot;127.0.0.1&amp;quot; 10003))))
-#&amp;lt;LFARM-CLIENT.KERNEL:KERNEL :WORKER-COUNT 3 {1004E7C7C3}&amp;gt;
-
-POFTHEDAY&amp;gt; (lfarm:broadcast-task
-            (lambda ()
-              (list :lisp (lisp-implementation-type)
-                    :lisp-version (lisp-implementation-version)
-                    :system (string-trim
-                             (list #\Newline #\Space)
-                             (with-output-to-string (s)
-                               (uiop:run-program &amp;quot;uname -s -m -n&amp;quot;
-                                                 :output s))))))
-#((:LISP &amp;quot;LispWorks Personal Edition&amp;quot;
-   :LISP-VERSION &amp;quot;7.1.2&amp;quot;
-   :SYSTEM &amp;quot;Darwin lispbook x86_64&amp;quot;)
-  (:LISP &amp;quot;SBCL&amp;quot;
-   :LISP-VERSION &amp;quot;1.5.6&amp;quot;
-   :SYSTEM &amp;quot;Linux 5d4cc1b96f7e x86_64&amp;quot;)
-  (:LISP &amp;quot;Clozure Common Lisp&amp;quot;
-   :LISP-VERSION &amp;quot;Version 1.11.5/v1.11.5  (LinuxX8664)&amp;quot;
-   :SYSTEM &amp;quot;Linux d2c83144fce3 x86_64&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another great feature is API compatibility with &lt;code&gt;lparallel&lt;/code&gt;, &lt;a href=&quot;http://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I took our yesterday code and modified it to be able to distinguish a machine processed a task:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lfarm:pmapcar
-            (lambda (idx)
-              (loop for iteration from 1 to 10
-                    do (format t &amp;quot;~A task is processing ~A iteration~%&amp;quot;
-                               idx iteration)
-                       (sleep (random 1.0))
-                    finally (return (format nil &amp;quot;~A result processed by ~A&amp;quot;
-                                            idx
-                                            (lisp-implementation-type)))))
-              (alexandria:iota 10))
-(&amp;quot;0 result processed by Clozure Common Lisp&amp;quot;
- &amp;quot;1 result processed by Clozure Common Lisp&amp;quot;
- &amp;quot;2 result processed by Clozure Common Lisp&amp;quot;
- &amp;quot;3 result processed by Clozure Common Lisp&amp;quot;
- &amp;quot;4 result processed by SBCL&amp;quot;
- &amp;quot;5 result processed by SBCL&amp;quot;
- &amp;quot;6 result processed by SBCL&amp;quot;
- &amp;quot;7 result processed by LispWorks Personal Edition&amp;quot;
- &amp;quot;8 result processed by LispWorks Personal Edition&amp;quot;
- &amp;quot;9 result processed by LispWorks Personal Edition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The bad news is that &lt;code&gt;lfarm&lt;/code&gt; is not suite well to the cloud environment, where workers can disappear at any time and become available later.&lt;/p&gt;
-&lt;p&gt;Some time ago, I tried to use &lt;code&gt;lfarm&lt;/code&gt; in Ultralisp, to run some jobs in separate containers, but found that &lt;code&gt;lfarm&lt;/code&gt; does not like when worker process disconnects.&lt;/p&gt;
-&lt;p&gt;For example, if some of the workers aren&apos;t running, &lt;code&gt;make-kernel&lt;/code&gt; will hang forever. Or if some of the workers will go offline, then &lt;code&gt;broadcast-task&lt;/code&gt; also will hang.&lt;/p&gt;
-&lt;p&gt;Tomorrow I&apos;ll tell you about another solution which helped me to solve this problem.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 09 Jun 2020 21:06:00 +0300</pubDate>
         </item>
     </channel>
 </rss>
