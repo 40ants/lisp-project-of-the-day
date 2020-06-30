@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>clack-static-asset-middleware
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>clack-static-asset-middleware</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>clack-static-asset-middleware<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><p>This middleware in some sense like a builtin <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html">lack-middleware-static</a>, reviewed last week.</p>
+<p>The difference is that this middleware is more suitable for production because implements an infinite cache TTL for static assets.</p>
+<p>An infinite cache TTL trick is useful when you want to speed up your website loading. Here is how it works.</p>
+<p>Your server returns <code>Cache-Control</code> HTTP header and set static files TTL to some large value like a year to make it cached for a long long period of time.</p>
+<p>But how to expire this cache if you will need to update CSS or JavaScript on your site?</p>
+<p>The only way is to change the URL. This is what <code>lack-middleware-static</code> does for you. It calculates MD5 hash from the file's content and makes it a part of the URL.</p>
+<p>When the content of the static file is changed, its URL changed as well. Browser notices that change and reloads the content.</p>
+<p>Middleware provides a special tag for <a href="https://github.com/mmontone/djula">Djula</a> template language. Setting up templates for djula is out of thescope of this post and we'll use <code>busted-uri-for-path</code> instead, to create a path to a file including a cache hash.</p>
+<p>First, we need to start our server and configure the middleware. Pay attention to the <code>probe-file</code> call. Root should be an absolute pathname. With relative pathname, you'll get a wrong result :(</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (clack:clackup
+            (funcall
+             clack-static-asset-middleware:*clack-static-asset-middleware*
+             (lambda (env)
+               (list 200 (list :content-type &quot;text/plain&quot;)
+                     (list (format nil
+                                   &quot;Access this file: ~A&quot;
+                                   (clack-static-asset-middleware:busted-uri-for-path
+
+                                    &quot;site.css&quot;)))))
+             :path &quot;static/&quot;
+             :root (probe-file &quot;static-files/&quot;))
+            :port 9004)
+Hunchentoot server is started.
+Listening on 127.0.0.1:9004.</code></pre><p>Now we can access our index page to get the static's URL:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:9004/&quot;)
+&quot;Access this file: /static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&quot;
+200</code></pre><p>Pay attention to the file's suffix. It is an md5 hash from file's content. This sum is calculated when you start the application. If you'll change the file, during the next deploy another md5 hash will be generated and browser will reload its content.</p>
+<p>If we'll access this file, server will respond with <code>Cache-Control</code> header and set the TTL to 1 year:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&quot;)
+&quot;body {font-size: 10px;}&quot;
+200 (8 bits, #xC8, #o310, #b11001000)
+#&lt;HASH-TABLE :TEST EQUAL :COUNT 8 {1001E58473}&gt;
+#&lt;QURI.URI.HTTP:URI-HTTP http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&gt;
+#&lt;SB-SYS:FD-STREAM for &quot;socket 127.0.0.1:53729, peer: 127.0.0.1:9004&quot; {1001E37873}&gt;
+
+POFTHEDAY&gt; (rutils:hash-table-to-alist #v56:2)
+((&quot;date&quot; . &quot;Tue, 30 Jun 2020 19:39:55 GMT&quot;)
+ (&quot;server&quot; . &quot;Hunchentoot 1.3.0&quot;)
+ (&quot;accept-ranges&quot; . &quot;bytes&quot;)
+ (&quot;last-modified&quot; . &quot;Tue, 30 Jun 2020 19:15:56 GMT&quot;)
+ (&quot;vary&quot; . &quot;Accept-Encoding&quot;)
+ (&quot;cache-control&quot; . &quot;public, max-age=31556926&quot;)
+ (&quot;content-length&quot; . &quot;23&quot;)
+ (&quot;content-type&quot; . &quot;text/css; charset=utf-8&quot;))</code></pre>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
