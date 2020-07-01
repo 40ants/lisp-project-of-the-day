@@ -8,11 +8,11 @@
 :CI:       :(
 :END:
 
-This is the last middleware in our Clack/Lack series. What it does? It
-helps during website developing remembering last requests you did from
-the brower and allowing to replay them from the REPL.
+This is the last middleware in our Clack/Lack series. What does it do? It
+helps during website development remembering last requests you did from
+the browser and allowing to replay them from the REPL.
 
-Clack-pretend interpose itself into Lack middlewares chain. To define
+Clack-pretend interposes itself into a Lack middlewares chain. To define
 the app you need to use a special builder macro and to specify at which
 point requests and responses should be captured:
 
@@ -59,7 +59,7 @@ Now I'll make a request using ~curl~:
 
 #+end_src
 
-Now we can replay see what was the last request:
+And we can look up what was the last request:
 
 #+begin_src lisp
 

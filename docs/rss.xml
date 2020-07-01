@@ -6,6 +6,87 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>clack-pretend</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0117-clack-pretend.html</link>
+            <description>&lt;p&gt;This is the last middleware in our Clack/Lack series. What does it do? It helps during website development remembering last requests you did from the browser and allowing to replay them from the REPL.&lt;/p&gt;
+&lt;p&gt;Clack-pretend interposes itself into a Lack middlewares chain. To define the app you need to use a special builder macro and to specify at which point requests and responses should be captured:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
+             (clack-pretend:pretend-builder (:insert 2)
+               :accesslog
+               :session
+               (lambda (env)
+                 (let* ((path (getf env :path-info))
+                        (query (getf env :query-string))
+                        (message (format nil &amp;quot;Path: ~A, query: ~A&amp;quot;
+                                         path query)))
+                   (format t &amp;quot;Processing request:~%  ~A~%&amp;quot;
+                           message)
+                   &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
+                     (&amp;quot;Hello world!&amp;quot;))))))
+*APP*
+POFTHEDAY&amp;gt; (defparameter *server*
+             (clack:clackup *app*
+                            :port 8000))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now I&apos;ll make a request using &lt;code&gt;curl&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] curl -v &amp;#039;http://localhost:8000/some/route?foo=Bar&amp;#039;
+&amp;gt; GET /some/route?foo=Bar HTTP/1.1
+&amp;gt; Host: localhost:8000
+&amp;gt; User-Agent: curl/7.54.0
+&amp;gt; Accept: */*
+&amp;gt; 
+&amp;lt; HTTP/1.1 200 OK
+&amp;lt; Date: Wed, 01 Jul 2020 19:23:12 GMT
+&amp;lt; Server: Hunchentoot 1.2.38
+&amp;lt; Transfer-Encoding: chunked
+&amp;lt; Content-Type: text/plain
+&amp;lt; Set-Cookie: lack.session=0d629e3a1d2681d99c40f7b2086ec97d53e2b884; path=/; expires=Sat, 31 Dec 2140 14:45:27 GMT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And we can look up what was the last request:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack-pretend:last-input)
+(:LACK.SESSION.OPTIONS
+ (:ID &amp;quot;0d629e3a1d2681d99c40f7b2086ec97d53e2b884&amp;quot;
+  :NEW-SESSION T :CHANGE-ID NIL :EXPIRE NIL)
+ :LACK.SESSION #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 0 {1005EB8A03}&amp;gt;
+ :REQUEST-METHOD :GET
+ :SCRIPT-NAME &amp;quot;&amp;quot;
+ :PATH-INFO &amp;quot;/some/route&amp;quot;
+ :SERVER-NAME &amp;quot;localhost&amp;quot;
+ :SERVER-PORT 8000
+ :SERVER-PROTOCOL :HTTP/1.1
+ :REQUEST-URI &amp;quot;/some/route?foo=Bar&amp;quot;
+ :URL-SCHEME &amp;quot;http&amp;quot;
+ :REMOTE-ADDR &amp;quot;127.0.0.1&amp;quot;
+ :REMOTE-PORT 53671
+ :QUERY-STRING &amp;quot;foo=Bar&amp;quot;
+ :RAW-BODY #&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {1005EB6FD3}&amp;gt;
+ :CONTENT-LENGTH NIL
+ :CONTENT-TYPE NIL
+ :CLACK.STREAMING T
+ :CLACK.IO #&amp;lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {1005EB7043}&amp;gt;
+ :HEADERS #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 3 {1005EB72C3}&amp;gt;
+ :QUERY-PARAMETERS ((&amp;quot;foo&amp;quot; . &amp;quot;Bar&amp;quot;)))
+
+POFTHEDAY&amp;gt; (rutils:hash-table-to-alist
+            (getf * :headers))
+((&amp;quot;host&amp;quot; . &amp;quot;localhost:8000&amp;quot;)
+ (&amp;quot;user-agent&amp;quot; . &amp;quot;curl/7.54.0&amp;quot;)
+ (&amp;quot;accept&amp;quot; . &amp;quot;*/*&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to replay the request from the REPL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack-pretend:run-pretend)
+Processing request:
+  Path: /some/route, query: foo=Bar
+(200 (:CONTENT-TYPE &amp;quot;text/plain&amp;quot;) (&amp;quot;Hello world!&amp;quot;))
+
+;; You can override path to check, it with the same
+;; headers and session:
+POFTHEDAY&amp;gt; (clack-pretend:run-pretend
+            :path-info &amp;quot;/other/path&amp;quot;)
+Processing request:
+  Path: /other/path, query: foo=Bar
+(200 (:CONTENT-TYPE &amp;quot;text/plain&amp;quot;) (&amp;quot;Hello world!&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems, &lt;code&gt;clack-pretend&lt;/code&gt; is a great addition for web development with Clack.&lt;/p&gt;
+&lt;p&gt;It will be interesting to improve it to store not only the last N successful requests but also to store requests resulting unhandled error. This way you&apos;ll be able to replay errors your users experience in production!&lt;/p&gt;
+</description>
+            <pubDate>Wed, 01 Jul 2020 22:32:39 +0300</pubDate>
+        </item>
+        <item>
             <title>clack-static-asset-middleware</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0115-clack-static-asset-middleware.html</link>
             <description>&lt;p&gt;This middleware in some sense like a builtin &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html&quot;&gt;lack-middleware-static&lt;/a&gt;, reviewed last week.&lt;/p&gt;
@@ -1500,140 +1581,6 @@ WARNING: Compilation failed in a system &amp;quot;log4cl-extras&amp;quot;.
 &lt;p&gt;&lt;a href=&quot;https://github.com/cxxxr/sblint/pull/19&quot;&gt;https://github.com/cxxxr/sblint/pull/19&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Fri, 12 Jun 2020 23:43:40 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-reddit</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0096-cl-reddit.html</link>
-            <description>&lt;p&gt;This is an API wrapper for Reddit.&lt;/p&gt;
-&lt;p&gt;Today I found &lt;a href=&quot;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&quot;&gt;an interesting thread from SpaceX&lt;/a&gt;, where it&apos;s software developers answer the questions. I wondered if there was a discussion around Lisp in the Space?&lt;/p&gt;
-&lt;p&gt;But this post has about 8000 comments and I didn&apos;t found a search in a single post&apos;s comments on the Reddit. So, I decided to use &lt;code&gt;cl-reddit&lt;/code&gt; to fetch all post comments and to search through them a &quot;lisp&quot; term.&lt;/p&gt;
-&lt;p&gt;Here is how you can connect to the Reddit and list of your subreddits:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *user*
-             (cl-reddit:api-login
-              :username &amp;quot;svetlyak40wt&amp;quot;
-              :password *password*))
-
-;; This is how we can retrieve a list of my subreddits:
-
-POFTHEDAY&amp;gt; (mapcar #&amp;#039;cl-reddit:subreddit-title
-                   (cl-reddit::get-reddits-mine *user*))
-(&amp;quot;programming&amp;quot; &amp;quot;Lisp Advocates&amp;quot; &amp;quot;Lisp&amp;quot; &amp;quot;Scheme Programming Language articles&amp;quot;
- &amp;quot;M-x emacs-reddit&amp;quot; &amp;quot;Web Startups&amp;quot; &amp;quot;Common Lisp&amp;quot; &amp;quot;Filmmakers&amp;quot; &amp;quot;coding&amp;quot;
- &amp;quot;Github: social coding&amp;quot; &amp;quot;EarthPorn: Amazing images of light and landscape&amp;quot;
- &amp;quot;LISP ja&amp;quot; &amp;quot;Learn Lisp&amp;quot; &amp;quot;Startup Accelerators&amp;quot; &amp;quot;defunkydrummer&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot; &amp;quot;&amp;quot;
- &amp;quot;Steel Bank Common Lisp&amp;quot;
- &amp;quot;(find-if (alexandria:conjoin #&amp;#039;funny-p #&amp;#039;about-lisp-p) *reddit*)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But we want to run a search in the post comments, right?&lt;/p&gt;
-&lt;p&gt;Then we need to extract post id from this link:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&quot;&gt;https://www.reddit.com/r/spacex/comments/gxb7j1/we_are_the_spacex_software_team_ask_us_anything/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;and to fetch comments tree using &lt;code&gt;cl-reddit&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-reddit::get-comments &amp;quot;gxb7j1&amp;quot; *user*)
-
-(#&amp;lt;CL-REDDIT:COMMENT {1002009693}&amp;gt; #&amp;lt;CL-REDDIT:COMMENT {10020098F3}&amp;gt;
- #&amp;lt;CL-REDDIT:COMMENT {1002016BF3}&amp;gt; #&amp;lt;CL-REDDIT:COMMENT {1002016CB3}&amp;gt;
- ...
- #&amp;lt;CL-REDDIT:COMMENT {1002016D73}&amp;gt; #&amp;lt;CL-REDDIT:MORE {1002016E33}&amp;gt;)
-
-POFTHEDAY&amp;gt; (length *)
-151&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, we received 151 comments, but real comments count is about 7.7k. This is because other items either replies or &lt;code&gt;CL-REDDIT:MORE&lt;/code&gt; objects which contain ids of the replies:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;&apos;&gt;POFTHEDAY&amp;gt; (defparameter *comments*
-              (cl-reddit::get-comments &amp;quot;gxb7j1&amp;quot; *user*))
-
-POFTHEDAY&amp;gt; (rutils:last-elt *comments*)
-#&amp;lt;CL-REDDIT:MORE {1002016E33}&amp;gt;
-
-POFTHEDAY&amp;gt; (cl-reddit:more-children *)
-(&amp;quot;ft35r7m&amp;quot; &amp;quot;ft0rpxi&amp;quot; &amp;quot;ft0jn61&amp;quot; &amp;quot;ft34002&amp;quot; &amp;quot;ft4b6z4&amp;quot;
- ...
- &amp;quot;ft0pado&amp;quot; ...)
-
-POFTHEDAY&amp;gt; (cl-reddit:comment-replies
-               (first *comments*))
-(#&amp;lt;CL-REDDIT:MORE {1003607093}&amp;gt;)
-
-POFTHEDAY&amp;gt; (cl-reddit:comment-replies
-               (second *comments*))
-(#&amp;lt;CL-REDDIT:COMMENT {1007607293}&amp;gt;)
-
-POFTHEDAY&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We need to write a comment walker which &lt;code&gt;cl-reddit&lt;/code&gt; does not provide.&lt;/p&gt;
-&lt;p&gt;This walker will expand all &lt;code&gt;MORE&lt;/code&gt; items and collect comments into the flat list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((post-id &amp;quot;gxb7j1&amp;quot;))
-             (uiop:while-collecting (collect)
-               (labels ((visit (item)
-                          (etypecase item
-                            (cl-reddit:comment
-                             (collect item)
-                             (mapc #&amp;#039;visit
-                                   (cl-reddit:comment-replies
-                                    item)))
-                            (cl-reddit:more
-                             (expand-more item))))
-                        (expand-more (more)
-                          (loop for id in (cl-reddit:more-children more)
-                                for comments = (cl-reddit::get-comments
-                                                post-id
-                                                *user*
-                                                :comment id)
-                                do (mapc #&amp;#039;visit
-                                         comments))))
-                 (mapcar #&amp;#039;visit
-                         (cl-reddit::get-comments post-id
-                                                  *user*)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When I started this code the first time, it broke my Lisp. A quick investigation showed a resource leak. This library uses &lt;a href=&quot;https://edicl.github.io/drakma/&quot;&gt;Drakma&lt;/a&gt; for data fetching and instead of receiving response bodies, request a stream.&lt;/p&gt;
-&lt;p&gt;Drakma&apos;s documentation says, that you might need to close the stream. If you don&apos;t - a connection to the server remains opene.&lt;/p&gt;
-&lt;p&gt;Seems, the library&apos;s author never used it for making thousands of requests.&lt;/p&gt;
-&lt;p&gt;I&apos;ve fixed this leak, but comments fetching still was too slow - about 2 comments per second. This is because &lt;code&gt;MORE&lt;/code&gt; item contains comment ids and I have to fetch them individually one by one.&lt;/p&gt;
-&lt;p&gt;I tried to parallelize the fetching process using lparallel, reviewed two days ago:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *all-comments*
-             (let ((post-id &amp;quot;gxb7j1&amp;quot;)
-                 (counter 0))
-               (uiop:while-collecting (collect)
-                 (labels ((visit (item)
-                            (etypecase item
-                              (cl-reddit:comment
-                               (collect item)
-                               (incf counter)
-                               (when (zerop (mod counter 10))
-                                 (log:info &amp;quot;~A comments collected&amp;quot;
-                                           counter))
-                               (mapc #&amp;#039;visit (cl-reddit:comment-replies item)))
-                              (cl-reddit:more
-                               (expand-more item))))
-                          (expand-more (more)
-                            (log:info &amp;quot;Expanding&amp;quot; more)
-                            (loop with more-ids = (cl-reddit:more-children more)
-                                  with replies = (lparallel:pmapcar
-                                                  (lambda (id)
-                                                    (cl-reddit::get-comments
-                                                     post-id
-                                                     *user*
-                                                     :comment id))
-                                                  more-ids)
-                                  for comments in replies
-                                  do (lparallel:pmapc #&amp;#039;visit comments))))
-                   (lparallel:pmapc #&amp;#039;visit
-                           (cl-reddit::get-comments post-id
-                                                    *user*))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But encountered these strange errors:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;The condition Socket error in &amp;quot;connect&amp;quot;: EINTR (Interrupted system call) occurred with errno: 0.
-
-Condition USOCKET:TIMEOUT-ERROR was signalled.
-   [Condition of type USOCKET:TIMEOUT-ERROR]
-
-Restarts:
- 0: [TRANSFER-ERROR] Transfer this error to a dependent thread, if one exists.
- 1: [KILL-ERRORS] Kill errors in workers (remove debugger instances).
- 2: [ABORT] abort thread (#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {10071B3DE3}&amp;gt;)
-
-Backtrace:
- 0: (USOCKET::HANDLE-CONDITION #&amp;lt;SB-EXT:TIMEOUT {10059E7C53}&amp;gt; #&amp;lt;USOCKET:STREAM-USOCKET {100871AB43}&amp;gt; &amp;quot;www.reddit.com&amp;quot;)
- 1: (SB-KERNEL::%SIGNAL #&amp;lt;SB-EXT:TIMEOUT {10059E7C53}&amp;gt;)
- 2: (ERROR SB-EXT:TIMEOUT)
- 3: (USOCKET:SOCKET-CONNECT &amp;quot;www.reddit.com&amp;quot; 80 :PROTOCOL :STREAM :ELEMENT-TYPE FLEXI-STREAMS:OCTET :TIMEOUT 20 :DEADLINE NIL :NODELAY :IF-SUPPORTED :LOCAL-HOST NIL :LOCAL-PORT NIL)
- 4: (DRAKMA:HTTP-REQUEST #&amp;lt;PURI:URI http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl&amp;gt; :METHOD :GET :USER-AGENT &amp;quot;cl-reddit/0.2 (common lisp api wrapper)&amp;quot; :COOKIE-JAR #&amp;lt;DRAKMA:COOKIE-JAR (with 5 c..
- 5: (CL-REDDIT::GET-JSON &amp;quot;http://www.reddit.com/comments/gxb7j1.json?comment=ft3odzl&amp;quot; #&amp;lt;CL-REDDIT:USER {10079B9973}&amp;gt;)
- 6: (CL-REDDIT:GET-COMMENTS &amp;quot;gxb7j1&amp;quot; #&amp;lt;CL-REDDIT:USER {10079B9973}&amp;gt; :ARTICLE NIL :COMMENT &amp;quot;ft3odzl&amp;quot; :CONTEXT NIL :DEPTH NIL :LIMIT NIL :SORT NIL :THREADED NIL :SHOWMORE NIL)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tried to switch to the Dexador instead of Drakma, but found another bug - it is not able to work in multiple threads:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/fukamachi/dexador/issues/88&quot;&gt;https://github.com/fukamachi/dexador/issues/88&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;So, we&apos;ll never know if SpaceX developers are using Lisp in their space ships :)&lt;/p&gt;
-</description>
-            <pubDate>Thu, 11 Jun 2020 23:45:15 +0300</pubDate>
         </item>
     </channel>
 </rss>

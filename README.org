@@ -5,6 +5,9 @@ Twitter account svetlyak40wt]].
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
+** July
+- 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
+
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
 - 02 June - [[content/2020/06/0087-cl-cron.org][cl-cron]] ([[https://twitter.com/svetlyak40wt/status/1267908838470160393][twitter]])
@@ -1096,5 +1099,7 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/bufferswap/ViralityEngine
 - http://quickdocs.org/cl-mechanize/
 - http://quickdocs.org/cl-skip-list/
+- http://quickdocs.org/cl-hash-util/
+
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
