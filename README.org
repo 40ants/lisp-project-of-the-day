@@ -35,6 +35,7 @@ Twitter account svetlyak40wt]].
 - 27 June - [[content/2020/06/0112-lack-middleware-session.org][lack-middleware-session]] ([[https://twitter.com/svetlyak40wt/status/1276991422504349696][twitter]])
 - 28 June - [[content/2020/06/0113-lack-middleware-csrf.org][lack-middleware-csrf]] ([[https://twitter.com/svetlyak40wt/status/1277333012045234177][twitter]])
 - 29 June - [[content/2020/06/0114-clack-errors.org][clack-errors]] ([[https://twitter.com/svetlyak40wt/status/1277666142618890240][twitter]])
+- 30 June - [[content/2020/06/0115-clack-static-asset-middleware.org][clack-static-asset-middleware]] ([[https://twitter.com/svetlyak40wt/status/1278053836771524608][twitter]])
 
 ** May
 - 01 May - [[content/2020/05/0055-cl-heredoc.org][cl-heredoc]] ([[https://twitter.com/svetlyak40wt/status/1256294437010931712][twitter]])

@@ -6,6 +6,56 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>clack-static-asset-middleware</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0115-clack-static-asset-middleware.html</link>
+            <description>&lt;p&gt;This middleware in some sense like a builtin &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html&quot;&gt;lack-middleware-static&lt;/a&gt;, reviewed last week.&lt;/p&gt;
+&lt;p&gt;The difference is that this middleware is more suitable for production because implements an infinite cache TTL for static assets.&lt;/p&gt;
+&lt;p&gt;An infinite cache TTL trick is useful when you want to speed up your website loading. Here is how it works.&lt;/p&gt;
+&lt;p&gt;Your server returns &lt;code&gt;Cache-Control&lt;/code&gt; HTTP header and set static files TTL to some large value like a year to make it cached for a long long period of time.&lt;/p&gt;
+&lt;p&gt;But how to expire this cache if you will need to update CSS or JavaScript on your site?&lt;/p&gt;
+&lt;p&gt;The only way is to change the URL. This is what &lt;code&gt;lack-middleware-static&lt;/code&gt; does for you. It calculates MD5 hash from the file&apos;s content and makes it a part of the URL.&lt;/p&gt;
+&lt;p&gt;When the content of the static file is changed, its URL changed as well. Browser notices that change and reloads the content.&lt;/p&gt;
+&lt;p&gt;Middleware provides a special tag for &lt;a href=&quot;https://github.com/mmontone/djula&quot;&gt;Djula&lt;/a&gt; template language. Setting up templates for djula is out of thescope of this post and we&apos;ll use &lt;code&gt;busted-uri-for-path&lt;/code&gt; instead, to create a path to a file including a cache hash.&lt;/p&gt;
+&lt;p&gt;First, we need to start our server and configure the middleware. Pay attention to the &lt;code&gt;probe-file&lt;/code&gt; call. Root should be an absolute pathname. With relative pathname, you&apos;ll get a wrong result :(&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
+            (funcall
+             clack-static-asset-middleware:*clack-static-asset-middleware*
+             (lambda (env)
+               (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
+                     (list (format nil
+                                   &amp;quot;Access this file: ~A&amp;quot;
+                                   (clack-static-asset-middleware:busted-uri-for-path
+
+                                    &amp;quot;site.css&amp;quot;)))))
+             :path &amp;quot;static/&amp;quot;
+             :root (probe-file &amp;quot;static-files/&amp;quot;))
+            :port 9004)
+Hunchentoot server is started.
+Listening on 127.0.0.1:9004.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can access our index page to get the static&apos;s URL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:9004/&amp;quot;)
+&amp;quot;Access this file: /static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;quot;
+200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to the file&apos;s suffix. It is an md5 hash from file&apos;s content. This sum is calculated when you start the application. If you&apos;ll change the file, during the next deploy another md5 hash will be generated and browser will reload its content.&lt;/p&gt;
+&lt;p&gt;If we&apos;ll access this file, the server will respond with &lt;code&gt;Cache-Control&lt;/code&gt; header and set the TTL to 1 year:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;quot;)
+&amp;quot;body {font-size: 10px;}&amp;quot;
+200 (8 bits, #xC8, #o310, #b11001000)
+#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 8 {1001E58473}&amp;gt;
+#&amp;lt;QURI.URI.HTTP:URI-HTTP http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;gt;
+#&amp;lt;SB-SYS:FD-STREAM for &amp;quot;socket 127.0.0.1:53729, peer: 127.0.0.1:9004&amp;quot; {1001E37873}&amp;gt;
+
+POFTHEDAY&amp;gt; (rutils:hash-table-to-alist #v56:2)
+((&amp;quot;date&amp;quot; . &amp;quot;Tue, 30 Jun 2020 19:39:55 GMT&amp;quot;)
+ (&amp;quot;server&amp;quot; . &amp;quot;Hunchentoot 1.3.0&amp;quot;)
+ (&amp;quot;accept-ranges&amp;quot; . &amp;quot;bytes&amp;quot;)
+ (&amp;quot;last-modified&amp;quot; . &amp;quot;Tue, 30 Jun 2020 19:15:56 GMT&amp;quot;)
+ (&amp;quot;vary&amp;quot; . &amp;quot;Accept-Encoding&amp;quot;)
+ (&amp;quot;cache-control&amp;quot; . &amp;quot;public, max-age=31556926&amp;quot;)
+ (&amp;quot;content-length&amp;quot; . &amp;quot;23&amp;quot;)
+ (&amp;quot;content-type&amp;quot; . &amp;quot;text/css; charset=utf-8&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review the last Clack&apos;s middleware. I found only 3 of them on the Quicklisp. If you know about other middlewares, let me know and we&apos;ll continue our journey to the world of web development with Clack!&lt;/p&gt;
+</description>
+            <pubDate>Tue, 30 Jun 2020 22:57:55 +0300</pubDate>
+        </item>
+        <item>
             <title>clack-errors</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/06/0114-clack-errors.html</link>
             <description>&lt;p&gt;This is the Clack middleware which adds a nicely rendered error page for your website. It pretends to be a clone of the RoR&apos;s &lt;a href=&quot;https://github.com/BetterErrors/better_errors&quot;&gt;better_errors&lt;/a&gt; library but has only a limited number of features.&lt;/p&gt;
@@ -1584,64 +1634,6 @@ Backtrace:
 &lt;p&gt;So, we&apos;ll never know if SpaceX developers are using Lisp in their space ships :)&lt;/p&gt;
 </description>
             <pubDate>Thu, 11 Jun 2020 23:45:15 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-gearman</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0095-cl-gearman.html</link>
-            <description>&lt;p&gt;Yesterday, we &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html&quot;&gt;talked about&lt;/a&gt; distributing jobs across a cluster using &lt;code&gt;lfarm&lt;/code&gt;. &lt;code&gt;lfarm&lt;/code&gt; is not well suited to environments where worker hosts can go down and return back later.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://gearman.org/&quot;&gt;Gearman&lt;/a&gt; is the RPC server. Multiple workers can connect to this server and advertise which functions they are supporting. A client can call these functions and receive a result.&lt;/p&gt;
-&lt;p&gt;Here is the diagram showing how does it work in the common case:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0095/gearman-cluster.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;A cool feature of Gearman is its language independence. Workers can be written in any language. This means that in your distributed system some functions can be written in Lisp, others in Python or even in Bash and some UNIX tools.&lt;/p&gt;
-&lt;p&gt;Now we&apos;ll see how to write a simple worker in Common Lisp and call it. But first, let&apos;s start Gearman server in the Docker container:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday:~]% docker run --rm -p 4730:4730 artefactual/gearmand:1.1.19.1-alpine
-Unable to find image &amp;#039;artefactual/gearmand:1.1.19.1-alpine&amp;#039; locally
-1.1.19.1-alpine: Pulling from artefactual/gearmand
-cbdbe7a5bc2a: Pull complete
-33291983401c: Pull complete
-b4a2ffd9f406: Pull complete
-c5f0c79c81bd: Pull complete
-c3b95f315fd4: Pull complete
-e8fb3c47a5c3: Pull complete
-Digest: sha256:585921f3509b86a9e78aac6c3512c894e0f0a8e0497d194483bafc5ebc275edc
-Status: Downloaded newer image for artefactual/gearmand:1.1.19.1-alpine
-   INFO 2020-06-10 13:34:35.722249 [  main ] Initializing Gear on port 4730 with SSL: false
-   INFO 2020-06-10 13:34:35.000000 [  main ] Starting up with pid 1, verbose is set to INFO
-   INFO 2020-06-10 13:34:35.000000 [  main ] Listening on 0.0.0.0:4730 (9)
-   INFO 2020-06-10 13:34:35.000000 [  main ] Adding event for listening socket (9)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we need to start a simple worker which supports two functions. It can reverse any string and report about it&apos;s Lisp implementation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-gearman:with-worker (worker &amp;quot;localhost:4730&amp;quot;)
-             (cl-gearman:add-ability worker &amp;quot;get-implementation&amp;quot;
-                                     (lambda (arg job)
-                                       (declare (ignorable arg job))
-                                       (format nil &amp;quot;~A ~A&amp;quot;
-                                               (lisp-implementation-type)
-                                               (lisp-implementation-version))))
-             (cl-gearman:add-ability worker &amp;quot;reverse&amp;quot;
-                                     (lambda (arg job)
-                                       (declare (ignorable job))
-                                       (reverse arg)))
-             (loop (cl-gearman:work worker)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is how we can call these functions from the console:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday:~]% echo &amp;#039;Hello Lisp World!&amp;#039; | gearman -f reverse
-!dlroW psiL olleH
-
-[art@poftheday:~]% echo &amp;#039;&amp;#039; | gearman -f get-implementation
-SBCL 2.0.2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This way you can communicate with the Lisp from the outer world.&lt;/p&gt;
-&lt;p&gt;If we want to call these functions from other Lisp program, then we can do it like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;OTHER-LISP&amp;gt; (cl-gearman:with-client (client &amp;quot;localhost:4730&amp;quot;)
-              (format t &amp;quot;~A&amp;quot;
-                      (cl-gearman:submit-job client &amp;quot;reverse&amp;quot;
-                                             :arg &amp;quot;Hello Lisp World!&amp;quot;)))
-!dlroW psiL olleH
-
-OTHER-LISP&amp;gt; (cl-gearman:with-client (client &amp;quot;localhost:4730&amp;quot;)
-              (format t &amp;quot;~A&amp;quot;
-                      (cl-gearman:submit-job client &amp;quot;get-implementation&amp;quot;)))
-SBCL 2.0.2&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Gearman uses a very simple protocol. Every function accepts only one string as its argument. If you want to pass something complex, you&apos;ll need to use some sort of serialization.&lt;/p&gt;
-&lt;p&gt;For example, here is how I use &lt;code&gt;cl-store&lt;/code&gt; and &lt;code&gt;base64&lt;/code&gt; to pass lisp data-structures between a worker and a client in Ultralisp.org:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/ultralisp/ultralisp/blob/f52411bd89dc5b0bcb6701e4ba0712dd5aee128b/src/rpc/core.lisp#L23-L47&quot;&gt;https://github.com/ultralisp/ultralisp/blob/f52411bd89dc5b0bcb6701e4ba0712dd5aee128b/src/rpc/core.lisp#L23-L47&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;That is it for today. Play with both &lt;code&gt;lfarm&lt;/code&gt; and &lt;code&gt;cl-gearman&lt;/code&gt; to decide which one is better suited for your task.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 10 Jun 2020 21:28:59 +0300</pubDate>
         </item>
     </channel>
 </rss>

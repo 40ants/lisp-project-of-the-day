@@ -67,7 +67,7 @@ content. This sum is calculated when you start the application. If
 you'll change the file, during the next deploy another md5 hash will be
 generated and browser will reload its content.
 
-If we'll access this file, server will respond with ~Cache-Control~ header
+If we'll access this file, the server will respond with ~Cache-Control~ header
 and set the TTL to 1 year:
 
 #+begin_src lisp
@@ -91,4 +91,6 @@ POFTHEDAY> (rutils:hash-table-to-alist #v56:2)
 
 #+end_src
 
-
+Tomorrow we'll review the last Clack's middleware. I found only 3 of
+them on the Quicklisp. If you know about other middlewares, let me know
+and we'll continue our journey to the world of web development with Clack!

@@ -78,7 +78,7 @@ Listening on 127.0.0.1:9004.</code></pre><p>Now we can access our index page to 
 <pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:9004/&quot;)
 &quot;Access this file: /static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&quot;
 200</code></pre><p>Pay attention to the file's suffix. It is an md5 hash from file's content. This sum is calculated when you start the application. If you'll change the file, during the next deploy another md5 hash will be generated and browser will reload its content.</p>
-<p>If we'll access this file, server will respond with <code>Cache-Control</code> header and set the TTL to 1 year:</p>
+<p>If we'll access this file, the server will respond with <code>Cache-Control</code> header and set the TTL to 1 year:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&quot;)
 &quot;body {font-size: 10px;}&quot;
 200 (8 bits, #xC8, #o310, #b11001000)
@@ -94,7 +94,8 @@ POFTHEDAY&gt; (rutils:hash-table-to-alist #v56:2)
  (&quot;vary&quot; . &quot;Accept-Encoding&quot;)
  (&quot;cache-control&quot; . &quot;public, max-age=31556926&quot;)
  (&quot;content-length&quot; . &quot;23&quot;)
- (&quot;content-type&quot; . &quot;text/css; charset=utf-8&quot;))</code></pre>
+ (&quot;content-type&quot; . &quot;text/css; charset=utf-8&quot;))</code></pre><p>Tomorrow we'll review the last Clack's middleware. I found only 3 of them on the Quicklisp. If you know about other middlewares, let me know and we'll continue our journey to the world of web development with Clack!</p>
+
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"
