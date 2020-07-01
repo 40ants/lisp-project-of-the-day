@@ -1,0 +1,123 @@
+* clack-pretend :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the last middleware in our Clack/Lack series. What it does? It
+helps during website developing remembering last requests you did from
+the brower and allowing to replay them from the REPL.
+
+Clack-pretend interpose itself into Lack middlewares chain. To define
+the app you need to use a special builder macro and to specify at which
+point requests and responses should be captured:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *app*
+             (clack-pretend:pretend-builder (:insert 2)
+               :accesslog
+               :session
+               (lambda (env)
+                 (let* ((path (getf env :path-info))
+                        (query (getf env :query-string))
+                        (message (format nil "Path: ~A, query: ~A"
+                                         path query)))
+                   (format t "Processing request:~%  ~A~%"
+                           message)
+                   '(200 (:content-type "text/plain")
+                     ("Hello world!"))))))
+*APP*
+POFTHEDAY> (defparameter *server*
+             (clack:clackup *app*
+                            :port 8000))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8000.
+
+#+end_src
+
+Now I'll make a request using ~curl~:
+
+#+begin_src bash
+
+[poftheday] curl -v 'http://localhost:8000/some/route?foo=Bar'
+> GET /some/route?foo=Bar HTTP/1.1
+> Host: localhost:8000
+> User-Agent: curl/7.54.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Wed, 01 Jul 2020 19:23:12 GMT
+< Server: Hunchentoot 1.2.38
+< Transfer-Encoding: chunked
+< Content-Type: text/plain
+< Set-Cookie: lack.session=0d629e3a1d2681d99c40f7b2086ec97d53e2b884; path=/; expires=Sat, 31 Dec 2140 14:45:27 GMT
+
+#+end_src
+
+Now we can replay see what was the last request:
+
+#+begin_src lisp
+
+POFTHEDAY> (clack-pretend:last-input)
+(:LACK.SESSION.OPTIONS
+ (:ID "0d629e3a1d2681d99c40f7b2086ec97d53e2b884"
+  :NEW-SESSION T :CHANGE-ID NIL :EXPIRE NIL)
+ :LACK.SESSION #<HASH-TABLE :TEST EQUAL :COUNT 0 {1005EB8A03}>
+ :REQUEST-METHOD :GET
+ :SCRIPT-NAME ""
+ :PATH-INFO "/some/route"
+ :SERVER-NAME "localhost"
+ :SERVER-PORT 8000
+ :SERVER-PROTOCOL :HTTP/1.1
+ :REQUEST-URI "/some/route?foo=Bar"
+ :URL-SCHEME "http"
+ :REMOTE-ADDR "127.0.0.1"
+ :REMOTE-PORT 53671
+ :QUERY-STRING "foo=Bar"
+ :RAW-BODY #<FLEXI-STREAMS:FLEXI-IO-STREAM {1005EB6FD3}>
+ :CONTENT-LENGTH NIL
+ :CONTENT-TYPE NIL
+ :CLACK.STREAMING T
+ :CLACK.IO #<CLACK.HANDLER.HUNCHENTOOT::CLIENT {1005EB7043}>
+ :HEADERS #<HASH-TABLE :TEST EQUAL :COUNT 3 {1005EB72C3}>
+ :QUERY-PARAMETERS (("foo" . "Bar")))
+
+POFTHEDAY> (rutils:hash-table-to-alist
+            (getf * :headers))
+(("host" . "localhost:8000")
+ ("user-agent" . "curl/7.54.0")
+ ("accept" . "*/*"))
+
+#+end_src
+
+Now it is time to replay the request from the REPL:
+
+#+begin_src lisp
+
+POFTHEDAY> (clack-pretend:run-pretend)
+Processing request:
+  Path: /some/route, query: foo=Bar
+(200 (:CONTENT-TYPE "text/plain") ("Hello world!"))
+
+;; You can override path to check, it with the same
+;; headers and session:
+POFTHEDAY> (clack-pretend:run-pretend
+            :path-info "/other/path")
+Processing request:
+  Path: /other/path, query: foo=Bar
+(200 (:CONTENT-TYPE "text/plain") ("Hello world!"))
+
+#+end_src
+
+Seems, ~clack-pretend~ is a great addition for web development with
+Clack.
+
+It will be interesting to improve it to store not only the last N
+successful requests but also to store requests resulting unhandled
+error. This way you'll be able to replay errors your users experience in
+production!
