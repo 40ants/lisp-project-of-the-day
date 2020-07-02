@@ -1,0 +1,112 @@
+* cl-tui :console:ui:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This system is experimental user interface library for console. It uses
+[[https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html][cl-charms]] under the hood, to call ~ncurses~. The library is not in
+Quicklisp yet, but is installable from https://ultralisp.org.
+
+It contains a few examples. I've modified one to implement a simple
+chat-like interface:
+
+#+begin_src text
+
+┌──Online──────────┐
+│Bob               │
+│Alice             │
+│Peter             │
+│Lisper 313373     │23:08:46 Enter some text.
+│                  │23:08:46 Esc to quit
+│                  │23:08:52 Hello Lisp World!
+│                  │23:09:05 This is a simple chat using
+│                  │23:09:16 cl-tui and charms.
+└──────────────────┘> Input box
+
+#+end_src
+
+~cl-tui~ allows to define frames which can be stacked together. And you can
+write text inside the frame. Hope, there will be more primitives for
+other GUI elements like buttons text inputs, forms etc.
+
+Here are pieces of the example. First, I defined a "roster" and a
+function to render it inside a frame. This function also draw a border
+around:
+
+#+begin_src lisp
+
+(defvar *roster* '("Bob"
+                   "Alice"
+                   "Peter"
+                   "Lisper 313373"))
+
+(defun draw-roster (&key frame)
+  (draw-box frame)
+  (put-text frame 0 3 "Online")
+  
+  (loop for name in *roster*
+        for row upfrom 1
+        do (put-text frame row 1 name)))
+
+#+end_src
+
+Next part is the code defining application's layout. It is constructed
+from nested frames of different types. There is a frame for our roster,
+a frame to display chat log and to get user's input:
+
+#+begin_src lisp
+
+(define-frame main (container-frame :split-type :horizontal) :on :root)
+
+(define-frame roster (simple-frame :render #'draw-roster) :on main :w 20)
+
+(define-frame chat (container-frame :split-type :vertical) :on main)
+
+(define-frame log (log-frame) :on chat)
+
+;; Edit-frame implements a single-line text editor.
+;; It will misbehave if its height is not 1.
+(define-frame input (edit-frame :prompt "> ") :on chat :h 1)
+
+#+end_src
+
+We also need two functions to add users input into the chat window and
+to process keystrokes:
+
+#+begin_src lisp
+
+(defun finish-input ()
+  ;; Get text from edit-frame
+  (let ((text (get-text 'input)))
+    ;; Append it to the log-frame
+    (append-line 'log text)
+    ;; And clear the text in edit-frame
+    (clear-text 'input)))
+
+
+(defun start ()
+  (with-screen ()
+    (append-line 'log "Enter some text.")
+    (append-line 'log "Esc to quit")
+    (loop
+      (refresh)
+      (let ((key (read-key)))
+        (case key
+          ;; Esc and Newline are handled here
+          (#\Esc (return))
+          (#\Newline (finish-input))
+          (:key-up (cl-tui:scroll-log 'log 1))
+          (:key-down (cl-tui:scroll-log 'log -1))
+          ;; Everything else is sent to the edit-frame.
+          (t (handle-key 'input key)))))))
+
+#+end_src
+
+That is all the app.
+
+Checkout [[https://github.com/naryl/cl-tui][the repository]]. There you'll find more examples!
