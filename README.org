@@ -7,7 +7,7 @@ Twitter account svetlyak40wt]].
 * 2020
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
-- 02 July - [[content/2020/07/0118-cl-tui.org][cl-tui]]
+- 02 July - [[content/2020/07/0118-cl-tui.org][cl-tui]] ([[https://twitter.com/svetlyak40wt/status/1278786496556916749][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

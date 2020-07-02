@@ -6,6 +6,75 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-tui</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0118-cl-tui.html</link>
+            <description>&lt;p&gt;This system is an experimental user interface library for the console. It uses &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt; under the hood, to call &lt;code&gt;ncurses&lt;/code&gt;. The library is not in Quicklisp yet but is installable from &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;It contains a few examples. I&apos;ve modified one to implement a simple chat-like interface:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;&amp;#x250C;&amp;#x2500;&amp;#x2500;Online&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2510;
+&amp;#x2502;Bob               &amp;#x2502;
+&amp;#x2502;Alice             &amp;#x2502;
+&amp;#x2502;Peter             &amp;#x2502;
+&amp;#x2502;Lisper 313373     &amp;#x2502;23:08:46 Enter some text.
+&amp;#x2502;                  &amp;#x2502;23:08:46 Esc to quit
+&amp;#x2502;                  &amp;#x2502;23:08:52 Hello Lisp World!
+&amp;#x2502;                  &amp;#x2502;23:09:05 This is a simple chat using
+&amp;#x2502;                  &amp;#x2502;23:09:16 cl-tui and charms.
+&amp;#x2514;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2518;&amp;gt; Input box&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;cl-tui&lt;/code&gt; allows defining frames which can be stacked together. And you can write text inside the frame. Hope, there will be more primitives for other GUI elements like buttons text inputs, forms etc.&lt;/p&gt;
+&lt;p&gt;Here are pieces of the example. First, I defined a &quot;roster&quot; and a function to render it inside a frame. This function also draws a border around:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defvar *roster* &amp;#039;(&amp;quot;Bob&amp;quot;
+                   &amp;quot;Alice&amp;quot;
+                   &amp;quot;Peter&amp;quot;
+                   &amp;quot;Lisper 313373&amp;quot;))
+
+(defun draw-roster (&amp;amp;key frame)
+  (draw-box frame)
+  (put-text frame 0 3 &amp;quot;Online&amp;quot;)
+  
+  (loop for name in *roster*
+        for row upfrom 1
+        do (put-text frame row 1 name)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next part is the code defining the application&apos;s layout. It is constructed from nested frames of different types. There is a frame for our roster, a frame to display chat log and to get user&apos;s input:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(define-frame main (container-frame :split-type :horizontal) :on :root)
+
+(define-frame roster (simple-frame :render #&amp;#039;draw-roster) :on main :w 20)
+
+(define-frame chat (container-frame :split-type :vertical) :on main)
+
+(define-frame log (log-frame) :on chat)
+
+;; Edit-frame implements a single-line text editor.
+;; It will misbehave if its height is not 1.
+(define-frame input (edit-frame :prompt &amp;quot;&amp;gt; &amp;quot;) :on chat :h 1)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also need two functions to add users input into the chat window and to process keystrokes:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun finish-input ()
+  ;; Get text from edit-frame
+  (let ((text (get-text &amp;#039;input)))
+    ;; Append it to the log-frame
+    (append-line &amp;#039;log text)
+    ;; And clear the text in edit-frame
+    (clear-text &amp;#039;input)))
+
+
+(defun start ()
+  (with-screen ()
+    (append-line &amp;#039;log &amp;quot;Enter some text.&amp;quot;)
+    (append-line &amp;#039;log &amp;quot;Esc to quit&amp;quot;)
+    (loop
+      (refresh)
+      (let ((key (read-key)))
+        (case key
+          ;; Esc and Newline are handled here
+          (#\Esc (return))
+          (#\Newline (finish-input))
+          (:key-up (cl-tui:scroll-log &amp;#039;log 1))
+          (:key-down (cl-tui:scroll-log &amp;#039;log -1))
+          ;; Everything else is sent to the edit-frame.
+          (t (handle-key &amp;#039;input key)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all the app.&lt;/p&gt;
+&lt;p&gt;Checkout &lt;a href=&quot;https://github.com/naryl/cl-tui&quot;&gt;the repository&lt;/a&gt;. There you&apos;ll find more examples!&lt;/p&gt;
+&lt;p&gt;For those, who are interested in using nurses, here are reviews of the two lower-level libraries:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;cl-ncurses&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+            <pubDate>Thu, 02 Jul 2020 23:21:18 +0300</pubDate>
+        </item>
+        <item>
             <title>clack-pretend</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0117-clack-pretend.html</link>
             <description>&lt;p&gt;This is the last middleware in our Clack/Lack series. What does it do? It helps during website development remembering last requests you did from the browser and allowing to replay them from the REPL.&lt;/p&gt;
@@ -1544,43 +1613,6 @@ POFTHEDAY&amp;gt; (cl-store:store &amp;quot;Howdy, Python!&amp;quot;
 &amp;#039;Howdy, Python!&amp;#039;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. If you need a time-proved serialization library, check out the CL-Store! To extend it, just read the &lt;a href=&quot;https://common-lisp.net/project/cl-store/docs/cl-store.html&quot;&gt;docs&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Sat, 13 Jun 2020 23:53:16 +0300</pubDate>
-        </item>
-        <item>
-            <title>sblint</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html</link>
-            <description>&lt;p&gt;Today I want to review not a library but a tool. &lt;code&gt;SBLint&lt;/code&gt; is a program, which can be run from the command-line. It loads your lisp code and outputs all warnings and notes from SBCL compiler.&lt;/p&gt;
-&lt;p&gt;I must admit, that SBLint&apos;s output is very readable. You&apos;ll see where you left unused variables or called a function with wrong parameters.&lt;/p&gt;
-&lt;p&gt;To show you an example, I&apos;ve added this bad code to one of my libraries:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(declaim (ftype (function (fixnum fixnum)
-                          fixnum)
-                foo))
-(defun foo (a b)
-  (+ a 10))
-
-
-(defun bar ()
-  (foo))
-
-
-(defun blah ()
-  (foo 2
-       3.14))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This code is full of problems :) Let&apos;s see how SBLint will highlight them!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[art@poftheday] sblint
-src/appenders.lisp:41:0: style-warning: \
-    The variable B is defined but never used.
-src/appenders.lisp:46:2: simple-warning: \
-    The function FOO is called with zero arguments, but wants exactly two.
-src/appenders.lisp:50:2: type-warning: \
-    Constant 3.14 conflicts with its asserted type FIXNUM.
-WARNING: Compilation failed in a system &amp;quot;log4cl-extras&amp;quot;.
-
-# But return code is still SUCCESS:
-[art@poftheday] echo $?
-0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, all errors are caught. However, &lt;code&gt;SBLint&lt;/code&gt; itself exited with 0 exit code. Because of this, we can&apos;t add it into our CI pipeline.&lt;/p&gt;
-&lt;p&gt;I consider this is a bug and will made a pull-request to fix it. Hopefully, the current maintainer will merge it soon:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/cxxxr/sblint/pull/19&quot;&gt;https://github.com/cxxxr/sblint/pull/19&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Fri, 12 Jun 2020 23:43:40 +0300</pubDate>
         </item>
     </channel>
 </rss>
