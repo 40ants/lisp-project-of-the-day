@@ -69,7 +69,7 @@
           ;; Everything else is sent to the edit-frame.
           (t (handle-key &amp;#039;input key)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all the app.&lt;/p&gt;
 &lt;p&gt;Checkout &lt;a href=&quot;https://github.com/naryl/cl-tui&quot;&gt;the repository&lt;/a&gt;. There you&apos;ll find more examples!&lt;/p&gt;
-&lt;p&gt;For those, who are interested in using nurses, here are reviews of the two lower-level libraries:&lt;/p&gt;
+&lt;p&gt;For those, who are interested in using &lt;code&gt;ncurses&lt;/code&gt;, here are reviews of the two lower-level libraries:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;cl-ncurses&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 </description>
             <pubDate>Thu, 02 Jul 2020 23:21:18 +0300</pubDate>

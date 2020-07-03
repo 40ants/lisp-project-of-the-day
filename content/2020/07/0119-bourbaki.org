@@ -1,0 +1,88 @@
+* bourbaki :math:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the system for verifying formal mathematical proofs. As I didn't
+use math since the high school and lack time to dive into the lengthy
+documentation :(
+
+Here is the code snippet from the example:
+
+#+begin_src lisp
+
+;; Declare the wff type
+(symkind "WFF")
+
+;; The implication symbol
+(prim wff "->" (wff ![x y]))
+
+;; the axioms
+(ax "ax1" (wff ![A B])
+  (ass [-> A -> B A]))
+(ax "ax2" (wff ![A B C])
+  (ass [-> -> A -> B C -> -> A B -> A C]))
+
+;; the rule of inference (modus ponens)
+(ax "ax-mp" (wff ![A B])
+  (hypo [A] [-> A B])
+  (ass [B]))
+
+;; theorem: identity law for '->'
+;; compare with id1 in set.mm
+(th "id" (wff "A")
+  (ass [-> A A])
+  (proof
+    [ax1 A [-> A A]]
+    [ax2 A [-> A A] A]
+    [ax-mp [-> A -> -> A A A]
+           [-> -> A -> A A -> A A]]
+    [ax1 A A]
+    [ax-mp [-> A -> A A] [-> A A]]))
+
+#+end_src
+
+If you eval it in the repl, then you can verify it and output some
+information:
+
+#+begin_src lisp
+
+BOURBAKI-USER> (print-theorem !id)
+Theorem id:
+Variables: A
+Distinct variable conditions: 
+Hypotheses: 
+Assertion: [-> A A]
+Proof:
+ax1 [A][-> A A]
+ax2 [A][-> A A][A]
+ax-mp [-> A -> -> A A A][-> -> A -> A A -> A A]
+ax1 [A][A]
+ax-mp [-> A -> A A][-> A A]
+
+BOURBAKI-USER> (show-proof !id)
+Proof for id:
+ax1 => [-> A -> -> A A A]
+ax2 => [-> -> A -> -> A A A -> -> A -> A A -> A A]
+ax-mp => [-> -> A -> A A -> A A]
+ax1 => [-> A -> A A]
+ax-mp => [-> A A]
+
+BOURBAKI-USER> (verify !id)
+Theorem: "ax1"
+Theorem: "ax2"
+Theorem: "ax-mp"
+Theorem: "id"
+T
+
+#+end_src
+
+Bourpaki has a very good documentation. If you are interested in math
+libraries, enjoy it:
+
+https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf
