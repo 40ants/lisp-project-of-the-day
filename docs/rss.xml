@@ -6,6 +6,70 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>bourbaki</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0119-bourbaki.html</link>
+            <description>&lt;p&gt;This is the system for verifying formal mathematical proofs. As I didn&apos;t use math since the high school and lack time to dive into the lengthy documentation :(&lt;/p&gt;
+&lt;p&gt;Here is the code snippet from the example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Declare the wff type
+(symkind &amp;quot;WFF&amp;quot;)
+
+;; The implication symbol
+(prim wff &amp;quot;-&amp;gt;&amp;quot; (wff ![x y]))
+
+;; the axioms
+(ax &amp;quot;ax1&amp;quot; (wff ![A B])
+  (ass [-&amp;gt; A -&amp;gt; B A]))
+(ax &amp;quot;ax2&amp;quot; (wff ![A B C])
+  (ass [-&amp;gt; -&amp;gt; A -&amp;gt; B C -&amp;gt; -&amp;gt; A B -&amp;gt; A C]))
+
+;; the rule of inference (modus ponens)
+(ax &amp;quot;ax-mp&amp;quot; (wff ![A B])
+  (hypo [A] [-&amp;gt; A B])
+  (ass [B]))
+
+;; theorem: identity law for &amp;#039;-&amp;gt;&amp;#039;
+;; compare with id1 in set.mm
+(th &amp;quot;id&amp;quot; (wff &amp;quot;A&amp;quot;)
+  (ass [-&amp;gt; A A])
+  (proof
+    [ax1 A [-&amp;gt; A A]]
+    [ax2 A [-&amp;gt; A A] A]
+    [ax-mp [-&amp;gt; A -&amp;gt; -&amp;gt; A A A]
+           [-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]]
+    [ax1 A A]
+    [ax-mp [-&amp;gt; A -&amp;gt; A A] [-&amp;gt; A A]]))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you eval it in the &lt;code&gt;REPL&lt;/code&gt;, then you can verify it and output some information:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;BOURBAKI-USER&amp;gt; (print-theorem !id)
+Theorem id:
+Variables: A
+Distinct variable conditions: 
+Hypotheses: 
+Assertion: [-&amp;gt; A A]
+Proof:
+ax1 [A][-&amp;gt; A A]
+ax2 [A][-&amp;gt; A A][A]
+ax-mp [-&amp;gt; A -&amp;gt; -&amp;gt; A A A][-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
+ax1 [A][A]
+ax-mp [-&amp;gt; A -&amp;gt; A A][-&amp;gt; A A]
+
+BOURBAKI-USER&amp;gt; (show-proof !id)
+Proof for id:
+ax1 =&amp;gt; [-&amp;gt; A -&amp;gt; -&amp;gt; A A A]
+ax2 =&amp;gt; [-&amp;gt; -&amp;gt; A -&amp;gt; -&amp;gt; A A A -&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
+ax-mp =&amp;gt; [-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
+ax1 =&amp;gt; [-&amp;gt; A -&amp;gt; A A]
+ax-mp =&amp;gt; [-&amp;gt; A A]
+
+BOURBAKI-USER&amp;gt; (verify !id)
+Theorem: &amp;quot;ax1&amp;quot;
+Theorem: &amp;quot;ax2&amp;quot;
+Theorem: &amp;quot;ax-mp&amp;quot;
+Theorem: &amp;quot;id&amp;quot;
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Bourbaki has a very good documentation. If you are interested in math libraries and don&apos;t know how to spend this weekend - enjoy it:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&quot;&gt;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Fri, 03 Jul 2020 21:52:13 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-tui</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0118-cl-tui.html</link>
             <description>&lt;p&gt;This system is an experimental user interface library for the console. It uses &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt; under the hood, to call &lt;code&gt;ncurses&lt;/code&gt;. The library is not in Quicklisp yet but is installable from &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt;&lt;/p&gt;
@@ -1471,148 +1535,6 @@ POFTHEDAY&amp;gt; (teddy/plot:plot-timeseries
 &lt;p&gt;&lt;a href=&quot;https://github.com/40ants/teddy&quot;&gt;https://github.com/40ants/teddy&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Sun, 14 Jun 2020 23:31:39 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-store</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0098-cl-store.html</link>
-            <description>&lt;p&gt;I use this library in a few of my projects. It is much like Python&apos;s &lt;a href=&quot;https://docs.python.org/3/library/pickle.html&quot;&gt;pickle module&lt;/a&gt;, but a lot more extensible.&lt;/p&gt;
-&lt;p&gt;CL-Store is able to store and restore back almost any Lisp object. For example, &lt;code&gt;lfarm&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0094-lfarm.html&quot;&gt;reviewed four days ago&lt;/a&gt; uses it to serialize and deserialize parameters when executing remote jobs on the server.&lt;/p&gt;
-&lt;p&gt;To demonstrate how it works, I&apos;ll create a vector of objects. Then we&apos;ll save this vector to the file and restore it back:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
-             ((name :initarg :name
-                    :reader user-name)))
-
-POFTHEDAY&amp;gt; (defmethod print-object ((user user) stream)
-             (print-unreadable-object (user stream :type t)
-               (format stream &amp;quot;~A&amp;quot;
-                       (user-name user))))
-
-POFTHEDAY&amp;gt; (defparameter *users*
-             (make-array 2
-                         :initial-contents
-                         (list (make-instance &amp;#039;user :name &amp;quot;Bob&amp;quot;)
-                               (make-instance &amp;#039;user :name &amp;quot;Alice&amp;quot;))))
-
-POFTHEDAY&amp;gt; *users*
-#(#&amp;lt;USER Bob&amp;gt; #&amp;lt;USER Alice&amp;gt;)
-
-;; Now we are ready to store our data to the file
-POFTHEDAY&amp;gt; (cl-store:store *users* #P&amp;quot;/tmp/users.bin&amp;quot;)
-
-;; and to restore it back:
-POFTHEDAY&amp;gt; (cl-store:restore #P&amp;quot;/tmp/users.bin&amp;quot;)
-#(#&amp;lt;USER Bob&amp;gt; #&amp;lt;USER Alice&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the resulting file. Don&apos;t be deceived by the readable content. This is the binary format and it might contain nonreadable characters:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;[art@poftheday] cat /tmp/users.bin
-CLCL
-#USER#  POFTHEDAY
-#NAMEBobAlice&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;CL-Store can be extended. Originally it also provided a backend to serialize data into the XML. But now this backend is considered as deprecated.&lt;/p&gt;
-&lt;p&gt;Previously I didn&apos;t write backends for CL-Store, but today I found in its docs an example, &lt;a href=&quot;https://common-lisp.net/project/cl-store/docs/cl-store_5.html#SEC19&quot;&gt;how to write a backend&lt;/a&gt;, compatible with  Python&apos;s pickle.&lt;/p&gt;
-&lt;p&gt;Documentation is 13 years old, let&apos;s see if we&apos;ll be able to reproduce it!&lt;/p&gt;
-&lt;p&gt;First, we need to define a new backend:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:defbackend pickle
-             :stream-type &amp;#039;character)
-#&amp;lt;PICKLE {100369EBB3}&amp;gt;
-
-;; This small call expands into this huge amount of code:
-
-(eval-when (:load-toplevel :execute)
-  (eval-when (:compile-toplevel :load-toplevel :execute)
-    (defclass pickle (cl-store:backend) nil
-              (:documentation
-               &amp;quot;Autogenerated cl-store class for backend pickle.&amp;quot;))
-    (defmacro defstore-pickle
-              ((cl-store::var type stream &amp;amp;optional cl-store::qualifier)
-               &amp;amp;body cl-store::body)
-      (cl-store::with-gensyms (cl-store::gbackend)
-        `(defmethod cl-store:internal-store-object ,@(if cl-store::qualifier
-                                                         (list
-                                                          cl-store::qualifier)
-                                                         nil)
-                    ((,cl-store::gbackend ,&amp;#039;pickle) (,cl-store::var ,type)
-                     ,stream)
-           ,(format nil &amp;quot;Definition for storing an object of type ~A with ~
- backend ~A&amp;quot;
-                    type &amp;#039;pickle)
-           (declare (ignorable ,cl-store::gbackend))
-           ,@cl-store::body)))
-    (defmacro defrestore-pickle
-              ((type cl-store::place &amp;amp;optional cl-store::qualifier)
-               &amp;amp;body cl-store::body)
-      (cl-store::with-gensyms (cl-store::gbackend cl-store::gtype)
-        `(defmethod cl-store::internal-restore-object ,@(if cl-store::qualifier
-                                                            (list
-                                                             cl-store::qualifier)
-                                                            nil)
-                    ((,cl-store::gbackend ,&amp;#039;pickle)
-                     (,cl-store::gtype (eql &amp;#039;,type)) (,cl-store::place t))
-           (declare (ignorable ,cl-store::gbackend ,cl-store::gtype))
-           ,@cl-store::body))))
-  (cl-store::register-backend &amp;#039;pickle &amp;#039;pickle nil &amp;#039;character &amp;#039;nil &amp;#039;nil))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can use &lt;code&gt;defstore-pickle&lt;/code&gt; and &lt;code&gt;defrestore-pickle&lt;/code&gt; macroses to define rules for the processing of different data types.&lt;/p&gt;
-&lt;p&gt;Here is where all real work is done:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *pickle-mapping*
-             &amp;#039;((#\S . string))
-             &amp;quot;A mapping from Pickle&amp;#039;s char codes
-              to a Lisp data type&amp;quot;)
-
-POFTHEDAY&amp;gt; (defmethod cl-store:get-next-reader ((backend pickle) (stream stream))
-             &amp;quot;This method is responsible for recognizing what
-              type of object should be read next.&amp;quot;
-             (let ((type-code (read-char stream)))
-               (or (cdr (assoc type-code *pickle-mapping*))
-                   (values nil (format nil &amp;quot;Type ~A&amp;quot; type-code)))))
-
-POFTHEDAY&amp;gt; (defrestore-pickle (noop stream)
-             &amp;quot;We&amp;#039;ll skip unknown objects&amp;quot;)
-
-POFTHEDAY&amp;gt; (defstore-pickle (obj string stream)
-             &amp;quot;Here is how string should be written in Pickle&amp;#039;s format.&amp;quot;
-             (format stream &amp;quot;S&amp;#039;~A&amp;#039;~%p0~%.&amp;quot; obj))
-
-POFTHEDAY&amp;gt; (defrestore-pickle (string stream)
-             &amp;quot;And this is a code to read string back&amp;quot;
-             (let ((val (read-line stream)))
-               (read-line stream) ;; remove the PUSH op
-               (read-line stream) ;; remove the END op
-               (subseq val 1 (1- (length val)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to test our functions. To make this old example work, I had to use old Python2.7, because Python3&apos;s pickle serializes into a little bit different format.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;[art@poftheday] python2.7
-
-&amp;gt;&amp;gt;&amp;gt; with open(&amp;#039;/tmp/word.pickle&amp;#039;, &amp;#039;w&amp;#039;) as f:
-...     pickle.dump(&amp;#039;Hello Lisp World!&amp;#039;, f, protocol=0)
-...
-&amp;gt;&amp;gt;&amp;gt; ^D
-
-[art@poftheday] cat /tmp/word.pickle
-S&amp;#039;Hello Lisp World!&amp;#039;
-p0
-.
-
-# Here is what I&amp;#039;ve got under Python3:
-
-In [9]: with open(&amp;#039;/tmp/word.pickle&amp;#039;, &amp;#039;bw&amp;#039;) as f:
-   ...:     pickle.dump(&amp;#039;Hello Lisp World!&amp;#039;, f, protocol=0)
-   ...:
-
-In [10]: !cat /tmp/word.pickle
-VHello Lisp World!
-p0
-.
-# This cl-store backend does not support V type code.
-# Seems, it stands for a Unicode string.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can read this file from Lisp and write it back:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-store:restore #P&amp;quot;/tmp/word.pickle&amp;quot;
-                             &amp;#039;pickle)
-&amp;quot;Hello Lisp World!&amp;quot;
-
-POFTHEDAY&amp;gt; (cl-store:store &amp;quot;Howdy, Python!&amp;quot;
-                           #P&amp;quot;/tmp/word.pickle&amp;quot;
-                           &amp;#039;pickle)
-&amp;quot;Howdy, Python!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, to ensure our backend works as expected, we&apos;ll read this response in Python2:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;&amp;gt;&amp;gt;&amp;gt; import pickle
-&amp;gt;&amp;gt;&amp;gt; with open(&amp;#039;/tmp/word.pickle&amp;#039;) as f:
-...     pickle.load(f)
-...
-&amp;#039;Howdy, Python!&amp;#039;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. If you need a time-proved serialization library, check out the CL-Store! To extend it, just read the &lt;a href=&quot;https://common-lisp.net/project/cl-store/docs/cl-store.html&quot;&gt;docs&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 13 Jun 2020 23:53:16 +0300</pubDate>
         </item>
     </channel>
 </rss>

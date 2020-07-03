@@ -47,7 +47,7 @@ Here is the code snippet from the example:
 
 #+end_src
 
-If you eval it in the repl, then you can verify it and output some
+If you eval it in the ~REPL~, then you can verify it and output some
 information:
 
 #+begin_src lisp
@@ -82,7 +82,7 @@ T
 
 #+end_src
 
-Bourpaki has a very good documentation. If you are interested in math
-libraries, enjoy it:
+Bourbaki has a very good documentation. If you are interested in math
+libraries and don't know how to spend this weekend - enjoy it:
 
 https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf
