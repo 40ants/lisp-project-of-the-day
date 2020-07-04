@@ -1,0 +1,138 @@
+* make-hash :data_structures:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the most comprehensive library for making hash tables I've
+already seen! And it has wonderful documentation with lots examples!
+
+~make-hash~ allows to create hash tables in multiple ways, from different
+kinds of data structures and even using functions for data
+transformation. For example, you can create a hash by reading rows from
+the database.
+
+I'll show you only a few examples I especially liked.
+
+First one is creation hash from a sequence while counting each
+item. Using this, we can easily count how many times each character is
+used in a text:
+
+#+begin_src lisp
+
+POFTHEDAY> (make-hash:make-hash
+            :init-format :keybag
+            :initial-contents "Alice loves Bob")
+#<HASH-TABLE :TEST EQL :COUNT 11 {1008943083}>
+
+POFTHEDAY> (rutils:print-hash-table *)
+#{
+  #\A 1
+  #\l 2
+  #\i 1
+  #\c 1
+  #\e 2
+  #\  2
+  #\o 2
+  #\v 1
+  #\s 1
+  #\B 1
+  #\b 1
+ }
+
+#+end_src
+
+In the next example, we'll make a smaller hash table from another one
+while selecting data by keys:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((full-data
+                   (make-hash:make-hash
+                    :initial-contents
+                    '(:foo 1
+                      :bar 2
+                      :bazz 3
+                      :blah 4
+                      :minor 5))))
+             (make-hash:make-hash
+              :init-format :keys
+              :init-data full-data
+              :initial-contents '(:bar :minor)))
+#<HASH-TABLE :TEST EQL :COUNT 2 {10060F6123}>
+
+POFTHEDAY> (rutils:print-hash-table *)
+#{
+   :BAR 2
+   :MINOR 5
+ } 
+
+#+end_src
+
+And here is how we can build a hash from a data returned by a function.
+First, we need a function which will returns rows of data:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun make-rows-iterator ()
+             ;; This list will allow us to simulate
+             ;; the data storage:
+             (let ((rows '((bob 42)
+                           (alice 25)
+                           (mike 30)
+                           (julia 27))))
+               (lambda ()
+                 (let ((row (car rows)))
+                   (setf rows
+                         (cdr rows))
+                   (values (first row) ;; This is a key
+                           (second row))))))
+
+POFTHEDAY> (make-hash:make-hash
+            :init-format :function
+            :initial-contents (make-rows-iterator))
+#<HASH-TABLE :TEST EQL :COUNT 4 {10086FF8E3}>
+
+POFTHEDAY> (rutils:print-hash-table *)
+#{
+  BOB 42
+  ALICE 25
+  MIKE 30
+  JULIA 27
+ } 
+
+#+end_src
+
+
+Make-hash also provides a configurable reader macro:
+
+#+begin_src lisp
+
+(install-hash-reader ())  ; default settings and options
+#{:a 1 :b 2 :c 3 :d 4}   
+       
+
+(install-hash-reader '(:init-format :pairs)
+  :use-dispatch t
+  :open-char #\[ :close-char #\])
+#['(:a . 1) '(:b . 2) '(:c . 3) '(:d . 4)] 
+       
+
+(install-hash-reader '(:init-format :lists)
+  :use-dispatch nil
+  :open-char #\{ :close-char #\})
+{'(:a 1) '(:b 2) '(:c 3) '(:d 4)}
+
+#+end_src
+
+You will find more examples and instructions how to define you own
+initialization formats in the library's documentation:
+
+https://github.com/genovese/make-hash
+
+Lets thank the #poftheday challenge for the chance to discover such cool
+Common Lisp library!
