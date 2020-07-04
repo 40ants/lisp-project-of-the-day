@@ -9,7 +9,7 @@
 :END:
 
 This is the most comprehensive library for making hash tables I've
-already seen! And it has wonderful documentation with lots examples!
+already seen! And it has wonderful documentation with lots of examples!
 
 ~make-hash~ allows to create hash tables in multiple ways, from different
 kinds of data structures and even using functions for data
@@ -74,7 +74,8 @@ POFTHEDAY> (rutils:print-hash-table *)
 #+end_src
 
 And here is how we can build a hash from a data returned by a function.
-First, we need a function which will returns rows of data:
+We only need a closure which will return rows of data as values and will
+return nil at the end.
 
 #+begin_src lisp
 
@@ -107,8 +108,7 @@ POFTHEDAY> (rutils:print-hash-table *)
 
 #+end_src
 
-
-Make-hash also provides a configurable reader macro:
+~make-hash~ also provides a configurable reader macro:
 
 #+begin_src lisp
 
@@ -129,10 +129,10 @@ Make-hash also provides a configurable reader macro:
 
 #+end_src
 
-You will find more examples and instructions how to define you own
+You will find more examples and instructions on how to define your own
 initialization formats in the library's documentation:
 
 https://github.com/genovese/make-hash
 
-Lets thank the #poftheday challenge for the chance to discover such cool
+Let's thank the #poftheday challenge for the chance to discover such cool
 Common Lisp library!
