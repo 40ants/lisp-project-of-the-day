@@ -1,0 +1,96 @@
+* cl-skip-list :data_structures:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :|
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+I found this library a few weeks ago. It implements a [[https://en.wikipedia.org/wiki/Skip_list][Skip List]]
+data structure. Which is a lock free and has ~O(log n)~ for lookup, insert
+and delete operations.
+
+I wondered if this library will have a better performance in situation
+when you have to access a dictionary from multiple threads?
+
+Here is a simple benchmark. We ll create a 10 threads and do 10 millions
+lookup of a value in the dictionary filled by 6600 symbols from the
+keywords package.
+
+I'm testing on SBCL 2.0.2 with ~(declaim (optimize (debug 1) (speed 3)))~
+options running on the Macbook with 12 cores.
+
+Let's run this benchmark using a standard Common Lisp hash table and a lock:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((hash (make-hash-table))
+                 (lock (bt:make-lock))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (setf (gethash s hash)
+                     (symbol-name s)))
+             (setf (gethash :foo hash)
+                   "FOO")
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (bt:with-lock-held (lock)
+                                 (setf result
+                                       (gethash :foo hash)))
+                            finally (return result))))
+               ;; We'll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #'worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+2399/100 (23.99)
+
+#+end_src
+
+And now a lock free version using cl-skip-list:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((hash (cl-skip-list:make-skip-list :key-equal #'eql))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (cl-skip-list:skip-list-add hash
+                                           s
+                                           (symbol-name s)))
+             (unless (cl-skip-list:skip-list-lookup hash :foo)
+               (cl-skip-list:skip-list-add hash
+                                           :foo
+                                           "FOO"))
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (setf result
+                                     (cl-skip-list:skip-list-lookup hash :foo))
+                            finally (return result))))
+               ;; We'll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #'worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+45799/1000 (45.799)
+
+#+end_src
+
+As you see, version with a lock is twice faster: 46 seconds agains 24.
+
+Are there any reasons to use a lock free data structure if it does not get you any speed gains?

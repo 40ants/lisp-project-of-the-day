@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-skip-list
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-skip-list</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-skip-list<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>I found this library a few weeks ago. It implements a <a href="https://en.wikipedia.org/wiki/Skip_list">Skip List</a> data structure. Which is a lock free and has <code>O(log n)</code> for lookup, insert and delete operations.</p>
+<p>I wondered if this library will have a better performance in situation when you have to access a dictionary from multiple threads?</p>
+<p>Here is a simple benchmark. We ll create a 10 threads and do 10 millions lookup of a value in the dictionary filled by 6600 symbols from the keywords package.</p>
+<p>I'm testing on SBCL 2.0.2 with <code>(declaim (optimize (debug 1) (speed 3)))</code> options running on the Macbook with 12 cores.</p>
+<p>Let's run this benchmark using a standard Common Lisp hash table and a lock:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((hash (make-hash-table))
+                 (lock (bt:make-lock))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (setf (gethash s hash)
+                     (symbol-name s)))
+             (setf (gethash :foo hash)
+                   &quot;FOO&quot;)
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (bt:with-lock-held (lock)
+                                 (setf result
+                                       (gethash :foo hash)))
+                            finally (return result))))
+               ;; We&#039;ll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #&#039;worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+2399/100 (23.99)</code></pre><p>And now a lock free version using cl-skip-list:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((hash (cl-skip-list:make-skip-list :key-equal #&#039;eql))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (cl-skip-list:skip-list-add hash
+                                           s
+                                           (symbol-name s)))
+             (unless (cl-skip-list:skip-list-lookup hash :foo)
+               (cl-skip-list:skip-list-add hash
+                                           :foo
+                                           &quot;FOO&quot;))
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (setf result
+                                     (cl-skip-list:skip-list-lookup hash :foo))
+                            finally (return result))))
+               ;; We&#039;ll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #&#039;worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+45799/1000 (45.799)</code></pre><p>As you see, version with a lock is twice faster: 46 seconds agains 24.</p>
+<p>Are there any reasons to use a lock free data structure if it does not get you any speed gains?</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
