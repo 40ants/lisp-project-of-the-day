@@ -10,7 +10,7 @@ Twitter account svetlyak40wt]].
 - 02 July - [[content/2020/07/0118-cl-tui.org][cl-tui]] ([[https://twitter.com/svetlyak40wt/status/1278786496556916749][twitter]])
 - 03 July - [[content/2020/07/0119-bourbaki.org][bourbaki]] ([[https://twitter.com/svetlyak40wt/status/1279126124610584578][twitter]])
 - 04 July - [[content/2020/07/0120-make-hash.org][make-hash]] ([[https://twitter.com/svetlyak40wt/status/1279509380732522497][twitter]])
-- 05 July - [[content/2020/07/0121-cl-skip-list.org][cl-skip-list]]
+- 05 July - [[content/2020/07/0121-cl-skip-list.org][cl-skip-list]] ([[https://twitter.com/svetlyak40wt/status/1279834352575287303][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1102,7 +1102,6 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/s-expressionists/Trucler
 - https://github.com/bufferswap/ViralityEngine
 - http://quickdocs.org/cl-mechanize/
-- http://quickdocs.org/cl-skip-list/
 - http://quickdocs.org/cl-hash-util/
 
 * Thanks

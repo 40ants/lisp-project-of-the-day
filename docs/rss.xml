@@ -6,6 +6,73 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-skip-list</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0121-cl-skip-list.html</link>
+            <description>&lt;p&gt;I found this library a few weeks ago. It implements a &lt;a href=&quot;https://en.wikipedia.org/wiki/Skip_list&quot;&gt;Skip List&lt;/a&gt; data structure. Which is a lock-free and has &lt;code&gt;O(log n)&lt;/code&gt; for lookup, insert and delete operations.&lt;/p&gt;
+&lt;p&gt;I wondered if this library will have a better performance in situation when you have to access a dictionary from multiple threads?&lt;/p&gt;
+&lt;p&gt;Here is a simple benchmark. We ll create 10 threads and do 10 millions lookup of a value in the dictionary filled by 6600 symbols from the keywords package.&lt;/p&gt;
+&lt;p&gt;I&apos;m testing on SBCL 2.0.2 with &lt;code&gt;(declaim (optimize (debug 1) (speed 3)))&lt;/code&gt; options running on the Macbook with 12 cores.&lt;/p&gt;
+&lt;p&gt;Let&apos;s run this benchmark using a standard Common Lisp hash table and a lock:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((hash (make-hash-table))
+                 (lock (bt:make-lock))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (setf (gethash s hash)
+                     (symbol-name s)))
+             (setf (gethash :foo hash)
+                   &amp;quot;FOO&amp;quot;)
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (bt:with-lock-held (lock)
+                                 (setf result
+                                       (gethash :foo hash)))
+                            finally (return result))))
+               ;; We&amp;#039;ll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #&amp;#039;worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+2399/100 (23.99)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And now a lock free version using cl-skip-list:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((hash (cl-skip-list:make-skip-list :key-equal #&amp;#039;eql))
+                 (num-operations 10000000)
+                 (num-threads 10))
+             (do-external-symbols (s :keyword)
+               (cl-skip-list:skip-list-add hash
+                                           s
+                                           (symbol-name s)))
+             (unless (cl-skip-list:skip-list-lookup hash :foo)
+               (cl-skip-list:skip-list-add hash
+                                           :foo
+                                           &amp;quot;FOO&amp;quot;))
+             ;; Now it is time to define a worker function
+             (flet ((worker ()
+                      (loop with result = nil
+                            repeat num-operations
+                            do (setf result
+                                     (cl-skip-list:skip-list-lookup hash :foo))
+                            finally (return result))))
+               ;; We&amp;#039;ll create N workers and measure a total time required to finish them all
+               (let* ((started-at (get-internal-real-time))
+                      (workers (loop repeat num-threads
+                                     collect (bt:make-thread #&amp;#039;worker))))
+                 (loop for worker in workers
+                       do (bt:join-thread worker))
+                 ;; Calculate the total time
+                 (/ (- (get-internal-real-time) started-at)
+                    internal-time-units-per-second))))
+45799/1000 (45.799)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, the version with a lock is twice faster: 46 seconds against 24.&lt;/p&gt;
+&lt;p&gt;Are there any reasons to use a lock-free data structure if it does not get you any speed gains?&lt;/p&gt;
+</description>
+            <pubDate>Sun, 05 Jul 2020 12:39:11 +0300</pubDate>
+        </item>
+        <item>
             <title>make-hash</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0120-make-hash.html</link>
             <description>&lt;p&gt;This is the most comprehensive library for making hash tables I&apos;ve already seen! And it has wonderful documentation with lots of examples!&lt;/p&gt;
@@ -1338,163 +1405,6 @@ RECEIVER&amp;gt; (funcall *tracker*
 3072&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, this library will be useful if you&apos;ll decide to implement a protocol which needs to determine if there were errors introduced into the data.&lt;/p&gt;
 </description>
             <pubDate>Tue, 16 Jun 2020 22:28:25 +0300</pubDate>
-        </item>
-        <item>
-            <title>the-cost-of-nothing</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0100-the-cost-of-nothing.html</link>
-            <description>&lt;p&gt;This is a library by Marco Heisig. It is convenient to use when you want to decide which data structure to use or whether some function is too slow.&lt;/p&gt;
-&lt;p&gt;Of cause, you can measure execution time with the &lt;code&gt;time&lt;/code&gt; macro. But in this case, you&apos;ll have to select a number of iteration and to parse &lt;code&gt;time&lt;/code&gt;&apos;s output and do some time manipulation.&lt;/p&gt;
-&lt;p&gt;The-cost-of-nothing does everything for you. It runs given form in chunks, measures an execution time for each chunk, divides and calculates average execution time.&lt;/p&gt;
-&lt;p&gt;Let&apos;s see how long does it take to access an element in the hash-table.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (time
-              (loop repeat 1000000000
-                    do (gethash :foo h))))
-Evaluation took:
-  0.271 seconds of real time
-  0.270554 seconds of total run time (0.270170 user, 0.000384 system)
-  100.00% CPU
-  597,543,804 processor cycles
-  0 bytes consed
-
-;; Now we have to calculate a speed of the
-;; single operation:
-POFTHEDAY&amp;gt; (/ 0.271
-              1000000000)
-2.71e-10&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I had to guess a number of iteration to get meaningful execution time and also did some arithmetics after that.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (the-cost-of-nothing:benchmark
-              (gethash :foo h)))
-1.11d-8
-
-;; You also can receive a human readable value:
-POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (the-cost-of-nothing:bench
-              (gethash :foo h)))
-11.36 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here we see result 11 nanoseconds, however with &lt;code&gt;time&lt;/code&gt; macro we received only 0.271 nanoseconds. Probably this is because the overhead introduced by &lt;code&gt;the-cost-of-nothing&lt;/code&gt;. It tries to subtract overhead time from the result, but seems it does works for very fast operations.&lt;/p&gt;
-&lt;p&gt;In case if you are measuring the cost of very fast operations it is better to make a loop even when using the-cost-of-nothing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (/ (the-cost-of-nothing:benchmark
-                 (loop repeat 1000
-                       do (gethash :foo h)))
-                1000))
-2.59d-10&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;How does &lt;code&gt;benchmark&lt;/code&gt; macro work?&lt;/p&gt;
-&lt;p&gt;It has two parameters: &lt;code&gt;timeout&lt;/code&gt; and &lt;code&gt;min-sample-time&lt;/code&gt;. A tested form gets wrapped into the lambda function and executed in the loop a number of times to measure samples.&lt;/p&gt;
-&lt;p&gt;On each iteration, the form is executed in another loop where the number of iterations is automatically tuned to make this inner loop run no less than &lt;code&gt;min-sample-time&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;After that, an average overall sampled times is calculated and &lt;code&gt;overhead&lt;/code&gt; time is subtracted. Overhead time is precalculated as the cost of nil form execution.&lt;/p&gt;
-&lt;p&gt;On my system, overhead value is 2.7e-9.&lt;/p&gt;
-&lt;p&gt;I tried to rewrite the function which measures a sample&apos;s time to make the calculation fairer, but without significant result.&lt;/p&gt;
-&lt;p&gt;Here is what I&apos;ve got:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun sample-execution-time-of-thunk (thunk min-sample-time)
-  &amp;quot;Measure the execution time of invoking THUNK more and more often, until
-the execution time exceeds MIN-SAMPLE-TIME.&amp;quot;
-  (declare (optimize (speed 3) (debug 1)))
-  
-  (loop with started-at of-type integer = (get-internal-run-time)
-        with run-until of-type integer = (+ started-at
-                                             (round (* min-sample-time
-                                                       internal-time-units-per-second)))
-        for iterations of-type integer = 1 then (* iterations 2)
-        summing iterations into total-iterations
-        do (loop repeat iterations
-                 do (funcall thunk))
-        when (&amp;gt;= (get-internal-run-time)
-                 run-until)
-          do (return (/ (- (get-internal-run-time)
-                            started-at)
-                        internal-time-units-per-second
-                        total-iterations))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I removed a call to an additional function and to &lt;code&gt;local-time:timestamp-difference&lt;/code&gt;, but result is not much better - only 10.71 nanoseconds.&lt;/p&gt;
-&lt;p&gt;Am I missing something? Maybe compiler does some optimizations, when it sees a gethash call in a loop which does not change the dict?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (the-cost-of-nothing:bench
-              (gethash :foo h)))
-10.71 nanoseconds&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting thing about &lt;code&gt;the-cost-of-nothing&lt;/code&gt; is that it includes a benchmark which measures some the cost of some common operations.&lt;/p&gt;
-&lt;p&gt;Even if they are not precise, it is interesting to compare their relative values. Here are numbers received on my Macbook Pro.&lt;/p&gt;
-&lt;p&gt;Pay attention to how does cost grow for calling the function with multiple keyword arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (asdf:test-system :the-cost-of-nothing)
-
-= The Cost Of Nothing =
-Implementation: SBCL 2.0.2
-Machine: X86-64 Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
-Hostname: art-2osx
-
-== Memory Management ==
-Cost of allocating a cons cell: 6.76 nanoseconds
-Cost of garbage collection: 10.68 milliseconds
-Cost of full garbage collection: 107.05 milliseconds
-
-== Functions ==
-FUNCALL with zero mandatory arguments: 2.71 nanoseconds
-FUNCALL with one mandatory argument: 2.68 nanoseconds
-FUNCALL with two mandatory arguments: 2.52 nanoseconds
-FUNCALL with three mandatory arguments: 2.43 nanoseconds
-FUNCALL with four mandatory arguments: 2.74 nanoseconds
-FUNCALL with five mandatory arguments: 2.62 nanoseconds
-FUNCALL with six mandatory arguments: 2.78 nanoseconds
-FUNCALL with zero optional arguments: 2.71 nanoseconds
-FUNCALL with one optional argument: 3.24 nanoseconds
-FUNCALL with two optional arguments: 3.00 nanoseconds
-FUNCALL with three optional arguments: 3.23 nanoseconds
-FUNCALL with four optional arguments: 3.09 nanoseconds
-FUNCALL with five optional arguments: 3.42 nanoseconds
-FUNCALL with six optional arguments: 3.38 nanoseconds
-FUNCALL with zero keyword arguments: 2.71 nanoseconds
-FUNCALL with one keyword argument: 5.35 nanoseconds
-FUNCALL with two keyword arguments: 5.76 nanoseconds
-FUNCALL with three keyword arguments: 8.34 nanoseconds
-FUNCALL with four keyword arguments: 12.45 nanoseconds
-FUNCALL with five keyword arguments: 14.88 nanoseconds
-FUNCALL with six keyword arguments: 17.58 nanoseconds
-FUNCALL with zero rest arguments: 2.71 nanoseconds
-FUNCALL with one rest argument: 2.65 nanoseconds
-FUNCALL with two rest arguments: 2.53 nanoseconds
-FUNCALL with three rest arguments: 2.48 nanoseconds
-FUNCALL with four rest arguments: 2.79 nanoseconds
-FUNCALL with five rest arguments: 2.91 nanoseconds
-FUNCALL with six rest arguments: 2.66 nanoseconds
-
-== Numerics ==
-Flops (single-float): 4.25 gigaflops
-Flops (double-float): 2.71 gigaflops&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I think it would be great to make this library to output some statistics about collected samples - a number of samples, standard deviation, like IPython does:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
-Type &amp;#039;copyright&amp;#039;, &amp;#039;credits&amp;#039; or &amp;#039;license&amp;#039; for more information
-IPython 7.14.0 -- An enhanced Interactive Python. Type &amp;#039;?&amp;#039; for help.
-
-In [1]: d = {&amp;#039;what&amp;#039;: 42}
-
-In [2]: %timeit d[&amp;#039;what&amp;#039;]
-35.7 ns &amp;#xB1; 0.405 ns per loop (mean &amp;#xB1; std. dev. of 7 runs, 10000000 loops each)
-
-In [3]:&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As @guicho271828 &lt;a href=&quot;https://twitter.com/guicho271828/status/1272616501187678209&quot;&gt;noted&lt;/a&gt;, SBCL is able to figure out that gethash&apos;s results aren&apos;t used in the loop and optimizes it away.&lt;/p&gt;
-&lt;p&gt;I&apos;ve checked this hypothesis, and with &lt;code&gt;gethash&lt;/code&gt; wrapped with a function results of &quot;time&quot; macro and &quot;benchmark&quot; macro are the same:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun get-value (h)
-             (gethash :foo h))
-
-POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (time
-              (loop repeat 1000000000
-                    do (get-value h))))
-Evaluation took:
-  12.968 seconds of real time
-  12.966402 seconds of total run time (12.958497 user, 0.007905 system)
-  99.98% CPU
-  28,634,122,802 processor cycles
-  0 bytes consed
-  
-POFTHEDAY&amp;gt; (/ 12.968
-              1000000000)
-1.2968e-8
-
-POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (the-cost-of-nothing:benchmark
-              (get-value h)))
-1.1339696e-8
-
-POFTHEDAY&amp;gt; (let ((h (make-hash-table)))
-             (the-cost-of-nothing:benchmark
-              (gethash :foo h)))
-1.0396756e-8&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Mon, 15 Jun 2020 22:19:19 +0300</pubDate>
         </item>
     </channel>
 </rss>

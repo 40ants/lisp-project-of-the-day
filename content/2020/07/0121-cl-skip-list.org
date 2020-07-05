@@ -9,13 +9,13 @@
 :END:
 
 I found this library a few weeks ago. It implements a [[https://en.wikipedia.org/wiki/Skip_list][Skip List]]
-data structure. Which is a lock free and has ~O(log n)~ for lookup, insert
+data structure. Which is a lock-free and has ~O(log n)~ for lookup, insert
 and delete operations.
 
 I wondered if this library will have a better performance in situation
 when you have to access a dictionary from multiple threads?
 
-Here is a simple benchmark. We ll create a 10 threads and do 10 millions
+Here is a simple benchmark. We ll create 10 threads and do 10 millions
 lookup of a value in the dictionary filled by 6600 symbols from the
 keywords package.
 
@@ -91,6 +91,6 @@ POFTHEDAY> (let ((hash (cl-skip-list:make-skip-list :key-equal #'eql))
 
 #+end_src
 
-As you see, version with a lock is twice faster: 46 seconds agains 24.
+As you see, the version with a lock is twice faster: 46 seconds against 24.
 
-Are there any reasons to use a lock free data structure if it does not get you any speed gains?
+Are there any reasons to use a lock-free data structure if it does not get you any speed gains?
