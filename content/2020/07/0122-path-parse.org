@@ -1,0 +1,33 @@
+* path-parse :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :)
+:END:
+
+This is a small utility library by Fernando Borretti. The only function
+it has is ~PATH~ variable parsing. But it does it really well.
+
+~Path-parse~ works on Windows and Unix (OSX):
+
+#+begin_src lisp
+
+POFTHEDAY> (path-parse:path)
+
+(#P"/Users/art/.roswell/bin/"
+ #P"/Users/art/.bin/"
+ #P"/Users/art/.dotfiles/bin/"
+ #P"/usr/local/bin/"
+ #P"/usr/bin/"
+ #P"/bin/"
+ #P"/usr/sbin/"
+ #P"/sbin/")
+
+#+end_src
+
+That is it for today. Tomorrow I'll try to find something more
+interesting!
+
