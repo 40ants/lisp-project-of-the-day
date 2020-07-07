@@ -1,0 +1,65 @@
+* cl-coveralls :testing:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+I hope, you are writing unit tests for your program. And if you do, then
+it is really helpful to know which code is covered by tests and which
+does not.
+
+Did you know that some CL implementation have tools for measuring code
+coverage?
+
+For example, SBCL has a package [[http://www.sbcl.org/manual/#sb_002dcover][sb-cover]]. To create a coverage report
+you need to turn instrumentation on, recompile the program, run tests
+and generate the report.
+
+This is the code from SBCL's manual:
+
+#+begin_src lisp
+
+(declaim (optimize sb-cover:store-coverage-data))
+
+;;; Load some code, ensuring that it's recompiled
+;;; with correct optimization policy.
+(asdf:oos 'asdf:load-op :cl-ppcre-test :force t)
+
+;;; Run the test suite.
+(cl-ppcre-test:test)
+
+;;; Produce a coverage report
+(sb-cover:report "/tmp/report/")
+
+;;; Turn off instrumentation
+(declaim (optimize (sb-cover:store-coverage-data 0)))
+
+#+end_src
+
+Here are few screenshots of HTML pages I've got running ~sb-cover~ agains
+Ultralisp's code:
+
+[[../../media/0123/file-list.png]]
+
+[[../../media/0123/covered-code.png]]
+
+But today we are talking about cl-coveralls. It helps to build coverage
+measuring into your CI pipeline. I decided that it is great moment to
+add make it check Ultralisp's code.
+
+What do you need to collect coverage data of Common Lisp project? Well,
+you need:
+
+- to set up a CI pipeline on Travis or CircleCI.
+- register at https://coveralls.io/ and enable it for you GitHub
+  repository.
+- set two environment variables in the CI's config.
+- wrap code with a call to coveralls:with-coveralls [[https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f#diff-1d37e48f9ceff6d8030570cd36286a61R42][like that]].
+
+Here is [[https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f][the diff, required to enable code coverage]] measurement for
+Ultralisp's tests. And now Coveralls will track if code coverage was
+improved with each pull-request.
