@@ -6,6 +6,36 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-coveralls</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0123-cl-coveralls.html</link>
+            <description>&lt;p&gt;I hope, you are writing unit tests for your program. And if you do, then it is really helpful to know which code is covered by tests and which does not.&lt;/p&gt;
+&lt;p&gt;Did you know that some CL implementation has tools for measuring code coverage?&lt;/p&gt;
+&lt;p&gt;For example, SBCL has a package &lt;a href=&quot;http://www.sbcl.org/manual/#sb_002dcover&quot;&gt;sb-cover&lt;/a&gt;. To create a coverage report you need to turn instrumentation on, recompile the program, run tests and generate the report.&lt;/p&gt;
+&lt;p&gt;This is the code from SBCL&apos;s manual:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(declaim (optimize sb-cover:store-coverage-data))
+
+;;; Load some code, ensuring that it&amp;#039;s recompiled
+;;; with correct optimization policy.
+(asdf:oos &amp;#039;asdf:load-op :cl-ppcre-test :force t)
+
+;;; Run the test suite.
+(cl-ppcre-test:test)
+
+;;; Produce a coverage report
+(sb-cover:report &amp;quot;/tmp/report/&amp;quot;)
+
+;;; Turn off instrumentation
+(declaim (optimize (sb-cover:store-coverage-data 0)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here are few screenshots of HTML pages I&apos;ve got running &lt;code&gt;sb-cover&lt;/code&gt; against Ultralisp&apos;s code:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0123/file-list.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0123/covered-code.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;But today we are talking about cl-coveralls. It helps to build coverage measuring into your CI pipeline. I decided that it is a great moment to add make it check Ultralisp&apos;s code.&lt;/p&gt;
+&lt;p&gt;What do you need to collect coverage data of Common Lisp project? Well, you need:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;to set up a CI pipeline on Travis or CircleCI.&lt;/li&gt;&lt;li&gt;register at &lt;a href=&quot;https://coveralls.io/&quot;&gt;https://coveralls.io/&lt;/a&gt; and enable it for your GitHub   repository.&lt;/li&gt;&lt;li&gt;set two environment variables in the CI&apos;s config.&lt;/li&gt;&lt;li&gt;wrap code with a call to coveralls:with-coveralls &lt;a href=&quot;https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f#diff-1d37e48f9ceff6d8030570cd36286a61R42&quot;&gt;like that&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Here is &lt;a href=&quot;https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f&quot;&gt;the diff, required to enable code coverage&lt;/a&gt; measurement for Ultralisp&apos;s tests. And now Coveralls will track if code coverage was improved with each pull-request.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 07 Jul 2020 22:29:09 +0300</pubDate>
+        </item>
+        <item>
             <title>path-parse</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0122-path-parse.html</link>
             <description>&lt;p&gt;This is a small utility library by Fernando Borretti. The only function it has is &lt;code&gt;PATH&lt;/code&gt; variable parsing. But it does it really well.&lt;/p&gt;
@@ -1202,148 +1232,6 @@ POFTHEDAY&amp;gt; (tco:with-tail-call-optimization ()
 &lt;p&gt;Maybe &lt;a href=&quot;https://0branch.com/notes/tco-cl.html&quot;&gt;this article&lt;/a&gt; by Marc Simpson will be interesting for you. It investigates which Common Lisp implementations have a proper TCO implementation.&lt;/p&gt;
 </description>
             <pubDate>Fri, 19 Jun 2020 00:35:23 +0300</pubDate>
-        </item>
-        <item>
-            <title>lass-flexbox</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0102-lass-flexbox.html</link>
-            <description>&lt;p&gt;This is an addon to the &lt;code&gt;lass&lt;/code&gt; library, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;#0021 post&lt;/a&gt;. &lt;code&gt;Lass-flexbox&lt;/code&gt; adds to &lt;code&gt;lass&lt;/code&gt; an ability to expand Flexbox CSS properties into browser-specific vendor prefixes:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lass:compile-and-write
-            &amp;#039;(.container :flexbox
-              (.item :align-self &amp;quot;center&amp;quot;)))
-&amp;quot;.container{
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.container .item{
-    -webkit-align-self: center;
-    -moz-align-self: center;
-    -ms-flex-item-align: center;
-    align-self: center;
-}&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I found a great &lt;a href=&quot;https://css-tricks.com/snippets/css/a-guide-to-flexbox/&quot;&gt;illustrated article&lt;/a&gt; on how does Flexbox works and now we&apos;ll try to reproduce some layout from this article:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (format t &amp;quot;&amp;lt;style&amp;gt;~A&amp;lt;/style&amp;gt;
-                      &amp;lt;div class=\&amp;quot;example\&amp;quot;&amp;gt;
-                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;One&amp;lt;/div&amp;gt;
-                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;Two&amp;lt;/div&amp;gt;
-                        &amp;lt;div class=\&amp;quot;item\&amp;quot;&amp;gt;Three&amp;lt;/div&amp;gt;
-                      &amp;lt;/div&amp;gt;
-                     &amp;quot;
-                   (lass:compile-and-write
-                    &amp;#039;(.example
-                      :flexbox
-                      :align-items &amp;quot;flex-end&amp;quot;
-                      :justify-content &amp;quot;space-around&amp;quot;
-                      :border 1px solid gray
-                      (.item :margin 0.5rem
-                             :padding 0.5rem)
-                      ((:and .item (:nth-child 1))
-                       :background lime
-                       :flex 1
-                       :height 30px)
-                      ((:and .item (:nth-child 2))
-                       :background orange
-                       :flex 2
-                       :height 70px)
-                      ((:and .item (:nth-child 3))
-                       :background purple
-                       :flex 3
-                       :height 50px))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This lisp code will generate us these CSS and HTML:&lt;/p&gt;
-&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;style&amp;gt;.example{
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: end;
-    -ms-flex-align: end;
-    -webkit-align-items: flex-end;
-    -moz-align-items: flex-end;
-    align-items: flex-end;
-    -ms-flex-pack: distribute;
-    -webkit-justify-content: space-around;
-    -moz-justify-content: space-around;
-    justify-content: space-around;
-    border: 1px solid gray;
-}
-
-.example .item{
-    margin: 0.5rem;
-    padding: 0.5rem;
-}
-
-.example .item:nth-child(1){
-    background: lime;
-    flex: 1;
-    height: 30px;
-}
-
-.example .item:nth-child(2){
-    background: orange;
-    flex: 2;
-    height: 70px;
-}
-
-.example .item:nth-child(3){
-    background: purple;
-    flex: 3;
-    height: 50px;
-}&amp;lt;/style&amp;gt;
-
-&amp;lt;div class=&amp;quot;example&amp;quot;&amp;gt;
-  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;One&amp;lt;/div&amp;gt;
-  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;Two&amp;lt;/div&amp;gt;
-  &amp;lt;div class=&amp;quot;item&amp;quot;&amp;gt;Three&amp;lt;/div&amp;gt;
-&amp;lt;/div&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;style&gt;.example{
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: end;
-    -ms-flex-align: end;
-    -webkit-align-items: flex-end;
-    -moz-align-items: flex-end;
-    align-items: flex-end;
-    -ms-flex-pack: distribute;
-    -webkit-justify-content: space-around;
-    -moz-justify-content: space-around;
-    justify-content: space-around;
-    border: 1px solid gray;
-}
-
-.example .item{
-    margin: 0.5rem;
-    padding: 0.5rem;
-}
-
-.example .item:nth-child(1){
-    background: lime;
-    flex: 1;
-    height: 30px;
-}
-
-.example .item:nth-child(2){
-    background: orange;
-    flex: 2;
-    height: 70px;
-}
-
-.example .item:nth-child(3){
-    background: purple;
-    flex: 3;
-    height: 50px;
-}&lt;/style&gt;
-
-&lt;div class=&quot;example&quot;&gt;
-  &lt;div class=&quot;item&quot;&gt;One&lt;/div&gt;
-  &lt;div class=&quot;item&quot;&gt;Two&lt;/div&gt;
-  &lt;div class=&quot;item&quot;&gt;Three&lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;Exciting, isn&apos;t it!?&lt;/p&gt;
-</description>
-            <pubDate>Wed, 17 Jun 2020 20:25:01 +0300</pubDate>
         </item>
     </channel>
 </rss>

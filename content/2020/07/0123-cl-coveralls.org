@@ -12,7 +12,7 @@ I hope, you are writing unit tests for your program. And if you do, then
 it is really helpful to know which code is covered by tests and which
 does not.
 
-Did you know that some CL implementation have tools for measuring code
+Did you know that some CL implementation has tools for measuring code
 coverage?
 
 For example, SBCL has a package [[http://www.sbcl.org/manual/#sb_002dcover][sb-cover]]. To create a coverage report
@@ -40,7 +40,7 @@ This is the code from SBCL's manual:
 
 #+end_src
 
-Here are few screenshots of HTML pages I've got running ~sb-cover~ agains
+Here are few screenshots of HTML pages I've got running ~sb-cover~ against
 Ultralisp's code:
 
 [[../../media/0123/file-list.png]]
@@ -48,14 +48,14 @@ Ultralisp's code:
 [[../../media/0123/covered-code.png]]
 
 But today we are talking about cl-coveralls. It helps to build coverage
-measuring into your CI pipeline. I decided that it is great moment to
+measuring into your CI pipeline. I decided that it is a great moment to
 add make it check Ultralisp's code.
 
 What do you need to collect coverage data of Common Lisp project? Well,
 you need:
 
 - to set up a CI pipeline on Travis or CircleCI.
-- register at https://coveralls.io/ and enable it for you GitHub
+- register at https://coveralls.io/ and enable it for your GitHub
   repository.
 - set two environment variables in the CI's config.
 - wrap code with a call to coveralls:with-coveralls [[https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f#diff-1d37e48f9ceff6d8030570cd36286a61R42][like that]].
