@@ -6,6 +6,66 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-spark</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html</link>
+            <description>&lt;p&gt;This small utility has nothing common with &lt;a href=&quot;https://spark.apache.org/&quot;&gt;Apache Spark&lt;/a&gt; and big data processing. However, it relates to data plotting.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Cl-spark&lt;/code&gt; allows you to visualize data in the console like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(1 0 1 0))
+&amp;quot;&amp;#x2588;&amp;#x2581;&amp;#x2588;&amp;#x2581;&amp;quot;
+
+POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(1 1 2 3 5 8))
+&amp;quot;&amp;#x2581;&amp;#x2581;&amp;#x2582;&amp;#x2583;&amp;#x2585;&amp;#x2588;&amp;quot;
+
+
+POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150))
+&amp;quot;&amp;#x2581;&amp;#x2582;&amp;#x2583;&amp;#x2584;&amp;#x2582;&amp;#x2588;&amp;quot;
+
+POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
+                           :min -100)
+&amp;quot;&amp;#x2583;&amp;#x2584;&amp;#x2585;&amp;#x2586;&amp;#x2584;&amp;#x2588;&amp;quot;
+POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
+                           :max 50)
+&amp;quot;&amp;#x2581;&amp;#x2585;&amp;#x2588;&amp;#x2588;&amp;#x2585;&amp;#x2588;&amp;quot;
+POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
+                           :min 30
+                           :max 80)
+&amp;quot;&amp;#x2581;&amp;#x2581;&amp;#x2584;&amp;#x2588;&amp;#x2581;&amp;#x2588;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-spark:spark
+            &amp;#039;(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+            :key (lambda (x)
+                   (sin (* x pi 1/4))))
+&amp;quot;&amp;#x2584;&amp;#x2586;&amp;#x2588;&amp;#x2586;&amp;#x2584;&amp;#x2582;&amp;#x2581;&amp;#x2582;&amp;#x2584;&amp;#x2586;&amp;#x2588;&amp;#x2586;&amp;#x2584;&amp;#x2582;&amp;#x2581;&amp;quot;
+
+
+POFTHEDAY&amp;gt; (cl-spark:vspark
+            &amp;#039;(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+            :key (lambda (x)
+                   (sin (* x pi 1/4)))
+            :size 20)
+&amp;quot;
+-1.0     0.0     1.0
+&amp;#x2EB;--------+---------&amp;#x2E7;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2589;
+&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2589;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2589;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
+&amp;#x2588;&amp;#x2588;&amp;#x2589;
+&amp;#x258F;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It&apos;s repository has a lot more examples. Check it out:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/tkych/cl-spark&quot;&gt;https://github.com/tkych/cl-spark&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Wed, 08 Jul 2020 20:57:12 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-coveralls</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0123-cl-coveralls.html</link>
             <description>&lt;p&gt;I hope, you are writing unit tests for your program. And if you do, then it is really helpful to know which code is covered by tests and which does not.&lt;/p&gt;
@@ -1189,49 +1249,6 @@ POFTHEDAY&amp;gt; (rutils:print-hash-table
 &lt;p&gt;If you are interested in trying &lt;code&gt;PCall&lt;/code&gt;, read it&apos;s &lt;a href=&quot;http://marijn.haverbeke.nl/pcall/&quot;&gt;docs here&lt;/a&gt; because it is not hosted on the GitHub and Quickdocs.org does not show it&apos;s docs either.&lt;/p&gt;
 </description>
             <pubDate>Fri, 19 Jun 2020 23:16:06 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-tco</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0103-trivial-tco.html</link>
-            <description>&lt;p&gt;This library could be considered as a &lt;a href=&quot;http://portability.cl/&quot;&gt;portability layer&lt;/a&gt; for tail call optimization.&lt;/p&gt;
-&lt;p&gt;When I first found it, I decided it implements a TCO for implementations which do not support it by doing a trampolining trick &lt;a href=&quot;https://macropy3.readthedocs.io/en/latest/tco.html#trampolining&quot;&gt;like this&lt;/a&gt;. But I was wrong.&lt;/p&gt;
-&lt;p&gt;It does ensure the proper declaration is used on implementations which support a proper TCO and signals warning or error on others.&lt;/p&gt;
-&lt;p&gt;Here is an example on SBCL, which supports TCO only if &lt;code&gt;speed&lt;/code&gt; declared to be greater or equal to &lt;code&gt;debug&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 3) (speed 1))
-
-POFTHEDAY&amp;gt; (labels ((sum-aux (acc x)
-                        (if (zerop x)
-                            acc
-                            (sum-aux (+ acc x) (- x 1))))
-                      (sum (n)
-                        (sum-aux 0 n)))
-               (sum 1000000))
-Control stack guard page temporarily disabled: proceed with caution
-; Debugger entered on #&amp;lt;SB-KERNEL::CONTROL-STACK-EXHAUSTED {1004F12E73}&amp;gt;
-[1] POFTHEDAY&amp;gt; 
-; Evaluation aborted on #&amp;lt;SB-KERNEL::CONTROL-STACK-EXHAUSTED {1004F12E73}&amp;gt;
-
-POFTHEDAY&amp;gt; (tco:with-tail-call-optimization ()
-             (labels ((sum-aux (acc x)
-                        (if (zerop x)
-                            acc
-                            (sum-aux (+ acc x) (- x 1))))
-                      (sum (n)
-                        (sum-aux 0 n)))
-               (sum 1000000)))
-500000500000 (39 bits, #x746A5A2920)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This macro gets expanded into:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(let ()
-  (declare (optimize (speed 3)))
-  (labels ((sum-aux (acc x)
-             (if (zerop x)
-                 acc
-                 (sum-aux (+ acc x) (- x 1))))
-           (sum (n)
-             (sum-aux 0 n)))
-    (sum 1000000)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. Use this library, if you want to employ a tail call and want to ensure they a properly optimized by your Lisp implementation.&lt;/p&gt;
-&lt;p&gt;Maybe &lt;a href=&quot;https://0branch.com/notes/tco-cl.html&quot;&gt;this article&lt;/a&gt; by Marc Simpson will be interesting for you. It investigates which Common Lisp implementations have a proper TCO implementation.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 19 Jun 2020 00:35:23 +0300</pubDate>
         </item>
     </channel>
 </rss>
