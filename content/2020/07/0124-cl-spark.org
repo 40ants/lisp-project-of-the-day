@@ -1,0 +1,82 @@
+* cl-spark :text:console:ui:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This small utility has nothing common with
+[[https://spark.apache.org/][Apache Spark]] and big data processing. However, it relates to data
+plotting.
+
+~Cl-spark~ allows you to visualize data in the console like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-spark:spark '(1 0 1 0))
+"█▁█▁"
+
+POFTHEDAY> (cl-spark:spark '(1 1 2 3 5 8))
+"▁▁▂▃▅█"
+
+
+POFTHEDAY> (cl-spark:spark '(0 30 55 80 33 150))
+"▁▂▃▄▂█"
+
+POFTHEDAY> (cl-spark:spark '(0 30 55 80 33 150)
+                           :min -100)
+"▃▄▅▆▄█"
+POFTHEDAY> (cl-spark:spark '(0 30 55 80 33 150)
+                           :max 50)
+"▁▅██▅█"
+POFTHEDAY> (cl-spark:spark '(0 30 55 80 33 150)
+                           :min 30
+                           :max 80)
+"▁▁▄█▁█"
+
+#+end_src
+
+Or like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-spark:spark
+            '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+            :key (lambda (x)
+                   (sin (* x pi 1/4))))
+"▄▆█▆▄▂▁▂▄▆█▆▄▂▁"
+
+
+POFTHEDAY> (cl-spark:vspark
+            '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+            :key (lambda (x)
+                   (sin (* x pi 1/4)))
+            :size 20)
+"
+-1.0     0.0     1.0
+˫--------+---------˧
+██████████▏
+█████████████████▏
+████████████████████
+█████████████████▏
+██████████▏
+██▉
+▏
+██▉
+█████████▉
+█████████████████▏
+████████████████████
+█████████████████▏
+██████████▏
+██▉
+▏
+"
+
+#+end_src
+
+It's repository has a lot more examples. Check it out:
+
+https://github.com/tkych/cl-spark
