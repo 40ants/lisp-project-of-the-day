@@ -6,6 +6,48 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lisp-critic</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0125-lisp-critic.html</link>
+            <description>&lt;p&gt;A few weeks ago, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html&quot;&gt;I&apos;ve reviewed&lt;/a&gt; the &lt;code&gt;sblint&lt;/code&gt; - a tool to check code quality in terms of warnings from the SBCL compiler. &lt;code&gt;Lisp-critic&lt;/code&gt; is another kind of beast. It checks the code quality in terms of common patterns and idioms.&lt;/p&gt;
+&lt;p&gt;For example, it outputs warning when there is only one subform inside the &lt;code&gt;progn&lt;/code&gt; or if you are setting global variables in the function definition:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lisp-critic:critique
+            (progn
+              (format t &amp;quot;Hello World!&amp;quot;)))
+----------------------------------
+Why do you think you need a PROGN?
+----------------------------------
+
+POFTHEDAY&amp;gt; (lisp-critic:critique
+            (defun start-server ()
+              (setf *server*
+                    (listen-on :port 8080))
+              (values)))
+----------------------------------------------------
+GLOBALS!! Don&amp;#039;t use global variables, i.e., *SERVER*
+----------------------------------------------------&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Lisp-critic&lt;/code&gt; operates on patterns. There are &lt;a href=&quot;https://github.com/g000001/lisp-critic/blob/master/lisp-rules.lisp&quot;&gt;109 built-in patterns&lt;/a&gt; and you can define more:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (length (lisp-critic:get-pattern-names))
+109
+
+POFTHEDAY&amp;gt; (rutils:take 10
+             (lisp-critic:get-pattern-names))
+(LISP-CRITIC::?-FOR-PREDICATE
+ LISP-CRITIC::ADD-ZERO
+ LISP-CRITIC::APPEND-LIST-LIST
+ LISP-CRITIC::APPEND-LIST-LOOP
+ LISP-CRITIC::APPEND-LIST-RECURSION
+ LISP-CRITIC::APPEND-LIST2-LIST
+ LISP-CRITIC::APPLY-FOR-FUNCALL
+ LISP-CRITIC::CAR-CDR
+ LISP-CRITIC::CONCATENATE-LIST
+ LISP-CRITIC::COND-&amp;gt;OR)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can use &lt;code&gt;lisp-critic:critique-file&lt;/code&gt; to analyze all top-level forms in a file.&lt;/p&gt;
+&lt;p&gt;It would be nice to:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;add a command-line tool (like sblint) to check all files in the   project;&lt;/li&gt;&lt;li&gt;to add the ability to ignore some checks for some forms. Probably &lt;code&gt;declaim&lt;/code&gt;   could be used for this purpose?&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Probably adding an integration with SLIME or SLY would also be a good idea.&lt;/p&gt;
+&lt;p&gt;This way you&apos;ll be able to hit some shortcuts to receive recommendations from Lisp Critic, or it could happen when you are evaluating a top-level form.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 09 Jul 2020 23:29:31 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-spark</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html</link>
             <description>&lt;p&gt;This small utility has nothing common with &lt;a href=&quot;https://spark.apache.org/&quot;&gt;Apache Spark&lt;/a&gt; and big data processing. However, it relates to data plotting.&lt;/p&gt;
@@ -1205,50 +1247,6 @@ POFTHEDAY&amp;gt; (rutils:print-hash-table
  }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review a Clack middleware and see how to apply to the app.&lt;/p&gt;
 </description>
             <pubDate>Sat, 20 Jun 2020 21:12:07 +0300</pubDate>
-        </item>
-        <item>
-            <title>pcall</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0104-pcall.html</link>
-            <description>&lt;p&gt;This library contains a few primitives for parallel code execution. It is like a baby lparallel.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;PCall&lt;/code&gt; provides a thread pool, few macro to execute and wait parallel task and a thread-safe Queue.&lt;/p&gt;
-&lt;p&gt;Here is a simple demo which runs two tasks in parallel and then executes a body. A digit on each line is a number of seconds elapsed since the form was evaluated:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((started-at (get-universal-time)))
-             (flet ((info (message &amp;amp;rest args)
-                      (let ((seconds-since-start
-                              (- (get-universal-time)
-                                  started-at)))
-                        (format t &amp;quot;~A: ~A~%&amp;quot;
-                                seconds-since-start
-                                (apply #&amp;#039;format nil message
-                                       args)))))
-               (pcall:plet ((foo (progn (info &amp;quot;Creating Foo&amp;quot;)
-                                        (sleep 5)
-                                        (info &amp;quot;Foo was created&amp;quot;)
-                                        :foo-result))
-                            (bar (progn (info &amp;quot;Creating Bar&amp;quot;)
-                                        (sleep 3)
-                                        (info &amp;quot;Bar was created&amp;quot;)
-                                    :bar-result)))
-                 (info &amp;quot;Plet&amp;#039;s body is executed immediately.&amp;quot;)
-                 (info &amp;quot;And it will wait for the result when you access the value.&amp;quot;)
-                 (info &amp;quot;Here is the Bar&amp;#039;s value: ~S&amp;quot;
-                       bar)
-                 (info &amp;quot;Task foo still executing in the background.&amp;quot;)
-                 (info &amp;quot;Here is the Foo&amp;#039;s value: ~S&amp;quot;
-                       foo))))
-0: Plet&amp;#039;s body is executed immediately.
-0: And it will wait for the result when you access the value.
-0: Creating Bar
-0: Creating Foo
-3: Bar was created
-3: Here is the Bar&amp;#039;s value: :BAR-RESULT
-3: Task foo still executing in the background.
-5: Foo was created
-5: Here is the Foo&amp;#039;s value: :FOO-RESULT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few more interesting functions allowing to execute and wait for tasks. And a thread-safe queue can be loaded using the standalone system &lt;code&gt;pcall-queue&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;PCall&lt;/code&gt; can be useful when you don&apos;t need such a sophisticated tool as lparallel and just want to use thread pool or queue.&lt;/p&gt;
-&lt;p&gt;If you are interested in trying &lt;code&gt;PCall&lt;/code&gt;, read it&apos;s &lt;a href=&quot;http://marijn.haverbeke.nl/pcall/&quot;&gt;docs here&lt;/a&gt; because it is not hosted on the GitHub and Quickdocs.org does not show it&apos;s docs either.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 19 Jun 2020 23:16:06 +0300</pubDate>
         </item>
     </channel>
 </rss>

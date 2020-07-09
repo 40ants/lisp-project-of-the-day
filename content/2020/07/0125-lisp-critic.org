@@ -10,10 +10,10 @@
 
 A few weeks ago, [[https://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html][I've reviewed]] the ~sblint~ - a tool to check code quality
 in terms of warnings from the SBCL compiler. ~Lisp-critic~ is another kind
-of the beast. It check the code quality in terms of common patterns and
+of beast. It checks the code quality in terms of common patterns and
 idioms.
 
-For example it outputs warning when there is only one subform inside the
+For example, it outputs warning when there is only one subform inside the
 ~progn~ or if you are setting global variables in the function definition:
 
 #+begin_src lisp
@@ -64,9 +64,13 @@ forms in a file.
 
 It would be nice to:
 
-- add a command line tool (like sblint) to check all files in the
+- add a command-line tool (like sblint) to check all files in the
   project;
-- to add abilitiy to ignore some checks for some forms. Probably ~declaim~
+- to add the ability to ignore some checks for some forms. Probably ~declaim~
   could be used for this purpose?
 
 Probably adding an integration with SLIME or SLY would also be a good idea.
+
+This way you'll be able to hit some shortcuts to receive recommendations
+from Lisp Critic, or it could happen when you are evaluating a top-level
+form.
