@@ -6,6 +6,42 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>with-output-to-stream</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0126-with-output-to-stream.html</link>
+            <description>&lt;p&gt;This is a &quot;trivial&quot; library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It simplifies the writing of the functions which would like to accept a stream argument as &lt;code&gt;format&lt;/code&gt; function does.&lt;/p&gt;
+&lt;p&gt;CL&apos;s &lt;code&gt;format&lt;/code&gt; function accepts as the first parameter a &lt;code&gt;nil&lt;/code&gt;, &lt;code&gt;t&lt;/code&gt; or a stream object. In first case it outputs to &lt;code&gt;*standard-output*&lt;/code&gt; and in the second returns a string.&lt;/p&gt;
+&lt;p&gt;When you are writing a custom function with similar semantics, you have to handle all these cases by hand. Here is where &lt;code&gt;with-output-to-stream&lt;/code&gt; helps you:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun log-info (obj &amp;amp;key (stream t))
+             (with-output-to-stream:with-output-to-stream (s stream)
+               (write-string &amp;quot;INFO &amp;quot; s)
+               (write obj :stream s)
+               (terpri s)))
+
+;; Here is we return result as a string:
+POFTHEDAY&amp;gt; (log-info 100500 :stream nil)
+&amp;quot;INFO 100500
+&amp;quot;
+
+;; This will output to *standard-output*:
+POFTHEDAY&amp;gt; (log-info 100500 :stream t)
+INFO 100500
+NIL
+
+;; But you can pass any stream as the argument:
+POFTHEDAY&amp;gt; (log-info 100500 :stream *error-output*)
+INFO 100500
+NIL
+
+POFTHEDAY&amp;gt; (with-output-to-string (s)
+             (log-info 100500 :stream s)
+             (log-info 42 :stream s))
+&amp;quot;INFO 100500
+INFO 42
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 10 Jul 2020 20:41:09 +0300</pubDate>
+        </item>
+        <item>
             <title>lisp-critic</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0125-lisp-critic.html</link>
             <description>&lt;p&gt;A few weeks ago, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html&quot;&gt;I&apos;ve reviewed&lt;/a&gt; the &lt;code&gt;sblint&lt;/code&gt; - a tool to check code quality in terms of warnings from the SBCL compiler. &lt;code&gt;Lisp-critic&lt;/code&gt; is another kind of beast. It checks the code quality in terms of common patterns and idioms.&lt;/p&gt;
@@ -1172,81 +1208,6 @@ GET /foo/bar -&amp;gt; 200
 &amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll try the better way to apply middlewares to a Clack app.&lt;/p&gt;
 </description>
             <pubDate>Sun, 21 Jun 2020 23:20:42 +0300</pubDate>
-        </item>
-        <item>
-            <title>clack</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0105-clack.html</link>
-            <description>&lt;p&gt;Today we begin our sprint around Fukamachi&apos;s web tools and will start from the Clack.&lt;/p&gt;
-&lt;p&gt;Clack is an intermediate layer between the real webserver and your application code. It unifies requests parsing and you don&apos;t need to rewrite an app if you&apos;ll decide to run your app under another webserver.&lt;/p&gt;
-&lt;p&gt;Today it supports FCGI, Hunchentoot, Toot, Woo, Wookie. Woo and Wookie are asynchronous and can be used to serve hundreds of simultaneous connections.&lt;/p&gt;
-&lt;p&gt;Another interesting feature of Clack is that application is the only a lambda function. Because of this, the application code can be wrapped with middlewares. There are a number of middlewares: for logging, handling errors, serving static files, etc.&lt;/p&gt;
-&lt;p&gt;Here is an example of the simplest app. A function should return a list of status-code, headers plist and the content. The content should be a list of strings, a vector of bytes or pathname:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *server*
-             (clack:clackup
-              (lambda (env)
-                (declare (ignore env))
-                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                  (&amp;quot;Hello, Lisp World!&amp;quot;)))
-              :port 8000))
-Hunchentoot server is started.
-Listening on 127.0.0.1:8000.
-
-POFTHEDAY&amp;gt; (nth-value 0
-             (dex:get &amp;quot;http://localhost:8000&amp;quot;))
-&amp;quot;Hello, Lisp World!&amp;quot;
-
-POFTHEDAY&amp;gt; (clack:stop *server*)
-T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Compare this with plain Hunchentoot application:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (hunchentoot:define-easy-handler (say-yo :uri &amp;quot;/&amp;quot;) ()
-             (setf (hunchentoot:content-type*)
-                   &amp;quot;text/plain&amp;quot;)
-             &amp;quot;Hello Lisp World&amp;quot;)
-
-POFTHEDAY&amp;gt; (hunchentoot:start
-            (make-instance &amp;#039;hunchentoot:easy-acceptor
-                           :port 8002))
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8002/&amp;quot;
-                    :headers &amp;#039;((&amp;quot;Custom-Header&amp;quot; . &amp;quot;Hello&amp;quot;)))
-127.0.0.1 - [2020-06-20 20:58:04] &amp;quot;GET / HTTP/1.1&amp;quot; 200 16 &amp;quot;-&amp;quot; 
-            &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
-&amp;quot;Hello Lisp World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Clack version is more coherent. All request parameters are in one place and it is obvious how to return a status code or the headers.&lt;/p&gt;
-&lt;p&gt;Here is the content of the env var passed by the Clack to the application function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; For this request:
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8000/some/path&amp;quot;
-                    :headers &amp;#039;((&amp;quot;Custom-Header&amp;quot; . &amp;quot;Hello&amp;quot;)))
-
-;; This plist will be passed as env argument
-;; to the function:
-(:REQUEST-METHOD :GET
- :SCRIPT-NAME &amp;quot;&amp;quot;
- :PATH-INFO &amp;quot;/some/path&amp;quot;
- :SERVER-NAME &amp;quot;localhost&amp;quot;
- :SERVER-PORT 8000
- :SERVER-PROTOCOL :HTTP/1.1
- :REQUEST-URI &amp;quot;/some/path&amp;quot;
- :URL-SCHEME &amp;quot;http&amp;quot;
- :REMOTE-ADDR &amp;quot;127.0.0.1&amp;quot;
- :REMOTE-PORT 51325
- :QUERY-STRING NIL
- :RAW-BODY #&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {1009183813}&amp;gt;
- :CONTENT-LENGTH 0
- :CONTENT-TYPE NIL
- :CLACK.STREAMING T
- :CLACK.IO #&amp;lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {1009183863}&amp;gt;
- :HEADERS #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 4 {1009183AE3}&amp;gt;)
-
-;; And here is the content of the HEADERS:
-POFTHEDAY&amp;gt; (rutils:print-hash-table
-            (getf * :headers))
-#{EQUAL
-  &amp;quot;user-agent&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
-  &amp;quot;host&amp;quot; &amp;quot;localhost:8000&amp;quot;
-  &amp;quot;accept&amp;quot; &amp;quot;*/*&amp;quot;
-  &amp;quot;custom-header&amp;quot; &amp;quot;Hello&amp;quot;
- }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review a Clack middleware and see how to apply to the app.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 20 Jun 2020 21:12:07 +0300</pubDate>
         </item>
     </channel>
 </rss>

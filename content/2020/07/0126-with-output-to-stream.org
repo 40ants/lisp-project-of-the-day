@@ -8,8 +8,8 @@
 :CI:       :(
 :END:
 
-This is a "trivial" library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It simplifies writing of
-the functions which would like to accept a stream argument like ~format~
+This is a "trivial" library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It simplifies the writing
+of the functions which would like to accept a stream argument as ~format~
 function does.
 
 CL's ~format~ function accepts as the first parameter a ~nil~, ~t~ or a stream
