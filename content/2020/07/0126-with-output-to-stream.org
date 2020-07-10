@@ -1,0 +1,56 @@
+* with-output-to-stream :macro:io:trivial:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a "trivial" library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It simplifies writing of
+the functions which would like to accept a stream argument like ~format~
+function does.
+
+CL's ~format~ function accepts as the first parameter a ~nil~, ~t~ or a stream
+object. In first case it outputs to ~*standard-output*~ and in the second
+returns a string.
+
+When you are writing a custom function with similar semantics, you have
+to handle all these cases by hand. Here is where ~with-output-to-stream~
+helps you:
+
+
+#+begin_src lisp
+
+POFTHEDAY> (defun log-info (obj &key (stream t))
+             (with-output-to-stream:with-output-to-stream (s stream)
+               (write-string "INFO " s)
+               (write obj :stream s)
+               (terpri s)))
+
+;; Here is we return result as a string:
+POFTHEDAY> (log-info 100500 :stream nil)
+"INFO 100500
+"
+
+;; This will output to *standard-output*:
+POFTHEDAY> (log-info 100500 :stream t)
+INFO 100500
+NIL
+
+;; But you can pass any stream as the argument:
+POFTHEDAY> (log-info 100500 :stream *error-output*)
+INFO 100500
+NIL
+
+POFTHEDAY> (with-output-to-string (s)
+             (log-info 100500 :stream s)
+             (log-info 42 :stream s))
+"INFO 100500
+INFO 42
+"
+
+#+end_src
+
+That is it for today.

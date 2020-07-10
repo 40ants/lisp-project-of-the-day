@@ -15,6 +15,7 @@ Twitter account svetlyak40wt]].
 - 07 July - [[content/2020/07/0123-cl-coveralls.org][cl-coveralls]] ([[https://twitter.com/svetlyak40wt/status/1280585175706087425][twitter]])
 - 08 July - [[content/2020/07/0124-cl-spark.org][cl-spark]] ([[https://twitter.com/svetlyak40wt/status/1280921510719471617][twitter]])
 - 09 July - [[content/2020/07/0125-lisp-critic.org][lisp-critic]] ([[https://twitter.com/svetlyak40wt/status/1281324539671126016][twitter]])
+- 10 July - [[content/2020/07/0126-with-output-to-stream.org][with-output-to-stream]]
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1107,7 +1108,7 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/bufferswap/ViralityEngine
 - http://quickdocs.org/cl-mechanize/
 - http://quickdocs.org/cl-hash-util/
-- https://github.com/fukamachi/cl-coveralls
+- https://github.com/g000001/mbe - Scheme Macros for Common Lisp
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
