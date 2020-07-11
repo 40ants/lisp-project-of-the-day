@@ -1,0 +1,56 @@
+* chameleon :configuration:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Chameleon is a configuration management library. It allows us to define a
+bunch of options and their values for different profiles. After that, you
+can switch between profiles.
+
+It works like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (chameleon:defconfig
+             (port 8000 "Port to listen on")
+             (log-level :info "The log level for log4cl"))
+
+POFTHEDAY> (chameleon:defprofile :dev)
+
+POFTHEDAY> (chameleon:defprofile :production
+             (port 80)
+             (log-level :warn))
+
+POFTHEDAY> (setf (active-profile) :production)
+:PRODUCTION
+POFTHEDAY> (port)
+80
+
+POFTHEDAY> (log-level)
+:WARN
+
+POFTHEDAY> (active-profile)
+:PRODUCTION
+
+;; Now switching to development mode:
+POFTHEDAY> (setf (active-profile) :dev)
+:DEV
+
+POFTHEDAY> (port)
+8000
+
+POFTHEDAY> (log-level)
+:INFO
+
+#+end_src
+
+I've investigated the ~chameleon's~ code and think it can be made better and
+simpler using ~CLOS~ instances for profiles instead of hash maps.
+
+If you know other Lisp systems for configuration management, please, let
+me know.
