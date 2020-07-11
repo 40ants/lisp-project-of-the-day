@@ -6,6 +6,45 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>chameleon</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0127-chameleon.html</link>
+            <description>&lt;p&gt;Chameleon is a configuration management library. It allows us to define a bunch of options and their values for different profiles. After that, you can switch between profiles.&lt;/p&gt;
+&lt;p&gt;It works like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (chameleon:defconfig
+             (port 8000 &amp;quot;Port to listen on&amp;quot;)
+             (log-level :info &amp;quot;The log level for log4cl&amp;quot;))
+
+POFTHEDAY&amp;gt; (chameleon:defprofile :dev)
+
+POFTHEDAY&amp;gt; (chameleon:defprofile :production
+             (port 80)
+             (log-level :warn))
+
+POFTHEDAY&amp;gt; (setf (active-profile) :production)
+:PRODUCTION
+POFTHEDAY&amp;gt; (port)
+80
+
+POFTHEDAY&amp;gt; (log-level)
+:WARN
+
+POFTHEDAY&amp;gt; (active-profile)
+:PRODUCTION
+
+;; Now switching to development mode:
+POFTHEDAY&amp;gt; (setf (active-profile) :dev)
+:DEV
+
+POFTHEDAY&amp;gt; (port)
+8000
+
+POFTHEDAY&amp;gt; (log-level)
+:INFO&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ve investigated the &lt;code&gt;chameleon&apos;s&lt;/code&gt; code and think it can be made better and simpler using &lt;code&gt;CLOS&lt;/code&gt; instances for profiles instead of hash maps.&lt;/p&gt;
+&lt;p&gt;If you know other Lisp systems for configuration management, please, let me know.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 11 Jul 2020 21:23:05 +0300</pubDate>
+        </item>
+        <item>
             <title>with-output-to-stream</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0126-with-output-to-stream.html</link>
             <description>&lt;p&gt;This is a &quot;trivial&quot; library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It simplifies the writing of the functions which would like to accept a stream argument as &lt;code&gt;format&lt;/code&gt; function does.&lt;/p&gt;
@@ -1134,80 +1173,6 @@ POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8081/foo/bar&amp;q
 &lt;p&gt;Tomorrow, we&apos;ll look at some &lt;code&gt;Lack&apos;s&lt;/code&gt; middleware.&lt;/p&gt;
 </description>
             <pubDate>Mon, 22 Jun 2020 22:32:36 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-accesslog</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html</link>
-            <description>&lt;p&gt;Yesterday, I&apos;ve showed you how does Clack work. A web app is a function which returns a list with the response or a function which should return create such list pass it to the provided callback.&lt;/p&gt;
-&lt;p&gt;Now we&apos;ll add a logging to our app with the &lt;code&gt;lack-middleware-accesslog&lt;/code&gt; system.&lt;/p&gt;
-&lt;p&gt;To do this, we must wrap our app&apos;s function into another function like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Now we&amp;#039;ll create a simple app:
-POFTHEDAY&amp;gt; (defparameter *app*
-             (lambda (env)
-               &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                 (&amp;quot;Hello, World&amp;quot;))))
-
-;; And wrap it into the middleware:
-POFTHEDAY&amp;gt; (defparameter *app-with-access-log*
-             (funcall lack.middleware.accesslog:*lack-middleware-accesslog*
-                      *app*))
-
-;; Now it&amp;#039;s time to start our app:
-POFTHEDAY&amp;gt; (clack:clackup *app-with-access-log*
-                          :port 8000)
-
-Woo server is started.
-Listening on 127.0.0.1:8000.
-
-;; And to make a test request:
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/&amp;quot;))
-127.0.0.1 - [21/Jun/2020:22:50:52 +03:00] &amp;quot;GET / HTTP/1.1&amp;quot; 
-  200 12 &amp;quot;-&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
-&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Look how a log message was printed to the STDOUT.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s see how does this middleware works. Here is its content. It is a little bit complicated because the middleware needs to handle cases when an app returns a function instead of the normal response:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defparameter *lack-middleware-accesslog*
-  (let ((no-body &amp;#039;#:no-body))
-    (lambda (app &amp;amp;key
-              (logger
-               (lambda (output) (format t &amp;quot;~&amp;amp;~A~%&amp;quot; output)))
-              (formatter #&amp;#039;default-formatter))
-      (lambda (env)
-        (funcall-with-cb
-         app env
-         (lambda (res)
-           (funcall logger
-                    (funcall formatter env res (now)))
-           res)))))
-  &amp;quot;Middleware for logging requests&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ll show you a simpler version of this logging middleware:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here is the middleware:
-POFTHEDAY&amp;gt; (defun simple-logging (app)
-             (lambda (env)
-               (let ((response
-                       (funcall app env)))
-                 (format t &amp;quot;~A ~A -&amp;gt; ~A~%&amp;quot;
-                         (getf env :request-method)
-                         (getf env :path-info)
-                         (car response))
-                 response)))
-
-;; And this is an example how we can apply it to our app:
-POFTHEDAY&amp;gt; (defparameter *app-with-simple-log*
-             (simple-logging *app*))
-
-POFTHEDAY&amp;gt; (clack:clackup *app-with-simple-log*
-                          :port 8000)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8000.
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/&amp;quot;))
-GET / -&amp;gt; 200
-&amp;quot;Hello, World&amp;quot;
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8000/foo/bar&amp;quot;))
-GET /foo/bar -&amp;gt; 200
-&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll try the better way to apply middlewares to a Clack app.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 21 Jun 2020 23:20:42 +0300</pubDate>
         </item>
     </channel>
 </rss>
