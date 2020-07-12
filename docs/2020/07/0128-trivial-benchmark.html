@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>trivial-benchmark
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>trivial-benchmark</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>trivial-benchmark<span class='tags'><a href='../../tags/performance.html'><span class='label label-default'>performance</span></a><a href='../../tags/trivial.html'><span class='label label-default'>trivial</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Some time ago I've reviewed the <a href="https://40ants.com/lisp-project-of-the-day/2020/06/0100-the-cost-of-nothing.html">the-cost-of-nothing</a> library which allowed you to check the performance of the form execution. <code>Trivial-benchmark</code> does a similar job but has a few pros and cons.</p>
+<p>The main con is that you have to give it a number of iterations manually, but the pro is that the library provides a way more statistics:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (trivial-benchmark:with-timing (1000000)
+             (format nil &quot;Symbol is: ~S&quot; :foo))
+
+-                SAMPLES  TOTAL      MINIMUM   MAXIMUM   MEDIAN    AVERAGE    DEVIATION  
+REAL-TIME        1000000  3.78       0         0.169     0         0.000004   0.000207   
+RUN-TIME         1000000  3.734      0         0.132     0         0.000004   0.000179   
+USER-RUN-TIME    1000000  2.332375   0.000001  0.061505  0.000002  0.000002   0.00011    
+SYSTEM-RUN-TIME  1000000  1.398129   0.000001  0.070875  0.000001  0.000001   0.000072   
+PAGE-FAULTS      1000000  0          0         0         0         0          0.0        
+GC-RUN-TIME      1000000  0.436      0         0.132     0         0.0        0.000168   
+BYTES-CONSED     1000000  592388352  0         130976    0         592.38837  4354.098   
+EVAL-CALLS       1000000  0          0         0         0         0          0.0</code></pre><p>The pros is the number of metrics supported by the library and ability to define more metrics like.</p>
+<p>Here is the practical example. We'll measure a number of SQL queries made during form execution:</p>
+<pre><code class='lisp'>;; These are owr SQL driver simulation:
+POFTHEDAY&gt; (defparameter *num-queries* 0)
+
+POFTHEDAY&gt; (defun execute (query)
+             &quot;A fake SQL driver&quot;
+             (declare (ignorable query))
+             (incf *num-queries*))
+
+;; The application code:
+POFTHEDAY&gt; (defun the-view ()
+             (execute &quot;SELECT some FROM data&quot;)
+             (loop repeat 5
+                   do (execute &quot;SELECT some FROM other_data&quot;)))
+
+;; Metric definition is very simple. You just provide a code
+;; which returns an absolute value:
+POFTHEDAY&gt; (trivial-benchmark:define-delta-metric sql-queries
+             *num-queries*)
+
+;; Pay attention to the last line of the report:
+POFTHEDAY&gt; (trivial-benchmark:with-timing (100)
+             (the-view))
+-                SAMPLES  TOTAL     MINIMUM   MAXIMUM   MEDIAN    AVERAGE   DEVIATION  
+REAL-TIME        100      0         0         0         0         0         0.0        
+RUN-TIME         100      0         0         0         0         0         0.0        
+USER-RUN-TIME    100      0.000308  0.000001  0.00012   0.000002  0.000003  0.000012   
+SYSTEM-RUN-TIME  100      0.000117  0.000001  0.000002  0.000001  0.000001  0.0        
+PAGE-FAULTS      100      0         0         0         0         0         0.0        
+GC-RUN-TIME      100      0         0         0         0         0         0.0        
+BYTES-CONSED     100      98240     0         65536     0         982.4     7258.1045  
+EVAL-CALLS       100      0         0         0         0         0         0.0        
+SQL-QUERIES      100      600       6         6         6         6         0.0</code></pre><p>The cons of the <code>trivial-benchmark</code> compared with <code>the-cost-of-nothing</code> is that the former does not count the overhead and overhead can be significant, because it uses generic functions.</p>
+<p>Also when sampling, the <code>trivial-benchmark</code> executes the form only once. That is why the measurements for a very fast code will be inaccurate.</p>
+<p>Another interesing feature is ability to define a benchmark suites to measure performance regression of some parts of your code. I won't show you an example of such suite. Just go and read nice documentation, written by @Shinmera:</p>
+<p><a href="https://github.com/Shinmera/trivial-benchmark#benchmark-suites">https://github.com/Shinmera/trivial-benchmark#benchmark-suites</a></p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
