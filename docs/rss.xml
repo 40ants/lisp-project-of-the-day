@@ -6,6 +6,62 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-benchmark</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0128-trivial-benchmark.html</link>
+            <description>&lt;p&gt;Some time ago I&apos;ve reviewed the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0100-the-cost-of-nothing.html&quot;&gt;the-cost-of-nothing&lt;/a&gt; library which allowed you to check the performance of the form execution. &lt;code&gt;Trivial-benchmark&lt;/code&gt; does a similar job but has a few pros and cons.&lt;/p&gt;
+&lt;p&gt;The main con is that you have to give it a number of iterations manually, but the pro is that the library provides a way more statistics:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-benchmark:with-timing (1000000)
+             (format nil &amp;quot;Symbol is: ~S&amp;quot; :foo))
+
+-                SAMPLES  TOTAL      MINIMUM   MAXIMUM   MEDIAN    AVERAGE    DEVIATION  
+REAL-TIME        1000000  3.78       0         0.169     0         0.000004   0.000207   
+RUN-TIME         1000000  3.734      0         0.132     0         0.000004   0.000179   
+USER-RUN-TIME    1000000  2.332375   0.000001  0.061505  0.000002  0.000002   0.00011    
+SYSTEM-RUN-TIME  1000000  1.398129   0.000001  0.070875  0.000001  0.000001   0.000072   
+PAGE-FAULTS      1000000  0          0         0         0         0          0.0        
+GC-RUN-TIME      1000000  0.436      0         0.132     0         0.0        0.000168   
+BYTES-CONSED     1000000  592388352  0         130976    0         592.38837  4354.098   
+EVAL-CALLS       1000000  0          0         0         0         0          0.0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another cool feature is the ability to define more custom metrics.&lt;/p&gt;
+&lt;p&gt;Here is a practical example. We&apos;ll measure a number of SQL queries made during form execution:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; These are owr SQL driver simulation:
+POFTHEDAY&amp;gt; (defparameter *num-queries* 0)
+
+POFTHEDAY&amp;gt; (defun execute (query)
+             &amp;quot;A fake SQL driver&amp;quot;
+             (declare (ignorable query))
+             (incf *num-queries*))
+
+;; The application code:
+POFTHEDAY&amp;gt; (defun the-view ()
+             (execute &amp;quot;SELECT some FROM data&amp;quot;)
+             (loop repeat 5
+                   do (execute &amp;quot;SELECT some FROM other_data&amp;quot;)))
+
+;; Metric definition is very simple. You just provide a code
+;; which returns an absolute value:
+POFTHEDAY&amp;gt; (trivial-benchmark:define-delta-metric sql-queries
+             *num-queries*)
+
+;; Pay attention to the last line of the report:
+POFTHEDAY&amp;gt; (trivial-benchmark:with-timing (100)
+             (the-view))
+-                SAMPLES  TOTAL     MINIMUM   MAXIMUM   MEDIAN    AVERAGE   DEVIATION  
+REAL-TIME        100      0         0         0         0         0         0.0        
+RUN-TIME         100      0         0         0         0         0         0.0        
+USER-RUN-TIME    100      0.000308  0.000001  0.00012   0.000002  0.000003  0.000012   
+SYSTEM-RUN-TIME  100      0.000117  0.000001  0.000002  0.000001  0.000001  0.0        
+PAGE-FAULTS      100      0         0         0         0         0         0.0        
+GC-RUN-TIME      100      0         0         0         0         0         0.0        
+BYTES-CONSED     100      98240     0         65536     0         982.4     7258.1045  
+EVAL-CALLS       100      0         0         0         0         0         0.0        
+SQL-QUERIES      100      600       6         6         6         6         0.0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;trivial-benchmark&lt;/code&gt; is not as accurate as &lt;code&gt;the-cost-of-nothing&lt;/code&gt; because it does not count the overhead, but overhead can be significant because &lt;code&gt;trivial-benchmark&lt;/code&gt; uses generic functions.&lt;/p&gt;
+&lt;p&gt;Also when sampling, the &lt;code&gt;trivial-benchmark&lt;/code&gt; executes the form only once. That is why the measurements for a very fast code will be even more inaccurate.&lt;/p&gt;
+&lt;p&gt;Another interesting feature is the ability to define benchmark suites to measure performance regression of some parts of your code. I won&apos;t show you an example of such a suite. Just go and read nice documentation, written by @Shinmera:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Shinmera/trivial-benchmark#benchmark-suites&quot;&gt;https://github.com/Shinmera/trivial-benchmark#benchmark-suites&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Sun, 12 Jul 2020 23:11:25 +0300</pubDate>
+        </item>
+        <item>
             <title>chameleon</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0127-chameleon.html</link>
             <description>&lt;p&gt;Chameleon is a configuration management library. It allows us to define a bunch of options and their values for different profiles. After that, you can switch between profiles.&lt;/p&gt;
@@ -1110,69 +1166,6 @@ POFTHEDAY&amp;gt; (handler-case (dex:get &amp;quot;http://localhost:8093/foo/bar
 &lt;p&gt;Yesterday we&apos;ll review some other Lack&apos;s middleware.&lt;/p&gt;
 </description>
             <pubDate>Tue, 23 Jun 2020 23:15:52 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0107-lack.html</link>
-            <description>&lt;p&gt;&lt;code&gt;Lack&lt;/code&gt; is a library, used by &lt;code&gt;Clack&lt;/code&gt; to compose web apps from middlewares.&lt;/p&gt;
-&lt;p&gt;Yesterday &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0106-lack-middleware-accesslog.html&quot;&gt;we&apos;ve used&lt;/a&gt; the &lt;code&gt;lack-middleware-accesslog&lt;/code&gt; system to log every request to our webapp. But app configuration was not convenient. &lt;code&gt;Lack&lt;/code&gt; provides a macro to compose an application from middlewares:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (lack:builder
-              ;; middlewares
-              :accesslog
-              ;; the app
-              (lambda (env)
-                (declare (ignorable env))
-                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                  (&amp;quot;Hello, World&amp;quot;)))))
-
-POFTHEDAY&amp;gt; (clack:clackup *app*
-                          :port 8080)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8080.
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8080/foo/bar&amp;quot;))
-127.0.0.1 - [22/Jun/2020:22:15:23 +03:00] &amp;quot;GET /foo/bar HTTP/1.1&amp;quot;
-         200 12 &amp;quot;-&amp;quot; &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
-&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can pass a middleware as a keyword or as a s-exp. In the slatter case, all values except the first one, will be passed to the middleware functions.&lt;/p&gt;
-&lt;p&gt;This way a middleware can be configured. Here is for example, how we can replace a logging function to use &lt;code&gt;log4cl&lt;/code&gt; (by the way, remind me to tell you about &lt;code&gt;log4cl&lt;/code&gt;, it is wonderful!):&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (lack:builder
-              ;; middlewares
-              (:accesslog :logger
-                          (lambda (message)
-                            (log:info message)))
-              ;; the app
-              (lambda (env)
-                (declare (ignorable env))
-                &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                  (&amp;quot;Hello, World&amp;quot;)))))
-
-POFTHEDAY&amp;gt; (clack:clackup *app*
-                          :port 8081)
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8081/foo/bar&amp;quot;))
-
- &amp;lt;INFO&amp;gt; [22:38:06] poftheday () -
-  POFTHEDAY::MESSAGE: &amp;quot;127.0.0.1 - [22/Jun/2020:22:38:06 +03:00] 
-                \&amp;quot;GET /foo/bar HTTP/1.1\&amp;quot; 200 12 \&amp;quot;-\&amp;quot;
-                \&amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0\&amp;quot;&amp;quot;
-  
-&amp;quot;Hello, World&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Multiple middlewares can be passed to the &lt;code&gt;lack:builder&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;When we are specifying the middleware&apos;s name as a keyword, lack tries to search a middleware function using &lt;code&gt;lack.util:find-middleware&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lack.util:find-middleware :accesslog)
-
-#&amp;lt;FUNCTION (LAMBDA (LACK.MIDDLEWARE.ACCESSLOG::APP &amp;amp;KEY :LOGGER :FORMATTER)
-             :IN
-             &amp;quot;/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/\
-  ultralisp/software/fukamachi-lack-20200524065357/src/middleware/accesslog.lisp&amp;quot;)
-  {22D1F6CB}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you intend to create an opensource library providing &lt;code&gt;Lack&lt;/code&gt; middleware and want this discovery work for it, then you have to follow these rules.&lt;/p&gt;
-&lt;p&gt;Your system has to define a package prefixed with &lt;code&gt;LACK.MIDDLEWARE.&lt;/code&gt; And it should export a variable with name matched to the pattern &lt;code&gt;*LACK-MIDDLEWARE-...*&lt;/code&gt;. This variable should be bound to a middleware function.&lt;/p&gt;
-&lt;p&gt;For example, access log middleware defines the &lt;code&gt;LACK.MIDDLEWARE.ACCESSLOG:*LACK-MIDDLEWARE-ACCESSLOG*&lt;/code&gt; variable.&lt;/p&gt;
-&lt;p&gt;Another interesting feature, I didn&apos;t cover yet the ability to write an app which delays it&apos;s response or stream it back. Luckily, these kinds of applications &lt;a href=&quot;https://github.com/fukamachi/lack#delayed-response-and-streaming-body&quot;&gt;are covered by&lt;/a&gt; &lt;code&gt;Lack&lt;/code&gt;&apos;s documentation.&lt;/p&gt;
-&lt;p&gt;Tomorrow, we&apos;ll look at some &lt;code&gt;Lack&apos;s&lt;/code&gt; middleware.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 22 Jun 2020 22:32:36 +0300</pubDate>
         </item>
     </channel>
 </rss>
