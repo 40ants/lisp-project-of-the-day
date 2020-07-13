@@ -6,6 +6,18 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-with-current-source-form</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0129-trivial-with-current-source-form.html</link>
+            <description>&lt;p&gt;This library is a compatibility layer. It helps to provide hints to the Lisp compiler. Hints allow the compiler to show more precise error messages when error happens during the macro-expansion.&lt;/p&gt;
+&lt;p&gt;Here is an example I&apos;ve stolen from the library&apos;s documentation. To show you how this works in dynamic, I&apos;ve recorded a GIF image.&lt;/p&gt;
+&lt;p&gt;Pay attention, without the hint compiler highlights &quot;even-number-case&quot; top-level form:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0129/with-current-source-form.gif&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;That is it. You just wrap some part of the macro-processing code with &lt;code&gt;with-current-source-form&lt;/code&gt; and say: &quot;Hey, compiler! Here is the s-expr I&apos;m currently processing. If some shit will happen, let the user know.&quot;&lt;/p&gt;
+&lt;p&gt;As I said before, this library is a compatibility layer. Only SBCL and Clasp are supported for now. On other implementations, the macro will do nothing.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 13 Jul 2020 22:17:20 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-benchmark</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0128-trivial-benchmark.html</link>
             <description>&lt;p&gt;Some time ago I&apos;ve reviewed the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0100-the-cost-of-nothing.html&quot;&gt;the-cost-of-nothing&lt;/a&gt; library which allowed you to check the performance of the form execution. &lt;code&gt;Trivial-benchmark&lt;/code&gt; does a similar job but has a few pros and cons.&lt;/p&gt;
@@ -104,7 +116,7 @@ POFTHEDAY&amp;gt; (log-level)
             <title>with-output-to-stream</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0126-with-output-to-stream.html</link>
             <description>&lt;p&gt;This is a &quot;trivial&quot; library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It simplifies the writing of the functions which would like to accept a stream argument as &lt;code&gt;format&lt;/code&gt; function does.&lt;/p&gt;
-&lt;p&gt;CL&apos;s &lt;code&gt;format&lt;/code&gt; function accepts as the first parameter a &lt;code&gt;nil&lt;/code&gt;, &lt;code&gt;t&lt;/code&gt; or a stream object. In first case it outputs to &lt;code&gt;*standard-output*&lt;/code&gt; and in the second returns a string.&lt;/p&gt;
+&lt;p&gt;CL&apos;s &lt;code&gt;format&lt;/code&gt; function accepts as the first parameter a &lt;code&gt;nil&lt;/code&gt;, &lt;code&gt;t&lt;/code&gt; or a stream object. In first case it returns a string and in second - outputs to &lt;code&gt;*standard-output*&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;When you are writing a custom function with similar semantics, you have to handle all these cases by hand. Here is where &lt;code&gt;with-output-to-stream&lt;/code&gt; helps you:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun log-info (obj &amp;amp;key (stream t))
              (with-output-to-stream:with-output-to-stream (s stream)
@@ -1042,130 +1054,6 @@ Administration interface.&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attenti
 &lt;p&gt;That is it for today. Tomorrow we&apos;ll see how we can serve static with Lack.&lt;/p&gt;
 </description>
             <pubDate>Wed, 24 Jun 2020 22:50:22 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-backtrace</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0108-lack-middleware-backtrace.html</link>
-            <description>&lt;p&gt;You might consider this a cheating, but I really want to review all Lack middlewares regardless most of them are from the same &lt;code&gt;Lack&lt;/code&gt; project. These middlewares are loadable as separate ASDF systems.&lt;/p&gt;
-&lt;p&gt;The problem of Lack middlewares is that they are not documented.&lt;/p&gt;
-&lt;p&gt;This middleware will output a backtrace and all request parameters to the stream or a file.&lt;/p&gt;
-&lt;p&gt;If you are using &lt;code&gt;clack:clackup&lt;/code&gt; function to start your app, it will apply a &lt;code&gt;backtrace&lt;/code&gt; middleware to it, unless &lt;code&gt;:use-default-middlewares nil&lt;/code&gt; argument was given. Without configuration, all backtraces will be written to &lt;code&gt;*error-output*&lt;/code&gt; stream.&lt;/p&gt;
-&lt;p&gt;Let&apos;s see how does it work!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (lambda (env)
-               (declare (ignorable env))
-               (error &amp;quot;Oh my God!&amp;quot;)))
-*APP*
-POFTHEDAY&amp;gt; (clack:clackup *app*
-                          :port 8085)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8085.
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8085/foo/bar&amp;quot;))
-Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;hunchentoot-worker-127.0.0.1:56469&amp;quot; RUNNING {1007707373}&amp;gt;
-0: ((LAMBDA NIL :IN UIOP/IMAGE:PRINT-BACKTRACE))
-1: ((FLET &amp;quot;THUNK&amp;quot; :IN UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX))
-2: (SB-IMPL::%WITH-STANDARD-IO-SYNTAX #&amp;lt;CLOSURE (FLET &amp;quot;THUNK&amp;quot; :IN UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX) {D85A24B}&amp;gt;)
-3: (UIOP/STREAM:CALL-WITH-SAFE-IO-SYNTAX #&amp;lt;CLOSURE (LAMBDA NIL :IN UIOP/IMAGE:PRINT-BACKTRACE) {100791B9EB}&amp;gt; :PACKAGE :CL)
-4: (UIOP/IMAGE:PRINT-CONDITION-BACKTRACE #&amp;lt;SIMPLE-ERROR &amp;quot;Oh my God!&amp;quot; {100791B943}&amp;gt; :STREAM #&amp;lt;SYNONYM-STREAM :SYMBOL SLYNK::*CURRENT-ERROR-OUTPUT* {1001541093}&amp;gt; :COUNT NIL)
-5: (LACK.MIDDLEWARE.BACKTRACE::PRINT-ERROR #&amp;lt;SIMPLE-ERROR &amp;quot;Oh my God!&amp;quot; {100791B943}&amp;gt; (:REQUEST-METHOD :GET :SCRIPT-NAME &amp;quot;&amp;quot; :PATH-INFO &amp;quot;/foo/bar&amp;quot; :SERVER-NAME &amp;quot;localhost&amp;quot; :SERVER-PORT 8085 :SERVER-PROTOCOL :HTTP/1.1 ...) #&amp;lt;SYNONYM-STREAM :SYMBOL SLYNK::*CURRENT-ERROR-OUTPUT* {1001541093}&amp;gt;)
-6: ((FLET LACK.MIDDLEWARE.BACKTRACE::OUTPUT-BACKTRACE :IN &amp;quot;/Users/art/projects/lisp/lisp-project-of-the-day/.qlot/dists/ultralisp/software/fukamachi-lack-20200524065357/src/middleware/backtrace.lisp&amp;quot;) #&amp;lt;SIMPLE-ERROR &amp;quot;Oh my God!&amp;quot; {100791B943}&amp;gt; (:REQUEST-METHOD :GET :SCRIPT-NAME &amp;quot;&amp;quot; :PATH-INFO &amp;quot;/foo/bar&amp;quot; :SERVER-NAME &amp;quot;localhost&amp;quot; :SERVER-PORT 8085 :SERVER-PROTOCOL :HTTP/1.1 ...))
-...
-31: (SB-THREAD::NEW-LISP-THREAD-TRAMPOLINE #&amp;lt;SB-THREAD:THREAD &amp;quot;hunchentoot-worker-127.0.0.1:56469&amp;quot; RUNNING {1007707373}&amp;gt; NIL #&amp;lt;CLOSURE (LABELS BORDEAUX-THREADS::%BINDING-DEFAULT-SPECIALS-WRAPPER :IN BORDEAUX-THREADS::BINDING-DEFAULT-SPECIALS) {100770731B}&amp;gt; NIL)
-32: (&amp;quot;foreign function: call_into_lisp&amp;quot;)
-33: (&amp;quot;foreign function: new_thread_trampoline&amp;quot;)
-Above backtrace due to this condition:
-Oh my God!
-
-Request:
-    REQUEST-METHOD: :GET
-    SCRIPT-NAME: &amp;quot;&amp;quot;
-    PATH-INFO: &amp;quot;/foo/bar&amp;quot;
-    SERVER-NAME: &amp;quot;localhost&amp;quot;
-    SERVER-PORT: 8085
-    SERVER-PROTOCOL: :HTTP/1.1
-    REQUEST-URI: &amp;quot;/foo/bar&amp;quot;
-    URL-SCHEME: &amp;quot;http&amp;quot;
-    REMOTE-ADDR: &amp;quot;127.0.0.1&amp;quot;
-    REMOTE-PORT: 56469
-    QUERY-STRING: NIL
-    RAW-BODY: #&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {100791B313}&amp;gt;
-    CONTENT-LENGTH: 0
-    CONTENT-TYPE: NIL
-    CLACK.STREAMING: T
-    CLACK.IO: #&amp;lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {100791B363}&amp;gt;
-    HEADERS:
-        user-agent: &amp;quot;Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0&amp;quot;
-        host: &amp;quot;localhost:8085&amp;quot;
-        accept: &amp;quot;*/*&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The problem here is that I did not receive a 500 error. An interactive debugger popped up instead and HTTP request finished with a timeout. To solve this problem, we need to pass a &lt;code&gt;:debug nil&lt;/code&gt; argument to &lt;code&gt;clackup&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(clack:clackup *app*
-               :port 8085
-               :debug nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll try other configuration of this backtrace middleware.&lt;/p&gt;
-&lt;p&gt;To write output to the file, you need to specify the output option. It can be either a string or a pathname:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:backtrace :output &amp;quot;/tmp/errors.log&amp;quot;)
-             *app*)
-            :port 8089
-            :debug nil
-            ;; If you don&amp;#039;t turn off this,
-            ;; backtrace also will be written to the
-            ;; *error-output*.
-            :use-default-middlewares nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can pass as the output a variable pointing to the stream:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:backtrace :output *trace-output*)
-             *app*)
-            :port 8090
-            :debug nil
-            :use-default-middlewares nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting option is &lt;code&gt;:result-on-error&lt;/code&gt;. It can be a function or a list with the response data. This way we can return a customized error response:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:backtrace :output &amp;quot;/tmp/errors.log&amp;quot;
-                         :result-on-error
-                         &amp;#039;(500 (:content-type &amp;quot;text/plain&amp;quot;)
-                           (&amp;quot;Stay patient. &amp;quot;
-                            &amp;quot;We already fixing this error in the REPL&amp;quot;)))
-             *app*)
-            :port 8092
-            :debug nil
-            :use-default-middlewares nil)
-
-POFTHEDAY&amp;gt; (handler-case (dex:get &amp;quot;http://localhost:8092/foo/bar&amp;quot;)
-             (error (condition)
-               condition))
-
-#&amp;lt;DEXADOR.ERROR:HTTP-REQUEST-INTERNAL-SERVER-ERROR {1009B3BA03}&amp;gt;
-
-POFTHEDAY&amp;gt; (dexador:response-status *)
-500
-POFTHEDAY&amp;gt; (dexador:response-body **)
-&amp;quot;Stay patient. We already fixing this error in the REPL&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Specifying a function as an error handler allows you to render an error response using information from the unhandled condition:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-error-response (condition)
-             (list 500 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
-                   (list (format nil
-                                 &amp;quot;Unhandled error: ~A&amp;quot;
-                                 condition))))
-
-POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:backtrace :output &amp;quot;/tmp/errors.log&amp;quot;
-                         :result-on-error
-                         #&amp;#039;make-error-response)
-             *app*)
-            :port 8093
-            :use-default-middlewares nil)
-
-POFTHEDAY&amp;gt; (handler-case (dex:get &amp;quot;http://localhost:8093/foo/bar&amp;quot;)
-             (error (condition)
-               (values (dex:response-status condition)
-                       (dex:response-body condition))))
-500
-&amp;quot;Unhandled error: Oh my God!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Notice, I didn&apos;t specify a &lt;code&gt;:debug nil&lt;/code&gt; argument for &lt;code&gt;clackup&lt;/code&gt;. When you are using &lt;code&gt;:result-on-error&lt;/code&gt; argument on backtrace middleware, it will return a response before the lisp debugger will have a chance to pop up.&lt;/p&gt;
-&lt;p&gt;If you want to invoke debugger in some cases, you can call a &lt;code&gt;(invoke-debugger condition)&lt;/code&gt; somewhere inside &lt;code&gt;make-error-response&lt;/code&gt; function.&lt;/p&gt;
-&lt;p&gt;Yesterday we&apos;ll review some other Lack&apos;s middleware.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 23 Jun 2020 23:15:52 +0300</pubDate>
         </item>
     </channel>
 </rss>
