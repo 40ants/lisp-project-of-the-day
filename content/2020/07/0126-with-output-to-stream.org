@@ -13,8 +13,8 @@ of the functions which would like to accept a stream argument as ~format~
 function does.
 
 CL's ~format~ function accepts as the first parameter a ~nil~, ~t~ or a stream
-object. In first case it outputs to ~*standard-output*~ and in the second
-returns a string.
+object. In first case it returns a string and in second - outputs to
+~*standard-output*~.
 
 When you are writing a custom function with similar semantics, you have
 to handle all these cases by hand. Here is where ~with-output-to-stream~
