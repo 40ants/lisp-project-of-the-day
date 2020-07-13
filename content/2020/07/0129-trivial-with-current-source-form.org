@@ -1,0 +1,26 @@
+* trivial-with-current-source-form :macro:trivial:compatibility_layer:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This library is a trivial compatibility layer. It helps to provide a
+hints to the Lisp compiler. These hints allow the compiler to show more
+precise error messages when error happens during the macro-expansion.
+
+Here is an example I've stole from the library's documentation. To show
+you how this works in dynamic, I've recorded a GIF image:
+
+[[../../media/0129/with-current-source-form.gif]]
+
+That is it. You just wraps some part of the macro-processing code with
+~with-current-source-form~ and says: "Hey, compiler! Here is a s-expr I'm
+curently processing. If some shit will happen, let the user know."
+
+As I said before, this library is a compatibility layer. Only SBCL and
+Clasp are supported for now. On other implementations the macro will do
+nothing.
