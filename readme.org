@@ -19,6 +19,7 @@ Twitter account svetlyak40wt]].
 - 11 July - [[content/2020/07/0127-chameleon.org][chameleon]] ([[https://twitter.com/svetlyak40wt/status/1282017137171759104][twitter]])
 - 12 July - [[content/2020/07/0128-trivial-benchmark.org][trivial-benchmark]] ([[https://twitter.com/svetlyak40wt/status/1282406653384699904][twitter]])
 - 13 July - [[content/2020/07/0129-trivial-with-current-source-form.org][trivial-with-current-source-form]] ([[https://twitter.com/svetlyak40wt/status/1282756887235239936][twitter]])
+- 14 July - [[content/2020/07/0130-cl-events.org][cl-events]]
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1113,7 +1114,7 @@ files, and extracting their ":defsystem-depends-on".
 - http://quickdocs.org/cl-hash-util/
 - https://github.com/g000001/mbe - Scheme Macros for Common Lisp
 - http://verisimilitudes.net/2017-12-30 shut-it-down
-- https://github.com/scymtym/trivial-with-current-source-form
+- http://quickdocs.org/blackbird/
 
 
 * Thanks
