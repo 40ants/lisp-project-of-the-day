@@ -1,0 +1,80 @@
+* cl-events :threads:async:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This is the library by [[https://twitter.com/dead_trickster][@dead_trickster]]. It implements a pub-sub API and allows to:
+
+- create an event object;
+- subscribe on it;
+- fire the event.
+
+~CL-Events~ provides a way to add a hook point for your application.
+
+Here is the simplest example. Here we create a single-threaded event
+where all callbacks will be called sequentially:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *on-click*
+             (make-instance 'cl-events:event))
+
+POFTHEDAY> (defun the-callback (message)
+             ;; pretend, we need some time to process the callback
+             (sleep 1)
+             (format t "MSG [~A]: ~A~%"
+                     (bt:current-thread)
+                     message))
+
+POFTHEDAY> (cl-events:event+ *on-click*
+                             'the-callback)
+
+POFTHEDAY> (cl-events:event! *on-click*
+                             "Button clicked!")
+MSG [#<THREAD "sly-channel-1-mrepl-remote-1" RUNNING {1003955B33}>]: Button clicked!
+NIL
+
+#+end_src
+
+To make them execute in parallel, you only need to replace the type of
+the event object. Pay attention to the thread's name in the callback's
+output. They are different:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *on-click*
+             (make-instance 'cl-events:broadcast-event))
+
+POFTHEDAY> (defun the-callback (handler-name message)
+             ;; pretend, we need some time to process the callback
+             (sleep 1)
+             (format t "MSG [~A/~A]: ~A~%"
+                     handler-name
+                     (bt:current-thread)
+                     message))
+
+POFTHEDAY> (cl-events:event+ *on-click*
+                             (alexandria:curry 'the-callback
+                                               "First handler"))
+
+POFTHEDAY> (cl-events:event+ *on-click*
+                             (alexandria:curry 'the-callback
+                                               "Second handler"))
+
+POFTHEDAY> (cl-events:event! *on-click*
+                             "Button clicked!")
+NIL
+MSG [Second handler/#<THREAD "lparallel" RUNNING {1005A97983}>]: Button clicked!
+MSG [First handler/#<THREAD "lparallel" RUNNING {1005A96F93}>]: Button clicked!
+
+#+end_src
+
+Also, in this case, ~event!~ function returns before all handlers are called.
+
+In this case, parallel execution is implemented using [[https://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html][lparallel's thread pool]].
+There are more executors available and you can implement your own.
