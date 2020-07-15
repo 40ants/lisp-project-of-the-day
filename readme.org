@@ -19,7 +19,8 @@ Twitter account svetlyak40wt]].
 - 11 July - [[content/2020/07/0127-chameleon.org][chameleon]] ([[https://twitter.com/svetlyak40wt/status/1282017137171759104][twitter]])
 - 12 July - [[content/2020/07/0128-trivial-benchmark.org][trivial-benchmark]] ([[https://twitter.com/svetlyak40wt/status/1282406653384699904][twitter]])
 - 13 July - [[content/2020/07/0129-trivial-with-current-source-form.org][trivial-with-current-source-form]] ([[https://twitter.com/svetlyak40wt/status/1282756887235239936][twitter]])
-- 14 July - [[content/2020/07/0130-cl-events.org][cl-events]]
+- 14 July - [[content/2020/07/0130-cl-events.org][cl-events]] ([[https://twitter.com/svetlyak40wt/status/1283124802627280898][twitter]])
+- 15 July - [[content/2020/07/0131-piping.org][piping]] ([[https://twitter.com/svetlyak40wt/status/1283499253231484929][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

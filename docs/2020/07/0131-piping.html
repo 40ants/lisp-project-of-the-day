@@ -51,15 +51,15 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>piping</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>piping<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library in some sense similar to the <code>cl-events</code>, <a href="https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html">reviewed yesterday</a>. It allows to define a pipelines to process messages.</p>
-<p>Each message can be processed sequentially or in parallel. Each node whould be an instance of the <code>segment</code> class. There are two kinds of nodes - intermediate and final.</p>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>piping</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>piping<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library in some sense similar to the <code>cl-events</code>, <a href="https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html">reviewed yesterday</a>. It allows defining pipelines to process messages.</p>
+<p>Each message can be processed sequentially or in parallel. Each node would be an instance of the <code>segment</code> class. There are two kinds of nodes - intermediate and final.</p>
 <p>Intermediate nodes can filter messages or route them into other pipelines.</p>
-<p>Final node are called <code>faucets</code>. They process the message and stop processing.</p>
+<p>Final nodes are called <code>faucets</code>. They process the message and stop processing.</p>
 <p>For example here is how we can build a log message processing using <code>piping</code>. We want to print all <code>ERROR</code> messages to <code>*error-output*</code> and to write all messages to the log file.</p>
 <p>To create this pipeline, we need following <code>segments</code>. Here is "Pipeline" is a chain of <code>segments</code> to pass the message through:</p>
 <pre><code class='lisp'>Pipeline:
   Print[&quot;full.log&quot;]
-  Pipeline: Filter[if ERROR] -&gt; Print[*error-output*]</code></pre><p>Here is how we can to configure this pipeline in Lisp code:</p>
+  Pipeline: Filter[if ERROR] -&gt; Print[*error-output*]</code></pre><p>Here is how we can configure this pipeline in Lisp code:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *pipe*
              (make-instance &#039;piping:pipeline))
 
@@ -76,26 +76,24 @@ POFTHEDAY&gt; (defparameter *log-printer*
 ;; and print if it stats with &quot;ERROR&quot;:
 POFTHEDAY&gt; (piping:add-segment *pipe* :pipe)
 
-POFTHEDAY&gt; (piping:add-segment
-            *pipe*
+POFTHEDAY&gt; (piping:add-segment *pipe*
             (make-instance &#039;piping:predicate-filter
                            :predicate (lambda (message)
                                         (str:starts-with-p &quot;ERROR: &quot; message)))
             &#039;(1))
 
-POFTHEDAY&gt; (piping:add-segment
-            *pipe*
+POFTHEDAY&gt; (piping:add-segment *pipe*
             (make-instance &#039;piping:printer
                            :stream *error-output*)
             &#039;(1))
 
 ;; Now we&#039;ll pass two messages through this pipeline:
 POFTHEDAY&gt; (piping:pass *pipe*
-                        &quot;INFO: Hello world!&quot;)
+             &quot;INFO: Hello world!&quot;)
 
 ;; This one will be printed to *error-output*:
 POFTHEDAY&gt; (piping:pass *pipe*
-                        &quot;ERROR: Something bad happened!&quot;)
+             &quot;ERROR: Something bad happened!&quot;)
 
 &quot;ERROR: Something bad happened!&quot; 
 
@@ -106,9 +104,9 @@ POFTHEDAY&gt; (princ (alexandria:read-file-into-string &quot;full.log&quot;))
 
 &quot;INFO: Hello world!&quot; 
 &quot;ERROR: Something bad happened!&quot;</code></pre><p>Working on this example, I found two things:</p>
-<ul><li>there is no component to fanout messages into the nested <code>segments</code> or   sub pipes.</li><li>using indices to point to a place where a segment should be addded is   very inconvenient.</li></ul>
+<ul><li>there is no component to fanout messages into the nested <code>segments</code> or   sub pipes.</li><li>using indices to point to a place where a segment should be added is   very inconvenient.</li></ul>
 <p><a href="https://twitter.com/Shinmera">@Shinmera</a> uses <code>piping</code> in his logging library <a href="https://github.com/Shinmera/verbose">verbose</a>. I skimmed through its sources and didn't find if he has some solution of fanout absence problem.</p>
-<p>Definitely, this library can be made a more convenient if somebody is interested to use it for other purpose.</p>
+<p>Definitely, this library can be made a more convenient if somebody is interested to use it for other purposes.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

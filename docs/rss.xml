@@ -6,6 +6,120 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>piping</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html</link>
+            <description>&lt;p&gt;This library in some sense similar to the &lt;code&gt;cl-events&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;reviewed yesterday&lt;/a&gt;. It allows defining pipelines to process messages.&lt;/p&gt;
+&lt;p&gt;Each message can be processed sequentially or in parallel. Each node would be an instance of the &lt;code&gt;segment&lt;/code&gt; class. There are two kinds of nodes - intermediate and final.&lt;/p&gt;
+&lt;p&gt;Intermediate nodes can filter messages or route them into other pipelines.&lt;/p&gt;
+&lt;p&gt;Final nodes are called &lt;code&gt;faucets&lt;/code&gt;. They process the message and stop processing.&lt;/p&gt;
+&lt;p&gt;For example here is how we can build a log message processing using &lt;code&gt;piping&lt;/code&gt;. We want to print all &lt;code&gt;ERROR&lt;/code&gt; messages to &lt;code&gt;*error-output*&lt;/code&gt; and to write all messages to the log file.&lt;/p&gt;
+&lt;p&gt;To create this pipeline, we need following &lt;code&gt;segments&lt;/code&gt;. Here is &quot;Pipeline&quot; is a chain of &lt;code&gt;segments&lt;/code&gt; to pass the message through:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;Pipeline:
+  Print[&amp;quot;full.log&amp;quot;]
+  Pipeline: Filter[if ERROR] -&amp;gt; Print[*error-output*]&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can configure this pipeline in Lisp code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *pipe*
+             (make-instance &amp;#039;piping:pipeline))
+
+POFTHEDAY&amp;gt; (defparameter *log-printer*
+             (piping:add-segment
+               *pipe*
+               (make-instance &amp;#039;piping:printer
+                              :stream (open &amp;quot;full.log&amp;quot;
+                                            :direction :output
+                                            :if-exists :append
+                                            :if-does-not-exist :create))))
+
+;; This adds a sub-pipe where we&amp;#039;ll filter message
+;; and print if it stats with &amp;quot;ERROR&amp;quot;:
+POFTHEDAY&amp;gt; (piping:add-segment *pipe* :pipe)
+
+POFTHEDAY&amp;gt; (piping:add-segment *pipe*
+            (make-instance &amp;#039;piping:predicate-filter
+                           :predicate (lambda (message)
+                                        (str:starts-with-p &amp;quot;ERROR: &amp;quot; message)))
+            &amp;#039;(1))
+
+POFTHEDAY&amp;gt; (piping:add-segment *pipe*
+            (make-instance &amp;#039;piping:printer
+                           :stream *error-output*)
+            &amp;#039;(1))
+
+;; Now we&amp;#039;ll pass two messages through this pipeline:
+POFTHEDAY&amp;gt; (piping:pass *pipe*
+             &amp;quot;INFO: Hello world!&amp;quot;)
+
+;; This one will be printed to *error-output*:
+POFTHEDAY&amp;gt; (piping:pass *pipe*
+             &amp;quot;ERROR: Something bad happened!&amp;quot;)
+
+&amp;quot;ERROR: Something bad happened!&amp;quot; 
+
+;; But in file both messages are present:
+POFTHEDAY&amp;gt; (force-output (piping:print-stream *log-printer*))
+
+POFTHEDAY&amp;gt; (princ (alexandria:read-file-into-string &amp;quot;full.log&amp;quot;))
+
+&amp;quot;INFO: Hello world!&amp;quot; 
+&amp;quot;ERROR: Something bad happened!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Working on this example, I found two things:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;there is no component to fanout messages into the nested &lt;code&gt;segments&lt;/code&gt; or   sub pipes.&lt;/li&gt;&lt;li&gt;using indices to point to a place where a segment should be added is   very inconvenient.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;&lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; uses &lt;code&gt;piping&lt;/code&gt; in his logging library &lt;a href=&quot;https://github.com/Shinmera/verbose&quot;&gt;verbose&lt;/a&gt;. I skimmed through its sources and didn&apos;t find if he has some solution of fanout absence problem.&lt;/p&gt;
+&lt;p&gt;Definitely, this library can be made a more convenient if somebody is interested to use it for other purposes.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 15 Jul 2020 23:26:21 +0300</pubDate>
+        </item>
+        <item>
+            <title>cl-events</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html</link>
+            <description>&lt;p&gt;This is the library by &lt;a href=&quot;https://twitter.com/dead_trickster&quot;&gt;@dead_trickster&lt;/a&gt;. It implements a pub-sub API and allows to:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;create an event object;&lt;/li&gt;&lt;li&gt;subscribe on it;&lt;/li&gt;&lt;li&gt;fire the event.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;CL-Events&lt;/code&gt; provides a way to add a hook point for your application.&lt;/p&gt;
+&lt;p&gt;Here is the simplest example. Here we create a single-threaded event where all callbacks will be called sequentially:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *on-click*
+             (make-instance &amp;#039;cl-events:event))
+
+POFTHEDAY&amp;gt; (defun the-callback (message)
+             ;; pretend, we need some time to process the callback
+             (sleep 1)
+             (format t &amp;quot;MSG [~A]: ~A~%&amp;quot;
+                     (bt:current-thread)
+                     message))
+
+POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
+                             &amp;#039;the-callback)
+
+POFTHEDAY&amp;gt; (cl-events:event! *on-click*
+                             &amp;quot;Button clicked!&amp;quot;)
+MSG [#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003955B33}&amp;gt;]: Button clicked!
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make them execute in parallel, you only need to replace the type of the event object. Pay attention to the thread&apos;s name in the callback&apos;s output. They are different:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *on-click*
+             (make-instance &amp;#039;cl-events:broadcast-event))
+
+POFTHEDAY&amp;gt; (defun the-callback (handler-name message)
+             ;; pretend, we need some time to process the callback
+             (sleep 1)
+             (format t &amp;quot;MSG [~A/~A]: ~A~%&amp;quot;
+                     handler-name
+                     (bt:current-thread)
+                     message))
+
+POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
+                             (alexandria:curry &amp;#039;the-callback
+                                               &amp;quot;First handler&amp;quot;))
+
+POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
+                             (alexandria:curry &amp;#039;the-callback
+                                               &amp;quot;Second handler&amp;quot;))
+
+POFTHEDAY&amp;gt; (cl-events:event! *on-click*
+                             &amp;quot;Button clicked!&amp;quot;)
+NIL
+MSG [Second handler/#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {1005A97983}&amp;gt;]: Button clicked!
+MSG [First handler/#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {1005A96F93}&amp;gt;]: Button clicked!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, in this case, &lt;code&gt;event!&lt;/code&gt; function returns before all handlers are called.&lt;/p&gt;
+&lt;p&gt;In this case, parallel execution is implemented using &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;lparallel&apos;s thread pool&lt;/a&gt;. There are more executors available and you can implement your own.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 14 Jul 2020 22:47:14 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-with-current-source-form</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0129-trivial-with-current-source-form.html</link>
             <description>&lt;p&gt;This library is a compatibility layer. It helps to provide hints to the Lisp compiler. Hints allow the compiler to show more precise error messages when error happens during the macro-expansion.&lt;/p&gt;
@@ -933,127 +1047,6 @@ POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8080/foo/bar&amp;quot;
 &lt;p&gt;But please, don&apos;t hardcode passwords in the sources as I did :)&lt;/p&gt;
 </description>
             <pubDate>Fri, 26 Jun 2020 20:53:29 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-static</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html</link>
-            <description>&lt;p&gt;This middleware can be used to serve files from a directory. However, I don&apos;t recommend using it for production because it should be inefficient because a few lambdas are created on each request.&lt;/p&gt;
-&lt;p&gt;The middleware should be parametrized with two arguments: &lt;code&gt;path&lt;/code&gt; and &lt;code&gt;root&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;The &lt;code&gt;path&lt;/code&gt; is a prefix from the URL. The &lt;code&gt;root&lt;/code&gt; is the root directory on the local filesystem. For example, if &lt;code&gt;root&lt;/code&gt; is &lt;code&gt;/tmp/files/&lt;/code&gt; and &lt;code&gt;path&lt;/code&gt; is &lt;code&gt;/static/&lt;/code&gt; then for URL &lt;code&gt;http://my-site.com/static/some/file.txt&lt;/code&gt; Lack will return content of the &lt;code&gt;/tmp/files/some/file.txt&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Here is a small example, showing how does it work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (lambda (env)
-               &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                 (&amp;quot;A main app&amp;#039;s response&amp;quot;))))
-
-POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:static
-              ;; This is a path of URL
-              ;; to serve static files
-              :path &amp;quot;/static/&amp;quot;
-              ;; from this directory
-              ;; on the filesystem
-              :root #P&amp;quot;./static-files/&amp;quot;)
-             *app*)
-            :port 8082)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8082.
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/static/the-file.txt&amp;quot;))
-&amp;quot;My static file&amp;quot;
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/static/missing.txt&amp;quot;))
-; Debugger entered on #&amp;lt;DEXADOR.ERROR:HTTP-REQUEST-NOT-FOUND {100B944133}&amp;gt;
-
-POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8082/other/path&amp;quot;))
-&amp;quot;A main app&amp;#039;s response&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can pass a function as a &lt;code&gt;path&lt;/code&gt; argument. This way some sort of filtering may be done. The function should return another path and you probably will need to remove a prefix from it.&lt;/p&gt;
-&lt;p&gt;For example, if we want to serve only a &lt;code&gt;css&lt;/code&gt; files from the &lt;code&gt;static-files&lt;/code&gt; directory:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (alexandria:write-string-into-file
-            &amp;quot;Some secret README&amp;quot;
-            #P&amp;quot;static-files/README.txt&amp;quot;)
-
-POFTHEDAY&amp;gt; (alexandria:write-string-into-file
-            &amp;quot;Just CSS file&amp;quot;
-            #P&amp;quot;static-files/the.css&amp;quot;)
-
-POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:static
-              ;; This is a function to filter filename
-              ;; of the served static files:
-              :path (lambda (original-path)
-                      ;; When this function returns nil,
-                      ;; the request is passed to the main application.
-                      (when (and (str:ends-with-p &amp;quot;.css&amp;quot;
-                                                  original-path)
-                                 (str:starts-with-p &amp;quot;/static/&amp;quot;
-                                                    original-path))
-                        ;; you need to rewrite the path manually:
-                        (subseq original-path 7)))
-              ;; from this directory
-              ;; on the filesystem
-              :root #P&amp;quot;./static-files/&amp;quot;)
-             *app*)
-            :port 8085)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8085.
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8085/static/the.css&amp;quot;)
-&amp;quot;Just CSS file&amp;quot;
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8085/static/README.txt&amp;quot;)
-&amp;quot;A main app&amp;#039;s response&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is no any way to return 404 or 403 error in this case. This should be done on the main app&apos;s level.&lt;/p&gt;
-&lt;p&gt;That is it for today. Tomorrow we&apos;ll how to protect your app with basic auth!&lt;/p&gt;
-</description>
-            <pubDate>Thu, 25 Jun 2020 21:15:21 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-mount</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html</link>
-            <description>&lt;p&gt;We continue to review Lack&apos;s middlewares and this one gives you the ability to route requests to different apps depending on the path.&lt;/p&gt;
-&lt;p&gt;Here is a quick example. We want to plug a &lt;code&gt;blog&lt;/code&gt; and &lt;code&gt;admin&lt;/code&gt; into our main app:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *main-app*
-             (lambda (env)
-               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
-                     (list (format nil &amp;quot;~A~%This is main app!&amp;quot;
-                                   (getf env :path-info))))))
-
-POFTHEDAY&amp;gt; (defparameter *blog*
-             (lambda (env)
-               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
-                     (list (format nil &amp;quot;~A~%The Blog.&amp;quot;
-                                   (getf env :path-info))))))
-
-POFTHEDAY&amp;gt; (defparameter *admin*
-             (lambda (env)
-               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
-                     (list (format nil &amp;quot;~A~%Administration interface.&amp;quot;
-                                   (getf env :path-info))))))
-
-POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:mount &amp;quot;/blog&amp;quot; *blog*)
-             (:mount &amp;quot;/admin&amp;quot; *admin*)
-             *main-app*)
-            :port 8044)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8044.
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/some/page&amp;quot;)
-&amp;quot;/some/page
-This is main app!&amp;quot;
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/blog/post-1&amp;quot;)
-&amp;quot;/post-1
-The Blog.&amp;quot;
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8044/admin/blog/posts?id=1&amp;quot;)
-&amp;quot;/blog/posts
-Administration interface.&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to paths, returned as the first line of each response. It is relative to the mount point. This middleware rewrites the path so that an app can be mounted with any prefix.&lt;/p&gt;
-&lt;p&gt;That is it for today. Tomorrow we&apos;ll see how we can serve static with Lack.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 24 Jun 2020 22:50:22 +0300</pubDate>
         </item>
     </channel>
 </rss>

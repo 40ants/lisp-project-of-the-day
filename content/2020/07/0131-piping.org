@@ -9,17 +9,17 @@
 :END:
 
 This library in some sense similar to the ~cl-events~,
-[[https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html][reviewed yesterday]]. It allows to define a pipelines to process
+[[https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html][reviewed yesterday]]. It allows defining pipelines to process
 messages.
 
 Each message can be processed sequentially or in parallel. Each node
-whould be an instance of the ~segment~ class. There are two kinds of
+would be an instance of the ~segment~ class. There are two kinds of
 nodes - intermediate and final.
 
 Intermediate nodes can filter messages or route them into other
 pipelines.
 
-Final node are called ~faucets~. They process the message and stop
+Final nodes are called ~faucets~. They process the message and stop
 processing.
 
 For example here is how we can build a log message processing using
@@ -37,7 +37,7 @@ Pipeline:
 
 #+end_src
 
-Here is how we can to configure this pipeline in Lisp code:
+Here is how we can configure this pipeline in Lisp code:
 
 #+begin_src lisp
 
@@ -57,26 +57,24 @@ POFTHEDAY> (defparameter *log-printer*
 ;; and print if it stats with "ERROR":
 POFTHEDAY> (piping:add-segment *pipe* :pipe)
 
-POFTHEDAY> (piping:add-segment
-            *pipe*
+POFTHEDAY> (piping:add-segment *pipe*
             (make-instance 'piping:predicate-filter
                            :predicate (lambda (message)
                                         (str:starts-with-p "ERROR: " message)))
             '(1))
 
-POFTHEDAY> (piping:add-segment
-            *pipe*
+POFTHEDAY> (piping:add-segment *pipe*
             (make-instance 'piping:printer
                            :stream *error-output*)
             '(1))
 
 ;; Now we'll pass two messages through this pipeline:
 POFTHEDAY> (piping:pass *pipe*
-                        "INFO: Hello world!")
+             "INFO: Hello world!")
 
 ;; This one will be printed to *error-output*:
 POFTHEDAY> (piping:pass *pipe*
-                        "ERROR: Something bad happened!")
+             "ERROR: Something bad happened!")
 
 "ERROR: Something bad happened!" 
 
@@ -94,7 +92,7 @@ Working on this example, I found two things:
 
 - there is no component to fanout messages into the nested ~segments~ or
   sub pipes.
-- using indices to point to a place where a segment should be addded is
+- using indices to point to a place where a segment should be added is
   very inconvenient.
 
 [[https://twitter.com/Shinmera][@Shinmera]] uses ~piping~ in his logging library [[https://github.com/Shinmera/verbose][verbose]]. I skimmed through
@@ -102,5 +100,4 @@ its sources and didn't find if he has some solution of fanout absence
 problem.
 
 Definitely, this library can be made a more convenient if somebody is
-interested to use it for other purpose.
-
+interested to use it for other purposes.
