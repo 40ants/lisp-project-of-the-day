@@ -8,10 +8,10 @@
 :CI:       :(
 :END:
 
-Today we'll write a simple bot to keep history of the IRC's
-channel. IRC is a chat protocol existed prior Slack, Telegram, etc.
+Today we'll write a simple bot to keep a history of the IRC
+channel. IRC is a chat protocol that existed before Slack, Telegram, etc.
 
-For test I've installed a local lisp server on my OSX:
+For the test I've installed a local lisp server on my OSX:
 
 #+begin_src bash
 
@@ -39,7 +39,7 @@ To have launchd start ngircd now and restart at login:
 [66510:6    0] IO subsystem: kqueue (initial maxfd 100, masterfd 3).
 [66510:6    0] Now listening on [0::]:6667 (socket 6).
 [66510:6    0] Now listening on [0.0.0.0]:6667 (socket 8).
-[66510:5    0] Server "irc.example.net" (on "art-2osx") ready.
+[66510:5    0] Server "irc.example.net" (on "poftheday") ready.
 
 #+end_src
 
@@ -131,13 +131,13 @@ Slots with :INSTANCE allocation:
 #+end_src
 
 If you intend to make a bot which will reply to the messages, you have
-to choose either ~message~'s source slot or the first argument as the
+to choose either ~message~'s source slot or the first argument as a
 destination for the response.
 
 Most probably [[https://twitter.com/SatoshiShinohai/status/1283761536109023232][the bug]] [[https://twitter.com/SatoshiShinohai][@SatoshiShinohai]] complained about on Twitter is
-caused the wrong algorithm for choosing the response's destination.
+caused by the wrong algorithm for choosing the response's destination.
 
-Now lets redefine our ~on-message~ function to format log messages in an
+Now let's redefine our ~on-message~ function to format log messages in an
 accurate way:
 
 #+begin_src lisp
@@ -147,7 +147,8 @@ POFTHEDAY> (defun on-message (msg)
                        (cl-irc:source msg)
                        (second (cl-irc:arguments msg)))
              ;; To let cl-irc know that we've processed the event
-             ;; we need to return `t'
+             ;; we need to return `t'.
+             ;; Otherwise it will output "UNHANDLED-EVENT" messages.
              t)
 WARNING: redefining POFTHEDAY::ON-MESSAGE in DEFUN
 ON-MESSAGE

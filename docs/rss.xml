@@ -6,6 +6,128 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-irc</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0132-cl-irc.html</link>
+            <description>&lt;p&gt;Today we&apos;ll write a simple bot to keep a history of the IRC channel. IRC is a chat protocol that existed before Slack, Telegram, etc.&lt;/p&gt;
+&lt;p&gt;For the test I&apos;ve installed a local lisp server on my OSX:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday:~]% brew install ngircd
+Updating Homebrew...
+...
+==&amp;gt; Caveats
+==&amp;gt; ngircd
+To have launchd start ngircd now and restart at login:
+  brew services start ngircd
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+[66510:5    0] ngIRCd 26-IDENT+IPv6+IRCPLUS+SSL+SYSLOG+ZLIB-x86_64/apple/darwin19.5.0 starting ...
+[66510:6    0] Using configuration file &amp;quot;/usr/local/etc/ngircd.conf&amp;quot; ...
+[66510:3    0] Can&amp;#039;t read MOTD file &amp;quot;/usr/local/etc/ngircd.motd&amp;quot;: No such file or directory
+[66510:4    0] No administrative information configured but required by RFC!
+[66510:6    0] ServerUID must not be root(0), using &amp;quot;nobody&amp;quot; instead.
+[66510:3    0] Can&amp;#039;t change group ID to nobody(4294967294): Operation not permitted!
+[66510:3    0] Can&amp;#039;t drop supplementary group IDs: Operation not permitted!
+[66510:3    0] Can&amp;#039;t change user ID to nobody(4294967294): Operation not permitted!
+[66510:6    0] Running as user art(1345292665), group LD\Domain Users(593637566), with PID 66510.
+[66510:6    0] Not running with changed root directory.
+[66510:6    0] IO subsystem: kqueue (initial maxfd 100, masterfd 3).
+[66510:6    0] Now listening on [0::]:6667 (socket 6).
+[66510:6    0] Now listening on [0.0.0.0]:6667 (socket 8).
+[66510:5    0] Server &amp;quot;irc.example.net&amp;quot; (on &amp;quot;poftheday&amp;quot;) ready.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After that, I&apos;ve installed a command line IRC client &lt;code&gt;ircii&lt;/code&gt; and made two connections to simulate users in the #lisp channel.&lt;/p&gt;
+&lt;p&gt;Now it is time to connect our bot to the server and create a thread with the message processing loop:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter
+               *conn*
+             (cl-irc:connect :nickname &amp;quot;bot&amp;quot;
+                             :server &amp;quot;localhost&amp;quot;))
+
+POFTHEDAY&amp;gt; (defparameter *thread*
+             (bt:make-thread (lambda ()
+                               (cl-irc:read-message-loop *conn*))
+                             :name &amp;quot;IRC&amp;quot;))
+
+POFTHEDAY&amp;gt; (cl-irc:join *conn* &amp;quot;#lisp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;While messages are processed in the thread we are free to experiment in the &lt;code&gt;REPL&lt;/code&gt;. Let&apos;s add a hook to process messages from the channel:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun on-message (msg)
+             (log:info &amp;quot;New message&amp;quot; msg))
+
+POFTHEDAY&amp;gt; (cl-irc:add-hook *conn*
+                            &amp;#039;cl-irc:irc-privmsg-message
+                            &amp;#039;on-message)
+
+;; Now if some of users will write to the channel,
+;; the message will be logged to the screen:
+
+POFTHEDAY&amp;gt; 
+; No values
+ &amp;lt;INFO&amp;gt; [22:35:43] poftheday (on-message) -
+  New message POFTHEDAY::MSG: #&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007692DA3}&amp;gt;
+  
+UNHANDLED-EVENT:3803916943: PRIVMSG: joanna #lisp &amp;quot;Hello lispers!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can modify the &lt;code&gt;on-message&lt;/code&gt; function to save the last message into the global variable to inspect its structure:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; *last-msg*
+#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&amp;gt;
+
+POFTHEDAY&amp;gt; (describe *)
+#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&amp;gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = &amp;quot;joanna&amp;quot;
+  USER                           = &amp;quot;~art&amp;quot;
+  HOST                           = &amp;quot;localhost&amp;quot;
+  COMMAND                        = &amp;quot;PRIVMSG&amp;quot;
+  ARGUMENTS                      = (&amp;quot;#lisp&amp;quot; &amp;quot;Hello&amp;quot;)
+  CONNECTION                     = #&amp;lt;CL-IRC:CONNECTION localhost {1003918FA3}&amp;gt;
+  RECEIVED-TIME                  = 3803917081
+  RAW-MESSAGE-STRING             = &amp;quot;:joanna!~art@localhost PRIVMSG #lisp :Hello&#xD;&amp;quot;
+
+;; If user sent a direct message,
+;; it will have the bot&amp;#039;s username as the first argument:
+
+POFTHEDAY&amp;gt; (describe *last-msg*)
+#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1001600943}&amp;gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = &amp;quot;joanna&amp;quot;
+  USER                           = &amp;quot;~art&amp;quot;
+  HOST                           = &amp;quot;localhost&amp;quot;
+  COMMAND                        = &amp;quot;PRIVMSG&amp;quot;
+  ARGUMENTS                      = (&amp;quot;bot&amp;quot; &amp;quot;Hello. It is Joanna.&amp;quot;)
+  CONNECTION                     = #&amp;lt;CL-IRC:CONNECTION localhost {1003918FA3}&amp;gt;
+  RECEIVED-TIME                  = 3803917270
+  RAW-MESSAGE-STRING             = &amp;quot;:joanna!~art@localhost PRIVMSG bot :Hello. It is Joanna.&#xD;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you intend to make a bot which will reply to the messages, you have to choose either &lt;code&gt;message&lt;/code&gt;&apos;s source slot or the first argument as a destination for the response.&lt;/p&gt;
+&lt;p&gt;Most probably &lt;a href=&quot;https://twitter.com/SatoshiShinohai/status/1283761536109023232&quot;&gt;the bug&lt;/a&gt; &lt;a href=&quot;https://twitter.com/SatoshiShinohai&quot;&gt;@SatoshiShinohai&lt;/a&gt; complained about on Twitter is caused by the wrong algorithm for choosing the response&apos;s destination.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s redefine our &lt;code&gt;on-message&lt;/code&gt; function to format log messages in an accurate way:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun on-message (msg)
+             (log:info &amp;quot;&amp;lt;~A&amp;gt; ~A&amp;quot;
+                       (cl-irc:source msg)
+                       (second (cl-irc:arguments msg)))
+             ;; To let cl-irc know that we&amp;#039;ve processed the event
+             ;; we need to return `t&amp;#039;.
+             ;; Otherwise it will output &amp;quot;UNHANDLED-EVENT&amp;quot; messages.
+             t)
+WARNING: redefining POFTHEDAY::ON-MESSAGE in DEFUN
+ON-MESSAGE
+ &amp;lt;INFO&amp;gt; [22:55:06] poftheday (on-message) - &amp;lt;joanna&amp;gt; Hello everybody!
+ &amp;lt;INFO&amp;gt; [22:55:17] poftheday (on-message) - &amp;lt;art&amp;gt; Hello, Joanna!
+ &amp;lt;INFO&amp;gt; [22:55:27] poftheday (on-message) -
+  &amp;lt;joanna&amp;gt; What is the best book on Common Lisp for newbee?
+ &amp;lt;INFO&amp;gt; [22:55:56] poftheday (on-message) - &amp;lt;art&amp;gt; Try the Practical Common Lisp.
+ &amp;lt;INFO&amp;gt; [22:56:04] poftheday (on-message) - &amp;lt;joanna&amp;gt; Thanks!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you want to make the bot which responds to the message, then use &lt;code&gt;cl-irc:privmsg&lt;/code&gt; like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This will send a message to the channel:
+POFTHEDAY&amp;gt; (cl-irc:privmsg *conn* &amp;quot;#lisp&amp;quot; &amp;quot;Hello! Bot is in the channel!&amp;quot;)
+&amp;quot;PRIVMSG #lisp :Hello! Bot is in the channel!
+&amp;quot;
+
+;; and this will send a private message:
+POFTHEDAY&amp;gt; (cl-irc:privmsg *conn* &amp;quot;joanna&amp;quot; &amp;quot;Hi Joanna!&amp;quot;)
+&amp;quot;PRIVMSG joanna :Hi Joanna!
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you will download the cl-irc&apos;s sources from &lt;a href=&quot;https://common-lisp.net/project/cl-irc/&quot;&gt;https://common-lisp.net/project/cl-irc/&lt;/a&gt; you&apos;ll find more sofisticated bot in the &lt;code&gt;example&lt;/code&gt; folder.&lt;/p&gt;
+&lt;p&gt;One final note, to debug communication between lisp and IRC server set the &lt;code&gt;cl-irc::*debug-p*&lt;/code&gt; variable to true and it will log every message send or received by the bot.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 16 Jul 2020 23:05:57 +0300</pubDate>
+        </item>
+        <item>
             <title>piping</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html</link>
             <description>&lt;p&gt;This library in some sense similar to the &lt;code&gt;cl-events&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;reviewed yesterday&lt;/a&gt;. It allows defining pipelines to process messages.&lt;/p&gt;
@@ -1005,48 +1127,6 @@ POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b1
 &amp;quot;Access denied&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;See!? We&apos;ve built a simple web application using Lack micro-framework! Add something like Spinneret to render HTML and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;Lass&lt;/a&gt; + &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt; to render CSS and JS and we&apos;ll have a full-fledged webapp!&lt;/p&gt;
 </description>
             <pubDate>Sat, 27 Jun 2020 23:59:57 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-auth-basic</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0111-lack-middleware-auth-basic.html</link>
-            <description>&lt;p&gt;This Lack middleware is also undocumented, but it is short enough to understand from sources how to configure it.&lt;/p&gt;
-&lt;p&gt;When configuring this middleware, you should pass it a function which accepts username and password and returns a &lt;code&gt;t&lt;/code&gt; if the password is correct. Also, this function may return a user object as a second value. Returned user or original username from the HTTP header will be added to the environment plist as &lt;code&gt;:remote-user&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Here is an example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (lambda (env)
-               (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
-                     (list (format nil
-                                   &amp;quot;Hello ~A!&amp;quot;
-                                   (getf env :remote-user))))))
-
-POFTHEDAY&amp;gt; (defun auth (user pass)
-             (when (and (string= user &amp;quot;bob&amp;quot;)
-                        (string= pass &amp;quot;$ecret&amp;quot;))
-               (values t
-                       &amp;quot;Bob The Admin&amp;quot;)))
-
-POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             (:auth-basic :authenticator #&amp;#039;auth)
-             *app*)
-            :port 8080)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8080.
-
-POFTHEDAY&amp;gt; (handler-case (dex:get &amp;quot;http://localhost:8080/foo/bar&amp;quot;)
-             (error (condition)
-               (values (dex:response-status condition)
-                       (dex:response-body condition))))
-401 (9 bits, #x191)
-&amp;quot;Authorization required&amp;quot;
-
-POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8080/foo/bar&amp;quot;
-                    :basic-auth &amp;#039;(&amp;quot;bob&amp;quot; . &amp;quot;$ecret&amp;quot;))
-&amp;quot;Hello Bob The Admin!&amp;quot;
-200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. Very simple, isn&apos;t it?&lt;/p&gt;
-&lt;p&gt;But please, don&apos;t hardcode passwords in the sources as I did :)&lt;/p&gt;
-</description>
-            <pubDate>Fri, 26 Jun 2020 20:53:29 +0300</pubDate>
         </item>
     </channel>
 </rss>

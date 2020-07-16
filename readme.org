@@ -21,6 +21,7 @@ Twitter account svetlyak40wt]].
 - 13 July - [[content/2020/07/0129-trivial-with-current-source-form.org][trivial-with-current-source-form]] ([[https://twitter.com/svetlyak40wt/status/1282756887235239936][twitter]])
 - 14 July - [[content/2020/07/0130-cl-events.org][cl-events]] ([[https://twitter.com/svetlyak40wt/status/1283124802627280898][twitter]])
 - 15 July - [[content/2020/07/0131-piping.org][piping]] ([[https://twitter.com/svetlyak40wt/status/1283499253231484929][twitter]])
+- 16 July - [[content/2020/07/0132-cl-irc.org][cl-irc]] ([[https://twitter.com/svetlyak40wt/status/1283856499215867904][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1116,7 +1117,10 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/g000001/mbe - Scheme Macros for Common Lisp
 - http://verisimilitudes.net/2017-12-30 shut-it-down
 - http://quickdocs.org/blackbird/
-
+- https://github.com/selwynsimsek/lisp-o-motive
+  obtain token at: https://datafeeds.networkrail.co.uk/ntrod/
+- http://quickdocs.org/cl-stomp/
+- https://github.com/chrisfont/ackbot
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
