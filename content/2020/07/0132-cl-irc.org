@@ -1,0 +1,186 @@
+* cl-irc :network:protocols:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today we'll write a simple bot to keep history of the IRC's
+channel. IRC is a chat protocol existed prior Slack, Telegram, etc.
+
+For test I've installed a local lisp server on my OSX:
+
+#+begin_src bash
+
+[poftheday:~]% brew install ngircd
+Updating Homebrew...
+...
+==> Caveats
+==> ngircd
+To have launchd start ngircd now and restart at login:
+  brew services start ngircd
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+[66510:5    0] ngIRCd 26-IDENT+IPv6+IRCPLUS+SSL+SYSLOG+ZLIB-x86_64/apple/darwin19.5.0 starting ...
+[66510:6    0] Using configuration file "/usr/local/etc/ngircd.conf" ...
+[66510:3    0] Can't read MOTD file "/usr/local/etc/ngircd.motd": No such file or directory
+[66510:4    0] No administrative information configured but required by RFC!
+[66510:6    0] ServerUID must not be root(0), using "nobody" instead.
+[66510:3    0] Can't change group ID to nobody(4294967294): Operation not permitted!
+[66510:3    0] Can't drop supplementary group IDs: Operation not permitted!
+[66510:3    0] Can't change user ID to nobody(4294967294): Operation not permitted!
+[66510:6    0] Running as user art(1345292665), group LD\Domain Users(593637566), with PID 66510.
+[66510:6    0] Not running with changed root directory.
+[66510:6    0] IO subsystem: kqueue (initial maxfd 100, masterfd 3).
+[66510:6    0] Now listening on [0::]:6667 (socket 6).
+[66510:6    0] Now listening on [0.0.0.0]:6667 (socket 8).
+[66510:5    0] Server "irc.example.net" (on "art-2osx") ready.
+
+#+end_src
+
+After that, I've installed a command line IRC client ~ircii~ and made two
+connections to simulate users in the #lisp channel.
+
+Now it is time to connect our bot to the server and create a thread with
+the message processing loop:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter
+               *conn*
+             (cl-irc:connect :nickname "bot"
+                             :server "localhost"))
+
+POFTHEDAY> (defparameter *thread*
+             (bt:make-thread (lambda ()
+                               (cl-irc:read-message-loop *conn*))
+                             :name "IRC"))
+
+POFTHEDAY> (cl-irc:join *conn* "#lisp")
+
+#+end_src
+
+While messages are processed in the thread we are free to experiment in
+the ~REPL~. Let's add a hook to process messages from the channel:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun on-message (msg)
+             (log:info "New message" msg))
+
+POFTHEDAY> (cl-irc:add-hook *conn*
+                            'cl-irc:irc-privmsg-message
+                            'on-message)
+
+;; Now if some of users will write to the channel,
+;; the message will be logged to the screen:
+
+POFTHEDAY> 
+; No values
+ <INFO> [22:35:43] poftheday (on-message) -
+  New message POFTHEDAY::MSG: #<CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007692DA3}>
+  
+UNHANDLED-EVENT:3803916943: PRIVMSG: joanna #lisp "Hello lispers!"
+
+#+end_src
+
+We can modify the ~on-message~ function to save the last message into the
+global variable to inspect its structure:
+
+#+begin_src lisp
+
+POFTHEDAY> *last-msg*
+#<CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}>
+
+POFTHEDAY> (describe *)
+#<CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}>
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = "joanna"
+  USER                           = "~art"
+  HOST                           = "localhost"
+  COMMAND                        = "PRIVMSG"
+  ARGUMENTS                      = ("#lisp" "Hello")
+  CONNECTION                     = #<CL-IRC:CONNECTION localhost {1003918FA3}>
+  RECEIVED-TIME                  = 3803917081
+  RAW-MESSAGE-STRING             = ":joanna!~art@localhost PRIVMSG #lisp :Hello"
+
+;; If user sent a direct message,
+;; it will have the bot's username as the first argument:
+
+POFTHEDAY> (describe *last-msg*)
+#<CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1001600943}>
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = "joanna"
+  USER                           = "~art"
+  HOST                           = "localhost"
+  COMMAND                        = "PRIVMSG"
+  ARGUMENTS                      = ("bot" "Hello. It is Joanna.")
+  CONNECTION                     = #<CL-IRC:CONNECTION localhost {1003918FA3}>
+  RECEIVED-TIME                  = 3803917270
+  RAW-MESSAGE-STRING             = ":joanna!~art@localhost PRIVMSG bot :Hello. It is Joanna."
+
+#+end_src
+
+If you intend to make a bot which will reply to the messages, you have
+to choose either ~message~'s source slot or the first argument as the
+destination for the response.
+
+Most probably [[https://twitter.com/SatoshiShinohai/status/1283761536109023232][the bug]] [[https://twitter.com/SatoshiShinohai][@SatoshiShinohai]] complained about on Twitter is
+caused the wrong algorithm for choosing the response's destination.
+
+Now lets redefine our ~on-message~ function to format log messages in an
+accurate way:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun on-message (msg)
+             (log:info "<~A> ~A"
+                       (cl-irc:source msg)
+                       (second (cl-irc:arguments msg)))
+             ;; To let cl-irc know that we've processed the event
+             ;; we need to return `t'
+             t)
+WARNING: redefining POFTHEDAY::ON-MESSAGE in DEFUN
+ON-MESSAGE
+ <INFO> [22:55:06] poftheday (on-message) - <joanna> Hello everybody!
+ <INFO> [22:55:17] poftheday (on-message) - <art> Hello, Joanna!
+ <INFO> [22:55:27] poftheday (on-message) -
+  <joanna> What is the best book on Common Lisp for newbee?
+ <INFO> [22:55:56] poftheday (on-message) - <art> Try the Practical Common Lisp.
+ <INFO> [22:56:04] poftheday (on-message) - <joanna> Thanks!
+
+#+end_src
+
+If you want to make the bot which responds to the message, then use
+~cl-irc:privmsg~ like this:
+
+#+begin_src lisp
+
+;; This will send a message to the channel:
+POFTHEDAY> (cl-irc:privmsg *conn* "#lisp" "Hello! Bot is in the channel!")
+"PRIVMSG #lisp :Hello! Bot is in the channel!
+"
+
+;; and this will send a private message:
+POFTHEDAY> (cl-irc:privmsg *conn* "joanna" "Hi Joanna!")
+"PRIVMSG joanna :Hi Joanna!
+"
+
+#+end_src
+
+If you will download the cl-irc's sources from
+https://common-lisp.net/project/cl-irc/, you'll find more sofisticated
+bot in the ~example~ folder.
+
+One final note, to debug communication between lisp and IRC server set
+the ~cl-irc::*debug-p*~ variable to true and it will log every message
+send or received by the bot.

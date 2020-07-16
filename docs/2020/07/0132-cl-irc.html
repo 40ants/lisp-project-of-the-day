@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-irc
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-irc</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>cl-irc<span class='tags'><a href='../../tags/network.html'><span class='label label-default'>network</span></a><a href='../../tags/protocols.html'><span class='label label-default'>protocols</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Today we'll write a simple bot to keep history of the IRC's channel. IRC is a chat protocol existed prior Slack, Telegram, etc.</p>
+<p>For test I've installed a local lisp server on my OSX:</p>
+<pre><code class='bash'>[poftheday:~]% brew install ngircd
+Updating Homebrew...
+...
+==&gt; Caveats
+==&gt; ngircd
+To have launchd start ngircd now and restart at login:
+  brew services start ngircd
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+
+[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
+[66510:5    0] ngIRCd 26-IDENT+IPv6+IRCPLUS+SSL+SYSLOG+ZLIB-x86_64/apple/darwin19.5.0 starting ...
+[66510:6    0] Using configuration file &quot;/usr/local/etc/ngircd.conf&quot; ...
+[66510:3    0] Can&#039;t read MOTD file &quot;/usr/local/etc/ngircd.motd&quot;: No such file or directory
+[66510:4    0] No administrative information configured but required by RFC!
+[66510:6    0] ServerUID must not be root(0), using &quot;nobody&quot; instead.
+[66510:3    0] Can&#039;t change group ID to nobody(4294967294): Operation not permitted!
+[66510:3    0] Can&#039;t drop supplementary group IDs: Operation not permitted!
+[66510:3    0] Can&#039;t change user ID to nobody(4294967294): Operation not permitted!
+[66510:6    0] Running as user art(1345292665), group LD\Domain Users(593637566), with PID 66510.
+[66510:6    0] Not running with changed root directory.
+[66510:6    0] IO subsystem: kqueue (initial maxfd 100, masterfd 3).
+[66510:6    0] Now listening on [0::]:6667 (socket 6).
+[66510:6    0] Now listening on [0.0.0.0]:6667 (socket 8).
+[66510:5    0] Server &quot;irc.example.net&quot; (on &quot;art-2osx&quot;) ready.</code></pre><p>After that, I've installed a command line IRC client <code>ircii</code> and made two connections to simulate users in the #lisp channel.</p>
+<p>Now it is time to connect our bot to the server and create a thread with the message processing loop:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter
+               *conn*
+             (cl-irc:connect :nickname &quot;bot&quot;
+                             :server &quot;localhost&quot;))
+
+POFTHEDAY&gt; (defparameter *thread*
+             (bt:make-thread (lambda ()
+                               (cl-irc:read-message-loop *conn*))
+                             :name &quot;IRC&quot;))
+
+POFTHEDAY&gt; (cl-irc:join *conn* &quot;#lisp&quot;)</code></pre><p>While messages are processed in the thread we are free to experiment in the <code>REPL</code>. Let's add a hook to process messages from the channel:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun on-message (msg)
+             (log:info &quot;New message&quot; msg))
+
+POFTHEDAY&gt; (cl-irc:add-hook *conn*
+                            &#039;cl-irc:irc-privmsg-message
+                            &#039;on-message)
+
+;; Now if some of users will write to the channel,
+;; the message will be logged to the screen:
+
+POFTHEDAY&gt; 
+; No values
+ &lt;INFO&gt; [22:35:43] poftheday (on-message) -
+  New message POFTHEDAY::MSG: #&lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007692DA3}&gt;
+  
+UNHANDLED-EVENT:3803916943: PRIVMSG: joanna #lisp &quot;Hello lispers!&quot;</code></pre><p>We can modify the <code>on-message</code> function to save the last message into the global variable to inspect its structure:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; *last-msg*
+#&lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&gt;
+
+POFTHEDAY&gt; (describe *)
+#&lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = &quot;joanna&quot;
+  USER                           = &quot;~art&quot;
+  HOST                           = &quot;localhost&quot;
+  COMMAND                        = &quot;PRIVMSG&quot;
+  ARGUMENTS                      = (&quot;#lisp&quot; &quot;Hello&quot;)
+  CONNECTION                     = #&lt;CL-IRC:CONNECTION localhost {1003918FA3}&gt;
+  RECEIVED-TIME                  = 3803917081
+  RAW-MESSAGE-STRING             = &quot;:joanna!~art@localhost PRIVMSG #lisp :Hello&quot;
+
+;; If user sent a direct message,
+;; it will have the bot&#039;s username as the first argument:
+
+POFTHEDAY&gt; (describe *last-msg*)
+#&lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1001600943}&gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  SOURCE                         = &quot;joanna&quot;
+  USER                           = &quot;~art&quot;
+  HOST                           = &quot;localhost&quot;
+  COMMAND                        = &quot;PRIVMSG&quot;
+  ARGUMENTS                      = (&quot;bot&quot; &quot;Hello. It is Joanna.&quot;)
+  CONNECTION                     = #&lt;CL-IRC:CONNECTION localhost {1003918FA3}&gt;
+  RECEIVED-TIME                  = 3803917270
+  RAW-MESSAGE-STRING             = &quot;:joanna!~art@localhost PRIVMSG bot :Hello. It is Joanna.&quot;</code></pre><p>If you intend to make a bot which will reply to the messages, you have to choose either <code>message</code>'s source slot or the first argument as the destination for the response.</p>
+<p>Most probably <a href="https://twitter.com/SatoshiShinohai/status/1283761536109023232">the bug</a> <a href="https://twitter.com/SatoshiShinohai">@SatoshiShinohai</a> complained about on Twitter is caused the wrong algorithm for choosing the response's destination.</p>
+<p>Now lets redefine our <code>on-message</code> function to format log messages in an accurate way:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun on-message (msg)
+             (log:info &quot;&lt;~A&gt; ~A&quot;
+                       (cl-irc:source msg)
+                       (second (cl-irc:arguments msg)))
+             ;; To let cl-irc know that we&#039;ve processed the event
+             ;; we need to return `t&#039;
+             t)
+WARNING: redefining POFTHEDAY::ON-MESSAGE in DEFUN
+ON-MESSAGE
+ &lt;INFO&gt; [22:55:06] poftheday (on-message) - &lt;joanna&gt; Hello everybody!
+ &lt;INFO&gt; [22:55:17] poftheday (on-message) - &lt;art&gt; Hello, Joanna!
+ &lt;INFO&gt; [22:55:27] poftheday (on-message) -
+  &lt;joanna&gt; What is the best book on Common Lisp for newbee?
+ &lt;INFO&gt; [22:55:56] poftheday (on-message) - &lt;art&gt; Try the Practical Common Lisp.
+ &lt;INFO&gt; [22:56:04] poftheday (on-message) - &lt;joanna&gt; Thanks!</code></pre><p>If you want to make the bot which responds to the message, then use <code>cl-irc:privmsg</code> like this:</p>
+<pre><code class='lisp'>;; This will send a message to the channel:
+POFTHEDAY&gt; (cl-irc:privmsg *conn* &quot;#lisp&quot; &quot;Hello! Bot is in the channel!&quot;)
+&quot;PRIVMSG #lisp :Hello! Bot is in the channel!
+&quot;
+
+;; and this will send a private message:
+POFTHEDAY&gt; (cl-irc:privmsg *conn* &quot;joanna&quot; &quot;Hi Joanna!&quot;)
+&quot;PRIVMSG joanna :Hi Joanna!
+&quot;</code></pre><p>If you will download the cl-irc's sources from <a href="https://common-lisp.net/project/cl-irc/">https://common-lisp.net/project/cl-irc/</a> you'll find more sofisticated bot in the <code>example</code> folder.</p>
+<p>One final note, to debug communication between lisp and IRC server set the <code>cl-irc::*debug-p*</code> variable to true and it will log every message send or received by the bot.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
