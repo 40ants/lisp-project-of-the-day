@@ -24,7 +24,7 @@ its location on Google Maps:
 
 ~J25X+6H~ is the shortened open location code for this location.
 
-You can get the full code using lattitude, longitude and one line of
+You can get the full code using latitude, longitude and one line of
 Lisp code:
 
 #+begin_src lisp
@@ -36,7 +36,7 @@ POFTHEDAY> (open-location-code:encode
 
 #+end_src
 
-The code ~9G7WJ25X+6H~ is full. It has all information to get back our lattitude
+The code ~9G7WJ25X+6H~ is full. It has all information to get back our latitude
 and longitude:
 
 #+begin_src lisp
@@ -66,7 +66,7 @@ POFTHEDAY> (open-location-code:south-west-corner *)
 #+end_src
 
 To get the coordinates, you need to "recover" the full code first. This
-is done using some reference point. For example, we can take a nearest
+is done using some reference point. For example, we can take the nearest
 village's coordinates as the reference point:
 
 #+begin_src lisp
@@ -83,3 +83,6 @@ This is the same code we've received from mansion's coordinates. You
 can open the Google Maps and search the code ~9G7WJ25X+6H~ to check it. In
 real life short codes are used together with the name of the nearest
 city, like ~J25X+6H Быково, Московская обл.~
+
+That is for today. For me, open location codes were an exciting
+discovery. Didn't hear about them before.

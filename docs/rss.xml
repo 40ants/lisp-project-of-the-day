@@ -6,6 +6,43 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>open-location-code</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0133-open-location-code.html</link>
+            <description>&lt;p&gt;This is an interesting way to encode coordinates on the planet Earth.&lt;/p&gt;
+&lt;p&gt;These codes can be short enough to remember them, and they are pronounceable. What is essential – they supported by Google.&lt;/p&gt;
+&lt;p&gt;For example, I have an architectural landmark in nearby Bykovo village - the &lt;a href=&quot;https://ru.wikipedia.org/wiki/Усадьба_Быково&quot;&gt;Vorontcov-Dashkov&apos;s mansion&lt;/a&gt;. Its coordinates are &lt;code&gt;55.608093&lt;/code&gt;, &lt;code&gt;38.048927&lt;/code&gt; or &lt;code&gt;55&#xB0;36&apos;29.1&quot;N 38&#xB0;02&apos;56.1&quot;E&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;This building has no address, but we can get an &quot;open location code&quot; for its location on Google Maps:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0133/map.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;J25X+6H&lt;/code&gt; is the shortened open location code for this location.&lt;/p&gt;
+&lt;p&gt;You can get the full code using latitude, longitude and one line of Lisp code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:encode
+            55.608093
+            38.048927)
+&amp;quot;9G7WJ25X+6H&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The code &lt;code&gt;9G7WJ25X+6H&lt;/code&gt; is full. It has all information to get back our latitude and longitude:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:decode &amp;quot;9G7WJ25X+6H&amp;quot;)
+#&amp;lt;OPEN-LOCATION-CODE:CODE-AREA {1002BF7E13}&amp;gt;
+:FULL
+
+POFTHEDAY&amp;gt; (open-location-code:south-west-corner *)
+6951/125 (55.608)
+304391/8000 (38.048874)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But for short code this will not work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:decode &amp;quot;J25X+6H&amp;quot;)
+#&amp;lt;OPEN-LOCATION-CODE:CODE-AREA {10067CAAB3}&amp;gt;
+:SHORT
+
+POFTHEDAY&amp;gt; (open-location-code:south-west-corner *)
+76/125 (0.608, 304/5%)
+391/8000 (0.048875, 391/80%)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To get the coordinates, you need to &quot;recover&quot; the full code first. This is done using some reference point. For example, we can take the nearest village&apos;s coordinates as the reference point:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:recover
+            &amp;quot;J25X+6H&amp;quot;
+            55.634068
+            38.044629)
+&amp;quot;9G7WJ25X+6H&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is the same code we&apos;ve received from mansion&apos;s coordinates. You can open the Google Maps and search the code &lt;code&gt;9G7WJ25X+6H&lt;/code&gt; to check it. In real life short codes are used together with the name of the nearest city, like &lt;code&gt;J25X+6H Быково, Московская обл.&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;That is for today. For me, open location codes were an exciting discovery. Didn&apos;t hear about them before.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 17 Jul 2020 23:38:24 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-irc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0132-cl-irc.html</link>
             <description>&lt;p&gt;Today we&apos;ll write a simple bot to keep a history of the IRC channel. IRC is a chat protocol that existed before Slack, Telegram, etc.&lt;/p&gt;
@@ -1036,97 +1073,6 @@ Listening on 127.0.0.1:8091.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is how our fo
 &lt;p&gt;And finally, you can define your own handler for the error page and pass it as &quot;:block-app&quot;. It should be a usual Clack app.&lt;/p&gt;
 </description>
             <pubDate>Sun, 28 Jun 2020 22:31:02 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-session</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0112-lack-middleware-session.html</link>
-            <description>&lt;p&gt;This middleware makes your app stateful and allows to associate some information with the current user.&lt;/p&gt;
-&lt;p&gt;There are two abstractions behind Lack sessions - state and store.&lt;/p&gt;
-&lt;p&gt;State object defines how to keep track of a session. Lack includes only one type of state class. It keeps state id in the browser&apos;s cookies.&lt;/p&gt;
-&lt;p&gt;Store object defines where to store data, associated with a state. There are three store classes in the Lack. The default stores data in memory, using a hash table. There are also &lt;code&gt;dbi&lt;/code&gt; and &lt;code&gt;redis&lt;/code&gt; stores.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s create an app that allows a user to login in and logout.&lt;/p&gt;
-&lt;p&gt;First, we need an app for logging it checks the password as we did in yesterday&apos;s &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0111-lack-middleware-auth-basic.html&quot;&gt;post on basic auth&lt;/a&gt;. If the password is correct, we&apos;ll put a user&apos;s login into a session&apos;s hash:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun login (env)
-             (let* ((params (getf env :body-parameters))
-                    (login (alexandria:assoc-value
-                            params
-                            &amp;quot;login&amp;quot; :test #&amp;#039;string=))
-                    (password (alexandria:assoc-value
-                               params
-                               &amp;quot;password&amp;quot; :test #&amp;#039;string=))
-                    (session (getf env
-                                   :lack.session)))
-               (cond
-                 ((and (string= login
-                                &amp;quot;bob&amp;quot;)
-                       (string= password
-                                &amp;quot;$ecret&amp;quot;))
-                  (setf (gethash :login
-                                 session)
-                        login)
-                  &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                    (&amp;quot;Dear Bob, you welcome!&amp;quot;)))
-                 (t
-                  &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                    (&amp;quot;Wrong password!&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, we need a function to logout. It set&apos;s a special flag to let middleware know that all session data should be wiped from the store:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun logout (env)
-             (setf (getf (getf env :lack.session.options)
-                         :expire)
-                   t)
-             &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-               (&amp;quot;Now you are logged our&amp;quot;)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The main app will use data from the session and will show a welcome message if the user is authenticated:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun main (env)
-             (let* ((session (getf env :lack.session))
-                    (login (gethash :login session)))
-               (cond
-                 (login
-                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
-                        (list (format nil &amp;quot;Welcome, ~A!&amp;quot;
-                                      login))))
-                 (t
-                  &amp;#039;(403 (:content-type &amp;quot;text/plain&amp;quot;)
-                        (&amp;quot;Access denied&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we need to combine these apps using &lt;code&gt;mount&lt;/code&gt; middleware (it was &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0109-lack-middleware-mount.html&quot;&gt;reviewed a few days ago&lt;/a&gt;) and slap the &lt;code&gt;session&lt;/code&gt; middleware on it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             :session
-             (:mount &amp;quot;/login&amp;quot; &amp;#039;login)
-             (:mount &amp;quot;/logout&amp;quot; &amp;#039;logout)
-             &amp;#039;main)
-            :port 8089)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8089.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s try to log in:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (values (dex:get &amp;quot;http://localhost:8090/&amp;quot;))
-&amp;quot;Access denied&amp;quot;
-
-POFTHEDAY&amp;gt; (multiple-value-bind (response code headers)
-               (dex:post &amp;quot;http://localhost:8090/login&amp;quot;
-                         :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
-                                    (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;)))
-             (values response code
-                     (rutils:hash-table-to-alist headers)))
-&amp;quot;Dear Bob, you welcome!&amp;quot;
-200
-((&amp;quot;date&amp;quot; . &amp;quot;Sat, 27 Jun 2020 20:47:13 GMT&amp;quot;)
- (&amp;quot;server&amp;quot; . &amp;quot;Hunchentoot 1.2.38&amp;quot;)
- (&amp;quot;transfer-encoding&amp;quot; . &amp;quot;chunked&amp;quot;)
- (&amp;quot;content-type&amp;quot; . &amp;quot;text/plain&amp;quot;)
- (&amp;quot;set-cookie&amp;quot;
-  &amp;quot;lack.session=b10c66; path=/; expires=Fri, 23 Dec 2140 17:24:51 GMT&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The server returned the &quot;set-cookie&quot; header. Usually, the browser will pass this cookie content during the following requests. We&apos;ll emulate this behavior to make a request to the main app:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
-             (values (dex:get &amp;quot;http://localhost:8090/&amp;quot;
-                              :headers headers)))
-&amp;quot;Welcome, bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we&apos;ll check how does log out will work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
-             (values (dex:post &amp;quot;http://localhost:8090/logout&amp;quot;
-                               :headers headers)))
-&amp;quot;Now you are logged out&amp;quot;
-
-POFTHEDAY&amp;gt; (let ((headers &amp;#039;((:cookie . &amp;quot;lack.session=b10c66&amp;quot;))))
-             (dex:get &amp;quot;http://localhost:8090/&amp;quot;
-                              :headers headers))
-&amp;quot;Access denied&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;See!? We&apos;ve built a simple web application using Lack micro-framework! Add something like Spinneret to render HTML and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;Lass&lt;/a&gt; + &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt; to render CSS and JS and we&apos;ll have a full-fledged webapp!&lt;/p&gt;
-</description>
-            <pubDate>Sat, 27 Jun 2020 23:59:57 +0300</pubDate>
         </item>
     </channel>
 </rss>
