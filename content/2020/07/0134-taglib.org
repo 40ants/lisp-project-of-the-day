@@ -1,0 +1,62 @@
+* taglib :audio:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :|
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+The first post in the #poftheday series was about ~cl-mpg123~ library. It
+failed on attempt to process metadata of mp3 file. Today we'll try
+~taglib~. This is the pure CL library to process MP3, MP4, FLAC tags.
+
+Let's try it on the file from the zero post!
+
+#+begin_src lisp
+
+POFTHEDAY> (audio-streams:open-audio-file
+            "docs/media/0000/file.mp3")
+#<ID3:MP3-FILE {10036524E3}>
+
+POFTHEDAY> (abstract-tag:show-tags *)
+/Users/art/projects/poftheday/docs/media/0000/file.mp3
+1 frame read, MPEG 1, Layer III, CBR, sample rate: 44,100 Hz, bit rate: 320 Kbps, duration: 7:15
+    album: Rogue's Gallery: Pirate Ballads, Sea Songs, and Chanteys
+    artist: Baby Gramps
+    comment: ((0 eng  NIL))
+    compilation: no
+    cover: (Size: 9,870)
+    genre: Folk
+    lyrics:  
+    title: Cape Cod Girls
+    track: (1 23)
+    year: 2006
+NIL
+
+#+end_src
+
+There is also a possibility to access specific fields:
+
+#+begin_src lisp
+
+POFTHEDAY> (audio-streams:open-audio-file
+            "docs/media/0000/file.mp3")
+#<ID3:MP3-FILE {10027E6093}>
+
+POFTHEDAY> (id3:id3-header *)
+#<ID3:ID3-HEADER {10027E60D3}>
+
+POFTHEDAY> (id3:v21-tag-header *)
+#<ID3:V21-TAG-HEADER {10027E6363}>
+
+POFTHEDAY> (id3:album *)
+"Rogue's Gallery: Pirate Ballad"
+
+POFTHEDAY> (id3:title **)
+"Cape Cod Girls"
+
+#+end_src
+
+Seems it works very good!
