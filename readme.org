@@ -23,6 +23,7 @@ Twitter account svetlyak40wt]].
 - 15 July - [[content/2020/07/0131-piping.org][piping]] ([[https://twitter.com/svetlyak40wt/status/1283499253231484929][twitter]])
 - 16 July - [[content/2020/07/0132-cl-irc.org][cl-irc]] ([[https://twitter.com/svetlyak40wt/status/1283856499215867904][twitter]])
 - 17 July - [[content/2020/07/0133-open-location-code.org][open-location-code]] ([[https://twitter.com/svetlyak40wt/status/1284225928353251330][twitter]])
+- 18 July - [[content/2020/07/0134-taglib.org][taglib]] ([[https://twitter.com/svetlyak40wt/status/1284573315907149824][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

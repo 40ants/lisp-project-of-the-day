@@ -6,6 +6,47 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>taglib</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0134-taglib.html</link>
+            <description>&lt;p&gt;The first post in the #poftheday series was about &lt;code&gt;cl-mpg123&lt;/code&gt; library. It failed on attempt to process metadata of mp3 file. Today we&apos;ll try &lt;code&gt;taglib&lt;/code&gt;. This is the pure CL library to process MP3, MP4, FLAC tags.&lt;/p&gt;
+&lt;p&gt;Let&apos;s try it on the file from the zero post!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (audio-streams:open-audio-file
+            &amp;quot;docs/media/0000/file.mp3&amp;quot;)
+#&amp;lt;ID3:MP3-FILE {10036524E3}&amp;gt;
+
+POFTHEDAY&amp;gt; (abstract-tag:show-tags *)
+/Users/art/projects/poftheday/docs/media/0000/file.mp3
+1 frame read, MPEG 1, Layer III, CBR, sample rate: 44,100 Hz, bit rate: 320 Kbps, duration: 7:15
+    album: Rogue&amp;#039;s Gallery: Pirate Ballads, Sea Songs, and Chanteys
+    artist: Baby Gramps
+    comment: ((0 eng  NIL))
+    compilation: no
+    cover: (Size: 9,870)
+    genre: Folk
+    lyrics:  
+    title: Cape Cod Girls
+    track: (1 23)
+    year: 2006
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a possibility to access specific fields:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (audio-streams:open-audio-file
+            &amp;quot;docs/media/0000/file.mp3&amp;quot;)
+#&amp;lt;ID3:MP3-FILE {10027E6093}&amp;gt;
+
+POFTHEDAY&amp;gt; (id3:id3-header *)
+#&amp;lt;ID3:ID3-HEADER {10027E60D3}&amp;gt;
+
+POFTHEDAY&amp;gt; (id3:v21-tag-header *)
+#&amp;lt;ID3:V21-TAG-HEADER {10027E6363}&amp;gt;
+
+POFTHEDAY&amp;gt; (id3:album *)
+&amp;quot;Rogue&amp;#039;s Gallery: Pirate Ballad&amp;quot;
+
+POFTHEDAY&amp;gt; (id3:title **)
+&amp;quot;Cape Cod Girls&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems it works very good!&lt;/p&gt;
+</description>
+            <pubDate>Sat, 18 Jul 2020 22:42:56 +0300</pubDate>
+        </item>
+        <item>
             <title>open-location-code</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0133-open-location-code.html</link>
             <description>&lt;p&gt;This is an interesting way to encode coordinates on the planet Earth.&lt;/p&gt;
@@ -1006,73 +1047,6 @@ POFTHEDAY&amp;gt; (rutils:hash-table-to-alist #v56:2)
 &lt;p&gt;Personally, I&apos;m don&apos;t see the need in such middleware in the Common Lisp web application, because you have much better backtrace inspection tool in the SLIME or other IDE.&lt;/p&gt;
 </description>
             <pubDate>Mon, 29 Jun 2020 21:21:47 +0300</pubDate>
-        </item>
-        <item>
-            <title>lack-middleware-csrf</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0113-lack-middleware-csrf.html</link>
-            <description>&lt;p&gt;This lack middleware provides some level of security for your webapp, preventing a &lt;a href=&quot;https://owasp.org/www-community/attacks/csrf&quot;&gt;CSRF attacks&lt;/a&gt;. It has a function &lt;code&gt;csrf-html-tag&lt;/code&gt; which returns a hidden &lt;code&gt;input&lt;/code&gt; element to embed into a form.&lt;/p&gt;
-&lt;p&gt;The input stores a special token. Middleware saves this token into the current session and ensures the user sends this token in the following requests. If he doesn&apos;t, a 400 status code will be returned.&lt;/p&gt;
-&lt;p&gt;Let&apos;s take our yesterday&apos;s app and make it more secure!&lt;/p&gt;
-&lt;p&gt;First, we need to rewrite our main application to make it render a login form with CSRF token. Pay attention to how does it call a &lt;code&gt;csrf-html-tag&lt;/code&gt; function at the end.&lt;/p&gt;
-&lt;p&gt;If you are going to develop an application with a lots of forms, then it is good idea to define a macro which will apply CSRF protection automatically.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun main (env)
-             (let* ((session (getf env :lack.session))
-                    (login (gethash :login session)))
-               (cond
-                 (login
-                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
-                        (list (format nil &amp;quot;Welcome, ~A!&amp;quot;
-                                      login))))
-                 (t
-                  (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
-                        (list (format nil &amp;quot;
-&amp;lt;form method=\&amp;quot;POST\&amp;quot; action=\&amp;quot;/login\&amp;quot;&amp;gt;
-  &amp;lt;input type=\&amp;quot;text\&amp;quot; name=\&amp;quot;login\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
-  &amp;lt;input type=\&amp;quot;password\&amp;quot; name=\&amp;quot;password\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
-  ~A
-&amp;lt;/form&amp;gt;
-&amp;quot;
-                          (lack.middleware.csrf:csrf-html-tag session))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;All other apps remain the same, we only need to build the whole app including the &lt;code&gt;csrf&lt;/code&gt; middleware.&lt;/p&gt;
-&lt;p&gt;This middleware should go after the &lt;code&gt;:session&lt;/code&gt; middleware, because it depends on it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (lack:builder
-             :session
-             :csrf
-             (:mount &amp;quot;/login&amp;quot; &amp;#039;login)
-             (:mount &amp;quot;/logout&amp;quot; &amp;#039;logout)
-             &amp;#039;main)
-            :port 8091)
-Hunchentoot server is started.
-Listening on 127.0.0.1:8091.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is how our form is rendered. Note a &quot;hidden&quot; input at the end of the form:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8091/&amp;quot;)
-&amp;quot;
-&amp;lt;form method=\&amp;quot;POST\&amp;quot; action=\&amp;quot;/login\&amp;quot;&amp;gt;
-  &amp;lt;input type=\&amp;quot;text\&amp;quot; name=\&amp;quot;login\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
-  &amp;lt;input type=\&amp;quot;password\&amp;quot; name=\&amp;quot;password\&amp;quot;&amp;gt;&amp;lt;/input&amp;gt;
-  &amp;lt;input type=\&amp;quot;hidden\&amp;quot; name=\&amp;quot;_csrf_token\&amp;quot; value=\&amp;quot;8de1c8a47\&amp;quot;&amp;gt;
-&amp;lt;/form&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we try to do a &lt;code&gt;POST&lt;/code&gt; request without the token, we&apos;ll receive a 400 error:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (handler-case
-               (dex:post &amp;quot;http://localhost:8091/login&amp;quot;
-                         :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
-                                    (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;))
-                         :headers &amp;#039;((:cookie . &amp;quot;lack.session=75bccc&amp;quot;)))
-             (dexador:http-request-failed (c)
-               (values (dexador:response-status c)
-                       (dexador:response-body c))))
-400
-&amp;quot;Bad Request: invalid CSRF token&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Using the code we&apos;ll be able to log in:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:post &amp;quot;http://localhost:8091/login&amp;quot;
-                     :content &amp;#039;((&amp;quot;login&amp;quot; . &amp;quot;bob&amp;quot;)
-                                (&amp;quot;password&amp;quot; . &amp;quot;$ecret&amp;quot;)
-                                (&amp;quot;_csrf_token&amp;quot; . &amp;quot;8de1c8a47&amp;quot;))
-                     :headers &amp;#039;((:cookie . &amp;quot;lack.session=75bccc&amp;quot;)))
-&amp;quot;Dear Bob, you welcome!&amp;quot;
-200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The middleware also has a few settings.&lt;/p&gt;
-&lt;p&gt;You can set &lt;code&gt;:session-key&lt;/code&gt; to a value other than &lt;code&gt;_csrf_token&lt;/code&gt;. But this changes only a token&apos;s key inside the session. Form field&apos;s name remains the &lt;code&gt;_csrf_token&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Other option is &lt;code&gt;:one-time&lt;/code&gt;. Set it to true if you want to remove a token from the session after the first successful &lt;code&gt;POST&lt;/code&gt;, &lt;code&gt;PUT&lt;/code&gt;, &lt;code&gt;DELETE&lt;/code&gt; or &lt;code&gt;PATCH&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;And finally, you can define your own handler for the error page and pass it as &quot;:block-app&quot;. It should be a usual Clack app.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 28 Jun 2020 22:31:02 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -1,4 +1,4 @@
-* cl-collider :sound:
+* cl-collider :sound:audio:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :(
