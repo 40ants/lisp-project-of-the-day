@@ -1,0 +1,48 @@
+* log4cl :logging:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :|
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the mistery why I didn't reviewed any logging library so far!
+Probably, because there is a [[https://www.sites.google.com/site/sabraonthehill/comparison-of-lisp-logging-libraries][great article]] exists which compares 8
+logging libraries.
+
+Today I want only mention that my library of choice is ~log4cl~. Mostly
+because if it's great integration with SLIME/SLY which helps when you
+have a lot's of debug loggin in the app, but at some moment want to turn
+it on only for a function or a package.
+
+Log4cl has [[https://github.com/sharplispers/log4cl][great documentation]] which demonstrates all it's
+features. Here I'll provide only a small example of it's default logging
+output and ability to process additional arguments:
+
+#+begin_src lisp
+
+
+POFTHEDAY> (log:config :sane2 :debug)
+
+POFTHEDAY> (defun foo (first-arg second-arg)
+             (log:info "Entering into the foo with" first-arg "and" second-arg))
+
+POFTHEDAY> (foo 100500 "Blah")
+
+ <INFO> [21:04:10] poftheday (foo) -
+  Entering into the foo with FIRST-ARG: 100500 and SECOND-ARG: "Blah" 
+
+;; Now I want to process arguments with in format-like style:
+
+POFTHEDAY> (defun foo (first-arg second-arg)
+             (log:info "Entering into the (foo ~A ~A)" first-arg second-arg))
+
+POFTHEDAY> (foo 100500 "Blah")
+ <INFO> [21:04:53] poftheday (foo) - Entering into the (foo 100500 Blah)
+
+#+end_src
+
+Tomorrow I'll show you addons I've made, to make ~log4cl~ even more
+suitable for production applications.
