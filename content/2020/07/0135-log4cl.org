@@ -8,17 +8,17 @@
 :CI:       :(
 :END:
 
-This is the mistery why I didn't reviewed any logging library so far!
+This is the mystery why I didn't review any logging library so far!
 Probably, because there is a [[https://www.sites.google.com/site/sabraonthehill/comparison-of-lisp-logging-libraries][great article]] exists which compares 8
 logging libraries.
 
 Today I want only mention that my library of choice is ~log4cl~. Mostly
 because if it's great integration with SLIME/SLY which helps when you
-have a lot's of debug loggin in the app, but at some moment want to turn
+have a lot's of "debug" logging in the app, but at some moment want to turn
 it on only for a function or a package.
 
-Log4cl has [[https://github.com/sharplispers/log4cl][great documentation]] which demonstrates all it's
-features. Here I'll provide only a small example of it's default logging
+Log4cl has [[https://github.com/sharplispers/log4cl][great documentation]] which demonstrates all its
+features. Here I'll provide only a small example of its default logging
 output and ability to process additional arguments:
 
 #+begin_src lisp
@@ -46,3 +46,4 @@ POFTHEDAY> (foo 100500 "Blah")
 
 Tomorrow I'll show you addons I've made, to make ~log4cl~ even more
 suitable for production applications.
+

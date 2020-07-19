@@ -6,6 +6,32 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>log4cl</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html</link>
+            <description>&lt;p&gt;This is the mystery why I didn&apos;t review any logging library so far! Probably, because there is a &lt;a href=&quot;https://www.sites.google.com/site/sabraonthehill/comparison-of-lisp-logging-libraries&quot;&gt;great article&lt;/a&gt; exists which compares 8 logging libraries.&lt;/p&gt;
+&lt;p&gt;Today I want only mention that my library of choice is &lt;code&gt;log4cl&lt;/code&gt;. Mostly because if it&apos;s great integration with SLIME/SLY which helps when you have a lot&apos;s of &quot;debug&quot; logging in the app, but at some moment want to turn it on only for a function or a package.&lt;/p&gt;
+&lt;p&gt;Log4cl has &lt;a href=&quot;https://github.com/sharplispers/log4cl&quot;&gt;great documentation&lt;/a&gt; which demonstrates all its features. Here I&apos;ll provide only a small example of its default logging output and ability to process additional arguments:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (log:config :sane2 :debug)
+
+POFTHEDAY&amp;gt; (defun foo (first-arg second-arg)
+             (log:info &amp;quot;Entering into the foo with&amp;quot; first-arg &amp;quot;and&amp;quot; second-arg))
+
+POFTHEDAY&amp;gt; (foo 100500 &amp;quot;Blah&amp;quot;)
+
+ &amp;lt;INFO&amp;gt; [21:04:10] poftheday (foo) -
+  Entering into the foo with FIRST-ARG: 100500 and SECOND-ARG: &amp;quot;Blah&amp;quot; 
+
+;; Now I want to process arguments with in format-like style:
+
+POFTHEDAY&amp;gt; (defun foo (first-arg second-arg)
+             (log:info &amp;quot;Entering into the (foo ~A ~A)&amp;quot; first-arg second-arg))
+
+POFTHEDAY&amp;gt; (foo 100500 &amp;quot;Blah&amp;quot;)
+ &amp;lt;INFO&amp;gt; [21:04:53] poftheday (foo) - Entering into the (foo 100500 Blah)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow I&apos;ll show you addons I&apos;ve made, to make &lt;code&gt;log4cl&lt;/code&gt; even more suitable for production applications.&lt;/p&gt;
+</description>
+            <pubDate>Sun, 19 Jul 2020 21:07:55 +0300</pubDate>
+        </item>
+        <item>
             <title>taglib</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0134-taglib.html</link>
             <description>&lt;p&gt;The first post in the #poftheday series was about &lt;code&gt;cl-mpg123&lt;/code&gt; library. It failed on attempt to process metadata of mp3 file. Today we&apos;ll try &lt;code&gt;taglib&lt;/code&gt;. This is the pure CL library to process MP3, MP4, FLAC tags.&lt;/p&gt;
@@ -1032,21 +1058,6 @@ POFTHEDAY&amp;gt; (rutils:hash-table-to-alist #v56:2)
  (&amp;quot;content-type&amp;quot; . &amp;quot;text/css; charset=utf-8&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review the last Clack&apos;s middleware. I found only 3 of them on the Quicklisp. If you know about other middlewares, let me know and we&apos;ll continue our journey to the world of web development with Clack!&lt;/p&gt;
 </description>
             <pubDate>Tue, 30 Jun 2020 22:57:55 +0300</pubDate>
-        </item>
-        <item>
-            <title>clack-errors</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0114-clack-errors.html</link>
-            <description>&lt;p&gt;This is the Clack middleware which adds a nicely rendered error page for your website. It pretends to be a clone of the RoR&apos;s &lt;a href=&quot;https://github.com/BetterErrors/better_errors&quot;&gt;better_errors&lt;/a&gt; library but has only a limited number of features.&lt;/p&gt;
-&lt;p&gt;Clack-errors is able to show a backtrace and content of the &lt;code&gt;env&lt;/code&gt; variable. But it does not allow you to inspect the variables of stack frames and does not show HTTP headers.&lt;/p&gt;
-&lt;p&gt;It has a demo application which can be loaded as &lt;code&gt;:clack-errors-demo&lt;/code&gt; ASDF system.&lt;/p&gt;
-&lt;p&gt;If you&apos;ll do a &lt;code&gt;(clack-errors-demo:start)&lt;/code&gt; it will start a webserver on the 8000 port.&lt;/p&gt;
-&lt;p&gt;Access the &lt;a href=&quot;http://localhost:8001/error&quot;&gt;http://localhost:8001/error&lt;/a&gt; URL to see the page like this:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0114/clack-errors.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;You can customize the behaviour of the middleware by two options: &lt;code&gt;:debug&lt;/code&gt; and &lt;code&gt;:prod-render&lt;/code&gt;. &lt;code&gt;:debug&lt;/code&gt; is &lt;code&gt;t&lt;/code&gt; by default and if you set it to the &lt;code&gt;nil&lt;/code&gt;, middleware will not show backtrace. It will call &lt;code&gt;:prod-render&lt;/code&gt; function instead.&lt;/p&gt;
-&lt;p&gt;Also, you might override some internal variables like &lt;code&gt;+dev-template+&lt;/code&gt;, &lt;code&gt;*dev-css-path*&lt;/code&gt;, etc. But it is better to send a pull-request which will allow redefining dev renderer.&lt;/p&gt;
-&lt;p&gt;Personally, I&apos;m don&apos;t see the need in such middleware in the Common Lisp web application, because you have much better backtrace inspection tool in the SLIME or other IDE.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 29 Jun 2020 21:21:47 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -24,6 +24,7 @@ Twitter account svetlyak40wt]].
 - 16 July - [[content/2020/07/0132-cl-irc.org][cl-irc]] ([[https://twitter.com/svetlyak40wt/status/1283856499215867904][twitter]])
 - 17 July - [[content/2020/07/0133-open-location-code.org][open-location-code]] ([[https://twitter.com/svetlyak40wt/status/1284225928353251330][twitter]])
 - 18 July - [[content/2020/07/0134-taglib.org][taglib]] ([[https://twitter.com/svetlyak40wt/status/1284573315907149824][twitter]])
+- 19 July - [[content/2020/07/0135-log4cl.org][log4cl]] ([[https://twitter.com/svetlyak40wt/status/1284913921640534017][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1124,6 +1125,8 @@ files, and extracting their ":defsystem-depends-on".
 - http://quickdocs.org/cl-stomp/
 - http://clsql.kpe.io/manual/
 - oook
+- file-local-variable
+- everblocking-stream
 
 
 * Thanks
