@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>log4cl-extras
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>log4cl-extras</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>log4cl-extras<span class='tags'><a href='../../tags/logging.html'><span class='label label-default'>logging</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Yesterday I've posted about the <a href="https://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html">log4cl</a> and promiced to tell about my addons. The library is called <code>log4cl-extras</code>.</p>
+<p>The main puprose of <code>log4cl-extras</code> is to make logging suitable for production. It provides <code>JSON</code> formatter, a macro to capture context variables and a macro to log unhandled tracebacks.</p>
+<p>Capturing context variables makes each log entry self-sustained. Also, this way you can use do a "request_id" trick to bind many related log messages into a single track.</p>
+<p>To show you how does "request_id" trick works, let me to create a simple Clack application which will handle request, simulate the query to the database and use logging.</p>
+<p>Pay attention how does it use <code>log4cl-extras/context:with-fields</code> to capture <code>request-id</code> variable:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun get-current-user ()
+             &quot;This is a fake function simulating SQL queries to database.&quot;
+             (log:debug &quot;SELECT * FROM users WHERE ...&quot;)
+             (values &quot;Bob&quot;))
+
+POFTHEDAY&gt; (defun handle-request (env)
+             (let* ((headers (getf env :headers))
+                    (request-id (or (gethash &quot;x-request-id&quot; headers)
+                                    (format nil &quot;~A&quot; (uuid:make-v4-uuid)))))
+               (log4cl-extras/context:with-fields (:request-id request-id)
+                 (log:debug &quot;Processing request&quot;)
+                 (let ((user (get-current-user)))
+                   (list 200 &#039;(:content-type &quot;text/plain&quot;)
+                         (list (format nil &quot;Hello ~A!&quot; user)))))))
+
+POFTHEDAY&gt; (defparameter *server*
+             (clack:clackup &#039;handle-request
+                            :port 8081))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8081.</code></pre><p>Now we can initialize logging and make a few HTTP requests:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (log4cl-extras/config:setup
+            &#039;(:level :debug
+              :appenders ((this-console :layout :plain))))
+
+POFTHEDAY&gt; (dex:get &quot;http://localhost:8081/&quot;)
+&lt;DEBUG&gt; [2020-07-20T23:23:28.293441+03:00] Processing request
+  Fields:
+    request-id: 0E0D035A-B24F-4E69-806C-ACACE6C6B08E
+&lt;DEBUG&gt; [2020-07-20T23:23:28.295783+03:00] SELECT * FROM users WHERE ...
+  Fields:
+    request-id: 0E0D035A-B24F-4E69-806C-ACACE6C6B08E
+&quot;Hello Bob!&quot;</code></pre><p>Our app is able to use request id passed as a HTTP header <code>X-Request-ID</code>. This is useful when you have many microservices and want to have a single trail along all their logs:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (dex:get &quot;http://localhost:8081/&quot;
+                    :headers &#039;((&quot;X-Request-ID&quot; . &quot;Custom ID :)))))&quot;)))
+&lt;DEBUG&gt; [2020-07-20T23:29:04.123354+03:00] Processing request
+  Fields:
+    request-id: Custom ID :)))))
+&lt;DEBUG&gt; [2020-07-20T23:29:04.123412+03:00] SELECT * FROM users WHERE ...
+  Fields:
+    request-id: Custom ID :)))))
+&quot;Hello Bob!&quot;</code></pre><p>This plain text log format is convenient when you are debugging the application. But in production you either want to <code>grep</code> log messages or to feed them to the Elastic Search for further indexing.</p>
+<p>In both cases it is more convenient to write each messages as a single-line JSON object:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (log4cl-extras/config:setup
+            &#039;(:level :debug
+              :appenders ((this-console :layout :json))))
+
+POFTHEDAY&gt; (dex:get &quot;http://localhost:8081/&quot;)
+{&quot;fields&quot;:{&quot;request-id&quot;:&quot;20A7...&quot;},&quot;level&quot;:&quot;DEBUG&quot;,&quot;message&quot;:&quot;Processing request&quot;,&quot;timestamp&quot;:&quot;2020-07-20T23:32:34.566029+03:00&quot;}
+{&quot;fields&quot;:{&quot;request-id&quot;:&quot;20A7...&quot;},&quot;level&quot;:&quot;DEBUG&quot;,&quot;message&quot;:&quot;SELECT * FROM users WHERE ...&quot;,&quot;timestamp&quot;:&quot;2020-07-20T23:32:34.566167+03:00&quot;}
+&quot;Hello Bob!&quot;</code></pre><p><code>log4cl-extras</code> also contains a macro to capture unhandled errors along with their tracebacks.</p>
+<p>Read its documentation to learn more:</p>
+<p><a href="https://github.com/40ants/log4cl-extras">https://github.com/40ants/log4cl-extras</a></p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
