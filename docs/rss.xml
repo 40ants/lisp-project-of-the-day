@@ -6,6 +6,69 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>log4cl-extras</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0136-log4cl-extras.html</link>
+            <description>&lt;p&gt;Yesterday I&apos;ve posted about the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html&quot;&gt;log4cl&lt;/a&gt; and promised to tell you about my addons. The library is called &lt;code&gt;log4cl-extras&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The main purpose of &lt;code&gt;log4cl-extras&lt;/code&gt; is to make logging suitable for production. It provides &lt;code&gt;JSON&lt;/code&gt; formatter, a macro to capture context variables and a macro to log unhandled tracebacks.&lt;/p&gt;
+&lt;p&gt;Capturing context variables makes each log entry self-sustained. Also, this way you can use do a &quot;request_id&quot; trick to bind many related log messages into a single track.&lt;/p&gt;
+&lt;p&gt;To show you how does &quot;request_id&quot; trick works, let me create a simple Clack application which will handle a request, simulate the query to the database and use logging.&lt;/p&gt;
+&lt;p&gt;Pay attention how does it use &lt;code&gt;log4cl-extras/context:with-fields&lt;/code&gt; to capture &lt;code&gt;request-id&lt;/code&gt; variable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun get-current-user ()
+             &amp;quot;This is a fake function simulating SQL queries to database.&amp;quot;
+             (log:debug &amp;quot;SELECT * FROM users WHERE ...&amp;quot;)
+             (values &amp;quot;Bob&amp;quot;))
+
+POFTHEDAY&amp;gt; (defun handle-request (env)
+             (let* ((headers (getf env :headers))
+                    (request-id (or (gethash &amp;quot;x-request-id&amp;quot; headers)
+                                    (format nil &amp;quot;~A&amp;quot; (uuid:make-v4-uuid)))))
+               (log4cl-extras/context:with-fields (:request-id request-id)
+                 (log:debug &amp;quot;Processing request&amp;quot;)
+                 (let ((user (get-current-user)))
+                   (list 200 &amp;#039;(:content-type &amp;quot;text/plain&amp;quot;)
+                         (list (format nil &amp;quot;Hello ~A!&amp;quot; user)))))))
+
+POFTHEDAY&amp;gt; (defparameter *server*
+             (clack:clackup &amp;#039;handle-request
+                            :port 8081))
+Hunchentoot server is started.
+Listening on 127.0.0.1:8081.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can initialize logging and make a few HTTP requests:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (log4cl-extras/config:setup
+            &amp;#039;(:level :debug
+              :appenders ((this-console :layout :plain))))
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8081/&amp;quot;)
+&amp;lt;DEBUG&amp;gt; [2020-07-20T23:23:28.293441+03:00] Processing request
+  Fields:
+    request-id: 0E0D035A-B24F-4E69-806C-ACACE6C6B08E
+&amp;lt;DEBUG&amp;gt; [2020-07-20T23:23:28.295783+03:00] SELECT * FROM users WHERE ...
+  Fields:
+    request-id: 0E0D035A-B24F-4E69-806C-ACACE6C6B08E
+&amp;quot;Hello Bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Our app is able to use request id passed as an HTTP header &lt;code&gt;X-Request-ID&lt;/code&gt;. This is useful when you have many microservices and want to have a single trail of all their logs:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8081/&amp;quot;
+                    :headers &amp;#039;((&amp;quot;X-Request-ID&amp;quot; . &amp;quot;Custom ID :)))))&amp;quot;)))
+&amp;lt;DEBUG&amp;gt; [2020-07-20T23:29:04.123354+03:00] Processing request
+  Fields:
+    request-id: Custom ID :)))))
+&amp;lt;DEBUG&amp;gt; [2020-07-20T23:29:04.123412+03:00] SELECT * FROM users WHERE ...
+  Fields:
+    request-id: Custom ID :)))))
+&amp;quot;Hello Bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This plain text log format is convenient when you are debugging the application. But in production you either want to &lt;code&gt;grep&lt;/code&gt; log messages or to feed them to the Elastic Search for further indexing.&lt;/p&gt;
+&lt;p&gt;In both cases it is more convenient to write each messages as a single-line JSON object:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (log4cl-extras/config:setup
+            &amp;#039;(:level :debug
+              :appenders ((this-console :layout :json))))
+
+POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8081/&amp;quot;)
+{&amp;quot;fields&amp;quot;:{&amp;quot;request-id&amp;quot;:&amp;quot;20A7...&amp;quot;},&amp;quot;level&amp;quot;:&amp;quot;DEBUG&amp;quot;,&amp;quot;message&amp;quot;:&amp;quot;Processing request&amp;quot;,&amp;quot;timestamp&amp;quot;:&amp;quot;2020-07-20T23:32:34.566029+03:00&amp;quot;}
+{&amp;quot;fields&amp;quot;:{&amp;quot;request-id&amp;quot;:&amp;quot;20A7...&amp;quot;},&amp;quot;level&amp;quot;:&amp;quot;DEBUG&amp;quot;,&amp;quot;message&amp;quot;:&amp;quot;SELECT * FROM users WHERE ...&amp;quot;,&amp;quot;timestamp&amp;quot;:&amp;quot;2020-07-20T23:32:34.566167+03:00&amp;quot;}
+&amp;quot;Hello Bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;log4cl-extras&lt;/code&gt; also contains a macro to capture unhandled errors along with their tracebacks. It is also very useful for production. I&apos;m using this facility to capture errors in Ultralisp.org.&lt;/p&gt;
+&lt;p&gt;Read &lt;code&gt;log4cl-extra&lt;/code&gt;&apos;s documentation to learn more:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/40ants/log4cl-extras&quot;&gt;https://github.com/40ants/log4cl-extras&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Mon, 20 Jul 2020 23:39:29 +0300</pubDate>
+        </item>
+        <item>
             <title>log4cl</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html</link>
             <description>&lt;p&gt;This is the mystery why I didn&apos;t review any logging library so far! Probably, because there is a &lt;a href=&quot;https://www.sites.google.com/site/sabraonthehill/comparison-of-lisp-logging-libraries&quot;&gt;great article&lt;/a&gt; exists which compares 8 logging libraries.&lt;/p&gt;
@@ -1008,56 +1071,6 @@ Processing request:
 &lt;p&gt;It will be interesting to improve it to store not only the last N successful requests but also to store requests resulting unhandled error. This way you&apos;ll be able to replay errors your users experience in production!&lt;/p&gt;
 </description>
             <pubDate>Wed, 01 Jul 2020 22:32:39 +0300</pubDate>
-        </item>
-        <item>
-            <title>clack-static-asset-middleware</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/06/0115-clack-static-asset-middleware.html</link>
-            <description>&lt;p&gt;This middleware in some sense like a builtin &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0110-lack-middleware-static.html&quot;&gt;lack-middleware-static&lt;/a&gt;, reviewed last week.&lt;/p&gt;
-&lt;p&gt;The difference is that this middleware is more suitable for production because implements an infinite cache TTL for static assets.&lt;/p&gt;
-&lt;p&gt;An infinite cache TTL trick is useful when you want to speed up your website loading. Here is how it works.&lt;/p&gt;
-&lt;p&gt;Your server returns &lt;code&gt;Cache-Control&lt;/code&gt; HTTP header and set static files TTL to some large value like a year to make it cached for a long long period of time.&lt;/p&gt;
-&lt;p&gt;But how to expire this cache if you will need to update CSS or JavaScript on your site?&lt;/p&gt;
-&lt;p&gt;The only way is to change the URL. This is what &lt;code&gt;lack-middleware-static&lt;/code&gt; does for you. It calculates MD5 hash from the file&apos;s content and makes it a part of the URL.&lt;/p&gt;
-&lt;p&gt;When the content of the static file is changed, its URL changed as well. Browser notices that change and reloads the content.&lt;/p&gt;
-&lt;p&gt;Middleware provides a special tag for &lt;a href=&quot;https://github.com/mmontone/djula&quot;&gt;Djula&lt;/a&gt; template language. Setting up templates for djula is out of thescope of this post and we&apos;ll use &lt;code&gt;busted-uri-for-path&lt;/code&gt; instead, to create a path to a file including a cache hash.&lt;/p&gt;
-&lt;p&gt;First, we need to start our server and configure the middleware. Pay attention to the &lt;code&gt;probe-file&lt;/code&gt; call. Root should be an absolute pathname. With relative pathname, you&apos;ll get a wrong result :(&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack:clackup
-            (funcall
-             clack-static-asset-middleware:*clack-static-asset-middleware*
-             (lambda (env)
-               (list 200 (list :content-type &amp;quot;text/plain&amp;quot;)
-                     (list (format nil
-                                   &amp;quot;Access this file: ~A&amp;quot;
-                                   (clack-static-asset-middleware:busted-uri-for-path
-
-                                    &amp;quot;site.css&amp;quot;)))))
-             :path &amp;quot;static/&amp;quot;
-             :root (probe-file &amp;quot;static-files/&amp;quot;))
-            :port 9004)
-Hunchentoot server is started.
-Listening on 127.0.0.1:9004.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can access our index page to get the static&apos;s URL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:9004/&amp;quot;)
-&amp;quot;Access this file: /static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;quot;
-200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to the file&apos;s suffix. It is an md5 hash from file&apos;s content. This sum is calculated when you start the application. If you&apos;ll change the file, during the next deploy another md5 hash will be generated and browser will reload its content.&lt;/p&gt;
-&lt;p&gt;If we&apos;ll access this file, the server will respond with &lt;code&gt;Cache-Control&lt;/code&gt; header and set the TTL to 1 year:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;quot;)
-&amp;quot;body {font-size: 10px;}&amp;quot;
-200 (8 bits, #xC8, #o310, #b11001000)
-#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 8 {1001E58473}&amp;gt;
-#&amp;lt;QURI.URI.HTTP:URI-HTTP http://localhost:9004/static/site_ebb4fccbf8e0590b0fcf44c3748af88d.css&amp;gt;
-#&amp;lt;SB-SYS:FD-STREAM for &amp;quot;socket 127.0.0.1:53729, peer: 127.0.0.1:9004&amp;quot; {1001E37873}&amp;gt;
-
-POFTHEDAY&amp;gt; (rutils:hash-table-to-alist #v56:2)
-((&amp;quot;date&amp;quot; . &amp;quot;Tue, 30 Jun 2020 19:39:55 GMT&amp;quot;)
- (&amp;quot;server&amp;quot; . &amp;quot;Hunchentoot 1.3.0&amp;quot;)
- (&amp;quot;accept-ranges&amp;quot; . &amp;quot;bytes&amp;quot;)
- (&amp;quot;last-modified&amp;quot; . &amp;quot;Tue, 30 Jun 2020 19:15:56 GMT&amp;quot;)
- (&amp;quot;vary&amp;quot; . &amp;quot;Accept-Encoding&amp;quot;)
- (&amp;quot;cache-control&amp;quot; . &amp;quot;public, max-age=31556926&amp;quot;)
- (&amp;quot;content-length&amp;quot; . &amp;quot;23&amp;quot;)
- (&amp;quot;content-type&amp;quot; . &amp;quot;text/css; charset=utf-8&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow we&apos;ll review the last Clack&apos;s middleware. I found only 3 of them on the Quicklisp. If you know about other middlewares, let me know and we&apos;ll continue our journey to the world of web development with Clack!&lt;/p&gt;
-</description>
-            <pubDate>Tue, 30 Jun 2020 22:57:55 +0300</pubDate>
         </item>
     </channel>
 </rss>
