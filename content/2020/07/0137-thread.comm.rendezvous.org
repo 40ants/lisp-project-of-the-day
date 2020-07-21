@@ -1,0 +1,47 @@
+* thread.comm.rendezvous :threads:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system provides a simple thread synchronization primitive called
+[[https://en.wikipedia.org/wiki/Rendezvous_(Plan_9)][Rendezvous]]. It allows exchanging pieces of data between threads.
+
+Here is how it works. You create a ~rendezvous~ object. Then you might
+create one or many threads and each of the can either to "call"
+~rendezvous~ and pass it some value or to "accept" a value and return
+result.
+
+Both ~accept~ blocks the calling thread until some other thread will not
+~call~ and viceversa. This is similar to a thread-safe blocking queue of
+size 1:
+
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *r*
+             (thread.comm.rendezvous:make-rendezvous))
+
+POFTHEDAY> (bt:make-thread
+            (lambda ()
+              (log:info "Waiting for value")
+              (let ((value (thread.comm.rendezvous:accept-rendezvous *r*)))
+                (log:info "Value received: ~S" value))))
+
+<INFO> [2020-07-21T23:06:56.836061+03:00] Waiting for value
+
+POFTHEDAY> (thread.comm.rendezvous:call-rendezvous
+            *r*
+            :the-value-to-be-sent-to-the-thread)
+
+<INFO> [2020-07-21T23:07:46.642640+03:00] Value received: :THE-VALUE-TO-BE-SENT-TO-THE-THREAD
+
+#+end_src
+
+I wasn't able to imagine a more complex but short illustration of the
+case where this synchronization primitive can be useful. If you know
+one, please share your ideas in comments.
