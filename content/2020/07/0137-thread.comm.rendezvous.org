@@ -12,12 +12,12 @@ This system provides a simple thread synchronization primitive called
 [[https://en.wikipedia.org/wiki/Rendezvous_(Plan_9)][Rendezvous]]. It allows exchanging pieces of data between threads.
 
 Here is how it works. You create a ~rendezvous~ object. Then you might
-create one or many threads and each of the can either to "call"
-~rendezvous~ and pass it some value or to "accept" a value and return
-result.
+create one or many threads and each of them can either to "call"
+~rendezvous~ and pass it some value or to "accept" value and return
+a result.
 
-Both ~accept~ blocks the calling thread until some other thread will not
-~call~ and viceversa. This is similar to a thread-safe blocking queue of
+~Accept~ blocks the calling thread until some other thread will not
+~call~ and vice-versa. This is similar to a thread-safe blocking queue of
 size 1:
 
 

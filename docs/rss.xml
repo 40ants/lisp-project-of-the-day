@@ -6,6 +6,31 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>thread.comm.rendezvous</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0137-thread.comm.rendezvous.html</link>
+            <description>&lt;p&gt;This system provides a simple thread synchronization primitive called &lt;a href=&quot;https://en.wikipedia.org/wiki/Rendezvous_(Plan_9)&quot;&gt;Rendezvous&lt;/a&gt;. It allows exchanging pieces of data between threads.&lt;/p&gt;
+&lt;p&gt;Here is how it works. You create a &lt;code&gt;rendezvous&lt;/code&gt; object. Then you might create one or many threads and each of them can either to &quot;call&quot; &lt;code&gt;rendezvous&lt;/code&gt; and pass it some value or to &quot;accept&quot; value and return a result.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Accept&lt;/code&gt; blocks the calling thread until some other thread will not &lt;code&gt;call&lt;/code&gt; and vice-versa. This is similar to a thread-safe blocking queue of size 1:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *r*
+             (thread.comm.rendezvous:make-rendezvous))
+
+POFTHEDAY&amp;gt; (bt:make-thread
+            (lambda ()
+              (log:info &amp;quot;Waiting for value&amp;quot;)
+              (let ((value (thread.comm.rendezvous:accept-rendezvous *r*)))
+                (log:info &amp;quot;Value received: ~S&amp;quot; value))))
+
+&amp;lt;INFO&amp;gt; [2020-07-21T23:06:56.836061+03:00] Waiting for value
+
+POFTHEDAY&amp;gt; (thread.comm.rendezvous:call-rendezvous
+            *r*
+            :the-value-to-be-sent-to-the-thread)
+
+&amp;lt;INFO&amp;gt; [2020-07-21T23:07:46.642640+03:00] Value received: :THE-VALUE-TO-BE-SENT-TO-THE-THREAD&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I wasn&apos;t able to imagine a more complex but short illustration of the case where this synchronization primitive can be useful. If you know one, please share your ideas in comments.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 21 Jul 2020 23:34:42 +0300</pubDate>
+        </item>
+        <item>
             <title>log4cl-extras</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0136-log4cl-extras.html</link>
             <description>&lt;p&gt;Yesterday I&apos;ve posted about the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html&quot;&gt;log4cl&lt;/a&gt; and promised to tell you about my addons. The library is called &lt;code&gt;log4cl-extras&lt;/code&gt;.&lt;/p&gt;
@@ -990,87 +1015,6 @@ T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Bourbaki has a very good documentation. If yo
 &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;cl-ncurses&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 </description>
             <pubDate>Thu, 02 Jul 2020 23:21:18 +0300</pubDate>
-        </item>
-        <item>
-            <title>clack-pretend</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0117-clack-pretend.html</link>
-            <description>&lt;p&gt;This is the last middleware in our Clack/Lack series. What does it do? It helps during website development remembering last requests you did from the browser and allowing to replay them from the REPL.&lt;/p&gt;
-&lt;p&gt;Clack-pretend interposes itself into a Lack middlewares chain. To define the app you need to use a special builder macro and to specify at which point requests and responses should be captured:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *app*
-             (clack-pretend:pretend-builder (:insert 2)
-               :accesslog
-               :session
-               (lambda (env)
-                 (let* ((path (getf env :path-info))
-                        (query (getf env :query-string))
-                        (message (format nil &amp;quot;Path: ~A, query: ~A&amp;quot;
-                                         path query)))
-                   (format t &amp;quot;Processing request:~%  ~A~%&amp;quot;
-                           message)
-                   &amp;#039;(200 (:content-type &amp;quot;text/plain&amp;quot;)
-                     (&amp;quot;Hello world!&amp;quot;))))))
-*APP*
-POFTHEDAY&amp;gt; (defparameter *server*
-             (clack:clackup *app*
-                            :port 8000))
-Hunchentoot server is started.
-Listening on 127.0.0.1:8000.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now I&apos;ll make a request using &lt;code&gt;curl&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] curl -v &amp;#039;http://localhost:8000/some/route?foo=Bar&amp;#039;
-&amp;gt; GET /some/route?foo=Bar HTTP/1.1
-&amp;gt; Host: localhost:8000
-&amp;gt; User-Agent: curl/7.54.0
-&amp;gt; Accept: */*
-&amp;gt; 
-&amp;lt; HTTP/1.1 200 OK
-&amp;lt; Date: Wed, 01 Jul 2020 19:23:12 GMT
-&amp;lt; Server: Hunchentoot 1.2.38
-&amp;lt; Transfer-Encoding: chunked
-&amp;lt; Content-Type: text/plain
-&amp;lt; Set-Cookie: lack.session=0d629e3a1d2681d99c40f7b2086ec97d53e2b884; path=/; expires=Sat, 31 Dec 2140 14:45:27 GMT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And we can look up what was the last request:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack-pretend:last-input)
-(:LACK.SESSION.OPTIONS
- (:ID &amp;quot;0d629e3a1d2681d99c40f7b2086ec97d53e2b884&amp;quot;
-  :NEW-SESSION T :CHANGE-ID NIL :EXPIRE NIL)
- :LACK.SESSION #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 0 {1005EB8A03}&amp;gt;
- :REQUEST-METHOD :GET
- :SCRIPT-NAME &amp;quot;&amp;quot;
- :PATH-INFO &amp;quot;/some/route&amp;quot;
- :SERVER-NAME &amp;quot;localhost&amp;quot;
- :SERVER-PORT 8000
- :SERVER-PROTOCOL :HTTP/1.1
- :REQUEST-URI &amp;quot;/some/route?foo=Bar&amp;quot;
- :URL-SCHEME &amp;quot;http&amp;quot;
- :REMOTE-ADDR &amp;quot;127.0.0.1&amp;quot;
- :REMOTE-PORT 53671
- :QUERY-STRING &amp;quot;foo=Bar&amp;quot;
- :RAW-BODY #&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {1005EB6FD3}&amp;gt;
- :CONTENT-LENGTH NIL
- :CONTENT-TYPE NIL
- :CLACK.STREAMING T
- :CLACK.IO #&amp;lt;CLACK.HANDLER.HUNCHENTOOT::CLIENT {1005EB7043}&amp;gt;
- :HEADERS #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 3 {1005EB72C3}&amp;gt;
- :QUERY-PARAMETERS ((&amp;quot;foo&amp;quot; . &amp;quot;Bar&amp;quot;)))
-
-POFTHEDAY&amp;gt; (rutils:hash-table-to-alist
-            (getf * :headers))
-((&amp;quot;host&amp;quot; . &amp;quot;localhost:8000&amp;quot;)
- (&amp;quot;user-agent&amp;quot; . &amp;quot;curl/7.54.0&amp;quot;)
- (&amp;quot;accept&amp;quot; . &amp;quot;*/*&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to replay the request from the REPL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (clack-pretend:run-pretend)
-Processing request:
-  Path: /some/route, query: foo=Bar
-(200 (:CONTENT-TYPE &amp;quot;text/plain&amp;quot;) (&amp;quot;Hello world!&amp;quot;))
-
-;; You can override path to check, it with the same
-;; headers and session:
-POFTHEDAY&amp;gt; (clack-pretend:run-pretend
-            :path-info &amp;quot;/other/path&amp;quot;)
-Processing request:
-  Path: /other/path, query: foo=Bar
-(200 (:CONTENT-TYPE &amp;quot;text/plain&amp;quot;) (&amp;quot;Hello world!&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems, &lt;code&gt;clack-pretend&lt;/code&gt; is a great addition for web development with Clack.&lt;/p&gt;
-&lt;p&gt;It will be interesting to improve it to store not only the last N successful requests but also to store requests resulting unhandled error. This way you&apos;ll be able to replay errors your users experience in production!&lt;/p&gt;
-</description>
-            <pubDate>Wed, 01 Jul 2020 22:32:39 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -26,6 +26,7 @@ Twitter account svetlyak40wt]].
 - 18 July - [[content/2020/07/0134-taglib.org][taglib]] ([[https://twitter.com/svetlyak40wt/status/1284573315907149824][twitter]])
 - 19 July - [[content/2020/07/0135-log4cl.org][log4cl]] ([[https://twitter.com/svetlyak40wt/status/1284913921640534017][twitter]])
 - 20 July - [[content/2020/07/0136-log4cl-extras.org][log4cl-extras]] ([[https://twitter.com/svetlyak40wt/status/1285313675549650950][twitter]])
+- 21 July - [[content/202/07/0137-thread.comm.rendezvous.org][thread.comm.rendezvous]] ([[https://twitter.com/svetlyak40wt/status/1285674512806273024][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -172,12 +173,19 @@ Quicklisp. Quicklisp client call them "releases".
 
 #+BEGIN_SRC lisp
 (defun choose ()
-  (let* ((releases (ql::provided-releases t))
-         (idx (random (length releases)))
-         (release (nth idx releases)))
-    (values
-     (ql::project-name release)
-     (ql::system-files release))))
+  (let ((published (find-published-systems)))
+    (flet ((is-published (release)
+             (loop for system-file in (ql::system-files release)
+                   for system-name = (str:replace-all ".asd" "" system-file)
+                   when (member system-name published :test #'string-equal)
+                   do (return-from is-published t))))
+      (let* ((releases (ql::provided-releases t))
+             (non-published (remove-if #'is-published releases))
+             (idx (random (length non-published)))
+             (release (nth idx non-published)))
+        (values
+         (ql::project-name release)
+         (ql::system-files release))))))
 #+END_SRC
 
 By the way, this function will choose all projects from all installed
@@ -713,7 +721,7 @@ those, having a link to the twitter.
 
 #+BEGIN_SRC lisp
 
-(defun find-not-published-systems ()
+(defun find-published-systems ()
   (let* ((file (cl-org-mode::read-org-file "README.org"))
          (years (loop for node = file then (cl-org-mode::node.next-node node)
                       while node
@@ -734,12 +742,13 @@ those, having a link to the twitter.
                     ;; If there are two links, then the second link is to the twitter post.
                     ;; In this case this post is published.
                     (= (str:count-substring "[[" line)
-                       1))
+                       2))
           appending (str:split " & "
                                (cl-ppcre:regex-replace
                                 ".*?\\]\\[(.*?)\\].*"
                                 line
                                 "\\1")))))
+
 
 #+END_SRC
 
@@ -775,13 +784,14 @@ from. This was useful for debugging:
   (alexandria:with-output-to-file (stream "docs/rss.xml"
                                           :if-exists :supersede)
     (let ((base-url "http://40ants.com/lisp-project-of-the-day/")
-          (not-published (find-not-published-systems)))
+          (published (find-published-systems)))
       (flet ((is-not-published (file)
                (let ((title (get-title file))
                      (filename (get-filename file)))
-                 (or (member title
-                             not-published
-                             :test #'string-equal)
+                 (or (not
+                      (member title
+                              published
+                              :test #'string-equal))
                      (str:containsp "draft"
                                     filename)))))
         (xml-emitter:with-rss2 (stream)
@@ -846,14 +856,15 @@ We'll reuse this function for the front page and for tag pages:
   (let ((filename (ppath:join path
                               (rutils:fmt "~A.html"
                                           filename)))
-        (not-published (find-not-published-systems)))
+        (published (find-published-systems)))
     (ensure-directories-exist filename)
     
     (flet ((is-not-published (file)
              (let ((title (get-title file)))
-               (member title
-                       not-published
-                       :test #'string-equal))))
+               (not
+                (member title
+                        published
+                        :test #'string-equal)))))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
         (app-page (stream :index-uri index-uri)
           (:section :style "margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
