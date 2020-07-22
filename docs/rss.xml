@@ -6,6 +6,46 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>freebsd-sysctl</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0138-freebsd-sysctl.html</link>
+            <description>&lt;p&gt;This library works on OSX because of its BSD roots, but fails on Linux with error: &quot;The alien function &apos;sysctlnametomib&apos; is undefined.&quot;&lt;/p&gt;
+&lt;p&gt;It provides information about the system.&lt;/p&gt;
+&lt;p&gt;Here is a quick example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;kern.hostname&amp;quot;)
+&amp;quot;poftheday&amp;quot;
+
+POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;kern.ostype&amp;quot;)
+&amp;quot;Darwin&amp;quot;
+
+POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;machdep.cpu.core_count&amp;quot;)
+6&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Using this library and &lt;code&gt;cl-spark&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html&quot;&gt;reviewed two weeks ago&lt;/a&gt;, we can build a simple tool to monitor the CPU&apos;s temperature:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with num-probes = 30
+                 with probes = ()
+                 for current = (freebsd-sysctl:sysctl-by-name
+                                &amp;quot;machdep.xcpm.cpu_thermal_level&amp;quot;)
+                 do (push current probes)
+                    (setf probes
+                          (subseq probes 0
+                                  (min num-probes
+                                       (length probes))))
+                    (format t &amp;quot;~A ~A~%~%&amp;quot;
+                            (cl-spark:spark
+                             (reverse probes)
+                             :min 30)
+                            current)
+                    (sleep 15))
+
+&amp;#x2588;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2586;&amp;#x2586;&amp;#x2585;&amp;#x2584;&amp;#x2584;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584; 53
+...
+&amp;#x2583;&amp;#x2582;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2582;&amp;#x2582;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2584;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588; 93
+...
+&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2585;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2587;&amp;#x2586;&amp;#x2585;&amp;#x2584; 66
+...
+&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2585;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2587;&amp;#x2586;&amp;#x2585;&amp;#x2584;&amp;#x2583;&amp;#x2582;&amp;#x2582;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581; 21&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To find out different keys supported by your system do &lt;code&gt;sysctl -a&lt;/code&gt; in console.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 22 Jul 2020 21:52:20 +0300</pubDate>
+        </item>
+        <item>
             <title>thread.comm.rendezvous</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0137-thread.comm.rendezvous.html</link>
             <description>&lt;p&gt;This system provides a simple thread synchronization primitive called &lt;a href=&quot;https://en.wikipedia.org/wiki/Rendezvous_(Plan_9)&quot;&gt;Rendezvous&lt;/a&gt;. It allows exchanging pieces of data between threads.&lt;/p&gt;
@@ -946,75 +986,6 @@ T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Bourbaki has a very good documentation. If yo
 &lt;p&gt;&lt;a href=&quot;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&quot;&gt;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Fri, 03 Jul 2020 21:52:13 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-tui</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0118-cl-tui.html</link>
-            <description>&lt;p&gt;This system is an experimental user interface library for the console. It uses &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt; under the hood, to call &lt;code&gt;ncurses&lt;/code&gt;. The library is not in Quicklisp yet but is installable from &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;It contains a few examples. I&apos;ve modified one to implement a simple chat-like interface:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;&amp;#x250C;&amp;#x2500;&amp;#x2500;Online&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2510;
-&amp;#x2502;Bob               &amp;#x2502;
-&amp;#x2502;Alice             &amp;#x2502;
-&amp;#x2502;Peter             &amp;#x2502;
-&amp;#x2502;Lisper 313373     &amp;#x2502;23:08:46 Enter some text.
-&amp;#x2502;                  &amp;#x2502;23:08:46 Esc to quit
-&amp;#x2502;                  &amp;#x2502;23:08:52 Hello Lisp World!
-&amp;#x2502;                  &amp;#x2502;23:09:05 This is a simple chat using
-&amp;#x2502;                  &amp;#x2502;23:09:16 cl-tui and charms.
-&amp;#x2514;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2500;&amp;#x2518;&amp;gt; Input box&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;cl-tui&lt;/code&gt; allows defining frames which can be stacked together. And you can write text inside the frame. Hope, there will be more primitives for other GUI elements like buttons text inputs, forms etc.&lt;/p&gt;
-&lt;p&gt;Here are pieces of the example. First, I defined a &quot;roster&quot; and a function to render it inside a frame. This function also draws a border around:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defvar *roster* &amp;#039;(&amp;quot;Bob&amp;quot;
-                   &amp;quot;Alice&amp;quot;
-                   &amp;quot;Peter&amp;quot;
-                   &amp;quot;Lisper 313373&amp;quot;))
-
-(defun draw-roster (&amp;amp;key frame)
-  (draw-box frame)
-  (put-text frame 0 3 &amp;quot;Online&amp;quot;)
-  
-  (loop for name in *roster*
-        for row upfrom 1
-        do (put-text frame row 1 name)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next part is the code defining the application&apos;s layout. It is constructed from nested frames of different types. There is a frame for our roster, a frame to display chat log and to get user&apos;s input:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(define-frame main (container-frame :split-type :horizontal) :on :root)
-
-(define-frame roster (simple-frame :render #&amp;#039;draw-roster) :on main :w 20)
-
-(define-frame chat (container-frame :split-type :vertical) :on main)
-
-(define-frame log (log-frame) :on chat)
-
-;; Edit-frame implements a single-line text editor.
-;; It will misbehave if its height is not 1.
-(define-frame input (edit-frame :prompt &amp;quot;&amp;gt; &amp;quot;) :on chat :h 1)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also need two functions to add users input into the chat window and to process keystrokes:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun finish-input ()
-  ;; Get text from edit-frame
-  (let ((text (get-text &amp;#039;input)))
-    ;; Append it to the log-frame
-    (append-line &amp;#039;log text)
-    ;; And clear the text in edit-frame
-    (clear-text &amp;#039;input)))
-
-
-(defun start ()
-  (with-screen ()
-    (append-line &amp;#039;log &amp;quot;Enter some text.&amp;quot;)
-    (append-line &amp;#039;log &amp;quot;Esc to quit&amp;quot;)
-    (loop
-      (refresh)
-      (let ((key (read-key)))
-        (case key
-          ;; Esc and Newline are handled here
-          (#\Esc (return))
-          (#\Newline (finish-input))
-          (:key-up (cl-tui:scroll-log &amp;#039;log 1))
-          (:key-down (cl-tui:scroll-log &amp;#039;log -1))
-          ;; Everything else is sent to the edit-frame.
-          (t (handle-key &amp;#039;input key)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all the app.&lt;/p&gt;
-&lt;p&gt;Checkout &lt;a href=&quot;https://github.com/naryl/cl-tui&quot;&gt;the repository&lt;/a&gt;. There you&apos;ll find more examples!&lt;/p&gt;
-&lt;p&gt;For those, who are interested in using &lt;code&gt;ncurses&lt;/code&gt;, here are reviews of the two lower-level libraries:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0059-cl-ncurses.html&quot;&gt;cl-ncurses&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0061-cl-charms.html&quot;&gt;cl-charms&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
-</description>
-            <pubDate>Thu, 02 Jul 2020 23:21:18 +0300</pubDate>
         </item>
     </channel>
 </rss>
