@@ -1,0 +1,62 @@
+* freebsd-sysctl :system:os:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library works on OSX because of its BSD roots, but fails on Linux
+with error: "The alien function 'sysctlnametomib' is undefined."
+
+It provides information about the system.
+
+Here is a quick example:
+
+#+begin_src lisp
+
+POFTHEDAY> (freebsd-sysctl:sysctl-by-name "kern.hostname")
+"poftheday"
+
+POFTHEDAY> (freebsd-sysctl:sysctl-by-name "kern.ostype")
+"Darwin"
+
+POFTHEDAY> (freebsd-sysctl:sysctl-by-name "machdep.cpu.core_count")
+6
+
+#+end_src
+
+Using this library and ~cl-spark~, [[https://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html][reviewed two weeks ago]], we can build a
+simple tool to monitor the CPU's temperature:
+
+#+begin_src lisp
+
+POFTHEDAY> (loop with num-probes = 30
+                 with probes = ()
+                 for current = (freebsd-sysctl:sysctl-by-name
+                                "machdep.xcpm.cpu_thermal_level")
+                 do (push current probes)
+                    (setf probes
+                          (subseq probes 0
+                                  (min num-probes
+                                       (length probes))))
+                    (format t "~A ~A~%~%"
+                            (cl-spark:spark
+                             (reverse probes)
+                             :min 30)
+                            current)
+                    (sleep 15))
+
+█▇▇▇▇▇▇▆▆▅▄▄▃▃▃▃▃▃▃▃▃▃▃▃▄▄▄▄▄▄ 53
+...
+▃▂▃▃▃▂▂▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▄▅▆▇█ 93
+...
+▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▅▅▆▇██████▇▆▅▄ 66
+...
+▃▃▃▃▅▅▆▇██████▇▆▅▄▃▂▂▁▁▁▁▁▁▁▁▁ 21
+
+#+end_src
+
+To find out different keys supported by your system do ~sysctl -a~ in console.
