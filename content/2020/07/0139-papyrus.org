@@ -1,0 +1,73 @@
+* papyrus                                               :asdf:asdf_extension:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+In [[https://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html][post number 50]] I've reviewed the ~literate-lisp~ system which allows to
+write you lisp code in ~org-mode~ files and to load them as usual lisp
+files.
+
+Papyrus does a similar trick but for Markdown files. It adds a named
+readtable to load markdown files as usual lisp code.
+
+The library itself is less than 20 lines of code!
+
+Here is how does the hello world look like using a literate programming style
+and Papyrus:
+
+#+begin_src markdown
+
+    (defpackage #:hello-world
+      (:use :cl :named-readtables))
+    (in-package #:hello-world)
+    
+    (in-readtable :papyrus)
+
+# Hello world with Papyrus
+
+As you probably know, every programmer starts his learning of the
+new programming language from the "hello world" program.
+
+Simplest hello world program outputs a text "Hello World!" in console and exit.
+
+Here is how we can output this program in Common Lisp:
+
+```lisp
+(defun main ()
+    (princ "Hello World!")
+    (terpri))
+```
+
+#+end_src
+
+Now we can load it and run our ~main~ function:
+
+#+begin_src lisp
+
+POFTHEDAY> (ql:quickload :papyrus)
+
+POFTHEDAY> (load "docs/media/0139/hello.md")
+T
+
+POFTHEDAY> (hello-world::main)
+Hello World!
+
+#+end_src
+
+Also, you can add markdown files as ASDF system's dependencies!
+
+However, there are view drawbacks because of Markdown's limitations and
+Papyrus simplicity:
+
+- All files have to start with an indented block of code to set proper read-table.
+- Emacs does not understand the current package when you are doing ~C-c
+  C-c~.
+- It is impossible to define blocks of lisp code which shouldn't be
+  evaluated.
+
+But ~literate-lisp~ system addresses all these issues.
