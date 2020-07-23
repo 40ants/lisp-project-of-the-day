@@ -28,6 +28,7 @@ Twitter account svetlyak40wt]].
 - 20 July - [[content/2020/07/0136-log4cl-extras.org][log4cl-extras]] ([[https://twitter.com/svetlyak40wt/status/1285313675549650950][twitter]])
 - 21 July - [[content/202/07/0137-thread.comm.rendezvous.org][thread.comm.rendezvous]] ([[https://twitter.com/svetlyak40wt/status/1285674512806273024][twitter]])
 - 22 July - [[content/2020/07/0138-freebsd-sysctl.org][freebsd-sysctl]] ([[https://twitter.com/svetlyak40wt/status/1286010379659878409][twitter]])
+- 23 July - [[content/2020/07/139-papyrus.org][papyrus]] ([[https://twitter.com/svetlyak40wt/status/1286378615370846209][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

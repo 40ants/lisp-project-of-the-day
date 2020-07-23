@@ -6,6 +6,46 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>papyrus</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0139-papyrus.html</link>
+            <description>&lt;p&gt;In &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html&quot;&gt;post number 50&lt;/a&gt; I&apos;ve reviewed the &lt;code&gt;literate-lisp&lt;/code&gt; system which allows to write you lisp code in &lt;code&gt;org-mode&lt;/code&gt; files and to load them as usual lisp files.&lt;/p&gt;
+&lt;p&gt;Papyrus does a similar trick but for Markdown files. It adds a named readtable to load markdown files as usual lisp code.&lt;/p&gt;
+&lt;p&gt;The library itself is less than 20 lines of code!&lt;/p&gt;
+&lt;p&gt;Here is how does the hello world look like using a literate programming style and Papyrus:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;markdown&apos;&gt;(defpackage #:hello-world
+      (:use :cl :named-readtables))
+    (in-package #:hello-world)
+    
+    (in-readtable :papyrus)
+
+# Hello world with Papyrus
+
+As you probably know, every programmer starts his learning of the
+new programming language from the &amp;quot;hello world&amp;quot; program.
+
+Simplest hello world program outputs a text &amp;quot;Hello World!&amp;quot; in console and exit.
+
+Here is how we can output this program in Common Lisp:
+
+```lisp
+(defun main ()
+    (princ &amp;quot;Hello World!&amp;quot;)
+    (terpri))
+```&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can load it and run our &lt;code&gt;main&lt;/code&gt; function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (ql:quickload :papyrus)
+
+POFTHEDAY&amp;gt; (load &amp;quot;docs/media/0139/hello.md&amp;quot;)
+T
+
+POFTHEDAY&amp;gt; (hello-world::main)
+Hello World!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can add markdown files as ASDF system&apos;s dependencies!&lt;/p&gt;
+&lt;p&gt;However, there are view drawbacks because of Markdown&apos;s limitations and Papyrus simplicity:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;All files have to start with an indented block of code to set proper read-table.&lt;/li&gt;&lt;li&gt;Emacs does not understand the current package when you are doing &lt;code&gt;C-c   C-c&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;It is impossible to define blocks of lisp code which shouldn&apos;t be   evaluated.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;But &lt;code&gt;literate-lisp&lt;/code&gt; system addresses all these issues.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 23 Jul 2020 22:22:03 +0300</pubDate>
+        </item>
+        <item>
             <title>freebsd-sysctl</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0138-freebsd-sysctl.html</link>
             <description>&lt;p&gt;This library works on OSX because of its BSD roots, but fails on Linux with error: &quot;The alien function &apos;sysctlnametomib&apos; is undefined.&quot;&lt;/p&gt;
@@ -922,70 +962,6 @@ POFTHEDAY&amp;gt; (rutils:print-hash-table *)
 &lt;p&gt;Let&apos;s thank the #poftheday challenge for the chance to discover such cool Common Lisp library!&lt;/p&gt;
 </description>
             <pubDate>Sat, 04 Jul 2020 23:15:08 +0300</pubDate>
-        </item>
-        <item>
-            <title>bourbaki</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0119-bourbaki.html</link>
-            <description>&lt;p&gt;This is the system for verifying formal mathematical proofs. As I didn&apos;t use math since the high school and lack time to dive into the lengthy documentation :(&lt;/p&gt;
-&lt;p&gt;Here is the code snippet from the example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Declare the wff type
-(symkind &amp;quot;WFF&amp;quot;)
-
-;; The implication symbol
-(prim wff &amp;quot;-&amp;gt;&amp;quot; (wff ![x y]))
-
-;; the axioms
-(ax &amp;quot;ax1&amp;quot; (wff ![A B])
-  (ass [-&amp;gt; A -&amp;gt; B A]))
-(ax &amp;quot;ax2&amp;quot; (wff ![A B C])
-  (ass [-&amp;gt; -&amp;gt; A -&amp;gt; B C -&amp;gt; -&amp;gt; A B -&amp;gt; A C]))
-
-;; the rule of inference (modus ponens)
-(ax &amp;quot;ax-mp&amp;quot; (wff ![A B])
-  (hypo [A] [-&amp;gt; A B])
-  (ass [B]))
-
-;; theorem: identity law for &amp;#039;-&amp;gt;&amp;#039;
-;; compare with id1 in set.mm
-(th &amp;quot;id&amp;quot; (wff &amp;quot;A&amp;quot;)
-  (ass [-&amp;gt; A A])
-  (proof
-    [ax1 A [-&amp;gt; A A]]
-    [ax2 A [-&amp;gt; A A] A]
-    [ax-mp [-&amp;gt; A -&amp;gt; -&amp;gt; A A A]
-           [-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]]
-    [ax1 A A]
-    [ax-mp [-&amp;gt; A -&amp;gt; A A] [-&amp;gt; A A]]))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you eval it in the &lt;code&gt;REPL&lt;/code&gt;, then you can verify it and output some information:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;BOURBAKI-USER&amp;gt; (print-theorem !id)
-Theorem id:
-Variables: A
-Distinct variable conditions: 
-Hypotheses: 
-Assertion: [-&amp;gt; A A]
-Proof:
-ax1 [A][-&amp;gt; A A]
-ax2 [A][-&amp;gt; A A][A]
-ax-mp [-&amp;gt; A -&amp;gt; -&amp;gt; A A A][-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
-ax1 [A][A]
-ax-mp [-&amp;gt; A -&amp;gt; A A][-&amp;gt; A A]
-
-BOURBAKI-USER&amp;gt; (show-proof !id)
-Proof for id:
-ax1 =&amp;gt; [-&amp;gt; A -&amp;gt; -&amp;gt; A A A]
-ax2 =&amp;gt; [-&amp;gt; -&amp;gt; A -&amp;gt; -&amp;gt; A A A -&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
-ax-mp =&amp;gt; [-&amp;gt; -&amp;gt; A -&amp;gt; A A -&amp;gt; A A]
-ax1 =&amp;gt; [-&amp;gt; A -&amp;gt; A A]
-ax-mp =&amp;gt; [-&amp;gt; A A]
-
-BOURBAKI-USER&amp;gt; (verify !id)
-Theorem: &amp;quot;ax1&amp;quot;
-Theorem: &amp;quot;ax2&amp;quot;
-Theorem: &amp;quot;ax-mp&amp;quot;
-Theorem: &amp;quot;id&amp;quot;
-T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Bourbaki has a very good documentation. If you are interested in math libraries and don&apos;t know how to spend this weekend - enjoy it:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&quot;&gt;https://www.quicklisp.org/beta/UNOFFICIAL/docs/bourbaki/doc/bourbaki-3.7.pdf&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Fri, 03 Jul 2020 21:52:13 +0300</pubDate>
         </item>
     </channel>
 </rss>

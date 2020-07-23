@@ -52,9 +52,9 @@ h1 .tags {
     </style>
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>papyrus</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>papyrus<span class='tags'><a href='../../tags/asdf.html'><span class='label label-default'>asdf</span></a><a href='../../tags/asdf-extension.html'><span class='label label-default'>asdf-extension</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>In <a href="https://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html">post number 50</a> I've reviewed the <code>literate-lisp</code> system which allows to write you lisp code in <code>org-mode</code> files and to load them as usual lisp files.</p>
-<p>Papyrus does the similar trick but for Markdown files. It adds a named readtable to load markdown files as usual lisp code.</p>
-<p>The library itself is less then 20 lines of code!</p>
-<p>Here is how does hello world looks like using literate programming style and Papyrus:</p>
+<p>Papyrus does a similar trick but for Markdown files. It adds a named readtable to load markdown files as usual lisp code.</p>
+<p>The library itself is less than 20 lines of code!</p>
+<p>Here is how does the hello world look like using a literate programming style and Papyrus:</p>
 <pre><code class='markdown'>(defpackage #:hello-world
       (:use :cl :named-readtables))
     (in-package #:hello-world)
@@ -81,10 +81,10 @@ POFTHEDAY&gt; (load &quot;docs/media/0139/hello.md&quot;)
 T
 
 POFTHEDAY&gt; (hello-world::main)
-Hello World!</code></pre><p>Also you can add markdown files as ASDF system's dependencies!</p>
-<p>However there are view drawbacks because of Markdown's limitations and Papyrus simplicity.</p>
-<ul><li>All files have to start with indented block of code to set proper read-table.</li><li>Emacs does not understand the current package when you are doing <code>C-c   C-c</code>.</li><li>It is impossible to define blocks of lisp code which shouldn't be   evaluated.</li></ul>
-<p>But <code>literate-lisp</code>, addresses all these issues.</p>
+Hello World!</code></pre><p>Also, you can add markdown files as ASDF system's dependencies!</p>
+<p>However, there are view drawbacks because of Markdown's limitations and Papyrus simplicity:</p>
+<ul><li>All files have to start with an indented block of code to set proper read-table.</li><li>Emacs does not understand the current package when you are doing <code>C-c   C-c</code>.</li><li>It is impossible to define blocks of lisp code which shouldn't be   evaluated.</li></ul>
+<p>But <code>literate-lisp</code> system addresses all these issues.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
