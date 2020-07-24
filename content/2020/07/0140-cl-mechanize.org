@@ -1,0 +1,111 @@
+* cl-mechanize :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+The README says this library tries to be a Perl's WWW:Mechanize
+clon. There is also Python library [[https://github.com/python-mechanize/mechanize][mechanize]] as well. Seems the stateful
+web scrapers is popular in amongh some developers.
+
+When I tried cl-mechanize first time to log into Reddit, it didn't work.
+The ~fetch~ function should discover all forms with their inputs but the
+login form was empty. Without CSRF token I wasn't able to log in.
+
+But I found a fork https://github.com/ilook/cl-mechanize where this
+problem was fixed.
+
+Lets create a program which will fetch your karma and latest comments
+from the Reddit!
+
+First, we need to log in. Mechanize operates on the ~browser~ object which
+keeps information about the current page and cookies:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *browser*
+             (make-instance 'cl-mechanize:browser))
+
+POFTHEDAY> (cl-mechanize:fetch "https://www.reddit.com/login/"
+                               *browser*)
+#<CL-MECHANIZE:PAGE {100A2D7FA3}>
+
+POFTHEDAY> (mechanize:page-forms *)
+(#<CL-MECHANIZE:FORM {100A2D4923}>)
+
+POFTHEDAY> (defparameter *login-form* (first *))
+
+POFTHEDAY> (mechanize:form-inputs *login-form*)
+(("otp-type" . "app") ("otp" . "") ("password" . "") ("username" . "")
+ ("is_mobile_ui" . "False") ("ui_mode" . "") ("frontpage_signup_variant" . "")
+ ("is_oauth" . "False")
+ ("csrf_token" . "ba038152b86951ab28725c37ed0b3e96d640d083")
+ ("dest" . "https://www.reddit.com") ("cookie_domain" . ".reddit.com"))
+
+POFTHEDAY> (setf (alexandria:assoc-value
+                  (mechanize:form-inputs *login-form*)
+                  "username" :test #'string=)
+                 "svetlyak40wt")
+
+POFTHEDAY> (setf (alexandria:assoc-value
+                  (mechanize:form-inputs *login-form*)
+                  "password" :test #'string=)
+                 "********")
+#+end_src
+
+However, ilook's version of the cl-mechanize does not work either. It
+fails on form submission with following error:
+
+"Don't know how to handle method :|post|."
+
+To overcome this issue we'll set the method to the proper keyword:
+
+#+begin_src lisp
+
+POFTHEDAY> (setf (mechanize:form-method *login-form*)
+                 :post)
+
+POFTHEDAY> (mechanize:submit *login-form* *browser*)
+
+POFTHEDAY> (cl-mechanize:fetch "https://www.reddit.com/"
+                               *browser*)
+
+POFTHEDAY> (cl-ppcre:scan-to-strings
+            "(\\d+) karma"
+            (mechanize:page-content *))
+"708 karma"
+#("708")
+
+#+end_src
+
+Now we'll fetch last 3 comments:
+
+#+begin_src lisp
+
+;; Mechanize can be enchanced to handle relative URLs:
+POFTHEDAY> (cl-mechanize:fetch "/message/inbox"
+                               *browser*)
+; Debugger entered on #<DRAKMA:PARAMETER-ERROR
+; "Don't know how to handle scheme ~S." {100252AA63}>
+
+;; I found that page /message/inbox does not countain messages
+;; and you have to fetch this instead:
+POFTHEDAY> (cl-mechanize:fetch "https://www.reddit.com/message/inbox?embedded=true"
+                               *browser*)
+; Debugger entered on #<TYPE-ERROR expected-type: STRING datum: NIL>
+
+#+end_src
+
+As you see, mechanize failed on fetching this simple page. This library
+is 10 years old and still has so many bugs :(
+
+Also, I found very unpleasant to work with ~cxml-stp~'s API. ~CL-Mechanize~
+parses the page's body into ~cxml~ datastructures and it was hard to
+figure out how to search the nodes I need.
+
+If you know about some other Common Lisp library which is able to keep
+cookies and suitable for web scraping, please, let me know.
