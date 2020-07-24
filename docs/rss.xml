@@ -6,6 +6,73 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-mechanize</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0140-cl-mechanize.html</link>
+            <description>&lt;p&gt;The README says this library tries to be a Perl&apos;s WWW:Mechanize clon. There is also Python library &lt;a href=&quot;https://github.com/python-mechanize/mechanize&quot;&gt;mechanize&lt;/a&gt; as well. Seems the stateful web scrapers is popular among some developers.&lt;/p&gt;
+&lt;p&gt;When I tried cl-mechanize to log into Reddit, it didn&apos;t work. The &lt;code&gt;fetch&lt;/code&gt; function should discover all forms with their inputs but the login form was empty. Without CSRF token I wasn&apos;t able to log in.&lt;/p&gt;
+&lt;p&gt;But I found a fork &lt;a href=&quot;https://github.com/ilook/cl-mechanize&quot;&gt;https://github.com/ilook/cl-mechanize&lt;/a&gt; where this problem was fixed.&lt;/p&gt;
+&lt;p&gt;Let&apos;s create a program which will fetch your karma and latest comments from the Reddit!&lt;/p&gt;
+&lt;p&gt;First, we need to log in. Mechanize operates on the &lt;code&gt;browser&lt;/code&gt; object which keeps the information about the current page and cookies:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *browser*
+             (make-instance &amp;#039;cl-mechanize:browser))
+
+POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/login/&amp;quot;
+                               *browser*)
+#&amp;lt;CL-MECHANIZE:PAGE {100A2D7FA3}&amp;gt;
+
+POFTHEDAY&amp;gt; (mechanize:page-forms *)
+(#&amp;lt;CL-MECHANIZE:FORM {100A2D4923}&amp;gt;)
+
+POFTHEDAY&amp;gt; (defparameter *login-form* (first *))
+
+POFTHEDAY&amp;gt; (mechanize:form-inputs *login-form*)
+((&amp;quot;otp-type&amp;quot; . &amp;quot;app&amp;quot;) (&amp;quot;otp&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;password&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;username&amp;quot; . &amp;quot;&amp;quot;)
+ (&amp;quot;is_mobile_ui&amp;quot; . &amp;quot;False&amp;quot;) (&amp;quot;ui_mode&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;frontpage_signup_variant&amp;quot; . &amp;quot;&amp;quot;)
+ (&amp;quot;is_oauth&amp;quot; . &amp;quot;False&amp;quot;)
+ (&amp;quot;csrf_token&amp;quot; . &amp;quot;ba038152b86951ab28725c37ed0b3e96d640d083&amp;quot;)
+ (&amp;quot;dest&amp;quot; . &amp;quot;https://www.reddit.com&amp;quot;) (&amp;quot;cookie_domain&amp;quot; . &amp;quot;.reddit.com&amp;quot;))
+
+POFTHEDAY&amp;gt; (setf (alexandria:assoc-value
+                  (mechanize:form-inputs *login-form*)
+                  &amp;quot;username&amp;quot; :test #&amp;#039;string=)
+                 &amp;quot;svetlyak40wt&amp;quot;)
+
+POFTHEDAY&amp;gt; (setf (alexandria:assoc-value
+                  (mechanize:form-inputs *login-form*)
+                  &amp;quot;password&amp;quot; :test #&amp;#039;string=)
+                 &amp;quot;********&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, ilook&apos;s version of the cl-mechanize does not work either. It fails on form submission with the following error:&lt;/p&gt;
+&lt;p&gt;&quot;Don&apos;t know how to handle method :|post|.&quot;&lt;/p&gt;
+&lt;p&gt;To overcome this issue we&apos;ll set the method to the proper keyword:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (setf (mechanize:form-method *login-form*)
+                 :post)
+
+POFTHEDAY&amp;gt; (mechanize:submit *login-form* *browser*)
+
+POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/&amp;quot;
+                               *browser*)
+
+POFTHEDAY&amp;gt; (cl-ppcre:scan-to-strings
+            &amp;quot;(\\d+) karma&amp;quot;
+            (mechanize:page-content *))
+&amp;quot;708 karma&amp;quot;
+#(&amp;quot;708&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll fetch last 3 comments:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Mechanize can be enchanced to handle relative URLs:
+POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;/message/inbox&amp;quot;
+                               *browser*)
+; Debugger entered on #&amp;lt;DRAKMA:PARAMETER-ERROR
+; &amp;quot;Don&amp;#039;t know how to handle scheme ~S.&amp;quot; {100252AA63}&amp;gt;
+
+;; I found that page /message/inbox does not countain messages
+;; and you have to fetch this instead:
+POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/message/inbox?embedded=true&amp;quot;
+                               *browser*)
+; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: STRING datum: NIL&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, &lt;code&gt;cl-mechanize&lt;/code&gt; failed on fetching this simple page. This library is 10 years old and still has so many bugs :(&lt;/p&gt;
+&lt;p&gt;Also, I found very unpleasant to work with &lt;code&gt;cxml-stp&lt;/code&gt;&apos;s API. &lt;code&gt;CL-Mechanize&lt;/code&gt; parses the page&apos;s body into &lt;code&gt;cxml&lt;/code&gt; data structures and it was hard to figure out how to search the nodes I need.&lt;/p&gt;
+&lt;p&gt;If you know about some other Common Lisp library that is able to keep cookies and suitable for web scraping, please, let me know.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 24 Jul 2020 21:08:15 +0300</pubDate>
+        </item>
+        <item>
             <title>papyrus</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0139-papyrus.html</link>
             <description>&lt;p&gt;In &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0050-literate-lisp.html&quot;&gt;post number 50&lt;/a&gt; I&apos;ve reviewed the &lt;code&gt;literate-lisp&lt;/code&gt; system which allows to write you lisp code in &lt;code&gt;org-mode&lt;/code&gt; files and to load them as usual lisp files.&lt;/p&gt;
@@ -872,96 +939,6 @@ POFTHEDAY&amp;gt; (cl-spark:vspark
 &lt;p&gt;Are there any reasons to use a lock-free data structure if it does not get you any speed gains?&lt;/p&gt;
 </description>
             <pubDate>Sun, 05 Jul 2020 12:39:11 +0300</pubDate>
-        </item>
-        <item>
-            <title>make-hash</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0120-make-hash.html</link>
-            <description>&lt;p&gt;This is the most comprehensive library for making hash tables I&apos;ve already seen! And it has wonderful documentation with lots of examples!&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;make-hash&lt;/code&gt; allows to create hash tables in multiple ways, from different kinds of data structures and even using functions for data transformation. For example, you can create a hash by reading rows from the database.&lt;/p&gt;
-&lt;p&gt;I&apos;ll show you only a few examples I especially liked.&lt;/p&gt;
-&lt;p&gt;First one is creation hash from a sequence while counting each item. Using this, we can easily count how many times each character is used in a text:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-hash:make-hash
-            :init-format :keybag
-            :initial-contents &amp;quot;Alice loves Bob&amp;quot;)
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 11 {1008943083}&amp;gt;
-
-POFTHEDAY&amp;gt; (rutils:print-hash-table *)
-#{
-  #\A 1
-  #\l 2
-  #\i 1
-  #\c 1
-  #\e 2
-  #\  2
-  #\o 2
-  #\v 1
-  #\s 1
-  #\B 1
-  #\b 1
- }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;In the next example, we&apos;ll make a smaller hash table from another one while selecting data by keys:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((full-data
-                   (make-hash:make-hash
-                    :initial-contents
-                    &amp;#039;(:foo 1
-                      :bar 2
-                      :bazz 3
-                      :blah 4
-                      :minor 5))))
-             (make-hash:make-hash
-              :init-format :keys
-              :init-data full-data
-              :initial-contents &amp;#039;(:bar :minor)))
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 2 {10060F6123}&amp;gt;
-
-POFTHEDAY&amp;gt; (rutils:print-hash-table *)
-#{
-   :BAR 2
-   :MINOR 5
- }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And here is how we can build a hash from a data returned by a function. We only need a closure which will return rows of data as values and will return nil at the end.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-rows-iterator ()
-             ;; This list will allow us to simulate
-             ;; the data storage:
-             (let ((rows &amp;#039;((bob 42)
-                           (alice 25)
-                           (mike 30)
-                           (julia 27))))
-               (lambda ()
-                 (let ((row (car rows)))
-                   (setf rows
-                         (cdr rows))
-                   (values (first row) ;; This is a key
-                           (second row))))))
-
-POFTHEDAY&amp;gt; (make-hash:make-hash
-            :init-format :function
-            :initial-contents (make-rows-iterator))
-#&amp;lt;HASH-TABLE :TEST EQL :COUNT 4 {10086FF8E3}&amp;gt;
-
-POFTHEDAY&amp;gt; (rutils:print-hash-table *)
-#{
-  BOB 42
-  ALICE 25
-  MIKE 30
-  JULIA 27
- }&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;make-hash&lt;/code&gt; also provides a configurable reader macro:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(install-hash-reader ())  ; default settings and options
-#{:a 1 :b 2 :c 3 :d 4}   
-       
-
-(install-hash-reader &amp;#039;(:init-format :pairs)
-  :use-dispatch t
-  :open-char #\[ :close-char #\])
-#[&amp;#039;(:a . 1) &amp;#039;(:b . 2) &amp;#039;(:c . 3) &amp;#039;(:d . 4)] 
-       
-
-(install-hash-reader &amp;#039;(:init-format :lists)
-  :use-dispatch nil
-  :open-char #\{ :close-char #\})
-{&amp;#039;(:a 1) &amp;#039;(:b 2) &amp;#039;(:c 3) &amp;#039;(:d 4)}&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You will find more examples and instructions on how to define your own initialization formats in the library&apos;s documentation:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/genovese/make-hash&quot;&gt;https://github.com/genovese/make-hash&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Let&apos;s thank the #poftheday challenge for the chance to discover such cool Common Lisp library!&lt;/p&gt;
-</description>
-            <pubDate>Sat, 04 Jul 2020 23:15:08 +0300</pubDate>
         </item>
     </channel>
 </rss>
