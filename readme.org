@@ -5,7 +5,7 @@ Twitter account svetlyak40wt]].
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
-** July
+** COMMENT July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
 - 02 July - [[content/2020/07/0118-cl-tui.org][cl-tui]] ([[https://twitter.com/svetlyak40wt/status/1278786496556916749][twitter]])
 - 03 July - [[content/2020/07/0119-bourbaki.org][bourbaki]] ([[https://twitter.com/svetlyak40wt/status/1279126124610584578][twitter]])
@@ -30,6 +30,7 @@ Twitter account svetlyak40wt]].
 - 22 July - [[content/2020/07/0138-freebsd-sysctl.org][freebsd-sysctl]] ([[https://twitter.com/svetlyak40wt/status/1286010379659878409][twitter]])
 - 23 July - [[content/2020/07/139-papyrus.org][papyrus]] ([[https://twitter.com/svetlyak40wt/status/1286378615370846209][twitter]])
 - 24 July - [[content/2020/07/0140-cl-mechanize.org][cl-mechanize]] ([[https://twitter.com/svetlyak40wt/status/1286725881671692291][twitter]])
+- 25 July - [[content/2020/07/0141-cl-flow.org][cl-flow]] ([[https://twitter.com/svetlyak40wt/status/1287120773598064647][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

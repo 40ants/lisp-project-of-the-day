@@ -135,7 +135,7 @@ POFTHEDAY&gt; (defun make-url-processor (already-processed url)
                                      (setf (gethash full-url already-processed)
                                            t)
                                      (make-url-processor already-processed
-                                                         full-url)))))))</code></pre><p>Now we can start our recirsive page downloader:</p>
+                                                         full-url)))))))</code></pre><p>Now we can start it:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (let ((already-processed (make-hash-table :test &#039;equal)))
              (run
               (make-url-processor already-processed *base-url*))

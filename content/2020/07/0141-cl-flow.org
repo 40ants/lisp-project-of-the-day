@@ -121,7 +121,7 @@ POFTHEDAY> (defun make-url-processor (already-processed url)
                                                          full-url)))))))
 #+end_src
 
-Now we can start our recirsive page downloader:
+Now we can start it:
 
 #+begin_src lisp
 

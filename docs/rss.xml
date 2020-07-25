@@ -6,6 +6,123 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-flow</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0141-cl-flow.html</link>
+            <description>&lt;p&gt;&lt;code&gt;CL-Flow&lt;/code&gt; is &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s library and provides a way for lock-free parallel code execution. You can combine blocks of code and define how they should be executed - serially or in parallel.&lt;/p&gt;
+&lt;p&gt;This system is in the Quicklisp, but is not installable because requires &lt;code&gt;bodge-queue&lt;/code&gt; which is not in the Quicklisp yet (or now). You need to install @borodust&apos;s distribution first:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDDAY&amp;gt; (ql-dist:install-dist
+             &amp;quot;http://bodge.borodust.org/dist/org.borodust.bodge.txt&amp;quot;
+             :replace t :prompt nil)
+
+POFTHEDAY&amp;gt; (ql:quickload &amp;#039;(:simple-flow-dispatcher
+                           :cl-flow
+                           :log4cl
+                           :dexador))
+
+POFTHEDAY&amp;gt; (defun handle-error (e)
+             (log:error &amp;quot;Unhandled error&amp;quot; e))
+
+;; This code will help us to run flow blocks
+;; in the thread pool:
+POFTHEDAY&amp;gt; (defvar *dispatcher*
+             (simple-flow-dispatcher:make-simple-dispatcher
+              :threads 4
+              :error-handler #&amp;#039;handle-error))
+
+POFTHEDAY&amp;gt; (defun run (flow)
+             (cl-flow:run *dispatcher* flow))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is an example from &lt;code&gt;cl-flow&lt;/code&gt;&apos;s documentation.&lt;/p&gt;
+&lt;p&gt;This code will run three blocks of code in parallel and then pass their results into another block:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (run (flow:serially
+                  (flow:concurrently
+                    (flow:atomically :first ()
+                      &amp;quot;Hello&amp;quot;)
+                    (flow:atomically :second ()
+                      &amp;quot;Lisp&amp;quot;)
+                    (flow:atomically :third ()
+                      &amp;quot;World&amp;quot;))
+                  ;; Last block will receive results
+                  ;; of all previous blocks:
+                  (flow:atomically :finally (results)
+                    (destructuring-bind (first second third)
+                        results
+                      (format t &amp;quot;~A ~A ~A~%&amp;quot;
+                              first
+                              second
+                              third)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, the documentation does not cover a more interesting topic - blocks which generate other blocks. Let&apos;s try to figure out how to use &lt;code&gt;flow:dynamically&lt;/code&gt; to define a web crawler which will process pages recursively:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *base-url*
+             &amp;quot;https://borodust.org/projects/cl-flow/&amp;quot;)
+
+POFTHEDAY&amp;gt; (defun is-external (url)
+             (or (str:starts-with-p &amp;quot;mailto:&amp;quot; url)
+                 (and (str:starts-with-p &amp;quot;http&amp;quot; url)
+                      (not (str:starts-with-p *base-url* url)))))
+
+POFTHEDAY&amp;gt; (defun make-full (url)
+             (let ((new-url
+                     (cond
+                       ((or (str:starts-with-p &amp;quot;http&amp;quot; url)
+                            (str:starts-with-p &amp;quot;mailto:&amp;quot; url))
+                        url)
+                       ((str:starts-with-p &amp;quot;/&amp;quot; url)
+                        (concatenate &amp;#039;string &amp;quot;https://borodust.org&amp;quot; url))
+                       (t
+                        (concatenate &amp;#039;string *base-url* url)))))
+               (cl-ppcre:regex-replace &amp;quot;#.*&amp;quot; new-url &amp;quot;&amp;quot;)))
+
+POFTHEDAY&amp;gt; (defun make-url-processor (already-processed url)
+             (flow:serially
+               (flow:atomically url ()
+                 (log:info &amp;quot;Downloading ~A&amp;quot; url)
+                 (dex:get url))
+
+               ;; This block creates new blocks where each
+               ;; will process a single url and produce more
+               ;; blocks to process links from fetched pages:
+               (flow:dynamically (content)
+                 (flow:concurrently
+                   (loop with page = (ignore-errors
+                                      (plump:parse content))
+                         for link in (when page
+                                       (plump:get-elements-by-tag-name page &amp;quot;a&amp;quot;))
+                         for link-url = (plump:attribute link &amp;quot;href&amp;quot;)
+                         for full-url = (make-full link-url)
+                         unless (or (is-external full-url)
+                                    (gethash full-url already-processed))
+                           collect (progn
+                                     (setf (gethash full-url already-processed)
+                                           t)
+                                     (make-url-processor already-processed
+                                                         full-url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can start it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((already-processed (make-hash-table :test &amp;#039;equal)))
+             (run
+              (make-url-processor already-processed *base-url*))
+             already-processed)
+
+ &amp;lt;INFO&amp;gt; [23:10:00] poftheday (make-url-processor body-fu3) -
+  Downloading https://borodust.org/projects/
+#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 0 {10073D59A3}&amp;gt;
+ &amp;lt;INFO&amp;gt; [23:10:00] poftheday (make-url-processor body-fu3) -
+  Downloading https://borodust.org/projects/vinoyaku/
+...
+ &amp;lt;INFO&amp;gt; [23:10:01] poftheday (make-url-processor body-fu3) -
+  Downloading https://borodust.org/projects/cl-bodge/overview/
+
+;; These URL were processed by our crawler:
+POFTHEDAY&amp;gt; (rutils:hash-table-to-alist *)
+((&amp;quot;https://borodust.org/projects/vinoyaku/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/trivial-gamekit/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/cl-flow/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/cl-bodge/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/cl-flow/getting-started/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/trivial-gamekit/getting-started/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/trivial-gamekit/advanced/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/trivial-gamekit/manual/&amp;quot; . T)
+ (&amp;quot;https://borodust.org/projects/cl-bodge/overview/&amp;quot; . T))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It would be nice if &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt; will do a little code review and check if I used &lt;code&gt;cl-flow&lt;/code&gt; correctly or not.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 25 Jul 2020 23:26:42 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-mechanize</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0140-cl-mechanize.html</link>
             <description>&lt;p&gt;The README says this library tries to be a Perl&apos;s WWW:Mechanize clon. There is also Python library &lt;a href=&quot;https://github.com/python-mechanize/mechanize&quot;&gt;mechanize&lt;/a&gt; as well. Seems the stateful web scrapers is popular among some developers.&lt;/p&gt;
@@ -872,73 +989,6 @@ POFTHEDAY&amp;gt; (cl-spark:vspark
  #P&amp;quot;/sbin/&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today. Tomorrow I&apos;ll try to find something more interesting!&lt;/p&gt;
 </description>
             <pubDate>Mon, 06 Jul 2020 21:06:02 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-skip-list</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0121-cl-skip-list.html</link>
-            <description>&lt;p&gt;I found this library a few weeks ago. It implements a &lt;a href=&quot;https://en.wikipedia.org/wiki/Skip_list&quot;&gt;Skip List&lt;/a&gt; data structure. Which is a lock-free and has &lt;code&gt;O(log n)&lt;/code&gt; for lookup, insert and delete operations.&lt;/p&gt;
-&lt;p&gt;I wondered if this library will have a better performance in situation when you have to access a dictionary from multiple threads?&lt;/p&gt;
-&lt;p&gt;Here is a simple benchmark. We ll create 10 threads and do 10 millions lookup of a value in the dictionary filled by 6600 symbols from the keywords package.&lt;/p&gt;
-&lt;p&gt;I&apos;m testing on SBCL 2.0.2 with &lt;code&gt;(declaim (optimize (debug 1) (speed 3)))&lt;/code&gt; options running on the Macbook with 12 cores.&lt;/p&gt;
-&lt;p&gt;Let&apos;s run this benchmark using a standard Common Lisp hash table and a lock:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((hash (make-hash-table))
-                 (lock (bt:make-lock))
-                 (num-operations 10000000)
-                 (num-threads 10))
-             (do-external-symbols (s :keyword)
-               (setf (gethash s hash)
-                     (symbol-name s)))
-             (setf (gethash :foo hash)
-                   &amp;quot;FOO&amp;quot;)
-             ;; Now it is time to define a worker function
-             (flet ((worker ()
-                      (loop with result = nil
-                            repeat num-operations
-                            do (bt:with-lock-held (lock)
-                                 (setf result
-                                       (gethash :foo hash)))
-                            finally (return result))))
-               ;; We&amp;#039;ll create N workers and measure a total time required to finish them all
-               (let* ((started-at (get-internal-real-time))
-                      (workers (loop repeat num-threads
-                                     collect (bt:make-thread #&amp;#039;worker))))
-                 (loop for worker in workers
-                       do (bt:join-thread worker))
-                 ;; Calculate the total time
-                 (/ (- (get-internal-real-time) started-at)
-                    internal-time-units-per-second))))
-2399/100 (23.99)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And now a lock free version using cl-skip-list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((hash (cl-skip-list:make-skip-list :key-equal #&amp;#039;eql))
-                 (num-operations 10000000)
-                 (num-threads 10))
-             (do-external-symbols (s :keyword)
-               (cl-skip-list:skip-list-add hash
-                                           s
-                                           (symbol-name s)))
-             (unless (cl-skip-list:skip-list-lookup hash :foo)
-               (cl-skip-list:skip-list-add hash
-                                           :foo
-                                           &amp;quot;FOO&amp;quot;))
-             ;; Now it is time to define a worker function
-             (flet ((worker ()
-                      (loop with result = nil
-                            repeat num-operations
-                            do (setf result
-                                     (cl-skip-list:skip-list-lookup hash :foo))
-                            finally (return result))))
-               ;; We&amp;#039;ll create N workers and measure a total time required to finish them all
-               (let* ((started-at (get-internal-real-time))
-                      (workers (loop repeat num-threads
-                                     collect (bt:make-thread #&amp;#039;worker))))
-                 (loop for worker in workers
-                       do (bt:join-thread worker))
-                 ;; Calculate the total time
-                 (/ (- (get-internal-real-time) started-at)
-                    internal-time-units-per-second))))
-45799/1000 (45.799)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, the version with a lock is twice faster: 46 seconds against 24.&lt;/p&gt;
-&lt;p&gt;Are there any reasons to use a lock-free data structure if it does not get you any speed gains?&lt;/p&gt;
-</description>
-            <pubDate>Sun, 05 Jul 2020 12:39:11 +0300</pubDate>
         </item>
     </channel>
 </rss>
