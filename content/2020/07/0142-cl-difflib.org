@@ -60,8 +60,8 @@ POFTHEDAY> (difflib:unified-diff
 
 #+end_src
 
-There is also a lower level API. We can make a diff of any objects. Here
-is example how to get diff for list of symbols:
+There is also a lower-level API. We can make a diff of any objects. Here
+is an example of how to get a diff of two lists of symbols:
 
 #+begin_src lisp
 
@@ -109,4 +109,4 @@ POFTHEDAY> (subseq '(:one :three :four :seven :eight)
 
 #+end_src
 
-Tommorow we'll see the library, which uses ~cl-difflib~ for something more interesting.
+Tomorow we'll see the library, which uses ~cl-difflib~ for something more interesting.

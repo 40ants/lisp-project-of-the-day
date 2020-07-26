@@ -6,6 +6,81 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-difflib</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0142-cl-difflib.html</link>
+            <description>&lt;p&gt;This library is able to compute differences between sequences. For example, if we want to generate a unified diff for two lists of strings, we can do:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (difflib:unified-diff
+            t
+            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;two&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;five&amp;quot; &amp;quot;six&amp;quot;)
+            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;seven&amp;quot; &amp;quot;eight&amp;quot;)
+            :test-function &amp;#039;equal)
+
+---  
++++  
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to provide filenames:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (difflib:unified-diff
+            t
+            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;two&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;five&amp;quot; &amp;quot;six&amp;quot;)
+            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;seven&amp;quot; &amp;quot;eight&amp;quot;)
+            :test-function &amp;#039;equal
+            :from-file &amp;quot;a.txt&amp;quot;
+            :to-file &amp;quot;b.txt&amp;quot;)
+
+--- a.txt 
++++ b.txt 
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a lower-level API. We can make a diff of any objects. Here is an example of how to get a diff of two lists of symbols:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *diff*
+             (make-instance &amp;#039;difflib:sequence-matcher
+                            :a &amp;#039;(:one :two :three :four :five :six)
+                            :b &amp;#039;(:one :three :four :seven :eight)))
+
+POFTHEDAY&amp;gt; (difflib:get-opcodes *diff*)
+(#&amp;lt;DIFFLIB:OPCODE :EQUAL   0 1 0 1&amp;gt;
+ #&amp;lt;DIFFLIB:OPCODE :DELETE  1 2 1 1&amp;gt;
+ #&amp;lt;DIFFLIB:OPCODE :EQUAL   2 4 1 3&amp;gt;
+ #&amp;lt;DIFFLIB:OPCODE :REPLACE 4 6 3 5&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;These &quot;opcodes&quot; tell us what to do with subsequences of two lists. For example, &lt;code&gt;REPLACE&lt;/code&gt; opcode from the results tell us that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This should be replaced:
+POFTHEDAY&amp;gt; (subseq &amp;#039;(:one :two :three :four :five :six)
+                   4 6)
+(:FIVE :SIX)
+
+;; with:
+POFTHEDAY&amp;gt; (subseq &amp;#039;(:one :three :four :seven :eight)
+                   3 5)
+(:SEVEN :EIGHT)
+
+;; The same as we seen in the text output in the beginning:
+--- a.txt 
++++ b.txt 
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorow we&apos;ll see the library, which uses &lt;code&gt;cl-difflib&lt;/code&gt; for something more interesting.&lt;/p&gt;
+</description>
+            <pubDate>Sun, 26 Jul 2020 22:38:01 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-flow</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0141-cl-flow.html</link>
             <description>&lt;p&gt;&lt;code&gt;CL-Flow&lt;/code&gt; is &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s library and provides a way for lock-free parallel code execution. You can combine blocks of code and define how they should be executed - serially or in parallel.&lt;/p&gt;
@@ -971,24 +1046,6 @@ POFTHEDAY&amp;gt; (cl-spark:vspark
 &lt;p&gt;Here is &lt;a href=&quot;https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f&quot;&gt;the diff, required to enable code coverage&lt;/a&gt; measurement for Ultralisp&apos;s tests. And now Coveralls will track if code coverage was improved with each pull-request.&lt;/p&gt;
 </description>
             <pubDate>Tue, 07 Jul 2020 22:29:09 +0300</pubDate>
-        </item>
-        <item>
-            <title>path-parse</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0122-path-parse.html</link>
-            <description>&lt;p&gt;This is a small utility library by Fernando Borretti. The only function it has is &lt;code&gt;PATH&lt;/code&gt; variable parsing. But it does it really well.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;Path-parse&lt;/code&gt; works on Windows and Unix (OSX):&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (path-parse:path)
-
-(#P&amp;quot;/Users/art/.roswell/bin/&amp;quot;
- #P&amp;quot;/Users/art/.bin/&amp;quot;
- #P&amp;quot;/Users/art/.dotfiles/bin/&amp;quot;
- #P&amp;quot;/usr/local/bin/&amp;quot;
- #P&amp;quot;/usr/bin/&amp;quot;
- #P&amp;quot;/bin/&amp;quot;
- #P&amp;quot;/usr/sbin/&amp;quot;
- #P&amp;quot;/sbin/&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today. Tomorrow I&apos;ll try to find something more interesting!&lt;/p&gt;
-</description>
-            <pubDate>Mon, 06 Jul 2020 21:06:02 +0300</pubDate>
         </item>
     </channel>
 </rss>
