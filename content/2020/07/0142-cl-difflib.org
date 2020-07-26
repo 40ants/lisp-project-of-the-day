@@ -1,0 +1,112 @@
+* cl-difflib :text_processing:utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is able to compute differences between sequences. For
+example, if we want to generate a unified diff for two lists of strings,
+we can do:
+
+#+begin_src lisp
+
+POFTHEDAY> (difflib:unified-diff
+            t
+            '("one" "two" "three" "four" "five" "six")
+            '("one" "three" "four" "seven" "eight")
+            :test-function 'equal)
+
+---  
++++  
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight
+
+#+end_src
+
+It is also possible to provide filenames:
+
+#+begin_src lisp
+
+POFTHEDAY> (difflib:unified-diff
+            t
+            '("one" "two" "three" "four" "five" "six")
+            '("one" "three" "four" "seven" "eight")
+            :test-function 'equal
+            :from-file "a.txt"
+            :to-file "b.txt")
+
+--- a.txt 
++++ b.txt 
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight
+
+#+end_src
+
+There is also a lower level API. We can make a diff of any objects. Here
+is example how to get diff for list of symbols:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *diff*
+             (make-instance 'difflib:sequence-matcher
+                            :a '(:one :two :three :four :five :six)
+                            :b '(:one :three :four :seven :eight)))
+
+POFTHEDAY> (difflib:get-opcodes *diff*)
+(#<DIFFLIB:OPCODE :EQUAL   0 1 0 1>
+ #<DIFFLIB:OPCODE :DELETE  1 2 1 1>
+ #<DIFFLIB:OPCODE :EQUAL   2 4 1 3>
+ #<DIFFLIB:OPCODE :REPLACE 4 6 3 5>)
+
+#+end_src
+
+These "opcodes" tell us what to do with subsequences of two lists. For
+example, ~REPLACE~ opcode from the results tell us that:
+
+#+begin_src lisp
+
+;; This should be replaced:
+POFTHEDAY> (subseq '(:one :two :three :four :five :six)
+                   4 6)
+(:FIVE :SIX)
+
+;; with:
+POFTHEDAY> (subseq '(:one :three :four :seven :eight)
+                   3 5)
+(:SEVEN :EIGHT)
+
+;; The same as we seen in the text output in the beginning:
+--- a.txt 
++++ b.txt 
+@@ -1,6 +1,5 @@
+ one
+-two
+ three
+ four
+-five
+-six
++seven
++eight
+
+
+#+end_src
+
+Tommorow we'll see the library, which uses ~cl-difflib~ for something more interesting.
