@@ -1,0 +1,78 @@
+* scriptl :command_line:rpc:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system implements a very interesting idea. It makes very easy to
+call any lisp function from the command line.
+
+The cool part of this story is the ability to quickly hack on your
+functions in the Emacs while calling them from the command line. This
+can be useful in many cases like writing a plugin for [[https://getbitbar.com/][the BitBar]].
+
+~Scriptl~ consists of three parts:
+
+- a server, running in your lisp image
+- a client binary for passing parameters to the server and returning
+  results
+- a thin wrapper for each command.
+
+Here is the minimal example to show you how it works.
+
+First command starts the server. Second, defines the usual function and
+third creates a shell script "hello-world" in the current directory:
+
+#+begin_src lisp
+
+POFTHEDAY> (scriptl:start)
+
+POFTHEDAY> (defun hello-world (&optional (name "Anonymous"))
+             (format t "Hello, ~A!~%" name))
+
+POFTHEDAY> (scriptl:make-script "hello-world"
+                                'hello-world)
+
+#+end_src
+
+Now let's switch to the command line and call our function:
+
+#+begin_src bash
+
+[poftheday] ./hello-world
+Hello, Anonymous!
+
+[poftheday] ./hello-world Bob
+Hello, Bob!
+
+#+end_src
+
+Here is how the wrapper looks like under the hood:
+
+#+begin_src text
+
+[poftheday] cat hello-world
+#!/bin/sh
+SCRIPTLCOM="./.qlot/dists/quicklisp/software/
+            scriptl-20180228-git/src/scriptlcom/src/scriptlcom"
+FUNCTION="POFTHEDAY::HELLO-WORLD"
+ERRORS="COMMON-LISP::NIL"
+SYSTEM=""
+
+$SCRIPTLCOM --sl-version 2 -E "$ERRORS" -l "$SYSTEM" -f "$FUNCTION" -- "$@"
+
+#+end_src
+
+As you can see, it calls ~scriptlcom~ which is a binary, written in C.
+
+The ~scriptl~ server can also be started on remote machine, but
+documentation does not cover this setup.
+
+Plaing with this system I recall where I seen similar way of calling the
+server from the command line. It is possible with ~CL-Gearman~, reviwed in
+[[https://40ants.com/lisp-project-of-the-day/2020/06/0095-cl-gearman.html][post number 0095]]. Gearman has a command line client but, is more
+suitable for server-server communication.
