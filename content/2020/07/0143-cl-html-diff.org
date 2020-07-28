@@ -1,0 +1,71 @@
+* cl-html-diff :web:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Yesterday I've reviewed the ~cl-difflib~ and today I want to show you a
+library which uses ~cl-difflib~ to compare HTML files. It parses both
+HTML's into nodes and compares these node lists:
+
+
+#+begin_src lisp
+
+POFTHEDAY> (html-diff:html-diff
+            "
+<p>This is the HTML <b>Hello World</b>:</p>
+<ul>
+  <li>First item</li>
+  <li>Second iem</li>
+  <li>Third item</li>
+</ul>
+"
+            "
+<p>This is the HTML <i>Hello World</i>:</p>
+<ul>
+  <li>First item</li>
+  <li>Second item</li>
+  <li>Third item</li>
+</ul>
+")
+
+;; Result
+"
+<p>This is the HTML <del class=\"diff\"><b></del><ins class=\"diff\"><i></ins>Hello World<del class=\"diff\"></b></del><ins class=\"diff\"></i></ins>:</p>
+<ul>
+  <li>First item</li>
+  <li>Second <del class=\"diff\">iem</del><ins class=\"diff\">item</ins></li>
+  <li>Third item</li>
+</ul>
+"
+4 ;; don't touched nodes
+3 ;; replaced nodes
+0 ;; inserted nodes
+0 ;; deleted nodes
+
+#+end_src
+
+Here is the result rendered by the browser:
+
+#+begin_src html :render
+
+<p>This is the HTML <del class=\"diff\"><b></del><ins class=\"diff\"><i></ins>Hello World<del class=\"diff\"></b></del><ins class=\"diff\"></i></ins>:</p>
+<ul>
+  <li>First item</li>
+  <li>Second <del class=\"diff\">iem</del><ins class=\"diff\">item</ins></li>
+  <li>Third item</li>
+</ul>
+
+#+end_src
+
+You can see how it highlighted the fixed typo in the ~item~ word, but
+wasn't able to figure out how to process changed tag around "Hello
+World" :(
+
+Such a library can be used to compare HTML documents rendered by some
+markup engined. For example, ~cl-markdown~ uses it in its test suite, to
+compare results produced by CL engine and original Perl version of Markdown.
