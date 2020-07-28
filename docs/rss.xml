@@ -6,6 +6,56 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-html-diff</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0143-cl-html-diff.html</link>
+            <description>&lt;p&gt;Yesterday I&apos;ve reviewed the &lt;code&gt;cl-difflib&lt;/code&gt; and today I want to show you a library which uses &lt;code&gt;cl-difflib&lt;/code&gt; to compare HTML files. It parses both HTML&apos;s into nodes and compares these node lists:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (html-diff:html-diff
+            &amp;quot;
+&amp;lt;p&amp;gt;This is the HTML &amp;lt;b&amp;gt;Hello World&amp;lt;/b&amp;gt;:&amp;lt;/p&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Second iem&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;
+            &amp;quot;
+&amp;lt;p&amp;gt;This is the HTML &amp;lt;i&amp;gt;Hello World&amp;lt;/i&amp;gt;:&amp;lt;/p&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Second item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;)
+
+;; Result
+&amp;quot;
+&amp;lt;p&amp;gt;This is the HTML &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;i&amp;gt;&amp;lt;/ins&amp;gt;Hello World&amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/i&amp;gt;&amp;lt;/ins&amp;gt;:&amp;lt;/p&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Second &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;iem&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;item&amp;lt;/ins&amp;gt;&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;
+4 ;; don&amp;#039;t touched nodes
+3 ;; replaced nodes
+0 ;; inserted nodes
+0 ;; deleted nodes&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result rendered by the browser:&lt;/p&gt;
+&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;p&amp;gt;This is the HTML &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;i&amp;gt;&amp;lt;/ins&amp;gt;Hello World&amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/i&amp;gt;&amp;lt;/ins&amp;gt;:&amp;lt;/p&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Second &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;iem&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;item&amp;lt;/ins&amp;gt;&amp;lt;/li&amp;gt;
+  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;p&gt;This is the HTML &lt;del class=\&quot;diff\&quot;&gt;&lt;b&gt;&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;&lt;i&gt;&lt;/ins&gt;Hello World&lt;del class=\&quot;diff\&quot;&gt;&lt;/b&gt;&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;&lt;/i&gt;&lt;/ins&gt;:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;First item&lt;/li&gt;
+  &lt;li&gt;Second &lt;del class=\&quot;diff\&quot;&gt;iem&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;item&lt;/ins&gt;&lt;/li&gt;
+  &lt;li&gt;Third item&lt;/li&gt;
+&lt;/ul&gt;&lt;p&gt;You can see how it highlighted the fixed typo in the &lt;code&gt;item&lt;/code&gt; word, but wasn&apos;t able to figure out how to process changed tag around &quot;Hello World&quot; :(&lt;/p&gt;
+&lt;p&gt;Such a library can be used to compare HTML documents rendered by some markup engined. For example, &lt;code&gt;cl-markdown&lt;/code&gt; uses it in its test suite, to compare results produced by CL engine and original Perl version of Markdown.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 28 Jul 2020 20:15:44 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-difflib</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0142-cl-difflib.html</link>
             <description>&lt;p&gt;This library is able to compute differences between sequences. For example, if we want to generate a unified diff for two lists of strings, we can do:&lt;/p&gt;
@@ -1016,36 +1066,6 @@ POFTHEDAY&amp;gt; (cl-spark:vspark
 &lt;p&gt;&lt;a href=&quot;https://github.com/tkych/cl-spark&quot;&gt;https://github.com/tkych/cl-spark&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Wed, 08 Jul 2020 20:57:12 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-coveralls</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0123-cl-coveralls.html</link>
-            <description>&lt;p&gt;I hope, you are writing unit tests for your program. And if you do, then it is really helpful to know which code is covered by tests and which does not.&lt;/p&gt;
-&lt;p&gt;Did you know that some CL implementation has tools for measuring code coverage?&lt;/p&gt;
-&lt;p&gt;For example, SBCL has a package &lt;a href=&quot;http://www.sbcl.org/manual/#sb_002dcover&quot;&gt;sb-cover&lt;/a&gt;. To create a coverage report you need to turn instrumentation on, recompile the program, run tests and generate the report.&lt;/p&gt;
-&lt;p&gt;This is the code from SBCL&apos;s manual:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(declaim (optimize sb-cover:store-coverage-data))
-
-;;; Load some code, ensuring that it&amp;#039;s recompiled
-;;; with correct optimization policy.
-(asdf:oos &amp;#039;asdf:load-op :cl-ppcre-test :force t)
-
-;;; Run the test suite.
-(cl-ppcre-test:test)
-
-;;; Produce a coverage report
-(sb-cover:report &amp;quot;/tmp/report/&amp;quot;)
-
-;;; Turn off instrumentation
-(declaim (optimize (sb-cover:store-coverage-data 0)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here are few screenshots of HTML pages I&apos;ve got running &lt;code&gt;sb-cover&lt;/code&gt; against Ultralisp&apos;s code:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0123/file-list.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0123/covered-code.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;But today we are talking about cl-coveralls. It helps to build coverage measuring into your CI pipeline. I decided that it is a great moment to add make it check Ultralisp&apos;s code.&lt;/p&gt;
-&lt;p&gt;What do you need to collect coverage data of Common Lisp project? Well, you need:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;to set up a CI pipeline on Travis or CircleCI.&lt;/li&gt;&lt;li&gt;register at &lt;a href=&quot;https://coveralls.io/&quot;&gt;https://coveralls.io/&lt;/a&gt; and enable it for your GitHub   repository.&lt;/li&gt;&lt;li&gt;set two environment variables in the CI&apos;s config.&lt;/li&gt;&lt;li&gt;wrap code with a call to coveralls:with-coveralls &lt;a href=&quot;https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f#diff-1d37e48f9ceff6d8030570cd36286a61R42&quot;&gt;like that&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Here is &lt;a href=&quot;https://github.com/ultralisp/ultralisp/commit/1162659cceb038d3285679c07c5c1440e58e779f&quot;&gt;the diff, required to enable code coverage&lt;/a&gt; measurement for Ultralisp&apos;s tests. And now Coveralls will track if code coverage was improved with each pull-request.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 07 Jul 2020 22:29:09 +0300</pubDate>
         </item>
     </channel>
 </rss>
