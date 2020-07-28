@@ -6,6 +6,41 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>scriptl</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0144-scriptl.html</link>
+            <description>&lt;p&gt;This system implements a very interesting idea. It makes it very easy to call any lisp function from the command line.&lt;/p&gt;
+&lt;p&gt;The cool part of this story is the ability to quickly hack on your functions in the Emacs while calling them from the command line. This can be especially useful in many cases like writing a plugin for &lt;a href=&quot;https://getbitbar.com/&quot;&gt;the BitBar&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ScriptL&lt;/code&gt; consists of three parts:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;a server, running in your lisp image&lt;/li&gt;&lt;li&gt;a client binary for passing parameters to the server and returning   results&lt;/li&gt;&lt;li&gt;a thin wrapper for each command.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Here is a minimal example to show you how it works.&lt;/p&gt;
+&lt;p&gt;The first command starts the server. Second, defines the usual function and third creates a shell script &quot;hello-world&quot; in the current directory:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (scriptl:start)
+
+POFTHEDAY&amp;gt; (defun hello-world (&amp;amp;optional (name &amp;quot;Anonymous&amp;quot;))
+             (format t &amp;quot;Hello, ~A!~%&amp;quot; name))
+
+POFTHEDAY&amp;gt; (scriptl:make-script &amp;quot;hello-world&amp;quot;
+                                &amp;#039;hello-world)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s switch to the command line and call our function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] ./hello-world
+Hello, Anonymous!
+
+[poftheday] ./hello-world Bob
+Hello, Bob!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how the wrapper looks like under the hood:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;[poftheday] cat hello-world
+#!/bin/sh
+SCRIPTLCOM=&amp;quot;./.qlot/dists/quicklisp/software/
+            scriptl-20180228-git/src/scriptlcom/src/scriptlcom&amp;quot;
+FUNCTION=&amp;quot;POFTHEDAY::HELLO-WORLD&amp;quot;
+ERRORS=&amp;quot;COMMON-LISP::NIL&amp;quot;
+SYSTEM=&amp;quot;&amp;quot;
+
+$SCRIPTLCOM --sl-version 2 -E &amp;quot;$ERRORS&amp;quot; -l &amp;quot;$SYSTEM&amp;quot; -f &amp;quot;$FUNCTION&amp;quot; -- &amp;quot;$@&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, it calls &lt;code&gt;scriptlcom&lt;/code&gt; binary, written in C.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;ScriptL&lt;/code&gt; server can also be started on a remote machine, but the documentation does not cover this setup.&lt;/p&gt;
+&lt;p&gt;Playing with this system I recall where I seen a similar way of calling the server from the command line. It is possible with &lt;code&gt;CL-Gearman&lt;/code&gt;, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0095-cl-gearman.html&quot;&gt;post number 0095&lt;/a&gt;. Gearman has a command-line client but, is more suitable for server-server communication.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 28 Jul 2020 20:40:04 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-html-diff</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0143-cl-html-diff.html</link>
             <description>&lt;p&gt;Yesterday I&apos;ve reviewed the &lt;code&gt;cl-difflib&lt;/code&gt; and today I want to show you a library which uses &lt;code&gt;cl-difflib&lt;/code&gt; to compare HTML files. It parses both HTML&apos;s into nodes and compares these node lists:&lt;/p&gt;
@@ -1006,66 +1041,6 @@ POFTHEDAY&amp;gt; (rutils:take 10
 &lt;p&gt;This way you&apos;ll be able to hit some shortcuts to receive recommendations from Lisp Critic, or it could happen when you are evaluating a top-level form.&lt;/p&gt;
 </description>
             <pubDate>Thu, 09 Jul 2020 23:29:31 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-spark</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html</link>
-            <description>&lt;p&gt;This small utility has nothing common with &lt;a href=&quot;https://spark.apache.org/&quot;&gt;Apache Spark&lt;/a&gt; and big data processing. However, it relates to data plotting.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;Cl-spark&lt;/code&gt; allows you to visualize data in the console like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(1 0 1 0))
-&amp;quot;&amp;#x2588;&amp;#x2581;&amp;#x2588;&amp;#x2581;&amp;quot;
-
-POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(1 1 2 3 5 8))
-&amp;quot;&amp;#x2581;&amp;#x2581;&amp;#x2582;&amp;#x2583;&amp;#x2585;&amp;#x2588;&amp;quot;
-
-
-POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150))
-&amp;quot;&amp;#x2581;&amp;#x2582;&amp;#x2583;&amp;#x2584;&amp;#x2582;&amp;#x2588;&amp;quot;
-
-POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
-                           :min -100)
-&amp;quot;&amp;#x2583;&amp;#x2584;&amp;#x2585;&amp;#x2586;&amp;#x2584;&amp;#x2588;&amp;quot;
-POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
-                           :max 50)
-&amp;quot;&amp;#x2581;&amp;#x2585;&amp;#x2588;&amp;#x2588;&amp;#x2585;&amp;#x2588;&amp;quot;
-POFTHEDAY&amp;gt; (cl-spark:spark &amp;#039;(0 30 55 80 33 150)
-                           :min 30
-                           :max 80)
-&amp;quot;&amp;#x2581;&amp;#x2581;&amp;#x2584;&amp;#x2588;&amp;#x2581;&amp;#x2588;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-spark:spark
-            &amp;#039;(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
-            :key (lambda (x)
-                   (sin (* x pi 1/4))))
-&amp;quot;&amp;#x2584;&amp;#x2586;&amp;#x2588;&amp;#x2586;&amp;#x2584;&amp;#x2582;&amp;#x2581;&amp;#x2582;&amp;#x2584;&amp;#x2586;&amp;#x2588;&amp;#x2586;&amp;#x2584;&amp;#x2582;&amp;#x2581;&amp;quot;
-
-
-POFTHEDAY&amp;gt; (cl-spark:vspark
-            &amp;#039;(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
-            :key (lambda (x)
-                   (sin (* x pi 1/4)))
-            :size 20)
-&amp;quot;
--1.0     0.0     1.0
-&amp;#x2EB;--------+---------&amp;#x2E7;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2589;
-&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2589;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2589;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x258F;
-&amp;#x2588;&amp;#x2588;&amp;#x2589;
-&amp;#x258F;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It&apos;s repository has a lot more examples. Check it out:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/tkych/cl-spark&quot;&gt;https://github.com/tkych/cl-spark&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Wed, 08 Jul 2020 20:57:12 +0300</pubDate>
         </item>
     </channel>
 </rss>
