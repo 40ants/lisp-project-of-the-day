@@ -8,7 +8,7 @@
 :CI:       :)
 :END:
 
-This library by [[https://twitter.com/scymtym][@scymtym]]. It provides a composable way to write
+This is a library by [[https://twitter.com/scymtym][@scymtym]]. It provides a composable way to write
 ~print-object~ methods for complex class hierarchies.
 
 It has a [[https://github.com/scymtym/utilities.print-items][good tutorial]]. Just to give you idea for cases where it can be
@@ -78,7 +78,7 @@ POFTHEDAY> (make-instance 'admin
 This is cumbersome and not composable at all. ~Utilities.print-items~
 provides a protocol where each object can report about pieces it owns
 and a single ~print-object~ method uses this information to output all
-necessary pieces of the object presentation:
+necessary parts of the object presentation:
 
 #+begin_src lisp
 
@@ -140,5 +140,5 @@ POFTHEDAY> (make-instance 'admin
 
 #+end_src
 
-[[https://twitter.com/scymtym][@scymtym]] did great job, generalizing this printing facility. Use it when
+[[https://twitter.com/scymtym][@scymtym]] did a great job, generalizing this printing facility. Use it when
 you have deep class hierarchies.

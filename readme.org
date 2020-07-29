@@ -34,7 +34,7 @@ Twitter account svetlyak40wt]].
 - 26 July - [[content/2020/07/0142-cl-difflib.org][cl-difflib]] ([[https://twitter.com/svetlyak40wt/status/1287472171611303936][twitter]])
 - 27 July - [[content/2020/07/0143-cl-html-diff.org][cl-html-diff]] ([[https://twitter.com/svetlyak40wt/status/1287843116893048833][twitter]])
 - 28 July - [[content/2020/07/0144-scriptl.org][scriptl]] ([[https://twitter.com/svetlyak40wt/status/1288193396956430336][twitter]])
-
+- 29 July - [[content/2020/07/0145-utilities.print-items.org][utilities.print-items]] ([[https://twitter.com/svetlyak40wt/status/1288551170408144896][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1147,6 +1147,7 @@ files, and extracting their ":defsystem-depends-on".
 - oook
 - file-local-variable
 - everblocking-stream
+- https://github.com/scymtym/more-conditions
 
 
 * Thanks

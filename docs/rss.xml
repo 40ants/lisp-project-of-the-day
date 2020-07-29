@@ -6,6 +6,107 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>utilities.print-items</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html</link>
+            <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/scymtym&quot;&gt;@scymtym&lt;/a&gt;. It provides a composable way to write &lt;code&gt;print-object&lt;/code&gt; methods for complex class hierarchies.&lt;/p&gt;
+&lt;p&gt;It has a &lt;a href=&quot;https://github.com/scymtym/utilities.print-items&quot;&gt;good tutorial&lt;/a&gt;. Just to give you idea for cases where it can be useful, consider you have the following class hierarchy:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+             ((last-seen :initform (local-time:now)
+                         :reader user-last-seen)))
+
+POFTHEDAY&amp;gt; (defclass anonymous (user)
+             ())
+
+POFTHEDAY&amp;gt; (defclass registered-user (user)
+             ((name :initarg :name :reader user-name)))
+
+POFTHEDAY&amp;gt; (defclass admin (registered-user)
+             ((privileges :initform nil
+                          :initarg :privileges
+                          :reader admin-privileges)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;For you want to define a &lt;code&gt;print-object&lt;/code&gt; methods for these objects which outputs all object field, then you&apos;ll have to repeat them all in each method, like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
+                          :name &amp;quot;Bob&amp;quot;
+                          :privileges &amp;#039;(:read-all :add-users))
+#&amp;lt;ADMIN {10097677E3}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;registered-user
+                          :name &amp;quot;Alla&amp;quot;)
+#&amp;lt;REGISTERED-USER {100458FE43}&amp;gt;
+
+
+POFTHEDAY&amp;gt; (defmethod print-object ((user admin) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (format stream &amp;quot;~A privileges=~A last-seen=~A&amp;quot;
+                       (user-name user)
+                       (admin-privileges user)
+                       (user-last-seen user))))
+
+POFTHEDAY&amp;gt; (defmethod print-object ((user registered-user) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (format stream &amp;quot;~A last-seen=~A&amp;quot;
+                       (user-name user)
+                       (user-last-seen user))))
+
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;registered-user
+                          :name &amp;quot;Alla&amp;quot;)
+#&amp;lt;REGISTERED-USER Alla last-seen=2020-07-29T16:18:57.595959+03:00 {100489DD43}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
+                          :name &amp;quot;Bob&amp;quot;
+                          :privileges &amp;#039;(:read-all :add-users))
+#&amp;lt;ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:17:15.458722+03:00 {10044E9183}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is cumbersome and not composable at all. &lt;code&gt;Utilities.print-items&lt;/code&gt; provides a protocol where each object can report about pieces it owns and a single &lt;code&gt;print-object&lt;/code&gt; method uses this information to output all necessary parts of the object presentation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmethod print-object ((user user) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (print-items:format-print-items
+                stream
+                (print-items:print-items user))))
+
+
+POFTHEDAY&amp;gt; (defmethod print-items:print-items append ((object user))
+             `((:last-seen ,(user-last-seen object)
+                           &amp;quot;last-seen=~A&amp;quot;)))
+
+POFTHEDAY&amp;gt; (defmethod print-items:print-items append ((object registered-user))
+             `((:name ,(user-name object)
+                      &amp;quot;~A &amp;quot;
+                      ((:before :last-seen)))))
+
+POFTHEDAY&amp;gt; (defmethod print-items:print-items append ((object admin))
+             `((:privileges ,(admin-privileges object)
+                            &amp;quot;privileges=~A &amp;quot;
+                            ((:after :name)
+                             (:before :last-seen)))))
+
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;registered-user
+                          :name &amp;quot;Alla&amp;quot;)
+#&amp;lt;REGISTERED-USER Alla last-seen=2020-07-29T16:45:50.711253+03:00 {100441F9C3}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
+                          :name &amp;quot;Bob&amp;quot;
+                          :privileges &amp;#039;(:read-all :add-users))
+#&amp;lt;ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:44:27.433569+03:00 {100440A133}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a special mixin class, which can be used instead of custom &lt;code&gt;print-object&lt;/code&gt; method:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (remove-method #&amp;#039;print-object
+                          (find-method #&amp;#039;print-object &amp;#039;()
+                                       &amp;#039;(user t)))
+POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
+                          :name &amp;quot;Bob&amp;quot;
+                          :privileges &amp;#039;(:read-all :add-users))
+#&amp;lt;ADMIN {1004537653}&amp;gt;
+
+POFTHEDAY&amp;gt; (defclass user (print-items:print-items-mixin)
+             ((last-seen :initform (local-time:now)
+                         :reader user-last-seen)))
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
+                          :name &amp;quot;Bob&amp;quot;
+                          :privileges &amp;#039;(:read-all :add-users))
+#&amp;lt;ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:53:56.089722+03:00 {10073D2FF3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/scymtym&quot;&gt;@scymtym&lt;/a&gt; did a great job, generalizing this printing facility. Use it when you have deep class hierarchies.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 29 Jul 2020 21:46:00 +0300</pubDate>
+        </item>
+        <item>
             <title>scriptl</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0144-scriptl.html</link>
             <description>&lt;p&gt;This system implements a very interesting idea. It makes it very easy to call any lisp function from the command line.&lt;/p&gt;
@@ -999,48 +1100,6 @@ INFO 42
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today.&lt;/p&gt;
 </description>
             <pubDate>Fri, 10 Jul 2020 20:41:09 +0300</pubDate>
-        </item>
-        <item>
-            <title>lisp-critic</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0125-lisp-critic.html</link>
-            <description>&lt;p&gt;A few weeks ago, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0097-sblint.html&quot;&gt;I&apos;ve reviewed&lt;/a&gt; the &lt;code&gt;sblint&lt;/code&gt; - a tool to check code quality in terms of warnings from the SBCL compiler. &lt;code&gt;Lisp-critic&lt;/code&gt; is another kind of beast. It checks the code quality in terms of common patterns and idioms.&lt;/p&gt;
-&lt;p&gt;For example, it outputs warning when there is only one subform inside the &lt;code&gt;progn&lt;/code&gt; or if you are setting global variables in the function definition:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (lisp-critic:critique
-            (progn
-              (format t &amp;quot;Hello World!&amp;quot;)))
-----------------------------------
-Why do you think you need a PROGN?
-----------------------------------
-
-POFTHEDAY&amp;gt; (lisp-critic:critique
-            (defun start-server ()
-              (setf *server*
-                    (listen-on :port 8080))
-              (values)))
-----------------------------------------------------
-GLOBALS!! Don&amp;#039;t use global variables, i.e., *SERVER*
-----------------------------------------------------&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Lisp-critic&lt;/code&gt; operates on patterns. There are &lt;a href=&quot;https://github.com/g000001/lisp-critic/blob/master/lisp-rules.lisp&quot;&gt;109 built-in patterns&lt;/a&gt; and you can define more:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (length (lisp-critic:get-pattern-names))
-109
-
-POFTHEDAY&amp;gt; (rutils:take 10
-             (lisp-critic:get-pattern-names))
-(LISP-CRITIC::?-FOR-PREDICATE
- LISP-CRITIC::ADD-ZERO
- LISP-CRITIC::APPEND-LIST-LIST
- LISP-CRITIC::APPEND-LIST-LOOP
- LISP-CRITIC::APPEND-LIST-RECURSION
- LISP-CRITIC::APPEND-LIST2-LIST
- LISP-CRITIC::APPLY-FOR-FUNCALL
- LISP-CRITIC::CAR-CDR
- LISP-CRITIC::CONCATENATE-LIST
- LISP-CRITIC::COND-&amp;gt;OR)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can use &lt;code&gt;lisp-critic:critique-file&lt;/code&gt; to analyze all top-level forms in a file.&lt;/p&gt;
-&lt;p&gt;It would be nice to:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;add a command-line tool (like sblint) to check all files in the   project;&lt;/li&gt;&lt;li&gt;to add the ability to ignore some checks for some forms. Probably &lt;code&gt;declaim&lt;/code&gt;   could be used for this purpose?&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Probably adding an integration with SLIME or SLY would also be a good idea.&lt;/p&gt;
-&lt;p&gt;This way you&apos;ll be able to hit some shortcuts to receive recommendations from Lisp Critic, or it could happen when you are evaluating a top-level form.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 09 Jul 2020 23:29:31 +0300</pubDate>
         </item>
     </channel>
 </rss>
