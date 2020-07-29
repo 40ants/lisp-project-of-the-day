@@ -1,0 +1,144 @@
+* utilities.print-items :utils:clos:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This library by [[https://twitter.com/scymtym][@scymtym]]. It provides a composable way to write
+~print-object~ methods for complex class hierarchies.
+
+It has a [[https://github.com/scymtym/utilities.print-items][good tutorial]]. Just to give you idea for cases where it can be
+useful, consider you have the following class hierarchy:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass user ()
+             ((last-seen :initform (local-time:now)
+                         :reader user-last-seen)))
+
+POFTHEDAY> (defclass anonymous (user)
+             ())
+
+POFTHEDAY> (defclass registered-user (user)
+             ((name :initarg :name :reader user-name)))
+
+POFTHEDAY> (defclass admin (registered-user)
+             ((privileges :initform nil
+                          :initarg :privileges
+                          :reader admin-privileges)))
+
+#+end_src
+
+For you want to define a ~print-object~ methods for these objects which
+outputs all object field, then you'll have to repeat them all in each
+method, like this:
+
+#+begin_src lisp
+
+
+POFTHEDAY> (make-instance 'admin
+                          :name "Bob"
+                          :privileges '(:read-all :add-users))
+#<ADMIN {10097677E3}>
+
+POFTHEDAY> (make-instance 'registered-user
+                          :name "Alla")
+#<REGISTERED-USER {100458FE43}>
+
+
+POFTHEDAY> (defmethod print-object ((user admin) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (format stream "~A privileges=~A last-seen=~A"
+                       (user-name user)
+                       (admin-privileges user)
+                       (user-last-seen user))))
+
+POFTHEDAY> (defmethod print-object ((user registered-user) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (format stream "~A last-seen=~A"
+                       (user-name user)
+                       (user-last-seen user))))
+
+
+POFTHEDAY> (make-instance 'registered-user
+                          :name "Alla")
+#<REGISTERED-USER Alla last-seen=2020-07-29T16:18:57.595959+03:00 {100489DD43}>
+
+POFTHEDAY> (make-instance 'admin
+                          :name "Bob"
+                          :privileges '(:read-all :add-users))
+#<ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:17:15.458722+03:00 {10044E9183}>
+
+#+end_src
+
+This is cumbersome and not composable at all. ~Utilities.print-items~
+provides a protocol where each object can report about pieces it owns
+and a single ~print-object~ method uses this information to output all
+necessary pieces of the object presentation:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmethod print-object ((user user) stream)
+             (print-unreadable-object (user stream :type t :identity t)
+               (print-items:format-print-items
+                stream
+                (print-items:print-items user))))
+
+
+POFTHEDAY> (defmethod print-items:print-items append ((object user))
+             `((:last-seen ,(user-last-seen object)
+                           "last-seen=~A")))
+
+POFTHEDAY> (defmethod print-items:print-items append ((object registered-user))
+             `((:name ,(user-name object)
+                      "~A "
+                      ((:before :last-seen)))))
+
+POFTHEDAY> (defmethod print-items:print-items append ((object admin))
+             `((:privileges ,(admin-privileges object)
+                            "privileges=~A "
+                            ((:after :name)
+                             (:before :last-seen)))))
+
+
+POFTHEDAY> (make-instance 'registered-user
+                          :name "Alla")
+#<REGISTERED-USER Alla last-seen=2020-07-29T16:45:50.711253+03:00 {100441F9C3}>
+
+POFTHEDAY> (make-instance 'admin
+                          :name "Bob"
+                          :privileges '(:read-all :add-users))
+#<ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:44:27.433569+03:00 {100440A133}>
+
+#+end_src
+
+There is also a special mixin class, which can be used instead of custom
+~print-object~ method:
+
+#+begin_src lisp
+
+POFTHEDAY> (remove-method #'print-object
+                          (find-method #'print-object '()
+                                       '(user t)))
+POFTHEDAY> (make-instance 'admin
+                          :name "Bob"
+                          :privileges '(:read-all :add-users))
+#<ADMIN {1004537653}>
+
+POFTHEDAY> (defclass user (print-items:print-items-mixin)
+             ((last-seen :initform (local-time:now)
+                         :reader user-last-seen)))
+
+POFTHEDAY> (make-instance 'admin
+                          :name "Bob"
+                          :privileges '(:read-all :add-users))
+#<ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:53:56.089722+03:00 {10073D2FF3}>
+
+#+end_src
+
+[[https://twitter.com/scymtym][@scymtym]] did great job, generalizing this printing facility. Use it when
+you have deep class hierarchies.
