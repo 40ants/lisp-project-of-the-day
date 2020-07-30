@@ -1,0 +1,41 @@
+* crypto-shortcuts :security:utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Crypto-shortcuts serves a single purpose - to reduce an amount of
+headache when you have to encrypt, decrypt or make some kind of hash.
+
+This Shinmera's library has a [[http://shinmera.github.io/crypto-shortcuts/][nice documentation]]. Today I lack of time,
+so here is the only one example of making a sha256 hash out of string.
+
+This code which uses plain ~flexi-stream~ and ~ironclad~:
+
+#+begin_src lisp
+
+POFTHEDAY> (let* ((octets (flexi-streams:string-to-octets
+                           "Hello World!"
+                           :external-format :utf-8))
+                  (digest (ironclad:digest-sequence
+                           'ironclad:sha256
+                           octets)))
+             (ironclad:byte-array-to-hex-string digest))
+"7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
+
+#+end_src
+
+Compare it with the code, using ~crypto-shortcuts~:
+
+#+begin_src lisp
+
+POFTHEDAY> (cryptos:sha256 "Hello World!")
+"7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
+
+#+end_src
+
+This library definitely should be in my toolbox!
