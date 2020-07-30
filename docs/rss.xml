@@ -6,6 +6,25 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>crypto-shortcuts</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0146-crypto-shortcuts.html</link>
+            <description>&lt;p&gt;Crypto-shortcuts serves a single purpose - to reduce an amount of headache when you have to encrypt, decrypt or make some kind of hash.&lt;/p&gt;
+&lt;p&gt;This &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s library has a &lt;a href=&quot;http://shinmera.github.io/crypto-shortcuts/&quot;&gt;nice documentation&lt;/a&gt;. Today I lack time, so here is the only one example of making a sha256 hash out of string.&lt;/p&gt;
+&lt;p&gt;This code which uses plain &lt;code&gt;flexi-streams&lt;/code&gt; and &lt;code&gt;ironclad&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let* ((octets (flexi-streams:string-to-octets
+                           &amp;quot;Hello World!&amp;quot;
+                           :external-format :utf-8))
+                  (digest (ironclad:digest-sequence
+                           &amp;#039;ironclad:sha256
+                           octets)))
+             (ironclad:byte-array-to-hex-string digest))
+&amp;quot;7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Compare it with the code, using &lt;code&gt;crypto-shortcuts&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cryptos:sha256 &amp;quot;Hello World!&amp;quot;)
+&amp;quot;7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library definitely should be in a toolbox of any common-lisper!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 30 Jul 2020 22:30:20 +0300</pubDate>
+        </item>
+        <item>
             <title>utilities.print-items</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html</link>
             <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/scymtym&quot;&gt;@scymtym&lt;/a&gt;. It provides a composable way to write &lt;code&gt;print-object&lt;/code&gt; methods for complex class hierarchies.&lt;/p&gt;
@@ -1064,42 +1083,6 @@ POFTHEDAY&amp;gt; (log-level)
 &lt;p&gt;If you know other Lisp systems for configuration management, please, let me know.&lt;/p&gt;
 </description>
             <pubDate>Sat, 11 Jul 2020 21:23:05 +0300</pubDate>
-        </item>
-        <item>
-            <title>with-output-to-stream</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0126-with-output-to-stream.html</link>
-            <description>&lt;p&gt;This is a &quot;trivial&quot; library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It simplifies the writing of the functions which would like to accept a stream argument as &lt;code&gt;format&lt;/code&gt; function does.&lt;/p&gt;
-&lt;p&gt;CL&apos;s &lt;code&gt;format&lt;/code&gt; function accepts as the first parameter a &lt;code&gt;nil&lt;/code&gt;, &lt;code&gt;t&lt;/code&gt; or a stream object. In first case it returns a string and in second - outputs to &lt;code&gt;*standard-output*&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;When you are writing a custom function with similar semantics, you have to handle all these cases by hand. Here is where &lt;code&gt;with-output-to-stream&lt;/code&gt; helps you:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun log-info (obj &amp;amp;key (stream t))
-             (with-output-to-stream:with-output-to-stream (s stream)
-               (write-string &amp;quot;INFO &amp;quot; s)
-               (write obj :stream s)
-               (terpri s)))
-
-;; Here is we return result as a string:
-POFTHEDAY&amp;gt; (log-info 100500 :stream nil)
-&amp;quot;INFO 100500
-&amp;quot;
-
-;; This will output to *standard-output*:
-POFTHEDAY&amp;gt; (log-info 100500 :stream t)
-INFO 100500
-NIL
-
-;; But you can pass any stream as the argument:
-POFTHEDAY&amp;gt; (log-info 100500 :stream *error-output*)
-INFO 100500
-NIL
-
-POFTHEDAY&amp;gt; (with-output-to-string (s)
-             (log-info 100500 :stream s)
-             (log-info 42 :stream s))
-&amp;quot;INFO 100500
-INFO 42
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 10 Jul 2020 20:41:09 +0300</pubDate>
         </item>
     </channel>
 </rss>

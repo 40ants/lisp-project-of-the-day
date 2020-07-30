@@ -11,10 +11,10 @@
 Crypto-shortcuts serves a single purpose - to reduce an amount of
 headache when you have to encrypt, decrypt or make some kind of hash.
 
-This Shinmera's library has a [[http://shinmera.github.io/crypto-shortcuts/][nice documentation]]. Today I lack of time,
+This [[https://twitter.com/Shinmera][@Shinmera]]'s library has a [[http://shinmera.github.io/crypto-shortcuts/][nice documentation]]. Today I lack time,
 so here is the only one example of making a sha256 hash out of string.
 
-This code which uses plain ~flexi-stream~ and ~ironclad~:
+This code which uses plain ~flexi-streams~ and ~ironclad~:
 
 #+begin_src lisp
 
@@ -38,4 +38,4 @@ POFTHEDAY> (cryptos:sha256 "Hello World!")
 
 #+end_src
 
-This library definitely should be in my toolbox!
+This library definitely should be in a toolbox of any common-lisper!

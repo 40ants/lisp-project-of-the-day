@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 Mode: POLY-ORG;  -*- ---
-Here I'll post notes about Quicklisp projects. Also I publish them [[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on
-Twitter account svetlyak40wt]].
+Here I'll post notes about Quicklisp projects. Also I publish them
+[[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
 
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
@@ -35,6 +35,7 @@ Twitter account svetlyak40wt]].
 - 27 July - [[content/2020/07/0143-cl-html-diff.org][cl-html-diff]] ([[https://twitter.com/svetlyak40wt/status/1287843116893048833][twitter]])
 - 28 July - [[content/2020/07/0144-scriptl.org][scriptl]] ([[https://twitter.com/svetlyak40wt/status/1288193396956430336][twitter]])
 - 29 July - [[content/2020/07/0145-utilities.print-items.org][utilities.print-items]] ([[https://twitter.com/svetlyak40wt/status/1288551170408144896][twitter]])
+- 30 July - [[content/2020/07/0146-crypto-shortcuts.org][crypto-shortcuts]] ([[https://twitter.com/svetlyak40wt/status/1288919782289481729][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])
@@ -1148,6 +1149,7 @@ files, and extracting their ":defsystem-depends-on".
 - file-local-variable
 - everblocking-stream
 - https://github.com/scymtym/more-conditions
+- http://quickdocs.org/cl-olefs/
 
 
 * Thanks
