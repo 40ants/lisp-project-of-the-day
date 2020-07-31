@@ -36,6 +36,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 28 July - [[content/2020/07/0144-scriptl.org][scriptl]] ([[https://twitter.com/svetlyak40wt/status/1288193396956430336][twitter]])
 - 29 July - [[content/2020/07/0145-utilities.print-items.org][utilities.print-items]] ([[https://twitter.com/svetlyak40wt/status/1288551170408144896][twitter]])
 - 30 July - [[content/2020/07/0146-crypto-shortcuts.org][crypto-shortcuts]] ([[https://twitter.com/svetlyak40wt/status/1288919782289481729][twitter]])
+- 31 July - [[content/2020/07/0147-graylex.org][graylex]] ([[https://twitter.com/svetlyak40wt/status/1289286290597240832][twitter]])
 
 ** June
 - 01 June - [[content/2020/06/0086-pythonic-string-reader.org][pythonic-string-reader]] ([[https://twitter.com/svetlyak40wt/status/1267519478511874052][twitter]])

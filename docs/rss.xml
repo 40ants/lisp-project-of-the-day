@@ -6,6 +6,94 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>graylex</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0147-graylex.html</link>
+            <description>&lt;p&gt;This system provides a way to extract tokens from streams. This can be useful when working with data, received from the network or to read large files from disk.&lt;/p&gt;
+&lt;p&gt;Here is the example of a simple parser:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;001, 110, 101&amp;quot;)
+             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &amp;#039;((&amp;quot;0&amp;quot; . :zero)
+                                                        (&amp;quot;1&amp;quot; . :one)
+                                                        (&amp;quot;,&amp;quot; . :comma)
+                                                        (&amp;quot; &amp;quot; . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:ZERO &amp;quot;0&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:ONE &amp;quot;1&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:ONE &amp;quot;1&amp;quot;) (:ONE &amp;quot;1&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:ONE &amp;quot;1&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:ONE &amp;quot;1&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can also use regular expressions to define rules:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;001, 110, 101&amp;quot;)
+             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &amp;#039;((&amp;quot;\\d+&amp;quot; . :number)
+                                                        (&amp;quot;,&amp;quot; . :comma)
+                                                        (&amp;quot; &amp;quot; . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:NUMBER &amp;quot;001&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:NUMBER &amp;quot;110&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:NUMBER &amp;quot;101&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if you have comma separated fields which can contain a comma if surrounded by double quotes?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;Google, Bing, \&amp;quot;Bob, Corp\&amp;quot;&amp;quot;)
+             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &amp;#039;((&amp;quot;[^,]*&amp;quot; . :field)
+                                                        (&amp;quot;,&amp;quot; . :comma)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:FIELD &amp;quot;Google&amp;quot;) (:COMMA &amp;quot;,&amp;quot;)
+ (:FIELD &amp;quot; Bing&amp;quot;) (:COMMA &amp;quot;,&amp;quot;)
+ (:FIELD &amp;quot; \&amp;quot;Bob&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) ;; WAT!?
+ (:FIELD &amp;quot; Corp\&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, there is a problem because the last field is surrounded by double quotes to quote the comma. To solve this problem, we need to change the rules dynamically. This will require to write a simple state machine:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *field*)
+POFTHEDAY&amp;gt; (defvar *field-separator*)
+POFTHEDAY&amp;gt; (defvar *quoted-string-start*)
+POFTHEDAY&amp;gt; (defvar *quoted-string-end*)
+
+POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;Google, Bing, \&amp;quot;Bob, Corp\&amp;quot;&amp;quot;)
+             (loop with lexer = (make-instance
+                                  &amp;#039;graylex:lexer-input-stream
+                                  :stream input
+                                  :rules &amp;#039;((&amp;quot; &amp;quot; . :space)
+                                           (*field* . :field)
+                                           (*field-separator* . :comma)
+                                           (*quoted-string-start* . :quoted-string-start)
+                                           (*quoted-string-end* . :quoted-string-end)))
+                   with in-quoted-string = nil
+                   with *field* = &amp;quot;[^\&amp;quot;,][^,]+&amp;quot;
+                   with *field-separator* = &amp;quot;,&amp;quot;
+                   with *quoted-string-start* = &amp;quot;\&amp;quot;&amp;quot;
+                   with *quoted-string-end* = &amp;quot;\&amp;quot;&amp;quot;
+                   with tokens = nil
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   do (push result tokens)
+                      (when (eq class :quoted-string-start)
+                        (if in-quoted-string
+                            (setf *field-separator* &amp;quot;,&amp;quot;
+                                  *field* &amp;quot;[^\&amp;quot;,][^,]+&amp;quot;
+                                  in-quoted-string nil)
+                            (setf *field-separator* &amp;quot;&amp;quot;
+                                  *field* &amp;quot;[^\&amp;quot;]+&amp;quot;
+                                  in-quoted-string t)))
+                   finally (return (nreverse tokens))))
+((:FIELD &amp;quot;Google&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:FIELD &amp;quot;Bing&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
+ (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;) (:FIELD &amp;quot;Bob, Corp&amp;quot;) (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here I&apos;m changing rules depending on if we are inside of the quoted string or not.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 31 Jul 2020 22:41:29 +0300</pubDate>
+        </item>
+        <item>
             <title>crypto-shortcuts</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/07/0146-crypto-shortcuts.html</link>
             <description>&lt;p&gt;Crypto-shortcuts serves a single purpose - to reduce an amount of headache when you have to encrypt, decrypt or make some kind of hash.&lt;/p&gt;
@@ -1044,45 +1132,6 @@ SQL-QUERIES      100      600       6         6         6         6         0.0&
 &lt;p&gt;&lt;a href=&quot;https://github.com/Shinmera/trivial-benchmark#benchmark-suites&quot;&gt;https://github.com/Shinmera/trivial-benchmark#benchmark-suites&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Sun, 12 Jul 2020 23:11:25 +0300</pubDate>
-        </item>
-        <item>
-            <title>chameleon</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0127-chameleon.html</link>
-            <description>&lt;p&gt;Chameleon is a configuration management library. It allows us to define a bunch of options and their values for different profiles. After that, you can switch between profiles.&lt;/p&gt;
-&lt;p&gt;It works like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (chameleon:defconfig
-             (port 8000 &amp;quot;Port to listen on&amp;quot;)
-             (log-level :info &amp;quot;The log level for log4cl&amp;quot;))
-
-POFTHEDAY&amp;gt; (chameleon:defprofile :dev)
-
-POFTHEDAY&amp;gt; (chameleon:defprofile :production
-             (port 80)
-             (log-level :warn))
-
-POFTHEDAY&amp;gt; (setf (active-profile) :production)
-:PRODUCTION
-POFTHEDAY&amp;gt; (port)
-80
-
-POFTHEDAY&amp;gt; (log-level)
-:WARN
-
-POFTHEDAY&amp;gt; (active-profile)
-:PRODUCTION
-
-;; Now switching to development mode:
-POFTHEDAY&amp;gt; (setf (active-profile) :dev)
-:DEV
-
-POFTHEDAY&amp;gt; (port)
-8000
-
-POFTHEDAY&amp;gt; (log-level)
-:INFO&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ve investigated the &lt;code&gt;chameleon&apos;s&lt;/code&gt; code and think it can be made better and simpler using &lt;code&gt;CLOS&lt;/code&gt; instances for profiles instead of hash maps.&lt;/p&gt;
-&lt;p&gt;If you know other Lisp systems for configuration management, please, let me know.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 11 Jul 2020 21:23:05 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -52,7 +52,7 @@ h1 .tags {
     </style>
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>graylex</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>graylex<span class='tags'><a href='../../tags/text.html'><span class='label label-default'>text</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This system provides a way to extract tokens from streams. This can be useful when working with data, received from the network or to read large files from disk.</p>
-<p>Here is the simple example of parser:</p>
+<p>Here is the example of a simple parser:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (with-input-from-string (input &quot;001, 110, 101&quot;)
              (loop with lexer = (make-instance &#039;graylex:lexer-input-stream
                                                :stream input
@@ -81,7 +81,7 @@ h1 .tags {
                    collect result))
 ((:NUMBER &quot;001&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
  (:NUMBER &quot;110&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
- (:NUMBER &quot;101&quot;))</code></pre><p>If you have comma separated fields:</p>
+ (:NUMBER &quot;101&quot;))</code></pre><p>But what if you have comma separated fields which can contain a comma if surrounded by double quotes?</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (with-input-from-string (input &quot;Google, Bing, \&quot;Bob, Corp\&quot;&quot;)
              (loop with lexer = (make-instance &#039;graylex:lexer-input-stream
                                                :stream input
@@ -95,7 +95,7 @@ h1 .tags {
 ((:FIELD &quot;Google&quot;) (:COMMA &quot;,&quot;)
  (:FIELD &quot; Bing&quot;) (:COMMA &quot;,&quot;)
  (:FIELD &quot; \&quot;Bob&quot;) (:COMMA &quot;,&quot;) ;; WAT!?
- (:FIELD &quot; Corp\&quot;&quot;))</code></pre><p>As you see, there is a problem because last field is surrounded by double quotes to quote the comma. To solve this problem, we need to change rules dynamically. This will require to write a simple state machine:</p>
+ (:FIELD &quot; Corp\&quot;&quot;))</code></pre><p>As you see, there is a problem because the last field is surrounded by double quotes to quote the comma. To solve this problem, we need to change the rules dynamically. This will require to write a simple state machine:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defvar *field*)
 POFTHEDAY&gt; (defvar *field-separator*)
 POFTHEDAY&gt; (defvar *quoted-string-start*)
@@ -132,7 +132,8 @@ POFTHEDAY&gt; (with-input-from-string (input &quot;Google, Bing, \&quot;Bob, Cor
                    finally (return (nreverse tokens))))
 ((:FIELD &quot;Google&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
  (:FIELD &quot;Bing&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
- (:QUOTED-STRING-START &quot;\&quot;&quot;) (:FIELD &quot;Bob, Corp&quot;) (:QUOTED-STRING-START &quot;\&quot;&quot;))</code></pre>
+ (:QUOTED-STRING-START &quot;\&quot;&quot;) (:FIELD &quot;Bob, Corp&quot;) (:QUOTED-STRING-START &quot;\&quot;&quot;))</code></pre><p>Here I'm changing rules depending on if we are inside of the quoted string or not.</p>
+
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

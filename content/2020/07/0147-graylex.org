@@ -12,7 +12,7 @@ This system provides a way to extract tokens from streams. This can be
 useful when working with data, received from the network or to read large
 files from disk.
 
-Here is the simple example of parser:
+Here is the example of a simple parser:
 
 #+begin_src lisp
 
@@ -56,7 +56,8 @@ POFTHEDAY> (with-input-from-string (input "001, 110, 101")
 
 #+end_src
 
-If you have comma separated fields:
+But what if you have comma separated fields which can contain a comma
+if surrounded by double quotes?
 
 #+begin_src lisp
 
@@ -77,9 +78,9 @@ POFTHEDAY> (with-input-from-string (input "Google, Bing, \"Bob, Corp\"")
 
 #+end_src
 
-As you see, there is a problem because last field is surrounded by
+As you see, there is a problem because the last field is surrounded by
 double quotes to quote the comma. To solve this problem, we need to
-change rules dynamically. This will require to write a simple state
+change the rules dynamically. This will require to write a simple state
 machine:
 
 #+begin_src lisp
@@ -123,3 +124,6 @@ POFTHEDAY> (with-input-from-string (input "Google, Bing, \"Bob, Corp\"")
  (:QUOTED-STRING-START "\"") (:FIELD "Bob, Corp") (:QUOTED-STRING-START "\""))
 
 #+end_src
+
+Here I'm changing rules depending on if we are inside of the quoted
+string or not.
