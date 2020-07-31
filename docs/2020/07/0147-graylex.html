@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>graylex
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>graylex</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>graylex<span class='tags'><a href='../../tags/text.html'><span class='label label-default'>text</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This system provides a way to extract tokens from streams. This can be useful when working with data, received from the network or to read large files from disk.</p>
+<p>Here is the simple example of parser:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (with-input-from-string (input &quot;001, 110, 101&quot;)
+             (loop with lexer = (make-instance &#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &#039;((&quot;0&quot; . :zero)
+                                                        (&quot;1&quot; . :one)
+                                                        (&quot;,&quot; . :comma)
+                                                        (&quot; &quot; . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:ZERO &quot;0&quot;) (:ZERO &quot;0&quot;) (:ONE &quot;1&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:ONE &quot;1&quot;) (:ONE &quot;1&quot;) (:ZERO &quot;0&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:ONE &quot;1&quot;) (:ZERO &quot;0&quot;) (:ONE &quot;1&quot;))</code></pre><p>You can also use regular expressions to define rules:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (with-input-from-string (input &quot;001, 110, 101&quot;)
+             (loop with lexer = (make-instance &#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &#039;((&quot;\\d+&quot; . :number)
+                                                        (&quot;,&quot; . :comma)
+                                                        (&quot; &quot; . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:NUMBER &quot;001&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:NUMBER &quot;110&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:NUMBER &quot;101&quot;))</code></pre><p>If you have comma separated fields:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (with-input-from-string (input &quot;Google, Bing, \&quot;Bob, Corp\&quot;&quot;)
+             (loop with lexer = (make-instance &#039;graylex:lexer-input-stream
+                                               :stream input
+                                               :rules &#039;((&quot;[^,]*&quot; . :field)
+                                                        (&quot;,&quot; . :comma)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:FIELD &quot;Google&quot;) (:COMMA &quot;,&quot;)
+ (:FIELD &quot; Bing&quot;) (:COMMA &quot;,&quot;)
+ (:FIELD &quot; \&quot;Bob&quot;) (:COMMA &quot;,&quot;) ;; WAT!?
+ (:FIELD &quot; Corp\&quot;&quot;))</code></pre><p>As you see, there is a problem because last field is surrounded by double quotes to quote the comma. To solve this problem, we need to change rules dynamically. This will require to write a simple state machine:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *field*)
+POFTHEDAY&gt; (defvar *field-separator*)
+POFTHEDAY&gt; (defvar *quoted-string-start*)
+POFTHEDAY&gt; (defvar *quoted-string-end*)
+
+POFTHEDAY&gt; (with-input-from-string (input &quot;Google, Bing, \&quot;Bob, Corp\&quot;&quot;)
+             (loop with lexer = (make-instance
+                                  &#039;graylex:lexer-input-stream
+                                  :stream input
+                                  :rules &#039;((&quot; &quot; . :space)
+                                           (*field* . :field)
+                                           (*field-separator* . :comma)
+                                           (*quoted-string-start* . :quoted-string-start)
+                                           (*quoted-string-end* . :quoted-string-end)))
+                   with in-quoted-string = nil
+                   with *field* = &quot;[^\&quot;,][^,]+&quot;
+                   with *field-separator* = &quot;,&quot;
+                   with *quoted-string-start* = &quot;\&quot;&quot;
+                   with *quoted-string-end* = &quot;\&quot;&quot;
+                   with tokens = nil
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   do (push result tokens)
+                      (when (eq class :quoted-string-start)
+                        (if in-quoted-string
+                            (setf *field-separator* &quot;,&quot;
+                                  *field* &quot;[^\&quot;,][^,]+&quot;
+                                  in-quoted-string nil)
+                            (setf *field-separator* &quot;&quot;
+                                  *field* &quot;[^\&quot;]+&quot;
+                                  in-quoted-string t)))
+                   finally (return (nreverse tokens))))
+((:FIELD &quot;Google&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:FIELD &quot;Bing&quot;) (:COMMA &quot;,&quot;) (:SPACE &quot; &quot;)
+ (:QUOTED-STRING-START &quot;\&quot;&quot;) (:FIELD &quot;Bob, Corp&quot;) (:QUOTED-STRING-START &quot;\&quot;&quot;))</code></pre>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

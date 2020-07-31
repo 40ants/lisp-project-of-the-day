@@ -1,0 +1,125 @@
+* graylex :text:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system provides a way to extract tokens from streams. This can be
+useful when working with data, received from the network or to read large
+files from disk.
+
+Here is the simple example of parser:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-input-from-string (input "001, 110, 101")
+             (loop with lexer = (make-instance 'graylex:lexer-input-stream
+                                               :stream input
+                                               :rules '(("0" . :zero)
+                                                        ("1" . :one)
+                                                        ("," . :comma)
+                                                        (" " . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:ZERO "0") (:ZERO "0") (:ONE "1") (:COMMA ",") (:SPACE " ")
+ (:ONE "1") (:ONE "1") (:ZERO "0") (:COMMA ",") (:SPACE " ")
+ (:ONE "1") (:ZERO "0") (:ONE "1"))
+
+
+#+end_src
+
+You can also use regular expressions to define rules:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-input-from-string (input "001, 110, 101")
+             (loop with lexer = (make-instance 'graylex:lexer-input-stream
+                                               :stream input
+                                               :rules '(("\\d+" . :number)
+                                                        ("," . :comma)
+                                                        (" " . :space)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:NUMBER "001") (:COMMA ",") (:SPACE " ")
+ (:NUMBER "110") (:COMMA ",") (:SPACE " ")
+ (:NUMBER "101"))
+
+#+end_src
+
+If you have comma separated fields:
+
+#+begin_src lisp
+
+POFTHEDAY> (with-input-from-string (input "Google, Bing, \"Bob, Corp\"")
+             (loop with lexer = (make-instance 'graylex:lexer-input-stream
+                                               :stream input
+                                               :rules '(("[^,]*" . :field)
+                                                        ("," . :comma)))
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   collect result))
+((:FIELD "Google") (:COMMA ",")
+ (:FIELD " Bing") (:COMMA ",")
+ (:FIELD " \"Bob") (:COMMA ",") ;; WAT!?
+ (:FIELD " Corp\""))
+
+#+end_src
+
+As you see, there is a problem because last field is surrounded by
+double quotes to quote the comma. To solve this problem, we need to
+change rules dynamically. This will require to write a simple state
+machine:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *field*)
+POFTHEDAY> (defvar *field-separator*)
+POFTHEDAY> (defvar *quoted-string-start*)
+POFTHEDAY> (defvar *quoted-string-end*)
+
+POFTHEDAY> (with-input-from-string (input "Google, Bing, \"Bob, Corp\"")
+             (loop with lexer = (make-instance
+                                  'graylex:lexer-input-stream
+                                  :stream input
+                                  :rules '((" " . :space)
+                                           (*field* . :field)
+                                           (*field-separator* . :comma)
+                                           (*quoted-string-start* . :quoted-string-start)
+                                           (*quoted-string-end* . :quoted-string-end)))
+                   with in-quoted-string = nil
+                   with *field* = "[^\",][^,]+"
+                   with *field-separator* = ","
+                   with *quoted-string-start* = "\""
+                   with *quoted-string-end* = "\""
+                   with tokens = nil
+                   for result = (multiple-value-list
+                                 (graylex:stream-read-token lexer))
+                   for class = (first result)
+                   while class
+                   do (push result tokens)
+                      (when (eq class :quoted-string-start)
+                        (if in-quoted-string
+                            (setf *field-separator* ","
+                                  *field* "[^\",][^,]+"
+                                  in-quoted-string nil)
+                            (setf *field-separator* ""
+                                  *field* "[^\"]+"
+                                  in-quoted-string t)))
+                   finally (return (nreverse tokens))))
+((:FIELD "Google") (:COMMA ",") (:SPACE " ")
+ (:FIELD "Bing") (:COMMA ",") (:SPACE " ")
+ (:QUOTED-STRING-START "\"") (:FIELD "Bob, Corp") (:QUOTED-STRING-START "\""))
+
+#+end_src
