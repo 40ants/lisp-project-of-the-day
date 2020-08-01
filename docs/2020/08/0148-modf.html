@@ -70,7 +70,7 @@ POFTHEDAY&gt; *foo*
 POFTHEDAY&gt; *bar*
 (#(1 2 3 4 5)
  #(6 :BLAH 8)
- #(9))</code></pre><p>Resulting datastructure can share some parts with the original:</p>
+ #(9))</code></pre><p>Resulting data structure can share some parts with the original:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (eq *foo*
                *bar*)
 NIL
@@ -85,7 +85,7 @@ NIL
 
 POFTHEDAY&gt; (eq (third *foo*)
                (third *bar*))
-T</code></pre><p>But this does not work for some lisp forms. For example it is impossible to change plist using <code>getf</code>:</p>
+T</code></pre><p>But this does not work for some lisp forms. For example, it is impossible to change plist using <code>getf</code>:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *foo*
              &#039;(:name &quot;Bob&quot;
                :points #(1 2 3 4 5)))
@@ -95,7 +95,7 @@ POFTHEDAY&gt; (defparameter *bar*
                                     :points)
                               2)
                         100500))
-; Debugger entered on #&lt;SIMPLE-ERROR &quot;How shall I invert GETF?&quot;&gt;</code></pre><p>Hopefuly, the library can be extended and we might to define our own function to modify plists:</p>
+; Debugger entered on #&lt;SIMPLE-ERROR &quot;How shall I invert GETF?&quot;&gt;</code></pre><p>Hopefuly, the library can be extended and we might define our own function to modify plists:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (modf:define-modf-function getf 2 (new-val plist key)
                (let ((new-plist (copy-list plist)))
                  (setf (getf new-plist key)
@@ -112,7 +112,7 @@ POFTHEDAY&gt; *foo*
 (:NAME &quot;Bob&quot; :POINTS #(1 2 3 4 5))
 
 POFTHEDAY&gt; *bar*
-(:NAME &quot;Bob&quot; :POINTS #(1 2 100500 4 5))</code></pre><p>There are a few other ways to extend <code>modf</code>. They are listed in the documentation but there is no any examples. But you can find such exampless in the source code.</p>
+(:NAME &quot;Bob&quot; :POINTS #(1 2 100500 4 5))</code></pre><p>There are a few other ways to extend <code>modf</code>. They are listed in the documentation but there are no examples. But you can find them in the source code.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
