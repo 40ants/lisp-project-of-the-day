@@ -1,0 +1,105 @@
+* modf :macro:utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This system provides a macro which acts like ~setf~ but does not change
+original data-structure. It will be useful if you want to write the code
+in a functional style, without side-effects:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *foo*
+             '(#(1 2 3 4 5)
+               #(6 7 8)
+               #(9)))
+
+POFTHEDAY> (defparameter *bar*
+             (modf:modf (aref (second *foo*)
+                              1)
+                        :blah))
+
+POFTHEDAY> *foo*
+(#(1 2 3 4 5)
+ #(6 7 8)
+ #(9))
+
+POFTHEDAY> *bar*
+(#(1 2 3 4 5)
+ #(6 :BLAH 8)
+ #(9))
+
+#+end_src
+
+Resulting data structure can share some parts with the original:
+
+#+begin_src lisp
+
+POFTHEDAY> (eq *foo*
+               *bar*)
+NIL
+
+POFTHEDAY> (eq (first *foo*)
+               (first *bar*))
+T
+
+POFTHEDAY> (eq (second *foo*)
+               (second *bar*))
+NIL
+
+POFTHEDAY> (eq (third *foo*)
+               (third *bar*))
+T
+
+#+end_src
+
+But this does not work for some lisp forms. For example, it is impossible
+to change plist using ~getf~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *foo*
+             '(:name "Bob"
+               :points #(1 2 3 4 5)))
+
+POFTHEDAY> (defparameter *bar*
+             (modf:modf (aref (getf *foo*
+                                    :points)
+                              2)
+                        100500))
+; Debugger entered on #<SIMPLE-ERROR "How shall I invert GETF?">
+
+#+end_src
+
+Hopefuly, the library can be extended and we might define our own
+function to modify plists:
+
+#+begin_src lisp
+
+POFTHEDAY> (modf:define-modf-function getf 2 (new-val plist key)
+               (let ((new-plist (copy-list plist)))
+                 (setf (getf new-plist key)
+                       new-val)
+                 new-plist))
+
+POFTHEDAY> (defparameter *bar*
+             (modf:modf (aref (getf *foo*
+                                    :points)
+                              2)
+                        100500))
+
+POFTHEDAY> *foo*
+(:NAME "Bob" :POINTS #(1 2 3 4 5))
+
+POFTHEDAY> *bar*
+(:NAME "Bob" :POINTS #(1 2 100500 4 5))
+
+#+end_src
+
+There are a few other ways to extend ~modf~. They are listed in the
+documentation but there are no examples. But you can find them in the source code.
