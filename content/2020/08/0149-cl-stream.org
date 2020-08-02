@@ -1,0 +1,94 @@
+* cl-stream :io:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This system defines a new streams API for CL. It is still WIP, but
+something already works. For example, there is how we can make a stream
+to read numbers from a vector:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *s*
+             (cl-stream:sequence-input-stream #(1 2 3)))
+
+;; Standard read function does not work:
+POFTHEDAY> (read *s*)
+; Debugger entered on #<SB-PCL::NO-APPLICABLE-METHOD-ERROR {1002EAA433}>
+
+;; But cl-stream provides it's own methods:
+POFTHEDAY> (cl-stream:read *s*)
+1
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+2
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+3
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+NIL
+:EOF
+
+#+end_src
+
+The same calls work for strings:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *s*
+             (cl-stream:sequence-input-stream "Lisp"))
+
+POFTHEDAY> (cl-stream:read *s*)
+#\L
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+#\i
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+#\s
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+#\p
+NIL
+
+POFTHEDAY> (cl-stream:read *s*)
+NIL
+:EOF
+
+#+end_src
+
+I also tried to use class for output to the sequence, but seems it is
+incomplete. Some methods are missing:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *s*
+             (make-instance 'cl-stream:sequence-output-stream
+                            :element-type 'integer))
+*S*
+
+POFTHEDAY> (cl-stream:sequence-output-stream-sequence *s*)
+; Debugger entered on #<SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}>
+[1] POFTHEDAY> 
+; Evaluation aborted on #<SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}>
+
+#+end_src
+
+There is also an interesting but not implemented idea to support
+blocking/non-blocking stream API calls.
+
+This library was changed a year ago and probably author lost interest to
+improving it. What do you think, does Common Lisp needs an alternative
+streams API?
