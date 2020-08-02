@@ -82,10 +82,10 @@ function to modify plists:
 #+begin_src lisp
 
 POFTHEDAY> (modf:define-modf-function getf 2 (new-val plist key)
-               (let ((new-plist (copy-list plist)))
-                 (setf (getf new-plist key)
-                       new-val)
-                 new-plist))
+             (let ((new-plist (copy-list plist)))
+               (setf (getf new-plist key)
+                     new-val)
+               new-plist))
 
 POFTHEDAY> (defparameter *bar*
              (modf:modf (aref (getf *foo*

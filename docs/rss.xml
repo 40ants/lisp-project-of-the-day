@@ -6,6 +6,68 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-stream</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0149-cl-stream.html</link>
+            <description>&lt;p&gt;This system defines a new streams API for CL. It is still WIP, but something already works. For example, there is how we can make a stream to read numbers from a vector:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
+             (cl-stream:sequence-input-stream #(1 2 3)))
+
+;; Standard read function does not work:
+POFTHEDAY&amp;gt; (read *s*)
+; Debugger entered on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {1002EAA433}&amp;gt;
+
+;; But cl-stream provides it&amp;#039;s own methods:
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+1
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+2
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+3
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+NIL
+:EOF&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The same calls work for strings:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
+             (cl-stream:sequence-input-stream &amp;quot;Lisp&amp;quot;))
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+#\L
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+#\i
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+#\s
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+#\p
+NIL
+
+POFTHEDAY&amp;gt; (cl-stream:read *s*)
+NIL
+:EOF&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I also tried to use class for output to the sequence but seems it is incomplete. Some methods are missing:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
+             (make-instance &amp;#039;cl-stream:sequence-output-stream
+                            :element-type &amp;#039;integer))
+*S*
+
+POFTHEDAY&amp;gt; (cl-stream:sequence-output-stream-sequence *s*)
+; Debugger entered on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&amp;gt;
+[1] POFTHEDAY&amp;gt; 
+; Evaluation aborted on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also an interesting but not implemented idea to support blocking/non-blocking stream API calls.&lt;/p&gt;
+&lt;p&gt;This library was changed a year ago, and probably the author lost interest in improving it. What do you think, does Common Lisp needs an alternative streams API?&lt;/p&gt;
+</description>
+            <pubDate>Sun, 02 Aug 2020 23:42:23 +0300</pubDate>
+        </item>
+        <item>
             <title>modf</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0148-modf.html</link>
             <description>&lt;p&gt;This system provides a macro which acts like &lt;code&gt;setf&lt;/code&gt; but does not change original data-structure. It will be useful if you want to write the code in a functional style, without side-effects:&lt;/p&gt;
@@ -54,10 +116,10 @@ POFTHEDAY&amp;gt; (defparameter *bar*
                         100500))
 ; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;How shall I invert GETF?&amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hopefuly, the library can be extended and we might define our own function to modify plists:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (modf:define-modf-function getf 2 (new-val plist key)
-               (let ((new-plist (copy-list plist)))
-                 (setf (getf new-plist key)
-                       new-val)
-                 new-plist))
+             (let ((new-plist (copy-list plist)))
+               (setf (getf new-plist key)
+                     new-val)
+               new-plist))
 
 POFTHEDAY&amp;gt; (defparameter *bar*
              (modf:modf (aref (getf *foo*
@@ -1132,18 +1194,6 @@ MSG [First handler/#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {1005A9
 &lt;p&gt;In this case, parallel execution is implemented using &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;lparallel&apos;s thread pool&lt;/a&gt;. There are more executors available and you can implement your own.&lt;/p&gt;
 </description>
             <pubDate>Tue, 14 Jul 2020 22:47:14 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-with-current-source-form</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0129-trivial-with-current-source-form.html</link>
-            <description>&lt;p&gt;This library is a compatibility layer. It helps to provide hints to the Lisp compiler. Hints allow the compiler to show more precise error messages when error happens during the macro-expansion.&lt;/p&gt;
-&lt;p&gt;Here is an example I&apos;ve stolen from the library&apos;s documentation. To show you how this works in dynamic, I&apos;ve recorded a GIF image.&lt;/p&gt;
-&lt;p&gt;Pay attention, without the hint compiler highlights &quot;even-number-case&quot; top-level form:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0129/with-current-source-form.gif&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;That is it. You just wrap some part of the macro-processing code with &lt;code&gt;with-current-source-form&lt;/code&gt; and say: &quot;Hey, compiler! Here is the s-expr I&apos;m currently processing. If some shit will happen, let the user know.&quot;&lt;/p&gt;
-&lt;p&gt;As I said before, this library is a compatibility layer. Only SBCL and Clasp are supported for now. On other implementations, the macro will do nothing.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 13 Jul 2020 22:17:20 +0300</pubDate>
         </item>
     </channel>
 </rss>

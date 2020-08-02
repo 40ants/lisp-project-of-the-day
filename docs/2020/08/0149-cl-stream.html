@@ -96,7 +96,7 @@ NIL
 
 POFTHEDAY&gt; (cl-stream:read *s*)
 NIL
-:EOF</code></pre><p>I also tried to use class for output to the sequence, but seems it is incomplete. Some methods are missing:</p>
+:EOF</code></pre><p>I also tried to use class for output to the sequence but seems it is incomplete. Some methods are missing:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *s*
              (make-instance &#039;cl-stream:sequence-output-stream
                             :element-type &#039;integer))
@@ -106,7 +106,7 @@ POFTHEDAY&gt; (cl-stream:sequence-output-stream-sequence *s*)
 ; Debugger entered on #&lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&gt;
 [1] POFTHEDAY&gt; 
 ; Evaluation aborted on #&lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&gt;</code></pre><p>There is also an interesting but not implemented idea to support blocking/non-blocking stream API calls.</p>
-<p>This library was changed a year ago and probably author lost interest to improving it. What do you think, does Common Lisp needs an alternative streams API?</p>
+<p>This library was changed a year ago, and probably the author lost interest in improving it. What do you think, does Common Lisp needs an alternative streams API?</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

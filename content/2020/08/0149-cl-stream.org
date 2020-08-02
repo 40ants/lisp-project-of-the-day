@@ -69,7 +69,7 @@ NIL
 
 #+end_src
 
-I also tried to use class for output to the sequence, but seems it is
+I also tried to use class for output to the sequence but seems it is
 incomplete. Some methods are missing:
 
 #+begin_src lisp
@@ -89,6 +89,6 @@ POFTHEDAY> (cl-stream:sequence-output-stream-sequence *s*)
 There is also an interesting but not implemented idea to support
 blocking/non-blocking stream API calls.
 
-This library was changed a year ago and probably author lost interest to
+This library was changed a year ago, and probably the author lost interest in
 improving it. What do you think, does Common Lisp needs an alternative
 streams API?

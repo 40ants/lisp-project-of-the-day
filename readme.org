@@ -7,6 +7,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 * 2020
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
+- 02 August - [[content/2020/08/0149-cl-stream.org][cl-stream]] ([[https://twitter.com/svetlyak40wt/status/1290026260609949697][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
