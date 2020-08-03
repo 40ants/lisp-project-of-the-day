@@ -8,3 +8,119 @@
 :CI:       :(
 :END:
 
+This system implements a non-consing queue. Internally it uses a simple
+vector to organize a circular buffer. First two elements of the buffer
+are reserved for start and end pointers:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *q*
+             (cl-speedy-queue:make-queue 10))
+
+POFTHEDAY> *q*
+#(2 2 #:EMPTY 0 0 0 0 0 0 0 0 0)
+
+POFTHEDAY> (cl-speedy-queue:enqueue :a *q*)
+:A
+
+POFTHEDAY> (cl-speedy-queue:enqueue :b *q*)
+:B
+
+POFTHEDAY> (cl-speedy-queue:enqueue :c *q*)
+:C
+
+POFTHEDAY> *q*
+#(2 5 :A :B :C 0 0 0 0 0 0 0)
+
+#+end_src
+
+When an item is extracted from the queue, the left pointer is moved to the
+right:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-speedy-queue:dequeue *q*)
+:A
+POFTHEDAY> *q*
+#(3 5 :A :B :C 0 0 0 0 0 0 0)
+POFTHEDAY> (cl-speedy-queue:dequeue *q*)
+:B
+POFTHEDAY> *q*
+#(4 5 :A :B :C 0 0 0 0 0 0 0)
+POFTHEDAY> (cl-speedy-queue:dequeue *q*)
+:C
+POFTHEDAY> *q*
+#(5 5 :A :B :C #:EMPTY 0 0 0 0 0 0)
+
+#+end_src
+
+There are also a few other functions in the API: to check queue's
+length, to peek the next item, etc. A queue can signal conditions if it is
+empty or full and you are trying to do something wrong.
+
+This data structure is not thread-safe. Use locks if share queue between
+threads.
+
+~cl-speedy-queue~ is really fast. Queue and deque operations take about
+7.5 nanoseconds:
+
+#+begin_src lisp
+
+POFTHEDAY> (time (loop with q = (cl-speedy-queue:make-queue 10)
+                       repeat 1000000000
+                       do (cl-speedy-queue:enqueue :foo q)
+                          (cl-speedy-queue:dequeue q)))
+Evaluation took:
+  7.588 seconds of real time
+  7.573354 seconds of total run time (7.554277 user, 0.019077 system)
+  99.80% CPU
+  16,755,940,604 processor cycles
+  0 bytes consed
+
+#+end_src
+
+To compare, here is the test of Python's standard ~SimpleQueue~. It
+takes 226 nanoseconds:
+
+#+begin_src python
+
+In [10]: from queue import SimpleQueue
+
+In [11]: def test(q, n):
+    ...:     while n > 0:
+    ...:         q.put(1)
+    ...:         q.get()
+    ...:         n -= 1
+    ...:
+
+In [12]: %time test(SimpleQueue(), 1000000000)
+CPU times: user 3min 46s, sys: 605 ms, total: 3min 47s
+Wall time: 3min 48s
+
+#+end_src
+
+Python also has another standard structure for queues - ~deque~. It is
+slightly faster than ~SimpleQueue~ but still 18 times slower than Common
+Lisp's ~cl-speedy-queue~.
+
+It takes 141 nanoseconds to make put/get operations with ~deque~:
+
+#+begin_src python
+
+In [22]: from collections import deque
+
+In [23]: def test(q, n):
+    ...:     while n > 0:
+    ...:         q.append(1)
+    ...:         q.popleft()
+    ...:         n -= 1
+
+In [25]: %time test(deque(), 1000000000)
+CPU times: user 2min 21s, sys: 330 ms, total: 2min 22s
+Wall time: 2min 22s
+
+#+end_src
+
+By the way, Python's deque is written in C:
+
+https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206

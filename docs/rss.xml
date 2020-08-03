@@ -6,6 +6,79 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-speedy-queue</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0150-cl-speedy-queue.html</link>
+            <description>&lt;p&gt;This system implements a non-consing queue. Internally it uses a simple vector to organize a circular buffer. First two elements of the buffer are reserved for start and end pointers:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *q*
+             (cl-speedy-queue:make-queue 10))
+
+POFTHEDAY&amp;gt; *q*
+#(2 2 #:EMPTY 0 0 0 0 0 0 0 0 0)
+
+POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :a *q*)
+:A
+
+POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :b *q*)
+:B
+
+POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :c *q*)
+:C
+
+POFTHEDAY&amp;gt; *q*
+#(2 5 :A :B :C 0 0 0 0 0 0 0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When an item is extracted from the queue, the left pointer is moved to the right:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
+:A
+POFTHEDAY&amp;gt; *q*
+#(3 5 :A :B :C 0 0 0 0 0 0 0)
+POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
+:B
+POFTHEDAY&amp;gt; *q*
+#(4 5 :A :B :C 0 0 0 0 0 0 0)
+POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
+:C
+POFTHEDAY&amp;gt; *q*
+#(5 5 :A :B :C #:EMPTY 0 0 0 0 0 0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also a few other functions in the API: to check queue&apos;s length, to peek the next item, etc. A queue can signal conditions if it is empty or full and you are trying to do something wrong.&lt;/p&gt;
+&lt;p&gt;This data structure is not thread-safe. Use locks if share queue between threads.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cl-speedy-queue&lt;/code&gt; is really fast. Queue and deque operations take about 7.5 nanoseconds:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time (loop with q = (cl-speedy-queue:make-queue 10)
+                       repeat 1000000000
+                       do (cl-speedy-queue:enqueue :foo q)
+                          (cl-speedy-queue:dequeue q)))
+Evaluation took:
+  7.588 seconds of real time
+  7.573354 seconds of total run time (7.554277 user, 0.019077 system)
+  99.80% CPU
+  16,755,940,604 processor cycles
+  0 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To compare, here is the test of Python&apos;s standard &lt;code&gt;SimpleQueue&lt;/code&gt;. It takes 226 nanoseconds:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [10]: from queue import SimpleQueue
+
+In [11]: def test(q, n):
+    ...:     while n &amp;gt; 0:
+    ...:         q.put(1)
+    ...:         q.get()
+    ...:         n -= 1
+    ...:
+
+In [12]: %time test(SimpleQueue(), 1000000000)
+CPU times: user 3min 46s, sys: 605 ms, total: 3min 47s
+Wall time: 3min 48s&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Python also has another standard structure for queues - &lt;code&gt;deque&lt;/code&gt;. It is slightly faster than &lt;code&gt;SimpleQueue&lt;/code&gt; but still 18 times slower than Common Lisp&apos;s &lt;code&gt;cl-speedy-queue&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It takes 141 nanoseconds to make put/get operations with &lt;code&gt;deque&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [22]: from collections import deque
+
+In [23]: def test(q, n):
+    ...:     while n &amp;gt; 0:
+    ...:         q.append(1)
+    ...:         q.popleft()
+    ...:         n -= 1
+
+In [25]: %time test(deque(), 1000000000)
+CPU times: user 2min 21s, sys: 330 ms, total: 2min 22s
+Wall time: 2min 22s&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, Python&apos;s deque is written in C:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&quot;&gt;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Mon, 03 Aug 2020 23:44:34 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-stream</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0149-cl-stream.html</link>
             <description>&lt;p&gt;This system defines a new streams API for CL. It is still WIP, but something already works. For example, there is how we can make a stream to read numbers from a vector:&lt;/p&gt;
@@ -1142,58 +1215,6 @@ POFTHEDAY&amp;gt; (princ (alexandria:read-file-into-string &amp;quot;full.log&am
 &lt;p&gt;Definitely, this library can be made a more convenient if somebody is interested to use it for other purposes.&lt;/p&gt;
 </description>
             <pubDate>Wed, 15 Jul 2020 23:26:21 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-events</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html</link>
-            <description>&lt;p&gt;This is the library by &lt;a href=&quot;https://twitter.com/dead_trickster&quot;&gt;@dead_trickster&lt;/a&gt;. It implements a pub-sub API and allows to:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;create an event object;&lt;/li&gt;&lt;li&gt;subscribe on it;&lt;/li&gt;&lt;li&gt;fire the event.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;CL-Events&lt;/code&gt; provides a way to add a hook point for your application.&lt;/p&gt;
-&lt;p&gt;Here is the simplest example. Here we create a single-threaded event where all callbacks will be called sequentially:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *on-click*
-             (make-instance &amp;#039;cl-events:event))
-
-POFTHEDAY&amp;gt; (defun the-callback (message)
-             ;; pretend, we need some time to process the callback
-             (sleep 1)
-             (format t &amp;quot;MSG [~A]: ~A~%&amp;quot;
-                     (bt:current-thread)
-                     message))
-
-POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
-                             &amp;#039;the-callback)
-
-POFTHEDAY&amp;gt; (cl-events:event! *on-click*
-                             &amp;quot;Button clicked!&amp;quot;)
-MSG [#&amp;lt;THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003955B33}&amp;gt;]: Button clicked!
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make them execute in parallel, you only need to replace the type of the event object. Pay attention to the thread&apos;s name in the callback&apos;s output. They are different:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *on-click*
-             (make-instance &amp;#039;cl-events:broadcast-event))
-
-POFTHEDAY&amp;gt; (defun the-callback (handler-name message)
-             ;; pretend, we need some time to process the callback
-             (sleep 1)
-             (format t &amp;quot;MSG [~A/~A]: ~A~%&amp;quot;
-                     handler-name
-                     (bt:current-thread)
-                     message))
-
-POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
-                             (alexandria:curry &amp;#039;the-callback
-                                               &amp;quot;First handler&amp;quot;))
-
-POFTHEDAY&amp;gt; (cl-events:event+ *on-click*
-                             (alexandria:curry &amp;#039;the-callback
-                                               &amp;quot;Second handler&amp;quot;))
-
-POFTHEDAY&amp;gt; (cl-events:event! *on-click*
-                             &amp;quot;Button clicked!&amp;quot;)
-NIL
-MSG [Second handler/#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {1005A97983}&amp;gt;]: Button clicked!
-MSG [First handler/#&amp;lt;THREAD &amp;quot;lparallel&amp;quot; RUNNING {1005A96F93}&amp;gt;]: Button clicked!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, in this case, &lt;code&gt;event!&lt;/code&gt; function returns before all handlers are called.&lt;/p&gt;
-&lt;p&gt;In this case, parallel execution is implemented using &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0093-lparallel.html&quot;&gt;lparallel&apos;s thread pool&lt;/a&gt;. There are more executors available and you can implement your own.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 14 Jul 2020 22:47:14 +0300</pubDate>
         </item>
     </channel>
 </rss>
