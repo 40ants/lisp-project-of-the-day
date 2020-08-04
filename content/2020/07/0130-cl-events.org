@@ -1,4 +1,4 @@
-* cl-events :threads:async:
+* cl-events :events:threads:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :(

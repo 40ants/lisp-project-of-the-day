@@ -6,6 +6,49 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>deeds</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0151-deeds.html</link>
+            <description>&lt;p&gt;This is library by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It implements a message-passing protocol.&lt;/p&gt;
+&lt;p&gt;With &lt;code&gt;deeds&lt;/code&gt; you are sending events of some class to the handlers.&lt;/p&gt;
+&lt;p&gt;Handlers are much like methods, but with additional abilities. For example, here is the handler which filters and process only messages containing &quot;Hello&quot;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (deeds:define-handler (foo deeds:info-event) (event message)
+             :filter &amp;#039;(search &amp;quot;Hello&amp;quot; message)
+             (format t &amp;quot;GREETING: ~A~%&amp;quot; message))
+
+POFTHEDAY&amp;gt; (deeds:do-issue deeds:info-event :message &amp;quot;Blah&amp;quot;)
+#&amp;lt;DEEDS:INFO-EVENT 2020.08.04 21:36:08 :ORIGIN #&amp;lt;PACKAGE &amp;quot;POFTHEDAY&amp;quot;&amp;gt; {1006D0A7E3}&amp;gt;
+
+POFTHEDAY&amp;gt; (deeds:do-issue deeds:info-event :message &amp;quot;Hello Bob!&amp;quot;)
+#&amp;lt;DEEDS:INFO-EVENT 2020.08.04 21:36:14 :ORIGIN #&amp;lt;PACKAGE &amp;quot;POFTHEDAY&amp;quot;&amp;gt; {1006D3F833}&amp;gt;
+GREETING: Hello Bob!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention, we see output only after the second &lt;code&gt;do-issue&lt;/code&gt; call. And it goes after the information about &lt;code&gt;DEEDS:INFO-EVENT&lt;/code&gt;, which is the result of the &lt;code&gt;do-issue&lt;/code&gt; form.&lt;/p&gt;
+&lt;p&gt;All events are handled in a separate thread.&lt;/p&gt;
+&lt;p&gt;You also can define your own classes for events. They should inherit from &lt;code&gt;deeds:event&lt;/code&gt; because they carry &quot;origin&quot; slot. This slot is filled by the Lisp package where the event was fired.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass my-message (deeds:event)
+             ())
+
+POFTHEDAY&amp;gt; (defclass special-message (my-message)
+             ())
+
+POFTHEDAY&amp;gt; (deeds:define-handler (foo my-message) (event)
+             (format t &amp;quot;My message handled!~%&amp;quot;))
+
+POFTHEDAY&amp;gt; (deeds:define-handler (bar special-message) (event)
+             (format t &amp;quot;Special message handled!~%&amp;quot;))
+
+
+POFTHEDAY&amp;gt; (deeds:do-issue my-message)
+My message handled!
+
+;; Both handlers will match because of class inheritance:
+POFTHEDAY&amp;gt; (deeds:do-issue special-message)
+Special message handled!
+My message handled!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other cool features, covered by &lt;a href=&quot;https://github.com/Shinmera/deeds&quot;&gt;the documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you are interested in Common Lisp library for message passing, read about two other systems, reviewed in the #poftheday series:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;cl-events&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html&quot;&gt;piping&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+            <pubDate>Tue, 04 Aug 2020 22:09:53 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-speedy-queue</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0150-cl-speedy-queue.html</link>
             <description>&lt;p&gt;This system implements a non-consing queue. Internally it uses a simple vector to organize a circular buffer. First two elements of the buffer are reserved for start and end pointers:&lt;/p&gt;
@@ -1153,68 +1196,6 @@ POFTHEDAY&amp;gt; (cl-irc:privmsg *conn* &amp;quot;joanna&amp;quot; &amp;quot;Hi
 &lt;p&gt;One final note, to debug communication between lisp and IRC server set the &lt;code&gt;cl-irc::*debug-p*&lt;/code&gt; variable to true and it will log every message send or received by the bot.&lt;/p&gt;
 </description>
             <pubDate>Thu, 16 Jul 2020 23:05:57 +0300</pubDate>
-        </item>
-        <item>
-            <title>piping</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html</link>
-            <description>&lt;p&gt;This library in some sense similar to the &lt;code&gt;cl-events&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;reviewed yesterday&lt;/a&gt;. It allows defining pipelines to process messages.&lt;/p&gt;
-&lt;p&gt;Each message can be processed sequentially or in parallel. Each node would be an instance of the &lt;code&gt;segment&lt;/code&gt; class. There are two kinds of nodes - intermediate and final.&lt;/p&gt;
-&lt;p&gt;Intermediate nodes can filter messages or route them into other pipelines.&lt;/p&gt;
-&lt;p&gt;Final nodes are called &lt;code&gt;faucets&lt;/code&gt;. They process the message and stop processing.&lt;/p&gt;
-&lt;p&gt;For example here is how we can build a log message processing using &lt;code&gt;piping&lt;/code&gt;. We want to print all &lt;code&gt;ERROR&lt;/code&gt; messages to &lt;code&gt;*error-output*&lt;/code&gt; and to write all messages to the log file.&lt;/p&gt;
-&lt;p&gt;To create this pipeline, we need following &lt;code&gt;segments&lt;/code&gt;. Here is &quot;Pipeline&quot; is a chain of &lt;code&gt;segments&lt;/code&gt; to pass the message through:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;Pipeline:
-  Print[&amp;quot;full.log&amp;quot;]
-  Pipeline: Filter[if ERROR] -&amp;gt; Print[*error-output*]&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can configure this pipeline in Lisp code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *pipe*
-             (make-instance &amp;#039;piping:pipeline))
-
-POFTHEDAY&amp;gt; (defparameter *log-printer*
-             (piping:add-segment
-               *pipe*
-               (make-instance &amp;#039;piping:printer
-                              :stream (open &amp;quot;full.log&amp;quot;
-                                            :direction :output
-                                            :if-exists :append
-                                            :if-does-not-exist :create))))
-
-;; This adds a sub-pipe where we&amp;#039;ll filter message
-;; and print if it stats with &amp;quot;ERROR&amp;quot;:
-POFTHEDAY&amp;gt; (piping:add-segment *pipe* :pipe)
-
-POFTHEDAY&amp;gt; (piping:add-segment *pipe*
-            (make-instance &amp;#039;piping:predicate-filter
-                           :predicate (lambda (message)
-                                        (str:starts-with-p &amp;quot;ERROR: &amp;quot; message)))
-            &amp;#039;(1))
-
-POFTHEDAY&amp;gt; (piping:add-segment *pipe*
-            (make-instance &amp;#039;piping:printer
-                           :stream *error-output*)
-            &amp;#039;(1))
-
-;; Now we&amp;#039;ll pass two messages through this pipeline:
-POFTHEDAY&amp;gt; (piping:pass *pipe*
-             &amp;quot;INFO: Hello world!&amp;quot;)
-
-;; This one will be printed to *error-output*:
-POFTHEDAY&amp;gt; (piping:pass *pipe*
-             &amp;quot;ERROR: Something bad happened!&amp;quot;)
-
-&amp;quot;ERROR: Something bad happened!&amp;quot; 
-
-;; But in file both messages are present:
-POFTHEDAY&amp;gt; (force-output (piping:print-stream *log-printer*))
-
-POFTHEDAY&amp;gt; (princ (alexandria:read-file-into-string &amp;quot;full.log&amp;quot;))
-
-&amp;quot;INFO: Hello world!&amp;quot; 
-&amp;quot;ERROR: Something bad happened!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Working on this example, I found two things:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;there is no component to fanout messages into the nested &lt;code&gt;segments&lt;/code&gt; or   sub pipes.&lt;/li&gt;&lt;li&gt;using indices to point to a place where a segment should be added is   very inconvenient.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;&lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; uses &lt;code&gt;piping&lt;/code&gt; in his logging library &lt;a href=&quot;https://github.com/Shinmera/verbose&quot;&gt;verbose&lt;/a&gt;. I skimmed through its sources and didn&apos;t find if he has some solution of fanout absence problem.&lt;/p&gt;
-&lt;p&gt;Definitely, this library can be made a more convenient if somebody is interested to use it for other purposes.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 15 Jul 2020 23:26:21 +0300</pubDate>
         </item>
     </channel>
 </rss>

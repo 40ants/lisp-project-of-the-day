@@ -1,4 +1,4 @@
-* piping :data_structures:
+* piping :events:threads:
 :PROPERTIES:
 :Documentation: :|
 :Docstrings: :)

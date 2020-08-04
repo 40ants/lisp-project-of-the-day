@@ -41,7 +41,7 @@ All events are handled in a separate thread.
 
 You also can define your own classes for events. They should inherit
 from ~deeds:event~ because they carry "origin" slot. This slot is filled
-by the Lisp package where event was fired.
+by the Lisp package where the event was fired.
 
 #+begin_src lisp
 
@@ -68,9 +68,9 @@ My message handled!
 
 #+end_src
 
-There is also other cool features, covered by [[https://github.com/Shinmera/deeds][the documentation]].
+There are also other cool features, covered by [[https://github.com/Shinmera/deeds][the documentation]].
 
-If you are interested in message passing, read about two other systems,
+If you are interested in Common Lisp library for message passing, read about two other systems,
 reviewed in the #poftheday series:
 
 - [[https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html][cl-events]]
