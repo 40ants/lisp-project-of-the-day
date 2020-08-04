@@ -1,0 +1,77 @@
+* deeds :events:threads:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is library by [[https://twitter.com/Shinmera][@Shinmera]]. It implements a message-passing
+protocol.
+
+With ~deeds~ you are sending events of some class to the
+handlers.
+
+Handlers are much like methods, but with additional abilities. For
+example, here is the handler which filters and process only messages
+containing "Hello":
+
+#+begin_src lisp
+
+POFTHEDAY> (deeds:define-handler (foo deeds:info-event) (event message)
+             :filter '(search "Hello" message)
+             (format t "GREETING: ~A~%" message))
+
+POFTHEDAY> (deeds:do-issue deeds:info-event :message "Blah")
+#<DEEDS:INFO-EVENT 2020.08.04 21:36:08 :ORIGIN #<PACKAGE "POFTHEDAY"> {1006D0A7E3}>
+
+POFTHEDAY> (deeds:do-issue deeds:info-event :message "Hello Bob!")
+#<DEEDS:INFO-EVENT 2020.08.04 21:36:14 :ORIGIN #<PACKAGE "POFTHEDAY"> {1006D3F833}>
+GREETING: Hello Bob!
+
+#+end_src
+
+Pay attention, we see output only after the second ~do-issue~ call. And it
+goes after the information about ~DEEDS:INFO-EVENT~, which is the result of the
+~do-issue~ form.
+
+All events are handled in a separate thread.
+
+You also can define your own classes for events. They should inherit
+from ~deeds:event~ because they carry "origin" slot. This slot is filled
+by the Lisp package where event was fired.
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass my-message (deeds:event)
+             ())
+
+POFTHEDAY> (defclass special-message (my-message)
+             ())
+
+POFTHEDAY> (deeds:define-handler (foo my-message) (event)
+             (format t "My message handled!~%"))
+
+POFTHEDAY> (deeds:define-handler (bar special-message) (event)
+             (format t "Special message handled!~%"))
+
+
+POFTHEDAY> (deeds:do-issue my-message)
+My message handled!
+
+;; Both handlers will match because of class inheritance:
+POFTHEDAY> (deeds:do-issue special-message)
+Special message handled!
+My message handled!
+
+#+end_src
+
+There is also other cool features, covered by [[https://github.com/Shinmera/deeds][the documentation]].
+
+If you are interested in message passing, read about two other systems,
+reviewed in the #poftheday series:
+
+- [[https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html][cl-events]]
+- [[https://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html][piping]]
