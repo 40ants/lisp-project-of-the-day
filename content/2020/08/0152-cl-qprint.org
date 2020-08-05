@@ -1,0 +1,45 @@
+* cl-qprint :text:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :|
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This small library implements a [[https://tools.ietf.org/html/rfc2045#section-6.7][Quoted-Printable]] encoding algorithm
+suitable to use in multipart emails.
+
+In this example we'll encode a string into the quoted-printable and then
+back into the Lisp string. ~CL-QPrint~ encodes bytes. That is why I'm
+using [[http://quickdocs.org/babel/][babel]] here:
+
+#+begin_src lisp
+
+POFTHEDAY> (babel:string-to-octets
+            "Hello World! Привет Мир!")
+#(72 101 108 108 111 32 87 111 114 108 100 33
+  32 208 159 209 128 208 184 208 178 208 181
+  209 130 32 208 156 208 184 209 128 33)
+
+POFTHEDAY> (cl-qprint:encode *)
+"Hello=20World!=20=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82=20=D0=9C=D0=B8=D1=80!"
+
+;; Now we can transfer this text through the wire
+;; and to decode it on other end:
+
+POFTHEDAY> (cl-qprint:decode *)
+#(72 101 108 108 111 32 87 111 114 108 100 33
+  32 208 159 209 128 208 184 208 178 208 181
+  209 130 32 208 156 208 184 209 128 33)
+
+POFTHEDAY> (babel:octets-to-string *)
+"Hello World! Привет Мир!"
+
+#+end_src
+
+This encoding can be used in multipart emails instead base64. Is
+especially useful for texts, containing large amount of ASCII
+symbols. This could be source codes where some comments use
+international symbols.
