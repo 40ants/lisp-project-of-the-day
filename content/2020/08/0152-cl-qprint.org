@@ -1,4 +1,4 @@
-* cl-qprint :text:
+* cl-qprint :text:email:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :)
@@ -11,7 +11,7 @@
 This small library implements a [[https://tools.ietf.org/html/rfc2045#section-6.7][Quoted-Printable]] encoding algorithm
 suitable to use in multipart emails.
 
-In this example we'll encode a string into the quoted-printable and then
+In this example, we'll encode a string into the quoted-printable and then
 back into the Lisp string. ~CL-QPrint~ encodes bytes. That is why I'm
 using [[http://quickdocs.org/babel/][babel]] here:
 
@@ -39,7 +39,8 @@ POFTHEDAY> (babel:octets-to-string *)
 
 #+end_src
 
-This encoding can be used in multipart emails instead base64. Is
-especially useful for texts, containing large amount of ASCII
+This encoding can be used in multipart emails instead of ~base64~.
+
+It is especially useful for texts, containing a large amount of ASCII
 symbols. This could be source codes where some comments use
 international symbols.

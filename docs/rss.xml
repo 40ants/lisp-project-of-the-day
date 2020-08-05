@@ -6,6 +6,34 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-qprint</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0152-cl-qprint.html</link>
+            <description>&lt;p&gt;This small library implements a &lt;a href=&quot;https://tools.ietf.org/html/rfc2045#section-6.7&quot;&gt;Quoted-Printable&lt;/a&gt; encoding algorithm suitable to use in multipart emails.&lt;/p&gt;
+&lt;p&gt;In this example, we&apos;ll encode a string into the quoted-printable and then back into the Lisp string. &lt;code&gt;CL-QPrint&lt;/code&gt; encodes bytes. That is why I&apos;m using &lt;a href=&quot;http://quickdocs.org/babel/&quot;&gt;babel&lt;/a&gt; here:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (babel:string-to-octets
+            &amp;quot;Hello World! &amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;)
+#(72 101 108 108 111 32 87 111 114 108 100 33
+  32 208 159 209 128 208 184 208 178 208 181
+  209 130 32 208 156 208 184 209 128 33)
+
+POFTHEDAY&amp;gt; (cl-qprint:encode *)
+&amp;quot;Hello=20World!=20=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82=20=D0=9C=D0=B8=D1=80!&amp;quot;
+
+;; Now we can transfer this text through the wire
+;; and to decode it on other end:
+
+POFTHEDAY&amp;gt; (cl-qprint:decode *)
+#(72 101 108 108 111 32 87 111 114 108 100 33
+  32 208 159 209 128 208 184 208 178 208 181
+  209 130 32 208 156 208 184 209 128 33)
+
+POFTHEDAY&amp;gt; (babel:octets-to-string *)
+&amp;quot;Hello World! &amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This encoding can be used in multipart emails instead of &lt;code&gt;base64&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It is especially useful for texts, containing a large amount of ASCII symbols. This could be source codes where some comments use international symbols.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 05 Aug 2020 23:28:15 +0300</pubDate>
+        </item>
+        <item>
             <title>deeds</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0151-deeds.html</link>
             <description>&lt;p&gt;This is library by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It implements a message-passing protocol.&lt;/p&gt;
@@ -1074,128 +1102,6 @@ POFTHEDAY&amp;gt; (open-location-code:south-west-corner *)
 &lt;p&gt;That is for today. For me, open location codes were an exciting discovery. Didn&apos;t hear about them before.&lt;/p&gt;
 </description>
             <pubDate>Fri, 17 Jul 2020 23:38:24 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-irc</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0132-cl-irc.html</link>
-            <description>&lt;p&gt;Today we&apos;ll write a simple bot to keep a history of the IRC channel. IRC is a chat protocol that existed before Slack, Telegram, etc.&lt;/p&gt;
-&lt;p&gt;For the test I&apos;ve installed a local lisp server on my OSX:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday:~]% brew install ngircd
-Updating Homebrew...
-...
-==&amp;gt; Caveats
-==&amp;gt; ngircd
-To have launchd start ngircd now and restart at login:
-  brew services start ngircd
-
-[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
-
-[poftheday:~]% /usr/local/sbin/ngircd --nodaemon --passive
-[66510:5    0] ngIRCd 26-IDENT+IPv6+IRCPLUS+SSL+SYSLOG+ZLIB-x86_64/apple/darwin19.5.0 starting ...
-[66510:6    0] Using configuration file &amp;quot;/usr/local/etc/ngircd.conf&amp;quot; ...
-[66510:3    0] Can&amp;#039;t read MOTD file &amp;quot;/usr/local/etc/ngircd.motd&amp;quot;: No such file or directory
-[66510:4    0] No administrative information configured but required by RFC!
-[66510:6    0] ServerUID must not be root(0), using &amp;quot;nobody&amp;quot; instead.
-[66510:3    0] Can&amp;#039;t change group ID to nobody(4294967294): Operation not permitted!
-[66510:3    0] Can&amp;#039;t drop supplementary group IDs: Operation not permitted!
-[66510:3    0] Can&amp;#039;t change user ID to nobody(4294967294): Operation not permitted!
-[66510:6    0] Running as user art(1345292665), group LD\Domain Users(593637566), with PID 66510.
-[66510:6    0] Not running with changed root directory.
-[66510:6    0] IO subsystem: kqueue (initial maxfd 100, masterfd 3).
-[66510:6    0] Now listening on [0::]:6667 (socket 6).
-[66510:6    0] Now listening on [0.0.0.0]:6667 (socket 8).
-[66510:5    0] Server &amp;quot;irc.example.net&amp;quot; (on &amp;quot;poftheday&amp;quot;) ready.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;After that, I&apos;ve installed a command line IRC client &lt;code&gt;ircii&lt;/code&gt; and made two connections to simulate users in the #lisp channel.&lt;/p&gt;
-&lt;p&gt;Now it is time to connect our bot to the server and create a thread with the message processing loop:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter
-               *conn*
-             (cl-irc:connect :nickname &amp;quot;bot&amp;quot;
-                             :server &amp;quot;localhost&amp;quot;))
-
-POFTHEDAY&amp;gt; (defparameter *thread*
-             (bt:make-thread (lambda ()
-                               (cl-irc:read-message-loop *conn*))
-                             :name &amp;quot;IRC&amp;quot;))
-
-POFTHEDAY&amp;gt; (cl-irc:join *conn* &amp;quot;#lisp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;While messages are processed in the thread we are free to experiment in the &lt;code&gt;REPL&lt;/code&gt;. Let&apos;s add a hook to process messages from the channel:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun on-message (msg)
-             (log:info &amp;quot;New message&amp;quot; msg))
-
-POFTHEDAY&amp;gt; (cl-irc:add-hook *conn*
-                            &amp;#039;cl-irc:irc-privmsg-message
-                            &amp;#039;on-message)
-
-;; Now if some of users will write to the channel,
-;; the message will be logged to the screen:
-
-POFTHEDAY&amp;gt; 
-; No values
- &amp;lt;INFO&amp;gt; [22:35:43] poftheday (on-message) -
-  New message POFTHEDAY::MSG: #&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007692DA3}&amp;gt;
-  
-UNHANDLED-EVENT:3803916943: PRIVMSG: joanna #lisp &amp;quot;Hello lispers!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can modify the &lt;code&gt;on-message&lt;/code&gt; function to save the last message into the global variable to inspect its structure:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; *last-msg*
-#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&amp;gt;
-
-POFTHEDAY&amp;gt; (describe *)
-#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1007703213}&amp;gt;
-  [standard-object]
-
-Slots with :INSTANCE allocation:
-  SOURCE                         = &amp;quot;joanna&amp;quot;
-  USER                           = &amp;quot;~art&amp;quot;
-  HOST                           = &amp;quot;localhost&amp;quot;
-  COMMAND                        = &amp;quot;PRIVMSG&amp;quot;
-  ARGUMENTS                      = (&amp;quot;#lisp&amp;quot; &amp;quot;Hello&amp;quot;)
-  CONNECTION                     = #&amp;lt;CL-IRC:CONNECTION localhost {1003918FA3}&amp;gt;
-  RECEIVED-TIME                  = 3803917081
-  RAW-MESSAGE-STRING             = &amp;quot;:joanna!~art@localhost PRIVMSG #lisp :Hello&#xD;&amp;quot;
-
-;; If user sent a direct message,
-;; it will have the bot&amp;#039;s username as the first argument:
-
-POFTHEDAY&amp;gt; (describe *last-msg*)
-#&amp;lt;CL-IRC:IRC-PRIVMSG-MESSAGE joanna PRIVMSG {1001600943}&amp;gt;
-  [standard-object]
-
-Slots with :INSTANCE allocation:
-  SOURCE                         = &amp;quot;joanna&amp;quot;
-  USER                           = &amp;quot;~art&amp;quot;
-  HOST                           = &amp;quot;localhost&amp;quot;
-  COMMAND                        = &amp;quot;PRIVMSG&amp;quot;
-  ARGUMENTS                      = (&amp;quot;bot&amp;quot; &amp;quot;Hello. It is Joanna.&amp;quot;)
-  CONNECTION                     = #&amp;lt;CL-IRC:CONNECTION localhost {1003918FA3}&amp;gt;
-  RECEIVED-TIME                  = 3803917270
-  RAW-MESSAGE-STRING             = &amp;quot;:joanna!~art@localhost PRIVMSG bot :Hello. It is Joanna.&#xD;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you intend to make a bot which will reply to the messages, you have to choose either &lt;code&gt;message&lt;/code&gt;&apos;s source slot or the first argument as a destination for the response.&lt;/p&gt;
-&lt;p&gt;Most probably &lt;a href=&quot;https://twitter.com/SatoshiShinohai/status/1283761536109023232&quot;&gt;the bug&lt;/a&gt; &lt;a href=&quot;https://twitter.com/SatoshiShinohai&quot;&gt;@SatoshiShinohai&lt;/a&gt; complained about on Twitter is caused by the wrong algorithm for choosing the response&apos;s destination.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s redefine our &lt;code&gt;on-message&lt;/code&gt; function to format log messages in an accurate way:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun on-message (msg)
-             (log:info &amp;quot;&amp;lt;~A&amp;gt; ~A&amp;quot;
-                       (cl-irc:source msg)
-                       (second (cl-irc:arguments msg)))
-             ;; To let cl-irc know that we&amp;#039;ve processed the event
-             ;; we need to return `t&amp;#039;.
-             ;; Otherwise it will output &amp;quot;UNHANDLED-EVENT&amp;quot; messages.
-             t)
-WARNING: redefining POFTHEDAY::ON-MESSAGE in DEFUN
-ON-MESSAGE
- &amp;lt;INFO&amp;gt; [22:55:06] poftheday (on-message) - &amp;lt;joanna&amp;gt; Hello everybody!
- &amp;lt;INFO&amp;gt; [22:55:17] poftheday (on-message) - &amp;lt;art&amp;gt; Hello, Joanna!
- &amp;lt;INFO&amp;gt; [22:55:27] poftheday (on-message) -
-  &amp;lt;joanna&amp;gt; What is the best book on Common Lisp for newbee?
- &amp;lt;INFO&amp;gt; [22:55:56] poftheday (on-message) - &amp;lt;art&amp;gt; Try the Practical Common Lisp.
- &amp;lt;INFO&amp;gt; [22:56:04] poftheday (on-message) - &amp;lt;joanna&amp;gt; Thanks!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you want to make the bot which responds to the message, then use &lt;code&gt;cl-irc:privmsg&lt;/code&gt; like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This will send a message to the channel:
-POFTHEDAY&amp;gt; (cl-irc:privmsg *conn* &amp;quot;#lisp&amp;quot; &amp;quot;Hello! Bot is in the channel!&amp;quot;)
-&amp;quot;PRIVMSG #lisp :Hello! Bot is in the channel!
-&amp;quot;
-
-;; and this will send a private message:
-POFTHEDAY&amp;gt; (cl-irc:privmsg *conn* &amp;quot;joanna&amp;quot; &amp;quot;Hi Joanna!&amp;quot;)
-&amp;quot;PRIVMSG joanna :Hi Joanna!
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you will download the cl-irc&apos;s sources from &lt;a href=&quot;https://common-lisp.net/project/cl-irc/&quot;&gt;https://common-lisp.net/project/cl-irc/&lt;/a&gt; you&apos;ll find more sofisticated bot in the &lt;code&gt;example&lt;/code&gt; folder.&lt;/p&gt;
-&lt;p&gt;One final note, to debug communication between lisp and IRC server set the &lt;code&gt;cl-irc::*debug-p*&lt;/code&gt; variable to true and it will log every message send or received by the bot.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 16 Jul 2020 23:05:57 +0300</pubDate>
         </item>
     </channel>
 </rss>
