@@ -86,3 +86,6 @@ serialization code:
 
 Also, nested types are supported. You will find such examples in
 [[https://github.com/fjames86/packet][the documentation]]. There are other features as well. Read the docs!
+
+If you are interested in packing data into binary formats, look at
+[[https://40ants.com/lisp-project-of-the-day/tags/serialization.html][other libraries]] reviewed in #poftheday posts.

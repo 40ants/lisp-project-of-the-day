@@ -1,4 +1,4 @@
-* cl-conspack :data_structure:serialization:
+* cl-conspack :data_structures:serialization:
 
 Previously, I've posted about the [[http://40ants.com/lisp-project-of-the-day/2020/03/0015-cl-bert.html][cl-bert]] a serialization
 library. "cl-conspack" is also a serialization library with interesting

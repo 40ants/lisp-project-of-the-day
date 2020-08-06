@@ -68,7 +68,7 @@ POFTHEDAY&gt; (defmethod print-object ((person person) stream)
              (print-unreadable-object (person stream :type t :identity t)
                (format stream &quot;~A~@[ admin~]&quot;
                        (name person)
-                       (admin person))))</code></pre><p>Now we an serialize and deserialize objects of this type:</p>
+                       (admin person))))</code></pre><p>Now we can serialize and deserialize objects of this type:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (make-instance &#039;person
                            :name &quot;Bob&quot;
                            :admin t)
@@ -103,7 +103,8 @@ POFTHEDAY&gt; (packet:unpack * &#039;person)
                                #:slots921 packet::buffer
                                packet::start))
       #:size920)))
- &#039;person)</code></pre><p>Also nested types are supported. You will find such examples in <a href="https://github.com/fjames86/packet">the documentation</a>. There are other features as well. Read the docs!</p>
+ &#039;person)</code></pre><p>Also, nested types are supported. You will find such examples in <a href="https://github.com/fjames86/packet">the documentation</a>. There are other features as well. Read the docs!</p>
+<p>If you are interested in packing data into binary formats, look at <a href="https://40ants.com/lisp-project-of-the-day/tags/serialization.html">other libraries</a> reviewed in #poftheday posts.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

@@ -1,4 +1,4 @@
-* cl-pack :data_structure:serialization:
+* cl-pack :data_structures:serialization:
 
 It supplies Perl/PHP/Ruby/Python compatible pack() and unpack()
 functions to allow easy use of (binary format) protocols and files with
