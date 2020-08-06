@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>packet
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>packet</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a></center><h1>packet<span class='tags'><a href='../../tags/serialization.html'><span class='label label-default'>serialization</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library is suitable to build a binary protocol to exchange data with programs written in other languages like C.</p>
+<p>It is possible to define a data structures like this:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (packet:defpacket person
+               ((name (:string 20)
+                      :initform &quot;&quot;
+                      :initarg :name
+                      :reader name)
+                (admin :bool
+                       :initform nil
+                       :initarg :admin
+                       :reader admin))
+             (:documentation &quot;A person structure&quot;))
+
+POFTHEDAY&gt; (defmethod print-object ((person person) stream)
+             (print-unreadable-object (person stream :type t :identity t)
+               (format stream &quot;~A~@[ admin~]&quot;
+                       (name person)
+                       (admin person))))</code></pre><p>Now we an serialize and deserialize objects of this type:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (make-instance &#039;person
+                           :name &quot;Bob&quot;
+                           :admin t)
+#&lt;PERSON Bob admin {1002C2F7A3}&gt;
+
+POFTHEDAY&gt; (packet:pack * &#039;person)
+#(66 111 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+
+POFTHEDAY&gt; (packet:unpack * &#039;person)
+#&lt;PERSON Bob admin {1002E60C73}&gt;</code></pre><p>The <code>defpacket</code> macro expands into the <code>CLOS</code> class definition and the serialization code:</p>
+<pre><code class='lisp'>(progn
+ (defclass person nil
+           ((name :initform &quot;&quot; :initarg :name :reader name)
+            (admin :initform nil :initarg :admin :reader admin))
+           (:documentation &quot;A person structure&quot;))
+
+ (let ((#:packing919 packet::*default-packing*))
+   (multiple-value-bind (#:slots921 #:size920)
+       (packet::compute-real-slots
+        (list (list &#039;name (list &#039;:string 20))
+              (list &#039;admin &#039;:bool))
+        #:packing919 nil)
+     (packet::%define-type
+      &#039;person
+      (lambda
+          (packet::object packet::buffer packet::start)
+        (packet::pack-object packet::object #:slots921
+                             packet::buffer
+                             packet::start))
+      (lambda (packet::buffer packet::start)
+        (packet::unpack-object (make-instance &#039;person)
+                               #:slots921 packet::buffer
+                               packet::start))
+      #:size920)))
+ &#039;person)</code></pre><p>Also nested types are supported. You will find such examples in <a href="https://github.com/fjames86/packet">the documentation</a>. There are other features as well. Read the docs!</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

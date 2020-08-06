@@ -1,0 +1,88 @@
+* packet :serialization:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is suitable to build a binary protocol to exchange data
+with programs written in other languages like C.
+
+It is possible to define a data structures like this:
+
+#+begin_src lisp
+
+POFTHEDAY> (packet:defpacket person
+               ((name (:string 20)
+                      :initform ""
+                      :initarg :name
+                      :reader name)
+                (admin :bool
+                       :initform nil
+                       :initarg :admin
+                       :reader admin))
+             (:documentation "A person structure"))
+
+POFTHEDAY> (defmethod print-object ((person person) stream)
+             (print-unreadable-object (person stream :type t :identity t)
+               (format stream "~A~@[ admin~]"
+                       (name person)
+                       (admin person))))
+
+#+end_src
+
+Now we an serialize and deserialize objects of this type:
+
+#+begin_src lisp
+
+POFTHEDAY> (make-instance 'person
+                           :name "Bob"
+                           :admin t)
+#<PERSON Bob admin {1002C2F7A3}>
+
+POFTHEDAY> (packet:pack * 'person)
+#(66 111 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+
+POFTHEDAY> (packet:unpack * 'person)
+#<PERSON Bob admin {1002E60C73}>
+
+#+end_src
+
+The ~defpacket~ macro expands into the ~CLOS~ class definition and the
+serialization code:
+
+#+begin_src lisp
+
+(progn
+ (defclass person nil
+           ((name :initform "" :initarg :name :reader name)
+            (admin :initform nil :initarg :admin :reader admin))
+           (:documentation "A person structure"))
+
+ (let ((#:packing919 packet::*default-packing*))
+   (multiple-value-bind (#:slots921 #:size920)
+       (packet::compute-real-slots
+        (list (list 'name (list ':string 20))
+              (list 'admin ':bool))
+        #:packing919 nil)
+     (packet::%define-type
+      'person
+      (lambda
+          (packet::object packet::buffer packet::start)
+        (packet::pack-object packet::object #:slots921
+                             packet::buffer
+                             packet::start))
+      (lambda (packet::buffer packet::start)
+        (packet::unpack-object (make-instance 'person)
+                               #:slots921 packet::buffer
+                               packet::start))
+      #:size920)))
+ 'person)
+
+#+end_src
+
+Also nested types are supported. You will find such examples in
+[[https://github.com/fjames86/packet][the documentation]]. There are other features as well. Read the docs!
