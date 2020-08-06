@@ -11,6 +11,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 03 August - [[content/2020/08/0150-cl-speedy-queue.org][cl-speedy-queue]] ([[https://twitter.com/svetlyak40wt/status/1290395817803681793][twitter]])
 - 04 August - [[content/2020/08/0151-deeds.org][deeds]] ([[https://twitter.com/svetlyak40wt/status/1290725800052916225][twitter]])
 - 05 August - [[content/2020/08/0152-cl-qprint.org][cl-qprint]] ([[https://twitter.com/svetlyak40wt/status/1291109339680432129][twitter]])
+- 06 August - [[content/2020/08/0153-packet.org][packet]] ([[https://twitter.com/svetlyak40wt/status/1291480619965349889][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])

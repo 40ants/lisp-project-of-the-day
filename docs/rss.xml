@@ -6,6 +6,65 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>packet</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0153-packet.html</link>
+            <description>&lt;p&gt;This library is suitable to build a binary protocol to exchange data with programs written in other languages like C.&lt;/p&gt;
+&lt;p&gt;It is possible to define data structures like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (packet:defpacket person
+               ((name (:string 20)
+                      :initform &amp;quot;&amp;quot;
+                      :initarg :name
+                      :reader name)
+                (admin :bool
+                       :initform nil
+                       :initarg :admin
+                       :reader admin))
+             (:documentation &amp;quot;A person structure&amp;quot;))
+
+POFTHEDAY&amp;gt; (defmethod print-object ((person person) stream)
+             (print-unreadable-object (person stream :type t :identity t)
+               (format stream &amp;quot;~A~@[ admin~]&amp;quot;
+                       (name person)
+                       (admin person))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we an serialize and deserialize objects of this type:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-instance &amp;#039;person
+                           :name &amp;quot;Bob&amp;quot;
+                           :admin t)
+#&amp;lt;PERSON Bob admin {1002C2F7A3}&amp;gt;
+
+POFTHEDAY&amp;gt; (packet:pack * &amp;#039;person)
+#(66 111 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+
+POFTHEDAY&amp;gt; (packet:unpack * &amp;#039;person)
+#&amp;lt;PERSON Bob admin {1002E60C73}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;defpacket&lt;/code&gt; macro expands into the &lt;code&gt;CLOS&lt;/code&gt; class definition and the serialization code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(progn
+ (defclass person nil
+           ((name :initform &amp;quot;&amp;quot; :initarg :name :reader name)
+            (admin :initform nil :initarg :admin :reader admin))
+           (:documentation &amp;quot;A person structure&amp;quot;))
+
+ (let ((#:packing919 packet::*default-packing*))
+   (multiple-value-bind (#:slots921 #:size920)
+       (packet::compute-real-slots
+        (list (list &amp;#039;name (list &amp;#039;:string 20))
+              (list &amp;#039;admin &amp;#039;:bool))
+        #:packing919 nil)
+     (packet::%define-type
+      &amp;#039;person
+      (lambda
+          (packet::object packet::buffer packet::start)
+        (packet::pack-object packet::object #:slots921
+                             packet::buffer
+                             packet::start))
+      (lambda (packet::buffer packet::start)
+        (packet::unpack-object (make-instance &amp;#039;person)
+                               #:slots921 packet::buffer
+                               packet::start))
+      #:size920)))
+ &amp;#039;person)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also nested types are supported. You will find such examples in &lt;a href=&quot;https://github.com/fjames86/packet&quot;&gt;the documentation&lt;/a&gt;. There are other features as well. Read the docs!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 06 Aug 2020 23:38:30 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-qprint</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0152-cl-qprint.html</link>
             <description>&lt;p&gt;This small library implements a &lt;a href=&quot;https://tools.ietf.org/html/rfc2045#section-6.7&quot;&gt;Quoted-Printable&lt;/a&gt; encoding algorithm suitable to use in multipart emails.&lt;/p&gt;
@@ -1065,43 +1124,6 @@ POFTHEDAY&amp;gt; (id3:title **)
 &amp;quot;Cape Cod Girls&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems it works very good!&lt;/p&gt;
 </description>
             <pubDate>Sat, 18 Jul 2020 22:42:56 +0300</pubDate>
-        </item>
-        <item>
-            <title>open-location-code</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0133-open-location-code.html</link>
-            <description>&lt;p&gt;This is an interesting way to encode coordinates on the planet Earth.&lt;/p&gt;
-&lt;p&gt;These codes can be short enough to remember them, and they are pronounceable. What is essential – they supported by Google.&lt;/p&gt;
-&lt;p&gt;For example, I have an architectural landmark in nearby Bykovo village - the &lt;a href=&quot;https://ru.wikipedia.org/wiki/Усадьба_Быково&quot;&gt;Vorontcov-Dashkov&apos;s mansion&lt;/a&gt;. Its coordinates are &lt;code&gt;55.608093&lt;/code&gt;, &lt;code&gt;38.048927&lt;/code&gt; or &lt;code&gt;55&#xB0;36&apos;29.1&quot;N 38&#xB0;02&apos;56.1&quot;E&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;This building has no address, but we can get an &quot;open location code&quot; for its location on Google Maps:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0133/map.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;J25X+6H&lt;/code&gt; is the shortened open location code for this location.&lt;/p&gt;
-&lt;p&gt;You can get the full code using latitude, longitude and one line of Lisp code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:encode
-            55.608093
-            38.048927)
-&amp;quot;9G7WJ25X+6H&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The code &lt;code&gt;9G7WJ25X+6H&lt;/code&gt; is full. It has all information to get back our latitude and longitude:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:decode &amp;quot;9G7WJ25X+6H&amp;quot;)
-#&amp;lt;OPEN-LOCATION-CODE:CODE-AREA {1002BF7E13}&amp;gt;
-:FULL
-
-POFTHEDAY&amp;gt; (open-location-code:south-west-corner *)
-6951/125 (55.608)
-304391/8000 (38.048874)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But for short code this will not work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:decode &amp;quot;J25X+6H&amp;quot;)
-#&amp;lt;OPEN-LOCATION-CODE:CODE-AREA {10067CAAB3}&amp;gt;
-:SHORT
-
-POFTHEDAY&amp;gt; (open-location-code:south-west-corner *)
-76/125 (0.608, 304/5%)
-391/8000 (0.048875, 391/80%)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To get the coordinates, you need to &quot;recover&quot; the full code first. This is done using some reference point. For example, we can take the nearest village&apos;s coordinates as the reference point:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (open-location-code:recover
-            &amp;quot;J25X+6H&amp;quot;
-            55.634068
-            38.044629)
-&amp;quot;9G7WJ25X+6H&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is the same code we&apos;ve received from mansion&apos;s coordinates. You can open the Google Maps and search the code &lt;code&gt;9G7WJ25X+6H&lt;/code&gt; to check it. In real life short codes are used together with the name of the nearest city, like &lt;code&gt;J25X+6H Быково, Московская обл.&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;That is for today. For me, open location codes were an exciting discovery. Didn&apos;t hear about them before.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 17 Jul 2020 23:38:24 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -1,4 +1,4 @@
-* cl-bert :data_structure:
+* cl-bert :data_structure:serialization:
 
 This library implements a BERT serializer which is a part of the
 [[http://bert-rpc.org/][BERT-RPC]], invented and used inside the GitHub.

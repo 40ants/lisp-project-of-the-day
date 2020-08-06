@@ -1,4 +1,4 @@
-* packet :serialization:
+* packet :serialization:data_structures:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -11,7 +11,7 @@
 This library is suitable to build a binary protocol to exchange data
 with programs written in other languages like C.
 
-It is possible to define a data structures like this:
+It is possible to define data structures like this:
 
 #+begin_src lisp
 
@@ -34,7 +34,7 @@ POFTHEDAY> (defmethod print-object ((person person) stream)
 
 #+end_src
 
-Now we an serialize and deserialize objects of this type:
+Now we can serialize and deserialize objects of this type:
 
 #+begin_src lisp
 
@@ -84,5 +84,5 @@ serialization code:
 
 #+end_src
 
-Also nested types are supported. You will find such examples in
+Also, nested types are supported. You will find such examples in
 [[https://github.com/fjames86/packet][the documentation]]. There are other features as well. Read the docs!
