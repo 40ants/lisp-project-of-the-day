@@ -1,0 +1,134 @@
+* macrodynamics :macro:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Found a useful library for writing macroses and using dynamic variables
+during expansion. I didn't try to figure out how does it work (yet) but
+decided to make a more visual example than the code from library's
+README.
+
+Let's pretend we tired to write the code like this, manually placing h1,
+h2, h3, for headers:
+
+#+begin_src lisp
+
+POFTHEDAY> (spinneret:with-html-string
+             (:h1 "Hello")
+             (:h2 "World")
+             (:p "This is an example"))
+"<h1>Hello</h1>
+ <h2>World</h2>
+ <p>This is an example"
+
+#+end_src
+
+I'd like to write more semantic code splitted into the sections:
+
+#+begin_src lisp
+
+POFTHEDAY> (spinneret:with-html-string
+             (section "Hello"
+               (section "World"
+                 (:p "This is an example"))))
+"<h1>Hello</h1>
+ <h2>World</h2>
+ <p>This is an example"
+
+#+end_src
+
+First, let's try to implement the ~section~ macro using Lisp's dynamic
+variable:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmacro section (title &body body)
+             (let* ((*level* (1+ *level*))
+                    (tag-name (format nil "H~A" *level*))
+                    (tag (alexandria:make-keyword tag-name)))
+               `(spinneret:with-html
+                  (,tag ,title)
+                  ,@body)))
+
+POFTHEDAY> (spinneret:with-html-string
+             (section "Hello"
+               (section "World"
+                 (:p "This is an example"))))
+"<h1>Hello</h1>
+ <h1>World</h1>
+ <p>This is an example"
+
+#+end_src
+
+This does not work.
+
+Why this happened? Lets add some logging to our macro function:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmacro section (title &body body)
+             (let* ((*level* (1+ *level*))
+                    (tag-name (format nil "H~A" *level*))
+                    (tag (alexandria:make-keyword tag-name)))
+               (format t "Expanding section with level=~A~%"
+                       *level*)
+               `(spinneret:with-html
+                  (,tag ,title)
+                  ,@body)))
+
+POFTHEDAY> (spinneret:with-html-string
+             (section "Hello"
+               (section "World"
+                 (:p "This is an example"))))
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+"<h1>Hello</h1>
+ <h1>World</h1>
+ <p>This is an example"
+
+#+end_src
+
+Don't know why does it outputs 6 times instead of 2. But definitely
+there is something wrong with our dynamic variable's value, isn't it?
+
+Now let's use ~macrodynamics~ to define the variable, macro and the binding:
+
+#+begin_src lisp
+
+POFTHEDAY> (macrodynamics:def-dynenv-var *level* 0)
+
+POFTHEDAY> (macrodynamics:def-dynenv-macro section (title &body body)
+             (macrodynamics:ct-let ((*level* (1+ *level*)))
+               (let* ((tag-name (format nil "H~A" *level*))
+                      (tag (alexandria:make-keyword tag-name)))
+                 (format t "Expanding section with level=~A~%"
+                         *level*)
+                 `(spinneret:with-html
+                    (,tag ,title)
+                    ,@body))))
+
+POFTHEDAY> (spinneret:with-html-string
+             (section "Hello"
+               (section "World"
+                 (:p "This is an example"))))
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=2
+Expanding section with level=2
+"<h1>Hello</h1>
+ <h2>World</h2>
+ <p>This is an example"
+
+#+end_src
+
+Wonderful! Now it works!
