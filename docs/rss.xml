@@ -6,6 +6,92 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>macrodynamics</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0154-macrodynamics.html</link>
+            <description>&lt;p&gt;Found a useful library for writing macro and using dynamic variables during expansion. I didn&apos;t try to figure out how does it work (yet) but decided to make a more visual example than the code from library&apos;s README.&lt;/p&gt;
+&lt;p&gt;Let&apos;s pretend we tried to write the code like this, manually placing h1, h2, h3, for headers:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (:h1 &amp;quot;Hello&amp;quot;)
+             (:h2 &amp;quot;World&amp;quot;)
+             (:p &amp;quot;This is an example&amp;quot;))
+&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
+ &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
+ &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;d like to write more semantic code separated into the sections:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (section &amp;quot;Hello&amp;quot;
+               (section &amp;quot;World&amp;quot;
+                 (:p &amp;quot;This is an example&amp;quot;))))
+&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
+ &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
+ &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;First, let&apos;s try to implement the &lt;code&gt;section&lt;/code&gt; macro using Lisp&apos;s dynamic variable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro section (title &amp;amp;body body)
+             (let* ((*level* (1+ *level*))
+                    (tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
+                    (tag (alexandria:make-keyword tag-name)))
+               `(spinneret:with-html
+                  (,tag ,title)
+                  ,@body)))
+
+POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (section &amp;quot;Hello&amp;quot;
+               (section &amp;quot;World&amp;quot;
+                 (:p &amp;quot;This is an example&amp;quot;))))
+&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
+ &amp;lt;h1&amp;gt;World&amp;lt;/h1&amp;gt;
+ &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This does not work.&lt;/p&gt;
+&lt;p&gt;Why did this happened? Let&apos;s add some logging to our macro function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro section (title &amp;amp;body body)
+             (let* ((*level* (1+ *level*))
+                    (tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
+                    (tag (alexandria:make-keyword tag-name)))
+               (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
+                       *level*)
+               `(spinneret:with-html
+                  (,tag ,title)
+                  ,@body)))
+
+POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (section &amp;quot;Hello&amp;quot;
+               (section &amp;quot;World&amp;quot;
+                 (:p &amp;quot;This is an example&amp;quot;))))
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
+ &amp;lt;h1&amp;gt;World&amp;lt;/h1&amp;gt;
+ &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Don&apos;t know why does it output 6 times instead of 2. But definitely, there is something wrong with our dynamic variable&apos;s value, isn&apos;t it?&lt;/p&gt;
+&lt;p&gt;Now let&apos;s use &lt;code&gt;macrodynamics&lt;/code&gt; to define the variable, macro and the binding:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (macrodynamics:def-dynenv-var *level* 0)
+
+POFTHEDAY&amp;gt; (macrodynamics:def-dynenv-macro section (title &amp;amp;body body)
+             (macrodynamics:ct-let ((*level* (1+ *level*)))
+               (let* ((tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
+                      (tag (alexandria:make-keyword tag-name)))
+                 (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
+                         *level*)
+                 `(spinneret:with-html
+                    (,tag ,title)
+                    ,@body))))
+
+POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (section &amp;quot;Hello&amp;quot;
+               (section &amp;quot;World&amp;quot;
+                 (:p &amp;quot;This is an example&amp;quot;))))
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=1
+Expanding section with level=2
+Expanding section with level=2
+&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
+ &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
+ &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Wonderful! Now it works!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 07 Aug 2020 23:05:02 +0300</pubDate>
+        </item>
+        <item>
             <title>packet</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0153-packet.html</link>
             <description>&lt;p&gt;This library is suitable to build a binary protocol to exchange data with programs written in other languages like C.&lt;/p&gt;
@@ -1084,47 +1170,6 @@ POFTHEDAY&amp;gt; (foo 100500 &amp;quot;Blah&amp;quot;)
  &amp;lt;INFO&amp;gt; [21:04:53] poftheday (foo) - Entering into the (foo 100500 Blah)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow I&apos;ll show you addons I&apos;ve made, to make &lt;code&gt;log4cl&lt;/code&gt; even more suitable for production applications.&lt;/p&gt;
 </description>
             <pubDate>Sun, 19 Jul 2020 21:07:55 +0300</pubDate>
-        </item>
-        <item>
-            <title>taglib</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0134-taglib.html</link>
-            <description>&lt;p&gt;The first post in the #poftheday series was about &lt;code&gt;cl-mpg123&lt;/code&gt; library. It failed on attempt to process metadata of mp3 file. Today we&apos;ll try &lt;code&gt;taglib&lt;/code&gt;. This is the pure CL library to process MP3, MP4, FLAC tags.&lt;/p&gt;
-&lt;p&gt;Let&apos;s try it on the file from the zero post!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (audio-streams:open-audio-file
-            &amp;quot;docs/media/0000/file.mp3&amp;quot;)
-#&amp;lt;ID3:MP3-FILE {10036524E3}&amp;gt;
-
-POFTHEDAY&amp;gt; (abstract-tag:show-tags *)
-/Users/art/projects/poftheday/docs/media/0000/file.mp3
-1 frame read, MPEG 1, Layer III, CBR, sample rate: 44,100 Hz, bit rate: 320 Kbps, duration: 7:15
-    album: Rogue&amp;#039;s Gallery: Pirate Ballads, Sea Songs, and Chanteys
-    artist: Baby Gramps
-    comment: ((0 eng  NIL))
-    compilation: no
-    cover: (Size: 9,870)
-    genre: Folk
-    lyrics:  
-    title: Cape Cod Girls
-    track: (1 23)
-    year: 2006
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a possibility to access specific fields:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (audio-streams:open-audio-file
-            &amp;quot;docs/media/0000/file.mp3&amp;quot;)
-#&amp;lt;ID3:MP3-FILE {10027E6093}&amp;gt;
-
-POFTHEDAY&amp;gt; (id3:id3-header *)
-#&amp;lt;ID3:ID3-HEADER {10027E60D3}&amp;gt;
-
-POFTHEDAY&amp;gt; (id3:v21-tag-header *)
-#&amp;lt;ID3:V21-TAG-HEADER {10027E6363}&amp;gt;
-
-POFTHEDAY&amp;gt; (id3:album *)
-&amp;quot;Rogue&amp;#039;s Gallery: Pirate Ballad&amp;quot;
-
-POFTHEDAY&amp;gt; (id3:title **)
-&amp;quot;Cape Cod Girls&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems it works very good!&lt;/p&gt;
-</description>
-            <pubDate>Sat, 18 Jul 2020 22:42:56 +0300</pubDate>
         </item>
     </channel>
 </rss>
