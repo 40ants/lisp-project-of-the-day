@@ -13,7 +13,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 05 August - [[content/2020/08/0152-cl-qprint.org][cl-qprint]] ([[https://twitter.com/svetlyak40wt/status/1291109339680432129][twitter]])
 - 06 August - [[content/2020/08/0153-packet.org][packet]] ([[https://twitter.com/svetlyak40wt/status/1291480619965349889][twitter]])
 - 07 August - [[content/2020/08/0154-macrodynamics.org][macrodynamics]] ([[https://twitter.com/svetlyak40wt/status/1291828519027253250][twitter]])
-- 08 August - [[content/2020/08/0155-dufy.org][dufy]]
+- 08 August - [[content/2020/08/0155-dufy.org][dufy]] ([[https://twitter.com/svetlyak40wt/status/1292201597175554049][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
@@ -531,6 +531,12 @@ Text node contains code snippets, we need to wrap them into
         (text (str:trim (cl-org-mode::node.text node))))
 
     (cond
+      ((and (str:starts-with-p "html " mode)
+            (str:containsp ":render-without-code" mode))
+       
+       (cl-who:with-html-output (stream)
+         (cl-who:str text)))
+      
       ((and (str:starts-with-p "html " mode)
             (str:containsp ":render" mode))
        

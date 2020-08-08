@@ -6,6 +6,81 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>dufy</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html</link>
+            <description>&lt;p&gt;This library is named in honour of &lt;a href=&quot;https://en.wikipedia.org/wiki/Raoul_Dufy&quot;&gt;Raoul Dufy&lt;/a&gt;, the French painter. It provides functions for color manipulation and conversion in various color spaces.&lt;/p&gt;
+&lt;p&gt;To experiment with &lt;code&gt;Dufy&lt;/code&gt; we&apos;ll write a two helper function to convert &lt;code&gt;RGB&lt;/code&gt; colors from and to hexadecimal representation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun string-to-rgb (s)
+             (loop for i from 1 to 5 by 2
+                   collect (parse-integer s
+                                          :start i
+                                          :end (+ 2 i)
+                                          :radix 16)
+                     into result
+                   finally (return (values-list result))))
+
+POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#F4BBFF&amp;quot;)
+244
+187
+255
+
+POFTHEDAY&amp;gt; (defun rgb-to-string (r g b)
+             (format nil &amp;quot;#~2,&amp;#039;0X~2,&amp;#039;0X~2,&amp;#039;0X&amp;quot;
+                     r g b))
+
+POFTHEDAY&amp;gt; (rgb-to-string 244 187 255)
+&amp;quot;#F4BBFF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to test how does color conversion work:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dufy:qrgb-to-hsv 244 187 255)
+290.2941176470588d0
+0.2666666666666667d0
+1.0d0 (100.0d0%)
+
+POFTHEDAY&amp;gt; (dufy:hsv-to-qrgb 290.2941176470588d0
+                             0.2666666666666667d0
+                             1.0d0)
+244
+187
+255&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Dufy&lt;/code&gt; provides a number of such functions. It also implements functions for &lt;a href=&quot;https://en.wikipedia.org/wiki/Color_difference&quot;&gt;color difference&lt;/a&gt; calculation.&lt;/p&gt;
+&lt;p&gt;But let&apos;s do something more practical - create a color which is a little bit darker but has the same tone.&lt;/p&gt;
+&lt;p&gt;To do this, we need to convert &lt;code&gt;RGB&lt;/code&gt; to &lt;code&gt;HSV&lt;/code&gt;, reduce &lt;code&gt;V&lt;/code&gt; part and convert it back. This function can be useful when generating &lt;code&gt;CSS&lt;/code&gt; using &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;Lass&lt;/a&gt; library:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun darker (color &amp;amp;optional (ratio 0.75))
+             &amp;quot;Returns CSS color which is a little bit darker&amp;quot;
+             (rutils:with ((r g b (string-to-rgb color))
+                           (h s v (dufy:qrgb-to-hsv r g b))
+                           (new-r new-g new-b (dufy:hsv-to-qrgb h s (* v ratio))))
+               (rgb-to-string new-r new-g new-b)))
+
+POFTHEDAY&amp;gt; (darker &amp;quot;#F4BBFF&amp;quot;)
+&amp;quot;#B78CBF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
+&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;Original (#F4BBFF)&lt;/div&gt;
+
+&lt;div style=&quot;background-color: #B78CBF; width: 400px; height: 50px; padding: 10px&quot;&gt;Darker (#B78CBF)&lt;/div&gt;&lt;p&gt;Let&apos;s tests the function for distance calculation and find out how different these two colors!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#F4BBFF&amp;quot;)
+244
+187
+255
+
+POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#B78CBF&amp;quot;)
+183
+140
+191
+
+POFTHEDAY&amp;gt; (dufy:qrgb-deltae00
+              244 187 255
+              183 140 191)
+14.557112327275474d0
+
+;; The difference between black and white:
+
+POFTHEDAY&amp;gt; (dufy:qrgb-deltae00
+              255 255 255
+              0 0 0)
+100.00000000000003d0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/cxxxr/lem&quot;&gt;Lem&lt;/a&gt; uses a similar function to &lt;a href=&quot;https://github.com/cxxxr/lem/blob/0ada0951c47817964e6994b1e76b559f9859447d/frontends/ncurses/term.lisp#L341-L351&quot;&gt;pick the nearest color index&lt;/a&gt;. But seems it is much simpler. I&apos;ll try to replace it with an algorithm from &lt;code&gt;Dufy&lt;/code&gt; and see if my problem with Solarized color theme will disappear.&lt;/p&gt;
+&lt;p&gt;Probably there are other function for color manipulation which I don&apos;t understand.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 08 Aug 2020 23:42:45 +0300</pubDate>
+        </item>
+        <item>
             <title>macrodynamics</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0154-macrodynamics.html</link>
             <description>&lt;p&gt;Found a useful library for writing macro and using dynamic variables during expansion. I didn&apos;t try to figure out how does it work (yet) but decided to make a more visual example than the code from library&apos;s README.&lt;/p&gt;
@@ -1176,32 +1251,6 @@ POFTHEDAY&amp;gt; (dex:get &amp;quot;http://localhost:8081/&amp;quot;)
 &lt;p&gt;&lt;a href=&quot;https://github.com/40ants/log4cl-extras&quot;&gt;https://github.com/40ants/log4cl-extras&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Mon, 20 Jul 2020 23:39:29 +0300</pubDate>
-        </item>
-        <item>
-            <title>log4cl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0135-log4cl.html</link>
-            <description>&lt;p&gt;This is the mystery why I didn&apos;t review any logging library so far! Probably, because there is a &lt;a href=&quot;https://www.sites.google.com/site/sabraonthehill/comparison-of-lisp-logging-libraries&quot;&gt;great article&lt;/a&gt; exists which compares 8 logging libraries.&lt;/p&gt;
-&lt;p&gt;Today I want only mention that my library of choice is &lt;code&gt;log4cl&lt;/code&gt;. Mostly because if it&apos;s great integration with SLIME/SLY which helps when you have a lot&apos;s of &quot;debug&quot; logging in the app, but at some moment want to turn it on only for a function or a package.&lt;/p&gt;
-&lt;p&gt;Log4cl has &lt;a href=&quot;https://github.com/sharplispers/log4cl&quot;&gt;great documentation&lt;/a&gt; which demonstrates all its features. Here I&apos;ll provide only a small example of its default logging output and ability to process additional arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (log:config :sane2 :debug)
-
-POFTHEDAY&amp;gt; (defun foo (first-arg second-arg)
-             (log:info &amp;quot;Entering into the foo with&amp;quot; first-arg &amp;quot;and&amp;quot; second-arg))
-
-POFTHEDAY&amp;gt; (foo 100500 &amp;quot;Blah&amp;quot;)
-
- &amp;lt;INFO&amp;gt; [21:04:10] poftheday (foo) -
-  Entering into the foo with FIRST-ARG: 100500 and SECOND-ARG: &amp;quot;Blah&amp;quot; 
-
-;; Now I want to process arguments with in format-like style:
-
-POFTHEDAY&amp;gt; (defun foo (first-arg second-arg)
-             (log:info &amp;quot;Entering into the (foo ~A ~A)&amp;quot; first-arg second-arg))
-
-POFTHEDAY&amp;gt; (foo 100500 &amp;quot;Blah&amp;quot;)
- &amp;lt;INFO&amp;gt; [21:04:53] poftheday (foo) - Entering into the (foo 100500 Blah)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorrow I&apos;ll show you addons I&apos;ve made, to make &lt;code&gt;log4cl&lt;/code&gt; even more suitable for production applications.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 19 Jul 2020 21:07:55 +0300</pubDate>
         </item>
     </channel>
 </rss>

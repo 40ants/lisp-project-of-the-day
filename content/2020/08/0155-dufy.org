@@ -8,7 +8,7 @@
 :CI:       :(
 :END:
 
-This library is named in honor or [[https://en.wikipedia.org/wiki/Raoul_Dufy][Raoul Dufy]] the French painter. It
+This library is named in honour of [[https://en.wikipedia.org/wiki/Raoul_Dufy][Raoul Dufy]], the French painter. It
 provides functions for color manipulation and conversion in various
 color spaces.
 
@@ -84,11 +84,11 @@ POFTHEDAY> (darker "#F4BBFF")
 
 Here is the result:
 
-#+begin_src html :render
+#+begin_src html :render-without-code
 
-<div width="400" height="400" style="background-color: #F4BBFF">Original (#F4BBFF)</div>
+<div style="background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px">Original (#F4BBFF)</div>
 
-<div width="400" height="400" style="background-color: #B78CBF">Darker (#B78CBF)</div>
+<div style="background-color: #B78CBF; width: 400px; height: 50px; padding: 10px">Darker (#B78CBF)</div>
 
 #+end_src
 
@@ -122,7 +122,8 @@ POFTHEDAY> (dufy:qrgb-deltae00
 
 #+end_src
 
-Lem uses similar function to [[https://github.com/cxxxr/lem/blob/0ada0951c47817964e6994b1e76b559f9859447d/frontends/ncurses/term.lisp#L341-L351][pick a nearest color index]]. But seems it is
-much simpler. I'll try to replace it with an algorithm from ~Dufy~.
+[[https://github.com/cxxxr/lem][Lem]] uses a similar function to [[https://github.com/cxxxr/lem/blob/0ada0951c47817964e6994b1e76b559f9859447d/frontends/ncurses/term.lisp#L341-L351][pick the nearest color index]]. But seems it is
+much simpler. I'll try to replace it with an algorithm from ~Dufy~ and see
+if my problem with Solarized color theme will disappear.
 
 Probably there are other function for color manipulation which I don't understand.
