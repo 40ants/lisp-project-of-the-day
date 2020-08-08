@@ -122,4 +122,7 @@ POFTHEDAY> (dufy:qrgb-deltae00
 
 #+end_src
 
+Lem uses similar function to [[https://github.com/cxxxr/lem/blob/0ada0951c47817964e6994b1e76b559f9859447d/frontends/ncurses/term.lisp#L341-L351][pick a nearest color index]]. But seems it is
+much simpler. I'll try to replace it with an algorithm from ~Dufy~.
+
 Probably there are other function for color manipulation which I don't understand.
