@@ -132,3 +132,46 @@ Expanding section with level=2
 #+end_src
 
 Wonderful! Now it works!
+
+** Update
+
+@PuercoPop [[https://twitter.com/PuercoPop/status/1291887983822544898][asked on Twitter]] if ~macrolet~ will be enough in the above
+example. I've tested this hypothesis and no, it is not suitable
+replacement for ~macrodynamics~:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((level 0))
+             (macrolet ((section (title &body body)
+                         (let* ((level (1+ level))
+                                (tag-name (format nil "H~A" level))
+                                (tag (alexandria:make-keyword tag-name)))
+                           (format t "Expanding section with level=~A~%"
+                                   level)
+                           `(spinneret:with-html
+                              (,tag ,title)
+                              ,@body))))
+                (spinneret:with-html-string
+                  (section "Hello"
+                    (section "World"
+                      (:p "This is an example"))))))
+
+;; It ends with this error:
+
+Execution of a form compiled with errors.
+Form:
+  (SECTION "Hello"
+  (SECTION "World"
+    (SPINNERET::WITH-TAG (:P)
+      "This is an example")))
+Compile-time error:
+  during macroexpansion of
+(SECTION "Hello"
+  (SECTION "World"
+    #)).
+Use *BREAK-ON-SIGNALS* to intercept.
+
+ The variable LEVEL is unbound.
+ It is a local variable not available at compile-time.
+
+#+end_src

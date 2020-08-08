@@ -131,7 +131,39 @@ Expanding section with level=2
 &quot;&lt;h1&gt;Hello&lt;/h1&gt;
  &lt;h2&gt;World&lt;/h2&gt;
  &lt;p&gt;This is an example&quot;</code></pre><p>Wonderful! Now it works!</p>
+<h2>Update</h2><p>@PuercoPop <a href="https://twitter.com/PuercoPop/status/1291887983822544898">asked on Twitter</a> if <code>macrolet</code> will be enough in the above example. I've tested this hypothesis and no, it is not suitable replacement for <code>macrodynamics</code>:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((level 0))
+             (macrolet ((section (title &amp;body body)
+                         (let* ((level (1+ level))
+                                (tag-name (format nil &quot;H~A&quot; level))
+                                (tag (alexandria:make-keyword tag-name)))
+                           (format t &quot;Expanding section with level=~A~%&quot;
+                                   level)
+                           `(spinneret:with-html
+                              (,tag ,title)
+                              ,@body))))
+                (spinneret:with-html-string
+                  (section &quot;Hello&quot;
+                    (section &quot;World&quot;
+                      (:p &quot;This is an example&quot;))))))
 
+;; It ends with this error:
+
+Execution of a form compiled with errors.
+Form:
+  (SECTION &quot;Hello&quot;
+  (SECTION &quot;World&quot;
+    (SPINNERET::WITH-TAG (:P)
+      &quot;This is an example&quot;)))
+Compile-time error:
+  during macroexpansion of
+(SECTION &quot;Hello&quot;
+  (SECTION &quot;World&quot;
+    #)).
+Use *BREAK-ON-SIGNALS* to intercept.
+
+ The variable LEVEL is unbound.
+ It is a local variable not available at compile-time.</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

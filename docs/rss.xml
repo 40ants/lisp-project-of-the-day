@@ -88,7 +88,39 @@ Expanding section with level=2
 &amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
  &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
  &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Wonderful! Now it works!&lt;/p&gt;
-</description>
+&lt;h2&gt;Update&lt;/h2&gt;&lt;p&gt;@PuercoPop &lt;a href=&quot;https://twitter.com/PuercoPop/status/1291887983822544898&quot;&gt;asked on Twitter&lt;/a&gt; if &lt;code&gt;macrolet&lt;/code&gt; will be enough in the above example. I&apos;ve tested this hypothesis and no, it is not suitable replacement for &lt;code&gt;macrodynamics&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((level 0))
+             (macrolet ((section (title &amp;amp;body body)
+                         (let* ((level (1+ level))
+                                (tag-name (format nil &amp;quot;H~A&amp;quot; level))
+                                (tag (alexandria:make-keyword tag-name)))
+                           (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
+                                   level)
+                           `(spinneret:with-html
+                              (,tag ,title)
+                              ,@body))))
+                (spinneret:with-html-string
+                  (section &amp;quot;Hello&amp;quot;
+                    (section &amp;quot;World&amp;quot;
+                      (:p &amp;quot;This is an example&amp;quot;))))))
+
+;; It ends with this error:
+
+Execution of a form compiled with errors.
+Form:
+  (SECTION &amp;quot;Hello&amp;quot;
+  (SECTION &amp;quot;World&amp;quot;
+    (SPINNERET::WITH-TAG (:P)
+      &amp;quot;This is an example&amp;quot;)))
+Compile-time error:
+  during macroexpansion of
+(SECTION &amp;quot;Hello&amp;quot;
+  (SECTION &amp;quot;World&amp;quot;
+    #)).
+Use *BREAK-ON-SIGNALS* to intercept.
+
+ The variable LEVEL is unbound.
+ It is a local variable not available at compile-time.&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Fri, 07 Aug 2020 23:05:02 +0300</pubDate>
         </item>
         <item>
