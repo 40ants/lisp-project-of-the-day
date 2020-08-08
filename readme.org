@@ -382,7 +382,11 @@ h1 .tags {
                            :width "160"))
                  (:a :href "https://liberapay.com/poftheday/donate"
                      (:img :alt "Donate using Liberapay"
-                           :src "https://liberapay.com/assets/widgets/donate.svg")))
+                           :src "https://liberapay.com/assets/widgets/donate.svg"))
+                 (:p "Or see "
+                     (:a :href "https://40ants.com/lisp-project-of-the-day/patrons/index.html"
+                         "the list of project sponsors")
+                     "."))
                 ,@body))
             (:div
              (:hr)
@@ -982,14 +986,20 @@ Now we can write a function which will render a one page:
 (defun render-patrons ()
   (let ((filename (ppath:join "docs"
                               "patrons"
-                              "index.html")))
+                              "index.html"))
+        (patrons '(("Jean-Philippe Paradis (Hexstream)" "https://www.hexstreamsoft.com/")
+                   ("Black Brane Systems Inc." "https://blackbrane.com/"))))
     (alexandria:with-output-to-file (stream filename :if-exists :supersede)
       (app-page (stream :index-uri "../")
         (:section :style " margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
-                  (:h3 :style "margin-left: 1.6em"
-                       "Project Patrons")
-                  (:ul :style "list-style: none;"
-                       (:li "There is not any patrons yet. Become the first one!")))))
+          (:h3 :style "margin-left: 1.6em"
+               "Project Patrons")
+          (:p "Special thanks to these people and companies supporting the project!")
+          (:ul
+           (loop for (name url) in patrons
+                 do (cl-who:htm
+                     (:li (:a :href url
+                              (cl-who:esc name)))))))))
     (values)))
 
 #+END_SRC
