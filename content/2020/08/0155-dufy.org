@@ -1,0 +1,125 @@
+* dufy                                                             :graphics:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is named in honor or [[https://en.wikipedia.org/wiki/Raoul_Dufy][Raoul Dufy]] the French painter. It
+provides functions for color manipulation and conversion in various
+color spaces.
+
+To experiment with ~Dufy~ we'll write a two helper function to convert ~RGB~
+colors from and to hexadecimal representation:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun string-to-rgb (s)
+             (loop for i from 1 to 5 by 2
+                   collect (parse-integer s
+                                          :start i
+                                          :end (+ 2 i)
+                                          :radix 16)
+                     into result
+                   finally (return (values-list result))))
+
+POFTHEDAY> (string-to-rgb "#F4BBFF")
+244
+187
+255
+
+POFTHEDAY> (defun rgb-to-string (r g b)
+             (format nil "#~2,'0X~2,'0X~2,'0X"
+                     r g b))
+
+POFTHEDAY> (rgb-to-string 244 187 255)
+"#F4BBFF"
+
+#+end_src
+
+Now it is time to test how does color conversion work:
+
+#+begin_src lisp
+
+POFTHEDAY> (dufy:qrgb-to-hsv 244 187 255)
+290.2941176470588d0
+0.2666666666666667d0
+1.0d0 (100.0d0%)
+
+POFTHEDAY> (dufy:hsv-to-qrgb 290.2941176470588d0
+                             0.2666666666666667d0
+                             1.0d0)
+244
+187
+255
+
+#+end_src
+
+~Dufy~ provides a number of such functions. It also implements functions
+for [[https://en.wikipedia.org/wiki/Color_difference][color difference]] calculation.
+
+But let's do something more practical - create a color which is a little
+bit darker but has the same tone.
+
+To do this, we need to convert ~RGB~ to ~HSV~, reduce ~V~ part and convert it
+back. This function can be useful when generating ~CSS~ using [[https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html][Lass]]
+library:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun darker (color &optional (ratio 0.75))
+             "Returns CSS color which is a little bit darker"
+             (rutils:with ((r g b (string-to-rgb color))
+                           (h s v (dufy:qrgb-to-hsv r g b))
+                           (new-r new-g new-b (dufy:hsv-to-qrgb h s (* v ratio))))
+               (rgb-to-string new-r new-g new-b)))
+
+POFTHEDAY> (darker "#F4BBFF")
+"#B78CBF"
+
+#+end_src
+
+Here is the result:
+
+#+begin_src html :render
+
+<div width="400" height="400" style="background-color: #F4BBFF">Original (#F4BBFF)</div>
+
+<div width="400" height="400" style="background-color: #B78CBF">Darker (#B78CBF)</div>
+
+#+end_src
+
+Let's tests the function for distance calculation and find out how
+different these two colors!
+
+#+begin_src lisp
+
+POFTHEDAY> (string-to-rgb "#F4BBFF")
+244
+187
+255
+
+POFTHEDAY> (string-to-rgb "#B78CBF")
+183
+140
+191
+
+POFTHEDAY> (dufy:qrgb-deltae00
+              244 187 255
+              183 140 191)
+14.557112327275474d0
+
+;; The difference between black and white:
+
+POFTHEDAY> (dufy:qrgb-deltae00
+              255 255 255
+              0 0 0)
+100.00000000000003d0
+
+
+#+end_src
+
+Probably there are other function for color manipulation which I don't understand.
