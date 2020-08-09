@@ -1,0 +1,74 @@
+* trivial-features :trivial:system:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :|
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This little library unifies the way how do different features are
+represented in ~*features*~ variable.
+
+It provides information about an operating system, endianness and CPU
+architecture. Unification simplifies writing the cross-platform
+libraries.
+
+For example, here is what we have on Closure CL:
+
+#+begin_src lisp
+
+CL-USER> (lisp-implementation-type)
+"Clozure Common Lisp"
+
+CL-USER> (member :64-bit *features*)
+NIL
+
+CL-USER> (member :darwin *features*)
+(:DARWIN :LITTLE-ENDIAN-TARGET :LITTLE-ENDIAN-HOST)
+
+CL-USER> (member :little-endian *features*)
+NIL
+
+CL-USER> (member :x86-64 *features*)
+(:X86-64 :X86_64 :X86-TARGET :X86-HOST :X8664-TARGET ...)
+
+#+end_src
+
+But after the loading of the ~trivial-features~:
+
+#+begin_src lisp
+
+CL-USER> (ql:quickload :trivial-features)
+
+CL-USER> (member :64-bit *features*)
+(:64-BIT :BSD :LITTLE-ENDIAN :SLYNK :QUICKLISP :ASDF3.3 :ASDF3.2 ...)
+
+CL-USER> (member :darwin *features*)
+(:DARWIN :LITTLE-ENDIAN-TARGET :LITTLE-ENDIAN-HOST)
+
+CL-USER> (member :x86-64 *features*)
+(:X86-64 :X86_64 :X86-TARGET :X86-HOST :X8664-TARGET :X8664-HOST ...)
+
+CL-USER> (member :little-endian *features*)
+(:LITTLE-ENDIAN :SLYNK :QUICKLISP :ASDF3.3 :ASDF3.2 :ASDF3.1 ...)
+
+#+end_src
+
+Here is what this library adds to the ~*features*~ for ClozureCL:
+
+#+begin_src lisp
+
+CL-USER> (defparameter *original-features* (copy-list *features*))
+
+CL-USER> (ql:quickload :trivial-features)
+
+CL-USER> (set-difference *features*
+                         *original-features*)
+(:LITTLE-ENDIAN :BSD :64-BIT)
+
+#+end_src
+
+To finalize, if you are going to use the conditional reader in your system
+and depend on OS or CPU architecture - use ~trivial-features~.
