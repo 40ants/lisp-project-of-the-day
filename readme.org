@@ -14,6 +14,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 06 August - [[content/2020/08/0153-packet.org][packet]] ([[https://twitter.com/svetlyak40wt/status/1291480619965349889][twitter]])
 - 07 August - [[content/2020/08/0154-macrodynamics.org][macrodynamics]] ([[https://twitter.com/svetlyak40wt/status/1291828519027253250][twitter]])
 - 08 August - [[content/2020/08/0155-dufy.org][dufy]] ([[https://twitter.com/svetlyak40wt/status/1292201597175554049][twitter]])
+- 09 August - [[content/2020/08/0156-trivial-features.org][trivial-features]] ([[https://twitter.com/svetlyak40wt/status/1292559938510823424][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
@@ -1178,6 +1179,8 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/scymtym/more-conditions
 - http://quickdocs.org/cl-olefs/ - reading Excel
 - http://quickdocs.org/mockingbird/
+- http://quickdocs.org/simple-tasks/
+- http://quickdocs.org/trivial-main-thread/
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
