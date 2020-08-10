@@ -6,6 +6,56 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>simple-rgb</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0157-simple-rgb.html</link>
+            <description>&lt;p&gt;Two days ago I wrote about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html&quot;&gt;Dufy&lt;/a&gt; - the color manipulation library. While preparing that post, I found another library which is more practical if you need to work only with &lt;code&gt;RGB&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It is able to convert to and from string representation and has some function for color manipulation.&lt;/p&gt;
+&lt;p&gt;For example, it has a builtin function similar to the one I wrote in the post about &lt;code&gt;Dufy&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (simple-rgb:parse &amp;quot;#F4BBFF&amp;quot;)
+#(244 187 255)
+
+POFTHEDAY&amp;gt; (simple-rgb:darken-rgb * :alpha 0.25)
+#(183 140 191)
+
+POFTHEDAY&amp;gt; (simple-rgb:xmlify-rgb *)
+&amp;quot;#B78CBF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The result is the same:&lt;/p&gt;
+&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;Original (#F4BBFF)&lt;/div&gt;
+
+&lt;div style=&quot;background-color: #B78CBF; width: 400px; height: 50px; padding: 10px&quot;&gt;Darker (#B78CBF)&lt;/div&gt;&lt;p&gt;Also, there are other functions for color manipulation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((h (c)
+                    (simple-rgb:xmlify-rgb c)))
+             (let ((color (simple-rgb:parse &amp;quot;#F4BBFF&amp;quot;)))
+               (list
+                :original (h color)
+                :grayscale (h (simple-rgb:greyscale-rgb color))
+                :complement (h (simple-rgb:complement-rgb color))
+                :inverted (h (simple-rgb:invert-rgb color))
+                :contrasted (h (simple-rgb:contrast-rgb color))
+                :lighter (h (simple-rgb:lighten-rgb color))
+                :darker (h (simple-rgb:darken-rgb color))
+                :greener (h (simple-rgb:mix-rgb
+                             color
+                             (simple-rgb:parse &amp;quot;#00FF00&amp;quot;)
+                             :alpha 0.25)))))
+(:ORIGINAL &amp;quot;#F4BBFF&amp;quot;
+ :GRAYSCALE &amp;quot;#D4D4D4&amp;quot;
+ :COMPLEMENT &amp;quot;#C6FFBB&amp;quot;
+ :INVERTED &amp;quot;#0B4400&amp;quot;
+ :CONTRASTED &amp;quot;#FFFFFF&amp;quot;
+ :LIGHTER &amp;quot;#FADDFF&amp;quot;
+ :DARKER &amp;quot;#7A5E80&amp;quot;
+ :GREENER &amp;quot;#B7CCBF&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;ORIGINAL (#F4BBFF)&lt;/div&gt;
+&lt;div style=&quot;background-color: #D4D4D4; width: 400px; height: 50px; padding: 10px&quot;&gt;GRAYSCALE (#D4D4D4)&lt;/div&gt;
+&lt;div style=&quot;background-color: #C6FFBB; width: 400px; height: 50px; padding: 10px&quot;&gt;COMPLEMENT (#C6FFBB)&lt;/div&gt;
+&lt;div style=&quot;color: #EEE; background-color: #0B4400; width: 400px; height: 50px; padding: 10px&quot;&gt;INVERTED (#0B4400)&lt;/div&gt;
+&lt;div style=&quot;background-color: #FFFFFF; width: 400px; height: 50px; padding: 10px&quot;&gt;CONTRASTED (#FFFFFF)&lt;/div&gt;
+&lt;div style=&quot;background-color: #FADDFF; width: 400px; height: 50px; padding: 10px&quot;&gt;LIGHTER (#FADDFF)&lt;/div&gt;
+&lt;div style=&quot;color: #EEE; background-color: #7A5E80; width: 400px; height: 50px; padding: 10px&quot;&gt;DARKER (#7A5E80)&lt;/div&gt;
+&lt;div style=&quot;background-color: #B7CCBF; width: 400px; height: 50px; padding: 10px&quot;&gt;GREENER (#B7CCBF)&lt;/div&gt;&lt;p&gt;So, if want just to play with &lt;code&gt;RGB&lt;/code&gt; colors, this library is exactly what you need!&lt;/p&gt;
+</description>
+            <pubDate>Mon, 10 Aug 2020 20:58:45 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-features</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0156-trivial-features.html</link>
             <description>&lt;p&gt;This little library unifies the way how do different features are represented in &lt;code&gt;*features*&lt;/code&gt; variable.&lt;/p&gt;
@@ -1206,31 +1256,6 @@ POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;machdep.cpu.core_coun
 &amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2585;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2587;&amp;#x2586;&amp;#x2585;&amp;#x2584;&amp;#x2583;&amp;#x2582;&amp;#x2582;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581; 21&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To find out different keys supported by your system do &lt;code&gt;sysctl -a&lt;/code&gt; in console.&lt;/p&gt;
 </description>
             <pubDate>Wed, 22 Jul 2020 21:52:20 +0300</pubDate>
-        </item>
-        <item>
-            <title>thread.comm.rendezvous</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0137-thread.comm.rendezvous.html</link>
-            <description>&lt;p&gt;This system provides a simple thread synchronization primitive called &lt;a href=&quot;https://en.wikipedia.org/wiki/Rendezvous_(Plan_9)&quot;&gt;Rendezvous&lt;/a&gt;. It allows exchanging pieces of data between threads.&lt;/p&gt;
-&lt;p&gt;Here is how it works. You create a &lt;code&gt;rendezvous&lt;/code&gt; object. Then you might create one or many threads and each of them can either to &quot;call&quot; &lt;code&gt;rendezvous&lt;/code&gt; and pass it some value or to &quot;accept&quot; value and return a result.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;Accept&lt;/code&gt; blocks the calling thread until some other thread will not &lt;code&gt;call&lt;/code&gt; and vice-versa. This is similar to a thread-safe blocking queue of size 1:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *r*
-             (thread.comm.rendezvous:make-rendezvous))
-
-POFTHEDAY&amp;gt; (bt:make-thread
-            (lambda ()
-              (log:info &amp;quot;Waiting for value&amp;quot;)
-              (let ((value (thread.comm.rendezvous:accept-rendezvous *r*)))
-                (log:info &amp;quot;Value received: ~S&amp;quot; value))))
-
-&amp;lt;INFO&amp;gt; [2020-07-21T23:06:56.836061+03:00] Waiting for value
-
-POFTHEDAY&amp;gt; (thread.comm.rendezvous:call-rendezvous
-            *r*
-            :the-value-to-be-sent-to-the-thread)
-
-&amp;lt;INFO&amp;gt; [2020-07-21T23:07:46.642640+03:00] Value received: :THE-VALUE-TO-BE-SENT-TO-THE-THREAD&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I wasn&apos;t able to imagine a more complex but short illustration of the case where this synchronization primitive can be useful. If you know one, please share your ideas in comments.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 21 Jul 2020 23:34:42 +0300</pubDate>
         </item>
     </channel>
 </rss>
