@@ -1,0 +1,87 @@
+* simple-rgb :graphics:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Two days ago I wrote about [[https://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html][Dufy]] - the color manipulation library. While
+preparing that post, I found another library which is more practical if
+you need to work only with ~RGB~.
+
+It is able to convert to and from string representation and has some
+function for color manipulation.
+
+For example, it has a builtin function similar to the one I wrote in the
+post about ~Dufy~:
+
+#+begin_src lisp
+
+POFTHEDAY> (simple-rgb:parse "#F4BBFF")
+#(244 187 255)
+
+POFTHEDAY> (simple-rgb:darken-rgb * :alpha 0.25)
+#(183 140 191)
+
+POFTHEDAY> (simple-rgb:xmlify-rgb *)
+"#B78CBF"
+
+#+end_src
+
+The result is the same:
+
+#+begin_src html :render-without-code
+
+<div style="background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px">Original (#F4BBFF)</div>
+
+<div style="background-color: #B78CBF; width: 400px; height: 50px; padding: 10px">Darker (#B78CBF)</div>
+
+#+end_src
+
+Also, there are other functions for color manipulation:
+
+#+begin_src lisp
+
+POFTHEDAY> (flet ((h (c)
+                    (simple-rgb:xmlify-rgb c)))
+             (let ((color (simple-rgb:parse "#F4BBFF")))
+               (list
+                :original (h color)
+                :grayscale (h (simple-rgb:greyscale-rgb color))
+                :complement (h (simple-rgb:complement-rgb color))
+                :inverted (h (simple-rgb:invert-rgb color))
+                :contrasted (h (simple-rgb:contrast-rgb color))
+                :lighter (h (simple-rgb:lighten-rgb color))
+                :darker (h (simple-rgb:darken-rgb color))
+                :greener (h (simple-rgb:mix-rgb
+                             color
+                             (simple-rgb:parse "#00FF00")
+                             :alpha 0.25)))))
+(:ORIGINAL "#F4BBFF"
+ :GRAYSCALE "#D4D4D4"
+ :COMPLEMENT "#C6FFBB"
+ :INVERTED "#0B4400"
+ :CONTRASTED "#FFFFFF"
+ :LIGHTER "#FADDFF"
+ :DARKER "#7A5E80"
+ :GREENER "#B7CCBF")
+
+#+end_src
+
+#+begin_src html :render-without-code
+
+<div style="background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px">ORIGINAL (#F4BBFF)</div>
+<div style="background-color: #D4D4D4; width: 400px; height: 50px; padding: 10px">GRAYSCALE (#D4D4D4)</div>
+<div style="background-color: #C6FFBB; width: 400px; height: 50px; padding: 10px">COMPLEMENT (#C6FFBB)</div>
+<div style="color: #EEE; background-color: #0B4400; width: 400px; height: 50px; padding: 10px">INVERTED (#0B4400)</div>
+<div style="background-color: #FFFFFF; width: 400px; height: 50px; padding: 10px">CONTRASTED (#FFFFFF)</div>
+<div style="background-color: #FADDFF; width: 400px; height: 50px; padding: 10px">LIGHTER (#FADDFF)</div>
+<div style="color: #EEE; background-color: #7A5E80; width: 400px; height: 50px; padding: 10px">DARKER (#7A5E80)</div>
+<div style="background-color: #B7CCBF; width: 400px; height: 50px; padding: 10px">GREENER (#B7CCBF)</div>
+
+#+end_src
+
+So, if want just to play with ~RGB~ colors, this library is exactly what you need!
