@@ -1,0 +1,69 @@
+* cl-json-pointer :data_structures:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This library implements [[https://tools.ietf.org/html/rfc6901][RFC 6901]] - a format for accessing nested JSON
+data-structures. It some sense, ~JSON pointer~ is similar to
+[[https://jsonpath.com/][JSON path]], but more suitable for use as a part of the URL fragment.
+
+~cl-json-pointer~'s README provides many examples, but all of them are
+applied to the object which almost flat. Let's try to reproduce an example
+from the ~JSON path~'s site:
+
+#+begin_src json
+
+{
+  "firstName": "John",
+  "lastName" : "doe",
+  "age"      : 26,
+  "address"  : {
+    "streetAddress": "naist street",
+    "city"         : "Nara",
+    "postalCode"   : "630-0192"
+  },
+  "phoneNumbers": [
+    {
+      "type"  : "iPhone",
+      "number": "0123-4567-8888"
+    },
+    {
+      "type"  : "home",
+      "number": "0123-4567-8910"
+    }
+  ]
+}
+
+#+end_src
+
+Now we'll translate this JSON path: ~$.phoneNumbers[0].type~
+into JSON pointer ~/phoneNumbers/0/type~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *obj* 
+             (jsown:parse
+              (alexandria:read-file-into-string "data.json")))
+
+POFTHEDAY> (cl-json-pointer:get-by-json-pointer *obj* "/phoneNumbers/0/type"
+                                                :flavor :jsown)
+"iPhone"
+("type" . "iPhone")
+NIL
+
+#+end_src
+
+It is also possible to add/set/delete elements using
+~cl-json-pointer~.
+
+You will find more examples in the [[https://github.com/y2q-actionman/cl-json-pointer][official docs]].
+
+Comparing to the ~JSON path~, the ~pointer~ has clearer character
+escaping rules and is able to work with keys containing dots and slashes
+and other symbols. But it does not support slicing and some other
+features of the ~JSON path~.
