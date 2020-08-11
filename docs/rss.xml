@@ -6,6 +6,45 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-json-pointer</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0158-cl-json-pointer.html</link>
+            <description>&lt;p&gt;This library implements &lt;a href=&quot;https://tools.ietf.org/html/rfc6901&quot;&gt;RFC 6901&lt;/a&gt; - a format for accessing nested JSON data-structures. It some sense, &lt;code&gt;JSON pointer&lt;/code&gt; is similar to &lt;a href=&quot;https://jsonpath.com/&quot;&gt;JSON path&lt;/a&gt;, but more suitable for use as a part of the URL fragment.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cl-json-pointer&lt;/code&gt;&apos;s README provides many examples, but all of them are applied to the object which almost flat. Let&apos;s try to reproduce an example from the &lt;code&gt;JSON path&lt;/code&gt;&apos;s site:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;json&apos;&gt;{
+  &amp;quot;firstName&amp;quot;: &amp;quot;John&amp;quot;,
+  &amp;quot;lastName&amp;quot; : &amp;quot;doe&amp;quot;,
+  &amp;quot;age&amp;quot;      : 26,
+  &amp;quot;address&amp;quot;  : {
+    &amp;quot;streetAddress&amp;quot;: &amp;quot;naist street&amp;quot;,
+    &amp;quot;city&amp;quot;         : &amp;quot;Nara&amp;quot;,
+    &amp;quot;postalCode&amp;quot;   : &amp;quot;630-0192&amp;quot;
+  },
+  &amp;quot;phoneNumbers&amp;quot;: [
+    {
+      &amp;quot;type&amp;quot;  : &amp;quot;iPhone&amp;quot;,
+      &amp;quot;number&amp;quot;: &amp;quot;0123-4567-8888&amp;quot;
+    },
+    {
+      &amp;quot;type&amp;quot;  : &amp;quot;home&amp;quot;,
+      &amp;quot;number&amp;quot;: &amp;quot;0123-4567-8910&amp;quot;
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll translate this JSON path: &lt;code&gt;$.phoneNumbers[0].type&lt;/code&gt; into JSON pointer &lt;code&gt;/phoneNumbers/0/type&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *obj* 
+             (jsown:parse
+              (alexandria:read-file-into-string &amp;quot;data.json&amp;quot;)))
+
+POFTHEDAY&amp;gt; (cl-json-pointer:get-by-json-pointer *obj* &amp;quot;/phoneNumbers/0/type&amp;quot;
+                                                :flavor :jsown)
+&amp;quot;iPhone&amp;quot;
+(&amp;quot;type&amp;quot; . &amp;quot;iPhone&amp;quot;)
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to add/set/delete elements using &lt;code&gt;cl-json-pointer&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;You will find more examples in the &lt;a href=&quot;https://github.com/y2q-actionman/cl-json-pointer&quot;&gt;official docs&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Comparing to the &lt;code&gt;JSON path&lt;/code&gt;, the &lt;code&gt;pointer&lt;/code&gt; has clearer character escaping rules and is able to work with keys containing dots and slashes and other symbols. But it does not support slicing and some other features of the &lt;code&gt;JSON path&lt;/code&gt;.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 11 Aug 2020 23:13:03 +0300</pubDate>
+        </item>
+        <item>
             <title>simple-rgb</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0157-simple-rgb.html</link>
             <description>&lt;p&gt;Two days ago I wrote about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html&quot;&gt;Dufy&lt;/a&gt; - the color manipulation library. While preparing that post, I found another library which is more practical if you need to work only with &lt;code&gt;RGB&lt;/code&gt;.&lt;/p&gt;
@@ -1216,46 +1255,6 @@ Hello World!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can add markdown files a
 &lt;p&gt;But &lt;code&gt;literate-lisp&lt;/code&gt; system addresses all these issues.&lt;/p&gt;
 </description>
             <pubDate>Thu, 23 Jul 2020 22:22:03 +0300</pubDate>
-        </item>
-        <item>
-            <title>freebsd-sysctl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0138-freebsd-sysctl.html</link>
-            <description>&lt;p&gt;This library works on OSX because of its BSD roots, but fails on Linux with error: &quot;The alien function &apos;sysctlnametomib&apos; is undefined.&quot;&lt;/p&gt;
-&lt;p&gt;It provides information about the system.&lt;/p&gt;
-&lt;p&gt;Here is a quick example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;kern.hostname&amp;quot;)
-&amp;quot;poftheday&amp;quot;
-
-POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;kern.ostype&amp;quot;)
-&amp;quot;Darwin&amp;quot;
-
-POFTHEDAY&amp;gt; (freebsd-sysctl:sysctl-by-name &amp;quot;machdep.cpu.core_count&amp;quot;)
-6&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Using this library and &lt;code&gt;cl-spark&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0124-cl-spark.html&quot;&gt;reviewed two weeks ago&lt;/a&gt;, we can build a simple tool to monitor the CPU&apos;s temperature:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (loop with num-probes = 30
-                 with probes = ()
-                 for current = (freebsd-sysctl:sysctl-by-name
-                                &amp;quot;machdep.xcpm.cpu_thermal_level&amp;quot;)
-                 do (push current probes)
-                    (setf probes
-                          (subseq probes 0
-                                  (min num-probes
-                                       (length probes))))
-                    (format t &amp;quot;~A ~A~%~%&amp;quot;
-                            (cl-spark:spark
-                             (reverse probes)
-                             :min 30)
-                            current)
-                    (sleep 15))
-
-&amp;#x2588;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2587;&amp;#x2586;&amp;#x2586;&amp;#x2585;&amp;#x2584;&amp;#x2584;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584;&amp;#x2584; 53
-...
-&amp;#x2583;&amp;#x2582;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2582;&amp;#x2582;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2584;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588; 93
-...
-&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2585;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2587;&amp;#x2586;&amp;#x2585;&amp;#x2584; 66
-...
-&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2583;&amp;#x2585;&amp;#x2585;&amp;#x2586;&amp;#x2587;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2588;&amp;#x2587;&amp;#x2586;&amp;#x2585;&amp;#x2584;&amp;#x2583;&amp;#x2582;&amp;#x2582;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581;&amp;#x2581; 21&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To find out different keys supported by your system do &lt;code&gt;sysctl -a&lt;/code&gt; in console.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 22 Jul 2020 21:52:20 +0300</pubDate>
         </item>
     </channel>
 </rss>
