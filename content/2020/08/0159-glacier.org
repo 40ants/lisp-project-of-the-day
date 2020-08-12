@@ -11,7 +11,7 @@
 This is the library by [[https://twitter.com/_compufox][@_compufox]]. It is a wrapper around Mastodon's API
 allowing to write bots for this messaging platform.
 
-To test the ~glacier~, you need to create a development application for
+To test the ~Glacier~, you need to create a development application for
 Mastodon and get the API access token. Here is [[https://botwiki.org/resource/tutorial/how-to-make-a-mastodon-botsin-space-app-bot/][an article]] describing how
 to do it.
 
@@ -31,7 +31,7 @@ POFTHEDAY> (glacier:run-bot (*bot*)
 
 [[../../media/0159/first-hello-world.png]]
 
-There is also a macro to make bot do something in specified time
+There is also a macro to make the bot do something in a specified time
 interval. With this code it will make a post every 5 minutes:
 
 #+begin_src lisp
@@ -45,12 +45,12 @@ POFTHEDAY> (let ((number 0))
 
 #+end_src
 
-But to make bot useful, we need to learn it how to listen other people.
+But to make bot useful, we need to teach it how to listen to other people.
 Usually, when I'm learning something, the first thing I'm trying is
 something stupid.
 
-In this case it was a little function which saves into the global
-variable the last message recceived by the bot:
+In this case, it was a little function which saves into the global
+variable the last message received by the bot:
 
 #+begin_src lisp
 
@@ -68,8 +68,8 @@ POFTHEDAY> (glacier:run-bot (*bot*))
 
 #+end_src
 
-Notification stores the toot's type, author, timestamp and id. Also it
-has the ~status~ attribute. Status is another object holding all metadata
+Message stores the toot's type, author, timestamp and id. Also, it
+has the ~status~ attribute. "Status" is another object holding all metadata
 about a toot:
 
 #+begin_src lisp
@@ -125,7 +125,7 @@ All Slots:
 
 #+end_src
 
-Lets teach our bot to reply with a reversed string:
+Let's teach our bot to reply with a reversed string:
 
 #+begin_src lisp
 

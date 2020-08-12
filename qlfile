@@ -1,2 +1,6 @@
 dist ultralisp http://dist.ultralisp.org/
 
+# It is broken in because of https://github.com/kennytilton/qooxlisp
+# https://github.com/ultralisp/ultralisp/issues/70
+github cl-json hankhero/cl-json
+
