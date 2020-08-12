@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>glacier
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>glacier</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>glacier<span class='tags'><a href='../../tags/messaging.html'><span class='label label-default'>messaging</span></a><a href='../../tags/api.html'><span class='label label-default'>api</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This is the library by <a href="https://twitter.com/_compufox">@_compufox</a>. It is a wrapper around Mastodon's API allowing to write bots for this messaging platform.</p>
+<p>To test the <code>glacier</code>, you need to create a development application for Mastodon and get the API access token. Here is <a href="https://botwiki.org/resource/tutorial/how-to-make-a-mastodon-botsin-space-app-bot/">an article</a> describing how to do it.</p>
+<p>Now you can send a single message (they are called toots on Mastodon).</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *bot*
+             (make-instance &#039;glacier:mastodon-bot
+                            :config-file &quot;glacier.config&quot;))
+
+POFTHEDAY&gt; (glacier:run-bot (*bot*)
+             (glacier:post (format nil &quot;Hello from Common Lisp bot!&quot;)
+                           :visibility :public))</code></pre><p><img style="max-width: 100%" src="../../media/0159/first-hello-world.png"/></p>
+<p>There is also a macro to make bot do something in specified time interval. With this code it will make a post every 5 minutes:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((number 0))
+             (glacier:run-bot (*bot*)
+               (glacier:after-every (5 :minutes :run-immediately t)
+                 (incf number)
+                 (glacier:post (format nil &quot;Iteration ~A&quot; number)
+                               :visibility :public))))</code></pre><p>But to make bot useful, we need to learn it how to listen other people. Usually, when I'm learning something, the first thing I'm trying is something stupid.</p>
+<p>In this case it was a little function which saves into the global variable the last message recceived by the bot:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *last-message*)
+
+POFTHEDAY&gt; (defun on-message (message)
+             (setf *last-message* message))
+
+POFTHEDAY&gt; (defparameter *bot*
+             (make-instance &#039;glacier:mastodon-bot
+                            :config-file &quot;glacier.config&quot;
+                            :on-notification &#039;on-message))
+
+POFTHEDAY&gt; (glacier:run-bot (*bot*))</code></pre><p>Notification stores the toot's type, author, timestamp and id. Also it has the <code>status</code> attribute. Status is another object holding all metadata about a toot:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (tooter:status *last-message*)
+#&lt;TOOTER-OBJECTS:STATUS svetlyak40wt@fosstodon.org #104677985579935599&gt;
+
+POFTHEDAY&gt; (describe *)
+#&lt;TOOTER-OBJECTS:STATUS svetlyak40wt@fosstodon.org #104677985579935599&gt;
+
+ @svetlyak40wt@fosstodon.org                          2020.8.12 19:08:21
+|  Hello Bot!
+                                                                   0&#x267A; 0&#x2764;
+
+;; In Emacs Inspector
+
+#&lt;TOOTER-OBJECTS:STATUS {1004669693}&gt;
+--------------------
+Class: #&lt;STANDARD-CLASS TOOTER-OBJECTS:STATUS&gt;
+--------------------
+ Group slots by inheritance [ ]
+ Sort slots alphabetically  [X]
+
+All Slots:
+[ ]  ACCOUNT                = #&lt;TOOTER-OBJECTS:ACCOUNT svetlyak40wt@fosstodon.org #249236&gt;
+[ ]  APPLICATION            = NIL
+[ ]  BOOKMARKED             = NIL
+[ ]  CONTENT                = &quot; Hello Bot!&quot;
+[ ]  CREATED-AT             = 3806248101
+[ ]  EMOJIS                 = NIL
+[ ]  FAVOURITED             = NIL
+[ ]  FAVOURITES-COUNT       = 0
+[ ]  ID                     = &quot;104677985579935599&quot;
+[ ]  IN-REPLY-TO-ACCOUNT-ID = NIL
+[ ]  IN-REPLY-TO-ID         = NIL
+[ ]  LANGUAGE               = :EN
+[ ]  MEDIA-ATTACHMENTS      = NIL
+[ ]  MENTIONS               = (#&lt;TOOTER-OBJECTS:MENTION poftheday #249231&gt;)
+[ ]  MUTED                  = NIL
+[ ]  PARENT                 = NIL
+[ ]  PINNED                 = NIL
+[ ]  POLL                   = NIL
+[ ]  PREVIEW-CARD           = NIL
+[ ]  REBLOGGED              = NIL
+[ ]  REBLOGS-COUNT          = 0
+[ ]  REPLIES-COUNT          = 0
+[ ]  SENSITIVE              = NIL
+[ ]  SPOILER-TEXT           = &quot;&quot;
+[ ]  TAGS                   = NIL
+[ ]  URI                    = &quot;https://fosstodon.org/users/svetlyak40wt/statuses/104677985568296654&quot;
+[ ]  URL                    = &quot;https://fosstodon.org/@svetlyak40wt/104677985568296654&quot;
+[ ]  VISIBILITY             = :DIRECT</code></pre><p>Lets teach our bot to reply with a reversed string:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun on-message (message)
+             (when (glacier:mention-p message)
+               (let* ((status (tooter:status message))
+                      (text (tooter:content status)))
+                 (glacier:reply status
+                                (reverse (string-trim &#039;(#\Space)
+                                                      text))))))
+
+POFTHEDAY&gt; (glacier:run-bot (*bot*))</code></pre><p>There result is:</p>
+<p><img style="max-width: 100%" src="../../media/0159/bot-reply.png"/></p>
+<p>To make this code work, I have to patch <code>glacier</code> because a library it uses changed and break the <code>glacier</code> in some places. If you want to try it yourself apply this patch or use my fork:</p>
+<p><a href="https://github.com/compufox/glacier/pull/5">https://github.com/compufox/glacier/pull/5</a></p>
+<p>There is also API to define commands bot should react on. You will find the example in the <a href="https://github.com/compufox/glacier/blob/master/README.md">README</a>.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
