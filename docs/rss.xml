@@ -6,6 +6,44 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>moira</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0160-moira.html</link>
+            <description>&lt;p&gt;This small library, made by &lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, implements an abstraction over &lt;code&gt;bordeaux-threads&lt;/code&gt;. It is able to restart threads in case of errors. &lt;code&gt;Moira&lt;/code&gt; monitors all started threads.&lt;/p&gt;
+&lt;p&gt;In the next example, I&apos;m creating a thread which runs 5 iterations and fails. When the same thread restarted, it ends without an error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (moira:start-monitor)
+
+POFTHEDAY&amp;gt; (let ((num-attempts 1))
+             (moira:spawn &amp;quot;Counter&amp;quot;
+                (format t &amp;quot;Starting the thread~%&amp;quot;)
+                (loop for i from 0 upto 5
+                      do (format t &amp;quot;Iteration ~A~%&amp;quot; i)
+                         (sleep 1)
+                      finally (when (&amp;gt; num-attempts 0)
+                                (decf num-attempts)
+                                (format t &amp;quot;Exiting with error~%&amp;quot;)
+                                (error &amp;quot;Some shit happened!&amp;quot;)))))
+Starting the thread
+Iteration 0
+#&amp;lt;SB-THREAD:THREAD &amp;quot;Counter&amp;quot; RUNNING {10028CBD93}&amp;gt;
+#&amp;lt;MOIRA::MONITORED-THREAD Counter&amp;gt;
+Iteration 1
+Iteration 2
+Iteration 3
+Iteration 4
+Iteration 5
+Exiting with error
+
+Starting the thread
+Iteration 0
+Iteration 1
+Iteration 2
+Iteration 3
+Iteration 4
+Iteration 5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Without &lt;code&gt;num-attempts&lt;/code&gt; trick, a thread will be restarted eternally. This is useful for long-running threads which should be kept alive.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 13 Aug 2020 22:04:49 +0300</pubDate>
+        </item>
+        <item>
             <title>glacier</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0159-glacier.html</link>
             <description>&lt;p&gt;This is the library by &lt;a href=&quot;https://twitter.com/_compufox&quot;&gt;@_compufox&lt;/a&gt;. It is a wrapper around Mastodon&apos;s API allowing to write bots for this messaging platform.&lt;/p&gt;
@@ -1244,73 +1282,6 @@ POFTHEDAY&amp;gt; (rutils:hash-table-to-alist *)
  (&amp;quot;https://borodust.org/projects/cl-bodge/overview/&amp;quot; . T))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It would be nice if &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt; will do a little code review and check if I used &lt;code&gt;cl-flow&lt;/code&gt; correctly or not.&lt;/p&gt;
 </description>
             <pubDate>Sat, 25 Jul 2020 23:26:42 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-mechanize</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0140-cl-mechanize.html</link>
-            <description>&lt;p&gt;The README says this library tries to be a Perl&apos;s WWW:Mechanize clon. There is also Python library &lt;a href=&quot;https://github.com/python-mechanize/mechanize&quot;&gt;mechanize&lt;/a&gt; as well. Seems the stateful web scrapers is popular among some developers.&lt;/p&gt;
-&lt;p&gt;When I tried cl-mechanize to log into Reddit, it didn&apos;t work. The &lt;code&gt;fetch&lt;/code&gt; function should discover all forms with their inputs but the login form was empty. Without CSRF token I wasn&apos;t able to log in.&lt;/p&gt;
-&lt;p&gt;But I found a fork &lt;a href=&quot;https://github.com/ilook/cl-mechanize&quot;&gt;https://github.com/ilook/cl-mechanize&lt;/a&gt; where this problem was fixed.&lt;/p&gt;
-&lt;p&gt;Let&apos;s create a program which will fetch your karma and latest comments from the Reddit!&lt;/p&gt;
-&lt;p&gt;First, we need to log in. Mechanize operates on the &lt;code&gt;browser&lt;/code&gt; object which keeps the information about the current page and cookies:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *browser*
-             (make-instance &amp;#039;cl-mechanize:browser))
-
-POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/login/&amp;quot;
-                               *browser*)
-#&amp;lt;CL-MECHANIZE:PAGE {100A2D7FA3}&amp;gt;
-
-POFTHEDAY&amp;gt; (mechanize:page-forms *)
-(#&amp;lt;CL-MECHANIZE:FORM {100A2D4923}&amp;gt;)
-
-POFTHEDAY&amp;gt; (defparameter *login-form* (first *))
-
-POFTHEDAY&amp;gt; (mechanize:form-inputs *login-form*)
-((&amp;quot;otp-type&amp;quot; . &amp;quot;app&amp;quot;) (&amp;quot;otp&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;password&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;username&amp;quot; . &amp;quot;&amp;quot;)
- (&amp;quot;is_mobile_ui&amp;quot; . &amp;quot;False&amp;quot;) (&amp;quot;ui_mode&amp;quot; . &amp;quot;&amp;quot;) (&amp;quot;frontpage_signup_variant&amp;quot; . &amp;quot;&amp;quot;)
- (&amp;quot;is_oauth&amp;quot; . &amp;quot;False&amp;quot;)
- (&amp;quot;csrf_token&amp;quot; . &amp;quot;ba038152b86951ab28725c37ed0b3e96d640d083&amp;quot;)
- (&amp;quot;dest&amp;quot; . &amp;quot;https://www.reddit.com&amp;quot;) (&amp;quot;cookie_domain&amp;quot; . &amp;quot;.reddit.com&amp;quot;))
-
-POFTHEDAY&amp;gt; (setf (alexandria:assoc-value
-                  (mechanize:form-inputs *login-form*)
-                  &amp;quot;username&amp;quot; :test #&amp;#039;string=)
-                 &amp;quot;svetlyak40wt&amp;quot;)
-
-POFTHEDAY&amp;gt; (setf (alexandria:assoc-value
-                  (mechanize:form-inputs *login-form*)
-                  &amp;quot;password&amp;quot; :test #&amp;#039;string=)
-                 &amp;quot;********&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, ilook&apos;s version of the cl-mechanize does not work either. It fails on form submission with the following error:&lt;/p&gt;
-&lt;p&gt;&quot;Don&apos;t know how to handle method :|post|.&quot;&lt;/p&gt;
-&lt;p&gt;To overcome this issue we&apos;ll set the method to the proper keyword:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (setf (mechanize:form-method *login-form*)
-                 :post)
-
-POFTHEDAY&amp;gt; (mechanize:submit *login-form* *browser*)
-
-POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/&amp;quot;
-                               *browser*)
-
-POFTHEDAY&amp;gt; (cl-ppcre:scan-to-strings
-            &amp;quot;(\\d+) karma&amp;quot;
-            (mechanize:page-content *))
-&amp;quot;708 karma&amp;quot;
-#(&amp;quot;708&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll fetch last 3 comments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Mechanize can be enchanced to handle relative URLs:
-POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;/message/inbox&amp;quot;
-                               *browser*)
-; Debugger entered on #&amp;lt;DRAKMA:PARAMETER-ERROR
-; &amp;quot;Don&amp;#039;t know how to handle scheme ~S.&amp;quot; {100252AA63}&amp;gt;
-
-;; I found that page /message/inbox does not countain messages
-;; and you have to fetch this instead:
-POFTHEDAY&amp;gt; (cl-mechanize:fetch &amp;quot;https://www.reddit.com/message/inbox?embedded=true&amp;quot;
-                               *browser*)
-; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: STRING datum: NIL&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, &lt;code&gt;cl-mechanize&lt;/code&gt; failed on fetching this simple page. This library is 10 years old and still has so many bugs :(&lt;/p&gt;
-&lt;p&gt;Also, I found very unpleasant to work with &lt;code&gt;cxml-stp&lt;/code&gt;&apos;s API. &lt;code&gt;CL-Mechanize&lt;/code&gt; parses the page&apos;s body into &lt;code&gt;cxml&lt;/code&gt; data structures and it was hard to figure out how to search the nodes I need.&lt;/p&gt;
-&lt;p&gt;If you know about some other Common Lisp library that is able to keep cookies and suitable for web scraping, please, let me know.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 24 Jul 2020 21:08:15 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -52,7 +52,7 @@ h1 .tags {
     </style>
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>moira</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>moira<span class='tags'><a href='../../tags/threads.html'><span class='label label-default'>threads</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This small library, made by <a href="https://twitter.com/ruricolist">@ruricolist</a>, implements an abstraction over <code>bordeaux-threads</code>. It is able to restart threads in case of errors. <code>Moira</code> monitors all started threads.</p>
-<p>In the next example I'm creating a thread which runs 5 iteration and fails. When the same thread restarted, it ends without an error:</p>
+<p>In the next example, I'm creating a thread which runs 5 iterations and fails. When the same thread restarted, it ends without an error:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (moira:start-monitor)
 
 POFTHEDAY&gt; (let ((num-attempts 1))
@@ -82,7 +82,7 @@ Iteration 1
 Iteration 2
 Iteration 3
 Iteration 4
-Iteration 5</code></pre><p>Without <code>num-attempts</code> trick, thread will be restarted eternally. This is useful for long running threads which should be kept alive.</p>
+Iteration 5</code></pre><p>Without <code>num-attempts</code> trick, a thread will be restarted eternally. This is useful for long-running threads which should be kept alive.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

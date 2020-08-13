@@ -12,7 +12,7 @@ This small library, made by [[https://twitter.com/ruricolist][@ruricolist]], imp
 ~bordeaux-threads~. It is able to restart threads in case of errors. ~Moira~
 monitors all started threads.
 
-In the next example I'm creating a thread which runs 5 iteration and
+In the next example, I'm creating a thread which runs 5 iterations and
 fails. When the same thread restarted, it ends without an error:
 
 #+begin_src lisp
@@ -50,5 +50,5 @@ Iteration 5
 
 #+end_src
 
-Without ~num-attempts~ trick, thread will be restarted eternally. This is
-useful for long running threads which should be kept alive.
+Without ~num-attempts~ trick, a thread will be restarted eternally. This is
+useful for long-running threads which should be kept alive.
