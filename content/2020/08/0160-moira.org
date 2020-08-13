@@ -1,0 +1,54 @@
+* moira :threads:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This small library, made by [[https://twitter.com/ruricolist][@ruricolist]], implements an abstraction over
+~bordeaux-threads~. It is able to restart threads in case of errors. ~Moira~
+monitors all started threads.
+
+In the next example I'm creating a thread which runs 5 iteration and
+fails. When the same thread restarted, it ends without an error:
+
+#+begin_src lisp
+
+POFTHEDAY> (moira:start-monitor)
+
+POFTHEDAY> (let ((num-attempts 1))
+             (moira:spawn "Counter"
+                (format t "Starting the thread~%")
+                (loop for i from 0 upto 5
+                      do (format t "Iteration ~A~%" i)
+                         (sleep 1)
+                      finally (when (> num-attempts 0)
+                                (decf num-attempts)
+                                (format t "Exiting with error~%")
+                                (error "Some shit happened!")))))
+Starting the thread
+Iteration 0
+#<SB-THREAD:THREAD "Counter" RUNNING {10028CBD93}>
+#<MOIRA::MONITORED-THREAD Counter>
+Iteration 1
+Iteration 2
+Iteration 3
+Iteration 4
+Iteration 5
+Exiting with error
+
+Starting the thread
+Iteration 0
+Iteration 1
+Iteration 2
+Iteration 3
+Iteration 4
+Iteration 5
+
+#+end_src
+
+Without ~num-attempts~ trick, thread will be restarted eternally. This is
+useful for long running threads which should be kept alive.
