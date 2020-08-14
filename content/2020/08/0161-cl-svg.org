@@ -1,0 +1,11 @@
+* cl-svg :graphics:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :|
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+
