@@ -8,4 +8,54 @@
 :CI:       :(
 :END:
 
+This is a library for SVG generation. It has [[https://github.com/wmannis/cl-svg/blob/master/docs/API.md][nice documentation]]. I will
+show only a simple example of how to create the SVG with a circle filled
+with the gradient:
 
+#+begin_src lisp
+
+POFTHEDAY> (cl-svg:with-svg-to-file (svg 'cl-svg:svg-1.1-toplevel :height 200 :width 200)
+               ("docs/media/0161/test.svg" :if-exists :supersede)
+             (cl-svg:draw svg
+                 (:circle :cx 100 :cy 100 :r 100)
+                 :fill (cl-svg:xlink-href
+                        (cl-svg:make-linear-gradient svg
+                            (:id :fill
+                             :x1 "0%" :y1 "0%"
+                             :x2 "100%" :y2 "100%")
+                          (cl-svg:stop :color "red" :offset "0%")
+                          (cl-svg:stop :color "blue" :offset "100%")))))
+
+#+end_src
+
+Here is the result:
+
+#+begin_src xml
+
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="200" height="200" version="1.1" id="toplevel"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="FILL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="red" stop-opacity="1.00" offset="0%"/>
+      <stop stop-color="blue" stop-opacity="1.00" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="100" fill="url(#FILL)"/>
+</svg>
+
+#+end_src
+
+#+begin_src html :render-without-code
+
+<img src="../../media/0161/test.svg" />
+
+#+end_src
+
+There are more drawing primitives covered by the documentation. Read the
+docs and create more interesting pictures. Also, you can combine these
+SVGs with JS code produced by [[https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html][Parenscript]], to create interactive
+graphics!

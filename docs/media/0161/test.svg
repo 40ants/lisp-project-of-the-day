@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="200" height="200" version="1.1" id="toplevel"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="FILL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="red" stop-opacity="1.00" offset="0%"/>
+      <stop stop-color="blue" stop-opacity="1.00" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="100" fill="url(#FILL)"/>
+</svg>

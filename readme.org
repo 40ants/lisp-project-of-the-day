@@ -19,6 +19,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 11 August - [[content/2020/08/0158-cl-json-pointer.org][cl-json-pointer]] ([[https://twitter.com/svetlyak40wt/status/1293276553695170560][twitter]])
 - 12 August - [[content/2020/08/0159-glacier.org][glacier]] ([[https://twitter.com/svetlyak40wt/status/1293638583849562113][twitter]])
 - 13 August - [[content/2020/08/0160-moira.org][moira]] ([[https://twitter.com/svetlyak40wt/status/1293986693717139462][twitter]])
+- 14 August - [[content/2020/08/0161-cl-svg.org][cl-svg]]
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
@@ -883,6 +884,13 @@ We'll use few helpers to create urls and titles for the index page:
 We'll reuse this function for the front page and for tag pages:
 
 #+BEGIN_SRC lisp
+
+(defun title-to-systems (title)
+  "Title may contain several systems, separated by &.
+   Like \"skippy-renderer & zpng\".
+   This function returns a list of separate systems."
+  (mapcar #'str:trim
+          (str:split "&" title)))
   
 (defun render-index-page (files filename &key
                                            (index-uri nil)
@@ -895,42 +903,44 @@ We'll reuse this function for the front page and for tag pages:
     (ensure-directories-exist filename)
     
     (flet ((is-not-published (file)
-             (let ((title (get-title file)))
-               (not
-                (member title
-                        published
-                        :test #'string-equal)))))
+             (let* ((title (get-title file))
+                    (systems (title-to-systems title)))
+               (and (not (string= title "Day Zero"))
+                    (loop for system in systems
+                          never (member system
+                                        published
+                                        :test #'string-equal))))))
       (alexandria:with-output-to-file (stream filename :if-exists :supersede)
         (app-page (stream :index-uri index-uri)
           (:section :style "margin-left: auto; margin-right: auto; margin-top: 2em; width: 50%"
-                    (:h3 :style "margin-left: 1.6em"
-                         title)
-                    (:table :class "posts"
-                            (loop for file in (reverse files)
-                                  for uri = (get-uri file)
-                                  do (cl-who:htm
-                                      (:tr
-                                       (multiple-value-bind (title number tags)
-                                           (get-title-for-index file)
+            (:h3 :style "margin-left: 1.6em"
+                 title)
+            (:table :class "posts"
+                    (loop for file in (reverse files)
+                          for uri = (get-uri file)
+                          do (cl-who:htm
+                              (:tr
+                               (multiple-value-bind (title number tags)
+                                   (get-title-for-index file)
                                   
-                                         (unless (string-equal number
-                                                               "draft")
-                                           (cl-who:with-html-output (stream)
-                                             (:td :class "number"
-                                                  (cl-who:esc (format nil "#~A" number)))
+                                 (unless (string-equal number
+                                                       "draft")
+                                   (cl-who:with-html-output (stream)
+                                     (:td :class "number"
+                                          (cl-who:esc (format nil "#~A" number)))
                                       
-                                             (:td (:a :href (construct-uri uri)
-                                                      (cl-who:esc title)))
+                                     (:td (:a :href (construct-uri uri)
+                                              (cl-who:esc title)))
 
-                                             (:td :class "tags"
-                                                  (loop for tag in tags
-                                                        do (cl-who:htm
-                                                            (:a :href (construct-uri "tags/~A.html" tag)
-                                                                (cl-bootstrap:bs-label ()
-                                                                  (cl-who:esc tag)))))
-                                                  (when (is-not-published file)
-                                                    (cl-bootstrap:bs-label-danger
-                                                      (cl-who:esc "draft")))))))))))))))
+                                     (:td :class "tags"
+                                          (loop for tag in tags
+                                                do (cl-who:htm
+                                                    (:a :href (construct-uri "tags/~A.html" tag)
+                                                        (cl-bootstrap:bs-label ()
+                                                          (cl-who:esc tag)))))
+                                          (when (is-not-published file)
+                                            (cl-bootstrap:bs-label-danger
+                                              (cl-who:esc "draft")))))))))))))))
     (values)))
 
 
