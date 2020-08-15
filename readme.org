@@ -20,6 +20,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 12 August - [[content/2020/08/0159-glacier.org][glacier]] ([[https://twitter.com/svetlyak40wt/status/1293638583849562113][twitter]])
 - 13 August - [[content/2020/08/0160-moira.org][moira]] ([[https://twitter.com/svetlyak40wt/status/1293986693717139462][twitter]])
 - 14 August - [[content/2020/08/0161-cl-svg.org][cl-svg]] ([[https://twitter.com/svetlyak40wt/status/1294401139820175363][twitter]])
+- 15 August - [[content/2020/08/0162-shuffletron.org][shuffletron]] ([[https://twitter.com/svetlyak40wt/status/1294733698575761412][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])

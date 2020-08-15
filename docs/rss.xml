@@ -6,6 +6,67 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>shuffletron</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0162-shuffletron.html</link>
+            <description>&lt;p&gt;Shuffletron is a console music player. Today there will not be much of code, because I wasn&apos;t able to run this player on OSX. It crashes inside a &lt;code&gt;libao&lt;/code&gt; C library:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;[poftheday] qlot exec ./shuffletron.ros
+This is Shuffletron 0.0.5
+Library contains 1 files.
+        0 Baby Gramps, Rogue&amp;#039;s Gallery: Pirate Ballads, Sea Songs, and Chanteys,  1: Cape Cod Girls
+library&amp;gt;
+Unhandled DIVISION-BY-ZERO in thread #&amp;lt;SB-THREAD:THREAD &amp;quot;Mixer thread 44,100 Hz&amp;quot; RUNNING
+                                        {1001593EA3}&amp;gt;:
+  arithmetic error DIVISION-BY-ZERO signalled
+
+Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;Mixer thread 44,100 Hz&amp;quot; RUNNING {1001593EA3}&amp;gt;
+0: (&amp;quot;bogus stack frame&amp;quot;)
+1: (&amp;quot;foreign function: _ZN17SincKernelFactory19ReferenceSincKernelEiidd&amp;quot;)
+2: (&amp;quot;foreign function: _ZN10Resampler2C2Eddiiidb&amp;quot;)
+3: (&amp;quot;foreign function: _ZN19SampleRateConverter16ReplaceResamplerEv&amp;quot;)
+4: (&amp;quot;foreign function: _ZN19PCMConverterFactory6AddSRCER14StreamDescPairRK18ChainBuildSettingsRNSt3__16vectorIP22BufferedAudioConverterNS5_9allocatorIS8_EEEE&amp;quot;)
+5: (&amp;quot;foreign function: _ZN19PCMConverterFactory19BuildConverterChainERK14StreamDescPairRK18ChainBuildSettingsP19AudioConverterChainPS_&amp;quot;)
+6: (&amp;quot;foreign function: _AudioConverterNewInternal&amp;quot;)
+7: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+8: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+9: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+10: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+11: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+12: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
+13: (&amp;quot;foreign function: ao_plugin_open&amp;quot;)
+14: (&amp;quot;foreign function: _open_device&amp;quot;)
+15: (MIXALOT::AO-OPEN-LIVE :INVALID-VALUE-FOR-UNESCAPED-REGISTER-STORAGE #.(SB-SYS:INT-SAP #X06043FE0) :INVALID-VALUE-FOR-UNESCAPED-REGISTER-STORAGE)
+16: (MIXALOT::OPEN-AO :RATE 44100)
+17: ((LAMBDA NIL :IN MIXALOT:CREATE-MIXER))
+18: ((LABELS BORDEAUX-THREADS::%BINDING-DEFAULT-SPECIALS-WRAPPER :IN BORDEAUX-THREADS::BINDING-DEFAULT-SPECIALS))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how it should look like when up and running:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0162/shuffletron.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;The only thing I can share right now is this small Roswell script I&apos;ve used instead of overcomplicated Shuffletron&apos;s build scripts:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 &amp;quot;$@&amp;quot;
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp
+  (ql:quickload &amp;#039;(:shuffletron)
+                :silent t))
+
+(defpackage :ros.script.shuffletron
+  (:use :cl))
+(in-package :ros.script.shuffletron)
+
+
+(defun main (&amp;amp;rest argv)
+  (declare (ignorable argv))
+  (shuffletron:run))
+
+;;; vim: set ft=lisp lisp:&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With this script you&apos;ll be able to run the program as &lt;code&gt;./shuffletron.ros&lt;/code&gt; or to build a binary with &lt;code&gt;ros build shuffletron.ros&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;On OSX you have to do &lt;code&gt;brew install libao&lt;/code&gt; to install required C library.&lt;/p&gt;
+&lt;p&gt;Please, try it on your system whether it is OSX or Linux and let me know it started successfuly.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 15 Aug 2020 23:31:00 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-svg</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0161-cl-svg.html</link>
             <description>&lt;p&gt;This is a library for SVG generation. It has &lt;a href=&quot;https://github.com/wmannis/cl-svg/blob/master/docs/API.md&quot;&gt;nice documentation&lt;/a&gt;. I will show only a simple example of how to create the SVG with a circle filled with the gradient:&lt;/p&gt;
@@ -1122,81 +1183,6 @@ $SCRIPTLCOM --sl-version 2 -E &amp;quot;$ERRORS&amp;quot; -l &amp;quot;$SYSTEM&a
 &lt;p&gt;Such a library can be used to compare HTML documents rendered by some markup engined. For example, &lt;code&gt;cl-markdown&lt;/code&gt; uses it in its test suite, to compare results produced by CL engine and original Perl version of Markdown.&lt;/p&gt;
 </description>
             <pubDate>Tue, 28 Jul 2020 20:15:44 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-difflib</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0142-cl-difflib.html</link>
-            <description>&lt;p&gt;This library is able to compute differences between sequences. For example, if we want to generate a unified diff for two lists of strings, we can do:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (difflib:unified-diff
-            t
-            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;two&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;five&amp;quot; &amp;quot;six&amp;quot;)
-            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;seven&amp;quot; &amp;quot;eight&amp;quot;)
-            :test-function &amp;#039;equal)
-
----  
-+++  
-@@ -1,6 +1,5 @@
- one
--two
- three
- four
--five
--six
-+seven
-+eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to provide filenames:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (difflib:unified-diff
-            t
-            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;two&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;five&amp;quot; &amp;quot;six&amp;quot;)
-            &amp;#039;(&amp;quot;one&amp;quot; &amp;quot;three&amp;quot; &amp;quot;four&amp;quot; &amp;quot;seven&amp;quot; &amp;quot;eight&amp;quot;)
-            :test-function &amp;#039;equal
-            :from-file &amp;quot;a.txt&amp;quot;
-            :to-file &amp;quot;b.txt&amp;quot;)
-
---- a.txt 
-+++ b.txt 
-@@ -1,6 +1,5 @@
- one
--two
- three
- four
--five
--six
-+seven
-+eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a lower-level API. We can make a diff of any objects. Here is an example of how to get a diff of two lists of symbols:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *diff*
-             (make-instance &amp;#039;difflib:sequence-matcher
-                            :a &amp;#039;(:one :two :three :four :five :six)
-                            :b &amp;#039;(:one :three :four :seven :eight)))
-
-POFTHEDAY&amp;gt; (difflib:get-opcodes *diff*)
-(#&amp;lt;DIFFLIB:OPCODE :EQUAL   0 1 0 1&amp;gt;
- #&amp;lt;DIFFLIB:OPCODE :DELETE  1 2 1 1&amp;gt;
- #&amp;lt;DIFFLIB:OPCODE :EQUAL   2 4 1 3&amp;gt;
- #&amp;lt;DIFFLIB:OPCODE :REPLACE 4 6 3 5&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;These &quot;opcodes&quot; tell us what to do with subsequences of two lists. For example, &lt;code&gt;REPLACE&lt;/code&gt; opcode from the results tell us that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This should be replaced:
-POFTHEDAY&amp;gt; (subseq &amp;#039;(:one :two :three :four :five :six)
-                   4 6)
-(:FIVE :SIX)
-
-;; with:
-POFTHEDAY&amp;gt; (subseq &amp;#039;(:one :three :four :seven :eight)
-                   3 5)
-(:SEVEN :EIGHT)
-
-;; The same as we seen in the text output in the beginning:
---- a.txt 
-+++ b.txt 
-@@ -1,6 +1,5 @@
- one
--two
- three
- four
--five
--six
-+seven
-+eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorow we&apos;ll see the library, which uses &lt;code&gt;cl-difflib&lt;/code&gt; for something more interesting.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 26 Jul 2020 22:38:01 +0300</pubDate>
         </item>
     </channel>
 </rss>

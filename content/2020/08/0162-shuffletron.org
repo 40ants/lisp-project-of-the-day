@@ -84,5 +84,5 @@ or to build a binary with ~ros build shuffletron.ros~.
 
 On OSX you have to do ~brew install libao~ to install required C library.
 
-Please, try it on you system whether it is OSX or Linux and let me know
+Please, try it on your system whether it is OSX or Linux and let me know
 it started successfuly.
