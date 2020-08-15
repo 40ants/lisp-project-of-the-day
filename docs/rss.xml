@@ -6,6 +6,38 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-svg</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0161-cl-svg.html</link>
+            <description>&lt;p&gt;This is a library for SVG generation. It has &lt;a href=&quot;https://github.com/wmannis/cl-svg/blob/master/docs/API.md&quot;&gt;nice documentation&lt;/a&gt;. I will show only a simple example of how to create the SVG with a circle filled with the gradient:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-svg:with-svg-to-file (svg &amp;#039;cl-svg:svg-1.1-toplevel :height 200 :width 200)
+               (&amp;quot;docs/media/0161/test.svg&amp;quot; :if-exists :supersede)
+             (cl-svg:draw svg
+                 (:circle :cx 100 :cy 100 :r 100)
+                 :fill (cl-svg:xlink-href
+                        (cl-svg:make-linear-gradient svg
+                            (:id :fill
+                             :x1 &amp;quot;0%&amp;quot; :y1 &amp;quot;0%&amp;quot;
+                             :x2 &amp;quot;100%&amp;quot; :y2 &amp;quot;100%&amp;quot;)
+                          (cl-svg:stop :color &amp;quot;red&amp;quot; :offset &amp;quot;0%&amp;quot;)
+                          (cl-svg:stop :color &amp;quot;blue&amp;quot; :offset &amp;quot;100%&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;xml&apos;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; standalone=&amp;quot;no&amp;quot;?&amp;gt;
+&amp;lt;!DOCTYPE svg PUBLIC &amp;quot;-//W3C//DTD SVG 1.1//EN&amp;quot; 
+  &amp;quot;http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd&amp;quot;&amp;gt;
+&amp;lt;svg width=&amp;quot;200&amp;quot; height=&amp;quot;200&amp;quot; version=&amp;quot;1.1&amp;quot; id=&amp;quot;toplevel&amp;quot;
+    xmlns=&amp;quot;http://www.w3.org/2000/svg&amp;quot;
+    xmlns:xlink=&amp;quot;http://www.w3.org/1999/xlink&amp;quot;&amp;gt;
+  &amp;lt;defs&amp;gt;
+    &amp;lt;linearGradient id=&amp;quot;FILL&amp;quot; x1=&amp;quot;0%&amp;quot; y1=&amp;quot;0%&amp;quot; x2=&amp;quot;100%&amp;quot; y2=&amp;quot;100%&amp;quot;&amp;gt;
+      &amp;lt;stop stop-color=&amp;quot;red&amp;quot; stop-opacity=&amp;quot;1.00&amp;quot; offset=&amp;quot;0%&amp;quot;/&amp;gt;
+      &amp;lt;stop stop-color=&amp;quot;blue&amp;quot; stop-opacity=&amp;quot;1.00&amp;quot; offset=&amp;quot;100%&amp;quot;/&amp;gt;
+    &amp;lt;/linearGradient&amp;gt;
+  &amp;lt;/defs&amp;gt;
+  &amp;lt;circle cx=&amp;quot;100&amp;quot; cy=&amp;quot;100&amp;quot; r=&amp;quot;100&amp;quot; fill=&amp;quot;url(#FILL)&amp;quot;/&amp;gt;
+&amp;lt;/svg&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;img src=&quot;../../media/0161/test.svg&quot; /&gt;&lt;p&gt;There are more drawing primitives covered by the documentation. Read the docs and create more interesting pictures. Also, you can combine these SVGs with JS code produced by &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt;, to create interactive graphics!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 14 Aug 2020 23:39:13 +0300</pubDate>
+        </item>
+        <item>
             <title>moira</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0160-moira.html</link>
             <description>&lt;p&gt;This small library, made by &lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, implements an abstraction over &lt;code&gt;bordeaux-threads&lt;/code&gt;. It is able to restart threads in case of errors. &lt;code&gt;Moira&lt;/code&gt; monitors all started threads.&lt;/p&gt;
@@ -1165,123 +1197,6 @@ POFTHEDAY&amp;gt; (subseq &amp;#039;(:one :three :four :seven :eight)
 +eight&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Tomorow we&apos;ll see the library, which uses &lt;code&gt;cl-difflib&lt;/code&gt; for something more interesting.&lt;/p&gt;
 </description>
             <pubDate>Sun, 26 Jul 2020 22:38:01 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-flow</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0141-cl-flow.html</link>
-            <description>&lt;p&gt;&lt;code&gt;CL-Flow&lt;/code&gt; is &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt;&apos;s library and provides a way for lock-free parallel code execution. You can combine blocks of code and define how they should be executed - serially or in parallel.&lt;/p&gt;
-&lt;p&gt;This system is in the Quicklisp, but is not installable because requires &lt;code&gt;bodge-queue&lt;/code&gt; which is not in the Quicklisp yet (or now). You need to install @borodust&apos;s distribution first:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDDAY&amp;gt; (ql-dist:install-dist
-             &amp;quot;http://bodge.borodust.org/dist/org.borodust.bodge.txt&amp;quot;
-             :replace t :prompt nil)
-
-POFTHEDAY&amp;gt; (ql:quickload &amp;#039;(:simple-flow-dispatcher
-                           :cl-flow
-                           :log4cl
-                           :dexador))
-
-POFTHEDAY&amp;gt; (defun handle-error (e)
-             (log:error &amp;quot;Unhandled error&amp;quot; e))
-
-;; This code will help us to run flow blocks
-;; in the thread pool:
-POFTHEDAY&amp;gt; (defvar *dispatcher*
-             (simple-flow-dispatcher:make-simple-dispatcher
-              :threads 4
-              :error-handler #&amp;#039;handle-error))
-
-POFTHEDAY&amp;gt; (defun run (flow)
-             (cl-flow:run *dispatcher* flow))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is an example from &lt;code&gt;cl-flow&lt;/code&gt;&apos;s documentation.&lt;/p&gt;
-&lt;p&gt;This code will run three blocks of code in parallel and then pass their results into another block:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (run (flow:serially
-                  (flow:concurrently
-                    (flow:atomically :first ()
-                      &amp;quot;Hello&amp;quot;)
-                    (flow:atomically :second ()
-                      &amp;quot;Lisp&amp;quot;)
-                    (flow:atomically :third ()
-                      &amp;quot;World&amp;quot;))
-                  ;; Last block will receive results
-                  ;; of all previous blocks:
-                  (flow:atomically :finally (results)
-                    (destructuring-bind (first second third)
-                        results
-                      (format t &amp;quot;~A ~A ~A~%&amp;quot;
-                              first
-                              second
-                              third)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, the documentation does not cover a more interesting topic - blocks which generate other blocks. Let&apos;s try to figure out how to use &lt;code&gt;flow:dynamically&lt;/code&gt; to define a web crawler which will process pages recursively:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *base-url*
-             &amp;quot;https://borodust.org/projects/cl-flow/&amp;quot;)
-
-POFTHEDAY&amp;gt; (defun is-external (url)
-             (or (str:starts-with-p &amp;quot;mailto:&amp;quot; url)
-                 (and (str:starts-with-p &amp;quot;http&amp;quot; url)
-                      (not (str:starts-with-p *base-url* url)))))
-
-POFTHEDAY&amp;gt; (defun make-full (url)
-             (let ((new-url
-                     (cond
-                       ((or (str:starts-with-p &amp;quot;http&amp;quot; url)
-                            (str:starts-with-p &amp;quot;mailto:&amp;quot; url))
-                        url)
-                       ((str:starts-with-p &amp;quot;/&amp;quot; url)
-                        (concatenate &amp;#039;string &amp;quot;https://borodust.org&amp;quot; url))
-                       (t
-                        (concatenate &amp;#039;string *base-url* url)))))
-               (cl-ppcre:regex-replace &amp;quot;#.*&amp;quot; new-url &amp;quot;&amp;quot;)))
-
-POFTHEDAY&amp;gt; (defun make-url-processor (already-processed url)
-             (flow:serially
-               (flow:atomically url ()
-                 (log:info &amp;quot;Downloading ~A&amp;quot; url)
-                 (dex:get url))
-
-               ;; This block creates new blocks where each
-               ;; will process a single url and produce more
-               ;; blocks to process links from fetched pages:
-               (flow:dynamically (content)
-                 (flow:concurrently
-                   (loop with page = (ignore-errors
-                                      (plump:parse content))
-                         for link in (when page
-                                       (plump:get-elements-by-tag-name page &amp;quot;a&amp;quot;))
-                         for link-url = (plump:attribute link &amp;quot;href&amp;quot;)
-                         for full-url = (make-full link-url)
-                         unless (or (is-external full-url)
-                                    (gethash full-url already-processed))
-                           collect (progn
-                                     (setf (gethash full-url already-processed)
-                                           t)
-                                     (make-url-processor already-processed
-                                                         full-url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can start it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((already-processed (make-hash-table :test &amp;#039;equal)))
-             (run
-              (make-url-processor already-processed *base-url*))
-             already-processed)
-
- &amp;lt;INFO&amp;gt; [23:10:00] poftheday (make-url-processor body-fu3) -
-  Downloading https://borodust.org/projects/
-#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 0 {10073D59A3}&amp;gt;
- &amp;lt;INFO&amp;gt; [23:10:00] poftheday (make-url-processor body-fu3) -
-  Downloading https://borodust.org/projects/vinoyaku/
-...
- &amp;lt;INFO&amp;gt; [23:10:01] poftheday (make-url-processor body-fu3) -
-  Downloading https://borodust.org/projects/cl-bodge/overview/
-
-;; These URL were processed by our crawler:
-POFTHEDAY&amp;gt; (rutils:hash-table-to-alist *)
-((&amp;quot;https://borodust.org/projects/vinoyaku/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/trivial-gamekit/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/cl-flow/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/cl-bodge/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/cl-flow/getting-started/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/trivial-gamekit/getting-started/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/trivial-gamekit/advanced/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/trivial-gamekit/manual/&amp;quot; . T)
- (&amp;quot;https://borodust.org/projects/cl-bodge/overview/&amp;quot; . T))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It would be nice if &lt;a href=&quot;https://twitter.com/borodust&quot;&gt;@borodust&lt;/a&gt; will do a little code review and check if I used &lt;code&gt;cl-flow&lt;/code&gt; correctly or not.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 25 Jul 2020 23:26:42 +0300</pubDate>
         </item>
     </channel>
 </rss>
