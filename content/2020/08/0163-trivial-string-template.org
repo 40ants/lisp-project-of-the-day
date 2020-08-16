@@ -1,0 +1,134 @@
+* trivial-string-template :text:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a simple templating engine. It will be useful if you want to use
+user's input as the templates and dont want to give a user the full power
+of Lisp's ~format~.
+
+There is a function which replaces placeholders in the template:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-string-template:substitute "$who likes $what"
+                                               :who "Bob"
+                                               :what "Common Lisp")
+"Bob likes Common Lisp"
+
+;; Also, you can use curly braces around the placeholder:
+
+POFTHEDAY> (trivial-string-template:substitute "${who} likes ${what}"
+                                               :who "Bob"
+                                               :what "Common Lisp")
+"Bob likes Common Lisp"
+
+;; If some variable wasn't given, it will raise an error:
+
+POFTHEDAY> (trivial-string-template:substitute "${who} likes ${what}"
+                                               :who "Bob")
+; Debugger entered on #<SIMPLE-ERROR "Missing variable ~A~A information." {100687A6C3}>
+
+;; But there is a safe version of the function which just ignores:
+
+POFTHEDAY> (trivial-string-template:safe-substitute "${who} likes ${what}"
+                                                    :who "Bob")
+"Bob likes $what"
+
+#+end_src
+
+Also, you can define a template object. It will be funcallable and can be
+used in two ways.
+
+The first way - to create a template object and funcall it:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-string-template:template "${who} likes ${what}")
+#<TRIVIAL-STRING-TEMPLATE:TEMPLATE {10076CA14B}>
+
+POFTHEDAY> (funcall *
+                    :who "Bob"
+                    :what "Common Lisp")
+"Bob likes Common Lisp"
+
+POFTHEDAY> (funcall **
+                    :who "Mary"
+                    :what "Common Lisp")
+"Mary likes Common Lisp"
+
+#+end_src
+
+The second way is to define a function:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-string-template:define-template who-♥️-what ()
+                                                    "${who} likes ${what}")
+#<TRIVIAL-STRING-TEMPLATE:TEMPLATE {100635045B}>
+
+POFTHEDAY> (describe 'who-♥️-what)
+
+POFTHEDAY::WHO-♥️-WHAT
+  [symbol]
+
+WHO-♥️-WHAT names a compiled function:
+  Lambda-list: (&KEY (WHO NIL WHO-SUPPLIED-P)
+                (WHAT NIL WHAT-SUPPLIED-P))
+  Derived type: (FUNCTION (&KEY (:WHO T) (:WHAT T))
+                 (VALUES SIMPLE-STRING &OPTIONAL))
+  Source form:
+    (LAMBDA (&KEY (WHO NIL WHO-SUPPLIED-P) (WHAT NIL WHAT-SUPPLIED-P))
+      (PROGN
+       (UNLESS WHO-SUPPLIED-P
+         (ERROR
+          #1="The variable ~A~A is not supplied, which must be supplied in non-safe mode."
+          #\$ "who"))
+       (UNLESS WHAT-SUPPLIED-P (ERROR #1# #\$ "what"))
+       (FORMAT NIL "~A likes ~A" WHO WHAT)))
+
+POFTHEDAY> (who-♥️-what :who "Bob" :what "LISP")
+"Bob likes LISP"
+
+#+end_src
+
+What is interesting is that the template object uses this meta class:
+~closer-mop:funcallable-standard-class~. It makes possible to create
+instances which can be called the same way as the functions.
+
+Here is an example of how to make a class for which instances will be
+funcallable:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass foo ()
+             ()
+             (:metaclass closer-mop:funcallable-standard-class))
+#<SB-MOP:FUNCALLABLE-STANDARD-CLASS POFTHEDAY::FOO>
+
+POFTHEDAY> (defmethod initialize-instance :after ((this foo) &key)
+             (closer-mop:set-funcallable-instance-function
+              this
+              (lambda ()
+                (format t "Hello Lisp World!~%"))))
+#<STANDARD-METHOD COMMON-LISP:INITIALIZE-INSTANCE :AFTER (FOO) {10020B09B3}>
+
+POFTHEDAY> (make-instance 'foo)
+#<FOO {10020B585B}>
+
+POFTHEDAY> (funcall *)
+Hello Lisp World!
+NIL
+
+#+end_src
+
+Such objects can be used instead of closure in cases where you will need
+to redefine some of the instance slots after the object was created.
+
+Ok, now it is time to say goodbye. See you tomorrow in the next
+#poftheday post!
