@@ -6,6 +6,96 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-string-template</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0163-trivial-string-template.html</link>
+            <description>&lt;p&gt;This is a simple templating engine. It will be useful if you want to use user&apos;s input as the templates and dont want to give a user the full power of Lisp&apos;s &lt;code&gt;format&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;There is a function which replaces placeholders in the template:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;$who likes $what&amp;quot;
+                                               :who &amp;quot;Bob&amp;quot;
+                                               :what &amp;quot;Common Lisp&amp;quot;)
+&amp;quot;Bob likes Common Lisp&amp;quot;
+
+;; Also, you can use curly braces around the placeholder:
+
+POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;${who} likes ${what}&amp;quot;
+                                               :who &amp;quot;Bob&amp;quot;
+                                               :what &amp;quot;Common Lisp&amp;quot;)
+&amp;quot;Bob likes Common Lisp&amp;quot;
+
+;; If some variable wasn&amp;#039;t given, it will raise an error:
+
+POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;${who} likes ${what}&amp;quot;
+                                               :who &amp;quot;Bob&amp;quot;)
+; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Missing variable ~A~A information.&amp;quot; {100687A6C3}&amp;gt;
+
+;; But there is a safe version of the function which just ignores:
+
+POFTHEDAY&amp;gt; (trivial-string-template:safe-substitute &amp;quot;${who} likes ${what}&amp;quot;
+                                                    :who &amp;quot;Bob&amp;quot;)
+&amp;quot;Bob likes $what&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can define a template object. It will be funcallable and can be used in two ways.&lt;/p&gt;
+&lt;p&gt;The first way - to create a template object and funcall it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:template &amp;quot;${who} likes ${what}&amp;quot;)
+#&amp;lt;TRIVIAL-STRING-TEMPLATE:TEMPLATE {10076CA14B}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *
+                    :who &amp;quot;Bob&amp;quot;
+                    :what &amp;quot;Common Lisp&amp;quot;)
+&amp;quot;Bob likes Common Lisp&amp;quot;
+
+POFTHEDAY&amp;gt; (funcall **
+                    :who &amp;quot;Mary&amp;quot;
+                    :what &amp;quot;Common Lisp&amp;quot;)
+&amp;quot;Mary likes Common Lisp&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The second way is to define a function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:define-template who-&amp;#x2665;&amp;#xFE0F;-what ()
+                                                    &amp;quot;${who} likes ${what}&amp;quot;)
+#&amp;lt;TRIVIAL-STRING-TEMPLATE:TEMPLATE {100635045B}&amp;gt;
+
+POFTHEDAY&amp;gt; (describe &amp;#039;who-&amp;#x2665;&amp;#xFE0F;-what)
+
+POFTHEDAY::WHO-&amp;#x2665;&amp;#xFE0F;-WHAT
+  [symbol]
+
+WHO-&amp;#x2665;&amp;#xFE0F;-WHAT names a compiled function:
+  Lambda-list: (&amp;amp;KEY (WHO NIL WHO-SUPPLIED-P)
+                (WHAT NIL WHAT-SUPPLIED-P))
+  Derived type: (FUNCTION (&amp;amp;KEY (:WHO T) (:WHAT T))
+                 (VALUES SIMPLE-STRING &amp;amp;OPTIONAL))
+  Source form:
+    (LAMBDA (&amp;amp;KEY (WHO NIL WHO-SUPPLIED-P) (WHAT NIL WHAT-SUPPLIED-P))
+      (PROGN
+       (UNLESS WHO-SUPPLIED-P
+         (ERROR
+          #1=&amp;quot;The variable ~A~A is not supplied, which must be supplied in non-safe mode.&amp;quot;
+          #\$ &amp;quot;who&amp;quot;))
+       (UNLESS WHAT-SUPPLIED-P (ERROR #1# #\$ &amp;quot;what&amp;quot;))
+       (FORMAT NIL &amp;quot;~A likes ~A&amp;quot; WHO WHAT)))
+
+POFTHEDAY&amp;gt; (who-&amp;#x2665;&amp;#xFE0F;-what :who &amp;quot;Bob&amp;quot; :what &amp;quot;LISP&amp;quot;)
+&amp;quot;Bob likes LISP&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What is interesting is that the template object uses this meta class: &lt;code&gt;closer-mop:funcallable-standard-class&lt;/code&gt;. It makes possible to create instances which can be called the same way as the functions.&lt;/p&gt;
+&lt;p&gt;Here is an example of how to make a class for which instances will be funcallable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass foo ()
+             ()
+             (:metaclass closer-mop:funcallable-standard-class))
+#&amp;lt;SB-MOP:FUNCALLABLE-STANDARD-CLASS POFTHEDAY::FOO&amp;gt;
+
+POFTHEDAY&amp;gt; (defmethod initialize-instance :after ((this foo) &amp;amp;key)
+             (closer-mop:set-funcallable-instance-function
+              this
+              (lambda ()
+                (format t &amp;quot;Hello Lisp World!~%&amp;quot;))))
+#&amp;lt;STANDARD-METHOD COMMON-LISP:INITIALIZE-INSTANCE :AFTER (FOO) {10020B09B3}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-instance &amp;#039;foo)
+#&amp;lt;FOO {10020B585B}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *)
+Hello Lisp World!
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Such objects can be used instead of closure in cases where you will need to redefine some of the instance slots after the object was created.&lt;/p&gt;
+&lt;p&gt;Ok, now it is time to say goodbye. See you tomorrow in the next #poftheday post!&lt;/p&gt;
+</description>
+            <pubDate>Sun, 16 Aug 2020 21:56:15 +0300</pubDate>
+        </item>
+        <item>
             <title>shuffletron</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0162-shuffletron.html</link>
             <description>&lt;p&gt;Shuffletron is a console music player. Today there will not be much of code, because I wasn&apos;t able to run this player on OSX. It crashes inside a &lt;code&gt;libao&lt;/code&gt; C library:&lt;/p&gt;
@@ -1133,56 +1223,6 @@ $SCRIPTLCOM --sl-version 2 -E &amp;quot;$ERRORS&amp;quot; -l &amp;quot;$SYSTEM&a
 &lt;p&gt;Playing with this system I recall where I seen a similar way of calling the server from the command line. It is possible with &lt;code&gt;CL-Gearman&lt;/code&gt;, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0095-cl-gearman.html&quot;&gt;post number 0095&lt;/a&gt;. Gearman has a command-line client but, is more suitable for server-server communication.&lt;/p&gt;
 </description>
             <pubDate>Tue, 28 Jul 2020 20:40:04 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-html-diff</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0143-cl-html-diff.html</link>
-            <description>&lt;p&gt;Yesterday I&apos;ve reviewed the &lt;code&gt;cl-difflib&lt;/code&gt; and today I want to show you a library which uses &lt;code&gt;cl-difflib&lt;/code&gt; to compare HTML files. It parses both HTML&apos;s into nodes and compares these node lists:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (html-diff:html-diff
-            &amp;quot;
-&amp;lt;p&amp;gt;This is the HTML &amp;lt;b&amp;gt;Hello World&amp;lt;/b&amp;gt;:&amp;lt;/p&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Second iem&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;
-            &amp;quot;
-&amp;lt;p&amp;gt;This is the HTML &amp;lt;i&amp;gt;Hello World&amp;lt;/i&amp;gt;:&amp;lt;/p&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Second item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;)
-
-;; Result
-&amp;quot;
-&amp;lt;p&amp;gt;This is the HTML &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;i&amp;gt;&amp;lt;/ins&amp;gt;Hello World&amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/i&amp;gt;&amp;lt;/ins&amp;gt;:&amp;lt;/p&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Second &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;iem&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;item&amp;lt;/ins&amp;gt;&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;
-4 ;; don&amp;#039;t touched nodes
-3 ;; replaced nodes
-0 ;; inserted nodes
-0 ;; deleted nodes&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result rendered by the browser:&lt;/p&gt;
-&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;p&amp;gt;This is the HTML &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;i&amp;gt;&amp;lt;/ins&amp;gt;Hello World&amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/b&amp;gt;&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;&amp;lt;/i&amp;gt;&amp;lt;/ins&amp;gt;:&amp;lt;/p&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;li&amp;gt;First item&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Second &amp;lt;del class=\&amp;quot;diff\&amp;quot;&amp;gt;iem&amp;lt;/del&amp;gt;&amp;lt;ins class=\&amp;quot;diff\&amp;quot;&amp;gt;item&amp;lt;/ins&amp;gt;&amp;lt;/li&amp;gt;
-  &amp;lt;li&amp;gt;Third item&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;p&gt;This is the HTML &lt;del class=\&quot;diff\&quot;&gt;&lt;b&gt;&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;&lt;i&gt;&lt;/ins&gt;Hello World&lt;del class=\&quot;diff\&quot;&gt;&lt;/b&gt;&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;&lt;/i&gt;&lt;/ins&gt;:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;First item&lt;/li&gt;
-  &lt;li&gt;Second &lt;del class=\&quot;diff\&quot;&gt;iem&lt;/del&gt;&lt;ins class=\&quot;diff\&quot;&gt;item&lt;/ins&gt;&lt;/li&gt;
-  &lt;li&gt;Third item&lt;/li&gt;
-&lt;/ul&gt;&lt;p&gt;You can see how it highlighted the fixed typo in the &lt;code&gt;item&lt;/code&gt; word, but wasn&apos;t able to figure out how to process changed tag around &quot;Hello World&quot; :(&lt;/p&gt;
-&lt;p&gt;Such a library can be used to compare HTML documents rendered by some markup engined. For example, &lt;code&gt;cl-markdown&lt;/code&gt; uses it in its test suite, to compare results produced by CL engine and original Perl version of Markdown.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 28 Jul 2020 20:15:44 +0300</pubDate>
         </item>
     </channel>
 </rss>
