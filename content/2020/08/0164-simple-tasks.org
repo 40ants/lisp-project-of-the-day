@@ -1,4 +1,4 @@
-* simple-tasks :theads:
+* simple-tasks :threads:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -13,14 +13,14 @@ abstraction over multithreading/multiprocessing which operates by means
 of a runner and a task.
 
 A runner in the ~simple-task~ is an object responsible for task
-scheduling. By default only a simple ~queued-runner~ is implemented. It
+scheduling. By default, only a simple ~queued-runner~ is implemented. It
 executes all task in a single thread one by one.
 
-~simple-task~ has a [[https://shinmera.github.io/simple-tasks/][good documentation]] but there is no a big example
+~simple-task~ has [[https://shinmera.github.io/simple-tasks/][good documentation]] but there is no big example
 showing the essence of the runner/task concept. Let's fix it!
 
 Next example creates a single thread for the runner and starts separate
-threads where each thread executes a task in different way.
+threads where each thread executes a task in a different way.
 
 First, we need to start the runner:
 
@@ -95,7 +95,7 @@ POFTHEDAY> (simple-tasks:return-values *second-task*)
 
 #+end_src
 
-There is also a few shortcuts:
+There are also a few shortcuts:
 
 #+begin_src lisp
 
@@ -120,9 +120,9 @@ thread.
 For example, [[https://common-lisp.net/project/rcl/][RCL]] (CL interface to the R language) library uses it to
 interop with [[https://www.r-project.org/][R language]].
 
-If you are interested in other solutions for multitheading and
-mulltipricessing, look at #poftheday posts grouped by corresponding
+If you are interested in other solutions for multithreading and
+multiprocessing, look at #poftheday posts grouped by corresponding
 tags:
 
 - [[https://40ants.com/lisp-project-of-the-day/tags/threads.html][threads]];
-- [[https://40ants.com/lisp-project-of-the-day/tags/threads.html][multiprocessing]].
+- [[https://40ants.com/lisp-project-of-the-day/tags/multiprocessing.html][multiprocessing]].

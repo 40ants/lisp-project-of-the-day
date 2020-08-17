@@ -6,6 +6,87 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>simple-tasks</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0164-simple-tasks.html</link>
+            <description>&lt;p&gt;This is a &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s library for task processing. It implements abstraction over multithreading/multiprocessing which operates by means of a runner and a task.&lt;/p&gt;
+&lt;p&gt;A runner in the &lt;code&gt;simple-task&lt;/code&gt; is an object responsible for task scheduling. By default, only a simple &lt;code&gt;queued-runner&lt;/code&gt; is implemented. It executes all task in a single thread one by one.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;simple-task&lt;/code&gt; has &lt;a href=&quot;https://shinmera.github.io/simple-tasks/&quot;&gt;good documentation&lt;/a&gt; but there is no big example showing the essence of the runner/task concept. Let&apos;s fix it!&lt;/p&gt;
+&lt;p&gt;Next example creates a single thread for the runner and starts separate threads where each thread executes a task in a different way.&lt;/p&gt;
+&lt;p&gt;First, we need to start the runner:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *thread*
+             (simple-tasks:make-runner-thread *runner*))
+
+;; It is the third in this list:
+
+POFTHEDAY&amp;gt; (bt:all-threads)
+(#&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {10037F5B93}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;reader-thread&amp;quot; RUNNING {10026F8103}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;runner thread&amp;quot; waiting on:
+      #&amp;lt;WAITQUEUE task-runner-condition {1003231D63}&amp;gt;
+    {100323F833}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;slynk-indentation-cache-thread&amp;quot; waiting on:
+      #&amp;lt;WAITQUEUE  {1002700143}&amp;gt;
+    {10026F8233}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;main thread&amp;quot; RUNNING {1001538543}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;Slynk Sentinel&amp;quot; waiting on:
+      #&amp;lt;WAITQUEUE  {10025300B3}&amp;gt;
+    {1002529253}&amp;gt;
+ #&amp;lt;SB-THREAD:THREAD &amp;quot;control-thread&amp;quot; waiting on:
+      #&amp;lt;WAITQUEUE  {10026F8343}&amp;gt;
+    {10026F5D73}&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we&apos;ll start our tasks. Each of them will print the current thread. This way we&apos;ll ensure all of them are running in the runner&apos;s thread:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-and-return-current-thread ()
+             (let ((name (bt:thread-name (bt:current-thread))))
+               (format t &amp;quot;Running in \&amp;quot;~A\&amp;quot; thread.~%&amp;quot;
+                       name)
+               (values name)))
+
+POFTHEDAY&amp;gt; (defvar *first-task*
+             (make-instance
+              &amp;#039;simple-tasks:call-task
+              :func #&amp;#039;print-and-return-current-thread))
+
+POFTHEDAY&amp;gt; (simple-tasks:status *first-task*)
+:CREATED
+
+POFTHEDAY&amp;gt; (simple-tasks:schedule-task *first-task*
+                                       *runner*)
+Running in &amp;quot;runner thread&amp;quot; thread.
+
+POFTHEDAY&amp;gt; (simple-tasks:status *first-task*)
+:COMPLETED
+
+POFTHEDAY&amp;gt; (simple-tasks:return-values *first-task*)
+&amp;quot;runner thread&amp;quot;
+
+POFTHEDAY&amp;gt; (defvar *second-task*
+             (make-instance
+              &amp;#039;simple-tasks:blocking-call-task
+              :func #&amp;#039;print-and-return-current-thread))
+
+POFTHEDAY&amp;gt; (simple-tasks:schedule-task *second-task*
+                                       *runner*)
+Running in &amp;quot;runner thread&amp;quot; thread.
+
+POFTHEDAY&amp;gt; (simple-tasks:return-values *second-task*)
+&amp;quot;runner thread&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also a few shortcuts:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (simple-tasks:call-as-task #&amp;#039;print-and-return-current-thread
+                                      *runner*)
+Running in &amp;quot;runner thread&amp;quot; thread.
+&amp;quot;runner thread&amp;quot;
+
+;; Or
+
+POFTHEDAY&amp;gt; (simple-tasks:with-body-as-task (*runner*)
+             (print-and-return-current-thread))
+Running in &amp;quot;runner thread&amp;quot; thread.
+&amp;quot;runner thread&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library can be useful when you are working with some subsystems or external libraries which should be accessed only from the single thread.&lt;/p&gt;
+&lt;p&gt;For example, &lt;a href=&quot;https://common-lisp.net/project/rcl/&quot;&gt;RCL&lt;/a&gt; (CL interface to the R language) library uses it to interop with &lt;a href=&quot;https://www.r-project.org/&quot;&gt;R language&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you are interested in other solutions for multithreading and multiprocessing, look at #poftheday posts grouped by corresponding tags:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/threads.html&quot;&gt;threads&lt;/a&gt;;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/multiprocessing.html&quot;&gt;multiprocessing&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;
+</description>
+            <pubDate>Mon, 17 Aug 2020 23:27:19 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-string-template</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0163-trivial-string-template.html</link>
             <description>&lt;p&gt;This is a simple templating engine. It will be useful if you want to use user&apos;s input as the templates and dont want to give a user the full power of Lisp&apos;s &lt;code&gt;format&lt;/code&gt;.&lt;/p&gt;
@@ -1188,41 +1269,6 @@ POFTHEDAY&amp;gt; (make-instance &amp;#039;admin
 #&amp;lt;ADMIN Bob privileges=(READ-ALL ADD-USERS) last-seen=2020-07-29T16:53:56.089722+03:00 {10073D2FF3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://twitter.com/scymtym&quot;&gt;@scymtym&lt;/a&gt; did a great job, generalizing this printing facility. Use it when you have deep class hierarchies.&lt;/p&gt;
 </description>
             <pubDate>Wed, 29 Jul 2020 21:46:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>scriptl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0144-scriptl.html</link>
-            <description>&lt;p&gt;This system implements a very interesting idea. It makes it very easy to call any lisp function from the command line.&lt;/p&gt;
-&lt;p&gt;The cool part of this story is the ability to quickly hack on your functions in the Emacs while calling them from the command line. This can be especially useful in many cases like writing a plugin for &lt;a href=&quot;https://getbitbar.com/&quot;&gt;the BitBar&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;ScriptL&lt;/code&gt; consists of three parts:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;a server, running in your lisp image&lt;/li&gt;&lt;li&gt;a client binary for passing parameters to the server and returning   results&lt;/li&gt;&lt;li&gt;a thin wrapper for each command.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Here is a minimal example to show you how it works.&lt;/p&gt;
-&lt;p&gt;The first command starts the server. Second, defines the usual function and third creates a shell script &quot;hello-world&quot; in the current directory:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (scriptl:start)
-
-POFTHEDAY&amp;gt; (defun hello-world (&amp;amp;optional (name &amp;quot;Anonymous&amp;quot;))
-             (format t &amp;quot;Hello, ~A!~%&amp;quot; name))
-
-POFTHEDAY&amp;gt; (scriptl:make-script &amp;quot;hello-world&amp;quot;
-                                &amp;#039;hello-world)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s switch to the command line and call our function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] ./hello-world
-Hello, Anonymous!
-
-[poftheday] ./hello-world Bob
-Hello, Bob!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how the wrapper looks like under the hood:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;[poftheday] cat hello-world
-#!/bin/sh
-SCRIPTLCOM=&amp;quot;./.qlot/dists/quicklisp/software/
-            scriptl-20180228-git/src/scriptlcom/src/scriptlcom&amp;quot;
-FUNCTION=&amp;quot;POFTHEDAY::HELLO-WORLD&amp;quot;
-ERRORS=&amp;quot;COMMON-LISP::NIL&amp;quot;
-SYSTEM=&amp;quot;&amp;quot;
-
-$SCRIPTLCOM --sl-version 2 -E &amp;quot;$ERRORS&amp;quot; -l &amp;quot;$SYSTEM&amp;quot; -f &amp;quot;$FUNCTION&amp;quot; -- &amp;quot;$@&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, it calls &lt;code&gt;scriptlcom&lt;/code&gt; binary, written in C.&lt;/p&gt;
-&lt;p&gt;The &lt;code&gt;ScriptL&lt;/code&gt; server can also be started on a remote machine, but the documentation does not cover this setup.&lt;/p&gt;
-&lt;p&gt;Playing with this system I recall where I seen a similar way of calling the server from the command line. It is possible with &lt;code&gt;CL-Gearman&lt;/code&gt;, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/06/0095-cl-gearman.html&quot;&gt;post number 0095&lt;/a&gt;. Gearman has a command-line client but, is more suitable for server-server communication.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 28 Jul 2020 20:40:04 +0300</pubDate>
         </item>
     </channel>
 </rss>

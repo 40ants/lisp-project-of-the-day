@@ -22,6 +22,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 14 August - [[content/2020/08/0161-cl-svg.org][cl-svg]] ([[https://twitter.com/svetlyak40wt/status/1294401139820175363][twitter]])
 - 15 August - [[content/2020/08/0162-shuffletron.org][shuffletron]] ([[https://twitter.com/svetlyak40wt/status/1294733698575761412][twitter]])
 - 16 August - [[content/2020/08/0163-trivial-string-template.org][trivial-string-template]] ([[https://twitter.com/svetlyak40wt/status/1295069619108171776][twitter]])
+- 17 August - [[content/2020/08/0164-simple-tasks.org][simple-tasks]] ([[https://twitter.com/svetlyak40wt/status/1295457080996921344][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
@@ -1195,8 +1196,8 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/scymtym/more-conditions
 - http://quickdocs.org/cl-olefs/ - reading Excel
 - http://quickdocs.org/mockingbird/
-- http://quickdocs.org/simple-tasks/
 - http://quickdocs.org/trivial-main-thread/
+- https://github.com/sirherrbatka/vellum - dataframes
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
