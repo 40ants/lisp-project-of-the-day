@@ -1,0 +1,128 @@
+* simple-tasks :theads:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a [[https://twitter.com/Shinmera][@Shinmera]]'s library for task processing. It implements
+abstraction over multithreading/multiprocessing which operates by means
+of a runner and a task.
+
+A runner in the ~simple-task~ is an object responsible for task
+scheduling. By default only a simple ~queued-runner~ is implemented. It
+executes all task in a single thread one by one.
+
+~simple-task~ has a [[https://shinmera.github.io/simple-tasks/][good documentation]] but there is no a big example
+showing the essence of the runner/task concept. Let's fix it!
+
+Next example creates a single thread for the runner and starts separate
+threads where each thread executes a task in different way.
+
+First, we need to start the runner:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *thread*
+             (simple-tasks:make-runner-thread *runner*))
+
+;; It is the third in this list:
+
+POFTHEDAY> (bt:all-threads)
+(#<SB-THREAD:THREAD "sly-channel-1-mrepl-remote-1" RUNNING {10037F5B93}>
+ #<SB-THREAD:THREAD "reader-thread" RUNNING {10026F8103}>
+ #<SB-THREAD:THREAD "runner thread" waiting on:
+      #<WAITQUEUE task-runner-condition {1003231D63}>
+    {100323F833}>
+ #<SB-THREAD:THREAD "slynk-indentation-cache-thread" waiting on:
+      #<WAITQUEUE  {1002700143}>
+    {10026F8233}>
+ #<SB-THREAD:THREAD "main thread" RUNNING {1001538543}>
+ #<SB-THREAD:THREAD "Slynk Sentinel" waiting on:
+      #<WAITQUEUE  {10025300B3}>
+    {1002529253}>
+ #<SB-THREAD:THREAD "control-thread" waiting on:
+      #<WAITQUEUE  {10026F8343}>
+    {10026F5D73}>)
+
+#+end_src
+
+Next, we'll start our tasks. Each of them will print the current
+thread. This way we'll ensure all of them are running in the runner's
+thread:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun print-and-return-current-thread ()
+             (let ((name (bt:thread-name (bt:current-thread))))
+               (format t "Running in \"~A\" thread.~%"
+                       name)
+               (values name)))
+
+POFTHEDAY> (defvar *first-task*
+             (make-instance
+              'simple-tasks:call-task
+              :func #'print-and-return-current-thread))
+
+POFTHEDAY> (simple-tasks:status *first-task*)
+:CREATED
+
+POFTHEDAY> (simple-tasks:schedule-task *first-task*
+                                       *runner*)
+Running in "runner thread" thread.
+
+POFTHEDAY> (simple-tasks:status *first-task*)
+:COMPLETED
+
+POFTHEDAY> (simple-tasks:return-values *first-task*)
+"runner thread"
+
+POFTHEDAY> (defvar *second-task*
+             (make-instance
+              'simple-tasks:blocking-call-task
+              :func #'print-and-return-current-thread))
+
+POFTHEDAY> (simple-tasks:schedule-task *second-task*
+                                       *runner*)
+Running in "runner thread" thread.
+
+POFTHEDAY> (simple-tasks:return-values *second-task*)
+"runner thread"
+
+
+#+end_src
+
+There is also a few shortcuts:
+
+#+begin_src lisp
+
+POFTHEDAY> (simple-tasks:call-as-task #'print-and-return-current-thread
+                                      *runner*)
+Running in "runner thread" thread.
+"runner thread"
+
+;; Or
+
+POFTHEDAY> (simple-tasks:with-body-as-task (*runner*)
+             (print-and-return-current-thread))
+Running in "runner thread" thread.
+"runner thread"
+
+#+end_src
+
+This library can be useful when you are working with some subsystems or
+external libraries which should be accessed only from the single
+thread.
+
+For example, [[https://common-lisp.net/project/rcl/][RCL]] (CL interface to the R language) library uses it to
+interop with [[https://www.r-project.org/][R language]].
+
+If you are interested in other solutions for multitheading and
+mulltipricessing, look at #poftheday posts grouped by corresponding
+tags:
+
+- [[https://40ants.com/lisp-project-of-the-day/tags/threads.html][threads]];
+- [[https://40ants.com/lisp-project-of-the-day/tags/threads.html][multiprocessing]].
