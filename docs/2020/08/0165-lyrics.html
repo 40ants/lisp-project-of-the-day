@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>lyrics
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lyrics</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>lyrics<span class='tags'><a href='../../tags/music.html'><span class='label label-default'>music</span></a><a href='../../tags/api.html'><span class='label label-default'>api</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>Today we'll have some fun because this library allows us to search music text and sing together!</p>
+<p>Install the library and do this in the REPL:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (lyrics:lyrics &quot;Bob Kanefsky&quot; &quot;eternal flame&quot;)
+&quot;I was taught Assembler in my second year of school.
+It&#039;s kinda like construction work --
+with a toothpick for a tool.
+So when I made my senior year,
+I threw my code away,
+And learned the way to program
+that I still prefer today.
+
+Now, some folks on the Internet
+put their faith in C++.
+They swear that it&#039;s so powerful,
+it&#039;s what God used for us.
+And maybe He lets mortals dredge
+their objects from the C.
+But I think that explains
+why only God can make a tree.
+
+For God wrote in Lisp code
+When he filled the leaves with green.
+The fractal flowers and recursive roots:
+The most lovely hack I&#039;ve seen.
+And when I ponder snowflakes,
+never finding two the same,
+I know God likes a language
+with its own four-letter name.
+
+Now, I&#039;ve used a SUN under Unix,
+so I&#039;ve seen what C can hold.
+I&#039;ve surfed for Perls, found what Fortran&#039;s for,
+Got that Java stuff down cold.
+Though the chance that I&#039;d write COBOL code
+is a SNOBOL&#039;s chance in Hell.
+And I basically hate hieroglyphs,
+so I won&#039;t use APL.
+
+Now, God must know all these languages,
+and a few I haven&#039;t named.
+But the Lord made sure, when each sparrow falls,
+that its flesh will be reclaimed.
+And the Lord could not count grains of sand
+with a 32-bit word.
+Who knows where we would go to
+if Lisp weren&#039;t what he preferred?
+
+And God wrote in Lisp code
+Every creature great and small.
+Don&#039;t search the disk drive for man.c,
+When the listing&#039;s on the wall.
+And when I watch the lightning burn
+Unbelievers to a crisp,
+I know God had six days to work,
+So he wrote it all in Lisp.
+
+Yes, God had a deadline.
+So he wrote it all in Lisp.&quot;</code></pre><p>It is also can grep all texts you've ever found. For example, we can find all lines which mention the LISP:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (lyrics:search-song &quot;lisp&quot;)
+((&quot;Bob Kanefsky&quot; &quot;eternal flame&quot; &quot;For God wrote in Lisp code&quot;)
+ (&quot;Bob Kanefsky&quot; &quot;eternal flame&quot; &quot;if Lisp weren&#039;t what he preferred?&quot;)
+ (&quot;Bob Kanefsky&quot; &quot;eternal flame&quot; &quot;And God wrote in Lisp code&quot;)
+ (&quot;Bob Kanefsky&quot; &quot;eternal flame&quot; &quot;So he wrote it all in Lisp.&quot;))</code></pre><p>Ok, enough coding, lets sing together! If you don't know the tune, open this video:</p>
+<p><a href="https://www.youtube.com/watch?v=u-7qFAuFGao">https://www.youtube.com/watch?v=u-7qFAuFGao</a></p>
+<p>Or open these chords for the guitar:</p>
+<p><a href="https://gist.github.com/jimweirich/6181853">https://gist.github.com/jimweirich/6181853</a></p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
