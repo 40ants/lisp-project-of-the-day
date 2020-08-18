@@ -87,7 +87,7 @@ POFTHEDAY> (lyrics:search-song "lisp")
 
 #+end_src
 
-Ok, enough coding, lets sing together! If you don't know the tune, open
+Ok, enough coding, let's sing together! If you don't know the tune, open
 this video:
 
 https://www.youtube.com/watch?v=u-7qFAuFGao
