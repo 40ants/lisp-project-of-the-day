@@ -6,6 +6,51 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>breeze</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0166-breeze.html</link>
+            <description>&lt;p&gt;This project is still in the development phase but I like its idea. &lt;code&gt;Breeze&lt;/code&gt; tries to improve the development process. Especially interesting feature - it&apos;s ability to run tests on function redefinition!&lt;/p&gt;
+&lt;p&gt;To make it work, you have to use &lt;code&gt;defun&lt;/code&gt; and &lt;code&gt;deftest&lt;/code&gt; from the &lt;code&gt;breeze&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (breeze:defun foo ()
+             100)
+
+;; When we define the test, it is immediately
+;; runned in a separate thread:
+POFTHEDAY&amp;gt; (breeze:deftest test-foo
+             (unless (= (foo) 42)
+               (error &amp;quot;Foo should return 42&amp;quot;)))
+Running all tests...
+WARNING: 
+Test TEST-FOO failed with condition Foo should return 42
+
+Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
+&amp;quot;Foo should return 42&amp;quot;
+Done [0/1] tests passed.
+
+;; Now I&amp;#039;m going to fix it.
+;; Pay attention on output. Breeze automatically
+;; runs tests for &amp;#039;foo function in a separate thread:
+POFTHEDAY&amp;gt; (breeze:defun foo ()
+             42)
+Running all tests....
+Done [1/1] tests passed.
+
+;; Now let&amp;#039;s break it again!
+POFTHEDAY&amp;gt; (breeze:defun foo ()
+             77)
+FOO
+Running all tests...
+WARNING: 
+Test TEST-FOO failed with condition Foo should return 42
+
+Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
+&amp;quot;Foo should return 42&amp;quot;
+Done [0/1] tests passed.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also some extension for Emacs and SLIME, but I didn&apos;t test it yet. I hope the author will make this system more usable.&lt;/p&gt;
+&lt;p&gt;The first feature which comes in mind is support for existing unit-testing frameworks. The second is an indicator for Emacs mode-line if some tests failed after I hit &lt;code&gt;C-c C-c&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To conclude, make good tooling! Tooling should be convenient!&lt;/p&gt;
+</description>
+            <pubDate>Wed, 19 Aug 2020 23:32:01 +0300</pubDate>
+        </item>
+        <item>
             <title>lyrics</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0165-lyrics.html</link>
             <description>&lt;p&gt;Today we&apos;ll have some fun because this library allows us to search for music text and sing together!&lt;/p&gt;
@@ -1221,25 +1266,6 @@ POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;Google, Bing, \&amp;q
  (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;) (:FIELD &amp;quot;Bob, Corp&amp;quot;) (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here I&apos;m changing rules depending on if we are inside of the quoted string or not.&lt;/p&gt;
 </description>
             <pubDate>Fri, 31 Jul 2020 22:41:29 +0300</pubDate>
-        </item>
-        <item>
-            <title>crypto-shortcuts</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0146-crypto-shortcuts.html</link>
-            <description>&lt;p&gt;Crypto-shortcuts serves a single purpose - to reduce an amount of headache when you have to encrypt, decrypt or make some kind of hash.&lt;/p&gt;
-&lt;p&gt;This &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s library has a &lt;a href=&quot;http://shinmera.github.io/crypto-shortcuts/&quot;&gt;nice documentation&lt;/a&gt;. Today I lack time, so here is the only one example of making a sha256 hash out of string.&lt;/p&gt;
-&lt;p&gt;This code which uses plain &lt;code&gt;flexi-streams&lt;/code&gt; and &lt;code&gt;ironclad&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let* ((octets (flexi-streams:string-to-octets
-                           &amp;quot;Hello World!&amp;quot;
-                           :external-format :utf-8))
-                  (digest (ironclad:digest-sequence
-                           &amp;#039;ironclad:sha256
-                           octets)))
-             (ironclad:byte-array-to-hex-string digest))
-&amp;quot;7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Compare it with the code, using &lt;code&gt;crypto-shortcuts&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cryptos:sha256 &amp;quot;Hello World!&amp;quot;)
-&amp;quot;7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library definitely should be in a toolbox of any common-lisper!&lt;/p&gt;
-</description>
-            <pubDate>Thu, 30 Jul 2020 22:30:20 +0300</pubDate>
         </item>
     </channel>
 </rss>
