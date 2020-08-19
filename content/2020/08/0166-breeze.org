@@ -1,0 +1,64 @@
+* breeze :ide:slime:testing:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This project is still in the development phase but I like its idea. ~Breeze~
+tries to improve the development process. Especially interesting feature -
+it's ability to run tests on function redefinition!
+
+To make it work, you have to use ~defun~ and ~deftest~ from the ~breeze~:
+
+#+begin_src lisp
+
+POFTHEDAY> (breeze:defun foo ()
+             100)
+
+;; When we define the test, it is immediately
+;; runned in a separate thread:
+POFTHEDAY> (breeze:deftest test-foo
+             (unless (= (foo) 42)
+               (error "Foo should return 42")))
+Running all tests...
+WARNING: 
+Test TEST-FOO failed with condition Foo should return 42
+
+Test "TEST-FOO" failed with condition:
+"Foo should return 42"
+Done [0/1] tests passed.
+
+;; Now I'm going to fix it.
+;; Pay attention on output. Breeze automatically
+;; runs tests for 'foo function in a separate thread:
+POFTHEDAY> (breeze:defun foo ()
+             42)
+Running all tests....
+Done [1/1] tests passed.
+
+;; Now let's break it again!
+POFTHEDAY> (breeze:defun foo ()
+             77)
+FOO
+Running all tests...
+WARNING: 
+Test TEST-FOO failed with condition Foo should return 42
+
+Test "TEST-FOO" failed with condition:
+"Foo should return 42"
+Done [0/1] tests passed.
+
+#+end_src
+
+There is also some extension for Emacs and SLIME, but I didn't test it
+yet. I hope the author will make this system more usable.
+
+The first feature which comes in mind is support for existing
+unit-testing frameworks. The second is an indicator for Emacs mode-line
+if some tests failed after I hit ~C-c C-c~.
+
+To conclude, make good tooling! Tooling should be convenient!
