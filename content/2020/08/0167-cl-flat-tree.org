@@ -1,0 +1,136 @@
+* TODO cl-flat-tree                                         :data_structures:
+SCHEDULED: <2020-08-20 Thu>
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This system implements an interesting algorithm suitable for storing
+binary tries or transmitting them over the wire without overhead on
+storing pointers.
+
+There is almost no information about this algorithm on the internet. The
+best description I found is:
+
+https://datprotocol.github.io/book/ch01-01-flat-tree.html
+
+Also, there are versions for Go, C, JS, Rust and Kotlin listed here:
+
+https://github.com/mafintosh/flat-tree
+
+Let's try to serialize a binary tree, represented by lists into a flat
+vector. First, we need to prepare a vector which size depends on the
+depth of the tree:
+
+#+begin_src lisp
+
+;; Here is a tree:
+;;            /
+;;       *
+;;   +     15   100.0
+;; A   B
+
+POFTHEDAY> (defparameter *structure*
+             '(/ (* (+ a b)
+                    15)
+                 100.0))
+
+POFTHEDAY> (defparameter *depth*
+             (rutils:tree-depth *structure*))
+
+POFTHEDAY> *depth*
+4
+
+POFTHEDAY> (defparameter *size* (expt 2 *depth*))
+
+POFTHEDAY> (defparameter *data*
+             (make-array (list (expt 2 *depth*))
+                         :initial-element nil))
+#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+
+#+end_src
+
+Missing nodes are filled with nils.
+
+Flat-tree is not a data-structure; it is an algorithm to calculate the tree
+node's index in the flat vector.
+
+That is why we need to write a function which will take lists forming a
+binary tree and dump it into the vector as a "flat-tree":
+
+#+begin_src lisp
+
+POFTHEDAY> (defun fill-tree (vector obj depth offset)
+             (let ((index (flat-tree:index depth offset)))
+               (cond
+                 ((listp obj)
+                  (setf (aref vector index)
+                        (first obj))
+                  (fill-tree vector (second obj)
+                             (1- depth) 0)
+                  (fill-tree vector (third obj)
+                             (1- depth) 1))
+                 ;; If it is a symbol
+                 (t
+                  (setf (aref vector index)
+                        obj))))
+             (values vector
+                     obj))
+
+POFTHEDAY> (fill-tree *data* *structure* 3 0)
+
+;; The first value is a resulting vector
+#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL)
+
+;; And the second is original data-structure
+(/ (* (+ A B) 15) 100.0)
+
+#+end_src
+
+We also can define a function to print our tree in a readable form.
+
+If you are more skilled in ASCII Art than me, maybe you can provide a
+more advanced version?
+
+#+begin_src lisp
+
+POFTHEDAY> (defun print-flat-tree (vector)
+             (loop for item across vector
+                   for index upfrom 0
+                   for as-str = (format nil "~S" item)
+                   for depth = (flat-tree:depth index)
+                   for padded = (str:pad-left (* depth 5) as-str)
+                   when item
+                     do (format t "~A~%"
+                                padded)))
+
+POFTHEDAY> (print-flat-tree *data*)
+A
+    +
+B
+         *
+   15
+              /
+     100.0
+
+#+end_src
+
+As a home task, I'll leave a function which restores the lisp
+data-structure from the vector. The solution should work with sparse
+tries like this one:
+
+#+begin_src lisp
+
+POFTHEDAY> read-flat-tree(#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL))
+
+(/ (* (+ A B)
+      15)
+   100.0)
+
+#+end_src
+
+Hope to see you tomorrow in the next #poftheday post!
