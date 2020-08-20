@@ -8,11 +8,11 @@
 :CI:       :(
 :END:
 
-This project is still in the development phase but I like its idea. ~Breeze~
-tries to improve the development process. Especially interesting feature -
-it's ability to run tests on function redefinition!
+This project is still in the development phase but I like its idea. [[https://github.com/fstamour/breeze][Breeze]]
+tries to improve the development process. An especially interesting feature:
+its ability to run tests on function redefinition!
 
-To make it work, you have to use ~defun~ and ~deftest~ from the ~breeze~:
+To make it work, you have to use ~defun~ and ~deftest~ from ~breeze~:
 
 #+begin_src lisp
 
@@ -20,7 +20,7 @@ POFTHEDAY> (breeze:defun foo ()
              100)
 
 ;; When we define the test, it is immediately
-;; runned in a separate thread:
+;; run in a separate thread:
 POFTHEDAY> (breeze:deftest test-foo
              (unless (= (foo) 42)
                (error "Foo should return 42")))
@@ -33,8 +33,8 @@ Test "TEST-FOO" failed with condition:
 Done [0/1] tests passed.
 
 ;; Now I'm going to fix it.
-;; Pay attention on output. Breeze automatically
-;; runs tests for 'foo function in a separate thread:
+;; Pay attention on the output. Breeze automatically
+;; runs tests of the 'foo function in a separate thread:
 POFTHEDAY> (breeze:defun foo ()
              42)
 Running all tests....
@@ -57,8 +57,8 @@ Done [0/1] tests passed.
 There is also some extension for Emacs and SLIME, but I didn't test it
 yet. I hope the author will make this system more usable.
 
-The first feature which comes in mind is support for existing
-unit-testing frameworks. The second is an indicator for Emacs mode-line
+The first feature which comes to mind is support for existing
+unit-testing frameworks. The second is an indicator for the Emacs mode-line
 if some tests failed after I hit ~C-c C-c~.
 
 To conclude, make good tooling! Tooling should be convenient!
