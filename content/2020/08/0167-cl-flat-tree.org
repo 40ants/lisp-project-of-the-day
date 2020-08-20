@@ -1,5 +1,4 @@
-* TODO cl-flat-tree                                         :data_structures:
-SCHEDULED: <2020-08-20 Thu>
+* cl-flat-tree                                              :data_structures:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

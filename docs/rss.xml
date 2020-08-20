@@ -6,6 +6,91 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-flat-tree</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0167-cl-flat-tree.html</link>
+            <description>&lt;p&gt;This system implements an interesting algorithm suitable for storing binary tries or transmitting them over the wire without overhead on storing pointers.&lt;/p&gt;
+&lt;p&gt;There is almost no information about this algorithm on the internet. The best description I found is:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://datprotocol.github.io/book/ch01-01-flat-tree.html&quot;&gt;https://datprotocol.github.io/book/ch01-01-flat-tree.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Also, there are versions for Go, C, JS, Rust and Kotlin listed here:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/mafintosh/flat-tree&quot;&gt;https://github.com/mafintosh/flat-tree&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Let&apos;s try to serialize a binary tree, represented by lists into a flat vector. First, we need to prepare a vector which size depends on the depth of the tree:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here is a tree:
+;;            /
+;;       *
+;;   +     15   100.0
+;; A   B
+
+POFTHEDAY&amp;gt; (defparameter *structure*
+             &amp;#039;(/ (* (+ a b)
+                    15)
+                 100.0))
+
+POFTHEDAY&amp;gt; (defparameter *depth*
+             (rutils:tree-depth *structure*))
+
+POFTHEDAY&amp;gt; *depth*
+4
+
+POFTHEDAY&amp;gt; (defparameter *size* (expt 2 *depth*))
+
+POFTHEDAY&amp;gt; (defparameter *data*
+             (make-array (list (expt 2 *depth*))
+                         :initial-element nil))
+#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Missing nodes are filled with nils.&lt;/p&gt;
+&lt;p&gt;Flat-tree is not a data-structure; it is an algorithm to calculate the tree node&apos;s index in the flat vector.&lt;/p&gt;
+&lt;p&gt;That is why we need to write a function which will take lists forming a binary tree and dump it into the vector as a &quot;flat-tree&quot;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun fill-tree (vector obj depth offset)
+             (let ((index (flat-tree:index depth offset)))
+               (cond
+                 ((listp obj)
+                  (setf (aref vector index)
+                        (first obj))
+                  (fill-tree vector (second obj)
+                             (1- depth) 0)
+                  (fill-tree vector (third obj)
+                             (1- depth) 1))
+                 ;; If it is a symbol
+                 (t
+                  (setf (aref vector index)
+                        obj))))
+             (values vector
+                     obj))
+
+POFTHEDAY&amp;gt; (fill-tree *data* *structure* 3 0)
+
+;; The first value is a resulting vector
+#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL)
+
+;; And the second is original data-structure
+(/ (* (+ A B) 15) 100.0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also can define a function to print our tree in a readable form.&lt;/p&gt;
+&lt;p&gt;If you are more skilled in ASCII Art than me, maybe you can provide a more advanced version?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-flat-tree (vector)
+             (loop for item across vector
+                   for index upfrom 0
+                   for as-str = (format nil &amp;quot;~S&amp;quot; item)
+                   for depth = (flat-tree:depth index)
+                   for padded = (str:pad-left (* depth 5) as-str)
+                   when item
+                     do (format t &amp;quot;~A~%&amp;quot;
+                                padded)))
+
+POFTHEDAY&amp;gt; (print-flat-tree *data*)
+A
+    +
+B
+         *
+   15
+              /
+     100.0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As a home task, I&apos;ll leave a function which restores the lisp data-structure from the vector. The solution should work with sparse tries like this one:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; read-flat-tree(#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL))
+
+(/ (* (+ A B)
+      15)
+   100.0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hope to see you tomorrow in the next #poftheday post!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 20 Aug 2020 22:55:56 +0300</pubDate>
+        </item>
+        <item>
             <title>breeze</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0166-breeze.html</link>
             <description>&lt;p&gt;This project is still in the development phase but I like its idea. &lt;code&gt;Breeze&lt;/code&gt; tries to improve the development process. Especially interesting feature - it&apos;s ability to run tests on function redefinition!&lt;/p&gt;
@@ -1178,94 +1263,6 @@ POFTHEDAY&amp;gt; *bar*
 (:NAME &amp;quot;Bob&amp;quot; :POINTS #(1 2 100500 4 5))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few other ways to extend &lt;code&gt;modf&lt;/code&gt;. They are listed in the documentation but there are no examples. But you can find them in the source code.&lt;/p&gt;
 </description>
             <pubDate>Sat, 01 Aug 2020 20:40:32 +0300</pubDate>
-        </item>
-        <item>
-            <title>graylex</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/07/0147-graylex.html</link>
-            <description>&lt;p&gt;This system provides a way to extract tokens from streams. This can be useful when working with data, received from the network or to read large files from disk.&lt;/p&gt;
-&lt;p&gt;Here is the example of a simple parser:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;001, 110, 101&amp;quot;)
-             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
-                                               :stream input
-                                               :rules &amp;#039;((&amp;quot;0&amp;quot; . :zero)
-                                                        (&amp;quot;1&amp;quot; . :one)
-                                                        (&amp;quot;,&amp;quot; . :comma)
-                                                        (&amp;quot; &amp;quot; . :space)))
-                   for result = (multiple-value-list
-                                 (graylex:stream-read-token lexer))
-                   for class = (first result)
-                   while class
-                   collect result))
-((:ZERO &amp;quot;0&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:ONE &amp;quot;1&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:ONE &amp;quot;1&amp;quot;) (:ONE &amp;quot;1&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:ONE &amp;quot;1&amp;quot;) (:ZERO &amp;quot;0&amp;quot;) (:ONE &amp;quot;1&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You can also use regular expressions to define rules:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;001, 110, 101&amp;quot;)
-             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
-                                               :stream input
-                                               :rules &amp;#039;((&amp;quot;\\d+&amp;quot; . :number)
-                                                        (&amp;quot;,&amp;quot; . :comma)
-                                                        (&amp;quot; &amp;quot; . :space)))
-                   for result = (multiple-value-list
-                                 (graylex:stream-read-token lexer))
-                   for class = (first result)
-                   while class
-                   collect result))
-((:NUMBER &amp;quot;001&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:NUMBER &amp;quot;110&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:NUMBER &amp;quot;101&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what if you have comma separated fields which can contain a comma if surrounded by double quotes?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;Google, Bing, \&amp;quot;Bob, Corp\&amp;quot;&amp;quot;)
-             (loop with lexer = (make-instance &amp;#039;graylex:lexer-input-stream
-                                               :stream input
-                                               :rules &amp;#039;((&amp;quot;[^,]*&amp;quot; . :field)
-                                                        (&amp;quot;,&amp;quot; . :comma)))
-                   for result = (multiple-value-list
-                                 (graylex:stream-read-token lexer))
-                   for class = (first result)
-                   while class
-                   collect result))
-((:FIELD &amp;quot;Google&amp;quot;) (:COMMA &amp;quot;,&amp;quot;)
- (:FIELD &amp;quot; Bing&amp;quot;) (:COMMA &amp;quot;,&amp;quot;)
- (:FIELD &amp;quot; \&amp;quot;Bob&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) ;; WAT!?
- (:FIELD &amp;quot; Corp\&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, there is a problem because the last field is surrounded by double quotes to quote the comma. To solve this problem, we need to change the rules dynamically. This will require to write a simple state machine:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *field*)
-POFTHEDAY&amp;gt; (defvar *field-separator*)
-POFTHEDAY&amp;gt; (defvar *quoted-string-start*)
-POFTHEDAY&amp;gt; (defvar *quoted-string-end*)
-
-POFTHEDAY&amp;gt; (with-input-from-string (input &amp;quot;Google, Bing, \&amp;quot;Bob, Corp\&amp;quot;&amp;quot;)
-             (loop with lexer = (make-instance
-                                  &amp;#039;graylex:lexer-input-stream
-                                  :stream input
-                                  :rules &amp;#039;((&amp;quot; &amp;quot; . :space)
-                                           (*field* . :field)
-                                           (*field-separator* . :comma)
-                                           (*quoted-string-start* . :quoted-string-start)
-                                           (*quoted-string-end* . :quoted-string-end)))
-                   with in-quoted-string = nil
-                   with *field* = &amp;quot;[^\&amp;quot;,][^,]+&amp;quot;
-                   with *field-separator* = &amp;quot;,&amp;quot;
-                   with *quoted-string-start* = &amp;quot;\&amp;quot;&amp;quot;
-                   with *quoted-string-end* = &amp;quot;\&amp;quot;&amp;quot;
-                   with tokens = nil
-                   for result = (multiple-value-list
-                                 (graylex:stream-read-token lexer))
-                   for class = (first result)
-                   while class
-                   do (push result tokens)
-                      (when (eq class :quoted-string-start)
-                        (if in-quoted-string
-                            (setf *field-separator* &amp;quot;,&amp;quot;
-                                  *field* &amp;quot;[^\&amp;quot;,][^,]+&amp;quot;
-                                  in-quoted-string nil)
-                            (setf *field-separator* &amp;quot;&amp;quot;
-                                  *field* &amp;quot;[^\&amp;quot;]+&amp;quot;
-                                  in-quoted-string t)))
-                   finally (return (nreverse tokens))))
-((:FIELD &amp;quot;Google&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:FIELD &amp;quot;Bing&amp;quot;) (:COMMA &amp;quot;,&amp;quot;) (:SPACE &amp;quot; &amp;quot;)
- (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;) (:FIELD &amp;quot;Bob, Corp&amp;quot;) (:QUOTED-STRING-START &amp;quot;\&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here I&apos;m changing rules depending on if we are inside of the quoted string or not.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 31 Jul 2020 22:41:29 +0300</pubDate>
         </item>
     </channel>
 </rss>
