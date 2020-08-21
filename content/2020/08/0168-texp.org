@@ -1,0 +1,49 @@
+* texp :text_processing:text:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This is a little wrapper around TeX language to make it compatible with
+Lisp's sexps. Written by [[https://twitter.com/eugeneia_][@eugeneia_]].
+
+Here is a little example, I've taken from the documentation:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun tex-menu (menu)
+             (texp:deftex item (caption price)
+               (texp:$ caption) " " (texp:$ (texp:escape "$")) (texp:$ price)
+               (texp:br)
+               (texp::bigskip))
+             (loop for (caption price) in menu
+                   do (texp:tex (item {(texp:$ (texp:escape caption))}
+                                      {(texp:$ (texp:escape price))})))
+             (texp:tex (bye)))
+
+
+POFTHEDAY> (tex-menu '(("Mozzarella Sticks" "5.99")
+                       ("Onion Rings" "4.99")
+                       ("Spinach" "5.99")))
+\def \item #1#2{#1 \$#2
+
+\bigskip }
+
+\item {Mozzarella Sticks}{5.99}\item {Onion Rings}{4.99}\item {Spinach}{5.99}\bye 
+
+#+end_src
+
+To render the DVI file, save this output into the file ~example.tex~ and
+run ~tex example.tex~. (On OSX you can install TeX using ~brew cask install mactex~.)
+
+This command will generate example.tex file which will look like that:
+
+[[../../media/0168/example.png]]
+
+With this system, you can use full power or the Lisp to write publishing
+systems. For example, [[https://github.com/eugeneia/geneva][Geneva]] documentation system uses it to generate TeX
+and LaTeX outputs.
