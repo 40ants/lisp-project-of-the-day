@@ -6,6 +6,36 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>texp</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0168-texp.html</link>
+            <description>&lt;p&gt;This is a little wrapper around TeX language to make it compatible with Lisp&apos;s sexps. Written by &lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Here is a little example, I&apos;ve taken from the documentation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun tex-menu (menu)
+             (texp:deftex item (caption price)
+               (texp:$ caption) &amp;quot; &amp;quot; (texp:$ (texp:escape &amp;quot;$&amp;quot;)) (texp:$ price)
+               (texp:br)
+               (texp::bigskip))
+             (loop for (caption price) in menu
+                   do (texp:tex (item {(texp:$ (texp:escape caption))}
+                                      {(texp:$ (texp:escape price))})))
+             (texp:tex (bye)))
+
+
+POFTHEDAY&amp;gt; (tex-menu &amp;#039;((&amp;quot;Mozzarella Sticks&amp;quot; &amp;quot;5.99&amp;quot;)
+                       (&amp;quot;Onion Rings&amp;quot; &amp;quot;4.99&amp;quot;)
+                       (&amp;quot;Spinach&amp;quot; &amp;quot;5.99&amp;quot;)))
+\def \item #1#2{#1 \$#2
+
+\bigskip }
+
+\item {Mozzarella Sticks}{5.99}\item {Onion Rings}{4.99}\item {Spinach}{5.99}\bye&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To render the DVI file, save this output into the file &lt;code&gt;example.tex&lt;/code&gt; and run &lt;code&gt;tex example.tex&lt;/code&gt;. (On OSX you can install TeX using &lt;code&gt;brew cask install mactex&lt;/code&gt;.)&lt;/p&gt;
+&lt;p&gt;This command will generate example.tex file which will look like that:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0168/example.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;With this system, you can use full power or the Lisp to write publishing systems. For example, &lt;a href=&quot;https://github.com/eugeneia/geneva&quot;&gt;Geneva&lt;/a&gt; documentation system uses it to generate TeX and LaTeX outputs.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 21 Aug 2020 20:35:42 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-flat-tree</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0167-cl-flat-tree.html</link>
             <description>&lt;p&gt;This system implements an interesting algorithm suitable for storing binary tries or transmitting them over the wire without overhead on storing pointers.&lt;/p&gt;
@@ -1195,74 +1225,6 @@ POFTHEDAY&amp;gt; (cl-stream:sequence-output-stream-sequence *s*)
 &lt;p&gt;This library was changed a year ago, and probably the author lost interest in improving it. What do you think, does Common Lisp needs an alternative streams API?&lt;/p&gt;
 </description>
             <pubDate>Sun, 02 Aug 2020 23:42:23 +0300</pubDate>
-        </item>
-        <item>
-            <title>modf</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0148-modf.html</link>
-            <description>&lt;p&gt;This system provides a macro which acts like &lt;code&gt;setf&lt;/code&gt; but does not change original data-structure. It will be useful if you want to write the code in a functional style, without side-effects:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *foo*
-             &amp;#039;(#(1 2 3 4 5)
-               #(6 7 8)
-               #(9)))
-
-POFTHEDAY&amp;gt; (defparameter *bar*
-             (modf:modf (aref (second *foo*)
-                              1)
-                        :blah))
-
-POFTHEDAY&amp;gt; *foo*
-(#(1 2 3 4 5)
- #(6 7 8)
- #(9))
-
-POFTHEDAY&amp;gt; *bar*
-(#(1 2 3 4 5)
- #(6 :BLAH 8)
- #(9))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Resulting data structure can share some parts with the original:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (eq *foo*
-               *bar*)
-NIL
-
-POFTHEDAY&amp;gt; (eq (first *foo*)
-               (first *bar*))
-T
-
-POFTHEDAY&amp;gt; (eq (second *foo*)
-               (second *bar*))
-NIL
-
-POFTHEDAY&amp;gt; (eq (third *foo*)
-               (third *bar*))
-T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But this does not work for some lisp forms. For example, it is impossible to change plist using &lt;code&gt;getf&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *foo*
-             &amp;#039;(:name &amp;quot;Bob&amp;quot;
-               :points #(1 2 3 4 5)))
-
-POFTHEDAY&amp;gt; (defparameter *bar*
-             (modf:modf (aref (getf *foo*
-                                    :points)
-                              2)
-                        100500))
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;How shall I invert GETF?&amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hopefuly, the library can be extended and we might define our own function to modify plists:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (modf:define-modf-function getf 2 (new-val plist key)
-             (let ((new-plist (copy-list plist)))
-               (setf (getf new-plist key)
-                     new-val)
-               new-plist))
-
-POFTHEDAY&amp;gt; (defparameter *bar*
-             (modf:modf (aref (getf *foo*
-                                    :points)
-                              2)
-                        100500))
-
-POFTHEDAY&amp;gt; *foo*
-(:NAME &amp;quot;Bob&amp;quot; :POINTS #(1 2 3 4 5))
-
-POFTHEDAY&amp;gt; *bar*
-(:NAME &amp;quot;Bob&amp;quot; :POINTS #(1 2 100500 4 5))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are a few other ways to extend &lt;code&gt;modf&lt;/code&gt;. They are listed in the documentation but there are no examples. But you can find them in the source code.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 01 Aug 2020 20:40:32 +0300</pubDate>
         </item>
     </channel>
 </rss>

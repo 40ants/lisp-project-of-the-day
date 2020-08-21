@@ -26,6 +26,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 18 August - [[content/2020/08/0165-lyrics.org][lyrics]] ([[https://twitter.com/svetlyak40wt/status/1295825819147927552][twitter]])
 - 19 August - [[content/2020/08/0166-breeze.org][breeze]] ([[https://twitter.com/svetlyak40wt/status/1296181964731551744][twitter]])
 - 20 August - [[content/2020/08/0167-cl-flat-tree][cl-flat-tree]] ([[https://twitter.com/svetlyak40wt/status/1296533688474390535][twitter]])
+- 21 August - [[content/2020/08/0168-texp.org][texp]] ([[https://twitter.com/svetlyak40wt/status/1296862545874161666][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
