@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>snakes
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>snakes</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>snakes<span class='tags'><a href='../../tags/data-structures.html'><span class='label label-default'>data-structures</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This system makes it very easy to create and use generator in Python style.</p>
+<p>This code demostrates how a simple generator works in Python. Generator creates an iterable object and values can be extracted by calling <code>next</code> function:</p>
+<pre><code class='python'>In [1]: def simple():
+   ...:     yield 1
+   ...:     print(&#039;LOG: Going to the second yield&#039;)
+   ...:     yield 2
+   ...:
+
+In [2]: simple()
+Out[2]: &lt;generator object simple at 0x10752a050&gt;
+
+In [3]: next(_2)
+Out[3]: 1
+
+In [4]: next(_2)
+LOG: Going to the second yield
+Out[4]: 2
+
+In [5]: next(_2)
+------------------
+StopIteration</code></pre><p>The similar generator can be implemented with <code>snakes</code>:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (snakes:defgenerator simple ()
+             (snakes:yield 1)
+             (format t &quot;LOG: Going to the second yield~%&quot;)
+             (snakes:yield 2))
+
+POFTHEDAY&gt; (simple)
+#&lt;SNAKES:BASIC-GENERATOR {1008454D4B}&gt;
+
+POFTHEDAY&gt; (funcall *)
+LOG: Going to the second yield
+1
+
+POFTHEDAY&gt; (funcall **)
+2
+
+POFTHEDAY&gt; (funcall ***)
+SNAKES:GENERATOR-STOP</code></pre><p>Here is a more interesting example of the generator which produces an infinite sequence of fibbonacchi numbers:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (snakes:defgenerator fib ()
+             (loop with a = 0
+                   with b = 1
+                   for new-b = (+ a b)
+                   do (snakes:yield a)
+                      (setf a b
+                            b new-b)))
+
+POFTHEDAY&gt; (snakes:take 20 (fib))
+(0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
+
+;; Or we can skip first 50 numbers and output 5 next:
+POFTHEDAY&gt; (snakes:generator-&gt;list
+            (snakes:islice (fib)
+                           50 55))
+(12586269025 20365011074 32951280099 53316291173 86267571272)</code></pre><p>There are also other features like:</p>
+<ul><li>anonymous generators;</li><li>yield-from form;</li><li>forms to iterate over generators;</li><li>functions ported from Python's <code>itertools</code>;</li><li>integration with <code>iterate</code> library.</li></ul>
+<p><code>Snakes</code> has <a href="http://quickdocs.org/snakes/">a comprehensive documentation</a> which covers all its features.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

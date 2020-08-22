@@ -1,0 +1,98 @@
+* snakes :data_structures:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :|
+:CI:       :(
+:END:
+
+This system makes it very easy to create and use generator in Python
+style.
+
+This code demostrates how a simple generator works in Python. Generator
+creates an iterable object and values can be extracted by calling ~next~
+function:
+
+#+begin_src python
+
+In [1]: def simple():
+   ...:     yield 1
+   ...:     print('LOG: Going to the second yield')
+   ...:     yield 2
+   ...:
+
+In [2]: simple()
+Out[2]: <generator object simple at 0x10752a050>
+
+In [3]: next(_2)
+Out[3]: 1
+
+In [4]: next(_2)
+LOG: Going to the second yield
+Out[4]: 2
+
+In [5]: next(_2)
+------------------
+StopIteration
+
+#+end_src
+
+The similar generator can be implemented with ~snakes~:
+
+#+begin_src lisp
+
+POFTHEDAY> (snakes:defgenerator simple ()
+             (snakes:yield 1)
+             (format t "LOG: Going to the second yield~%")
+             (snakes:yield 2))
+
+POFTHEDAY> (simple)
+#<SNAKES:BASIC-GENERATOR {1008454D4B}>
+
+POFTHEDAY> (funcall *)
+LOG: Going to the second yield
+1
+
+POFTHEDAY> (funcall **)
+2
+
+POFTHEDAY> (funcall ***)
+SNAKES:GENERATOR-STOP
+
+#+end_src
+
+Here is a more interesting example of the generator which produces an
+infinite sequence of fibbonacchi numbers:
+
+#+begin_src lisp
+
+POFTHEDAY> (snakes:defgenerator fib ()
+             (loop with a = 0
+                   with b = 1
+                   for new-b = (+ a b)
+                   do (snakes:yield a)
+                      (setf a b
+                            b new-b)))
+
+POFTHEDAY> (snakes:take 20 (fib))
+(0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
+
+;; Or we can skip first 50 numbers and output 5 next:
+POFTHEDAY> (snakes:generator->list
+            (snakes:islice (fib)
+                           50 55))
+(12586269025 20365011074 32951280099 53316291173 86267571272)
+
+#+end_src
+
+There are also other features like:
+
+- anonymous generators;
+- yield-from form;
+- forms to iterate over generators;
+- functions ported from Python's ~itertools~;
+- integration with ~iterate~ library.
+
+~Snakes~ has [[http://quickdocs.org/snakes/][a comprehensive documentation]] which covers all its features.
