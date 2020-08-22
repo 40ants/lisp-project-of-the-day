@@ -6,6 +6,68 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>snakes</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0169-snakes.html</link>
+            <description>&lt;p&gt;This system makes it very easy to create and use a generator in Python style.&lt;/p&gt;
+&lt;p&gt;This code demostrates how a simple generator works in Python. The generator creates an iterable object and values can be extracted by calling the &lt;code&gt;next&lt;/code&gt; function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [1]: def simple():
+   ...:     yield 1
+   ...:     print(&amp;#039;LOG: Going to the second yield&amp;#039;)
+   ...:     yield 2
+   ...:
+
+In [2]: simple()
+Out[2]: &amp;lt;generator object simple at 0x10752a050&amp;gt;
+
+In [3]: next(_2)
+Out[3]: 1
+
+In [4]: next(_2)
+LOG: Going to the second yield
+Out[4]: 2
+
+In [5]: next(_2)
+------------------
+StopIteration&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The similar generator can be implemented with &lt;code&gt;snakes&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (snakes:defgenerator simple ()
+             (snakes:yield 1)
+             (format t &amp;quot;LOG: Going to the second yield~%&amp;quot;)
+             (snakes:yield 2))
+
+POFTHEDAY&amp;gt; (simple)
+#&amp;lt;SNAKES:BASIC-GENERATOR {1008454D4B}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *)
+LOG: Going to the second yield
+1
+
+POFTHEDAY&amp;gt; (funcall **)
+2
+
+POFTHEDAY&amp;gt; (funcall ***)
+SNAKES:GENERATOR-STOP&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the more interesting example of the generator which produces an infinite sequence of Fibonacci numbers:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (snakes:defgenerator fib ()
+             (loop with a = 0
+                   with b = 1
+                   for new-b = (+ a b)
+                   do (snakes:yield a)
+                      (setf a b
+                            b new-b)))
+
+POFTHEDAY&amp;gt; (snakes:take 20 (fib))
+(0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
+
+;; Or we can skip first 50 numbers and output 5 next:
+POFTHEDAY&amp;gt; (snakes:generator-&amp;gt;list
+            (snakes:islice (fib)
+                           50 55))
+(12586269025 20365011074 32951280099 53316291173 86267571272)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other features like:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;anonymous generators;&lt;/li&gt;&lt;li&gt;yield-from form;&lt;/li&gt;&lt;li&gt;forms to iterate over generators;&lt;/li&gt;&lt;li&gt;functions ported from Python&apos;s &lt;code&gt;itertools&lt;/code&gt;;&lt;/li&gt;&lt;li&gt;integration with &lt;code&gt;iterate&lt;/code&gt; library.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Snakes&lt;/code&gt; has &lt;a href=&quot;http://quickdocs.org/snakes/&quot;&gt;a comprehensive documentation&lt;/a&gt; which covers all its features.&lt;/p&gt;
+</description>
+            <pubDate>Sat, 22 Aug 2020 22:27:25 +0300</pubDate>
+        </item>
+        <item>
             <title>texp</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0168-texp.html</link>
             <description>&lt;p&gt;This is a little wrapper around TeX language to make it compatible with Lisp&apos;s sexps. Written by &lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;.&lt;/p&gt;
@@ -1163,68 +1225,6 @@ Wall time: 2min 22s&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, Python&apos;s d
 &lt;p&gt;&lt;a href=&quot;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&quot;&gt;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Mon, 03 Aug 2020 23:44:34 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-stream</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0149-cl-stream.html</link>
-            <description>&lt;p&gt;This system defines a new streams API for CL. It is still WIP, but something already works. For example, there is how we can make a stream to read numbers from a vector:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
-             (cl-stream:sequence-input-stream #(1 2 3)))
-
-;; Standard read function does not work:
-POFTHEDAY&amp;gt; (read *s*)
-; Debugger entered on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {1002EAA433}&amp;gt;
-
-;; But cl-stream provides it&amp;#039;s own methods:
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-1
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-2
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-3
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-NIL
-:EOF&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The same calls work for strings:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
-             (cl-stream:sequence-input-stream &amp;quot;Lisp&amp;quot;))
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-#\L
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-#\i
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-#\s
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-#\p
-NIL
-
-POFTHEDAY&amp;gt; (cl-stream:read *s*)
-NIL
-:EOF&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I also tried to use class for output to the sequence but seems it is incomplete. Some methods are missing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *s*
-             (make-instance &amp;#039;cl-stream:sequence-output-stream
-                            :element-type &amp;#039;integer))
-*S*
-
-POFTHEDAY&amp;gt; (cl-stream:sequence-output-stream-sequence *s*)
-; Debugger entered on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&amp;gt;
-[1] POFTHEDAY&amp;gt; 
-; Evaluation aborted on #&amp;lt;SB-PCL::NO-APPLICABLE-METHOD-ERROR {100802EEC3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also an interesting but not implemented idea to support blocking/non-blocking stream API calls.&lt;/p&gt;
-&lt;p&gt;This library was changed a year ago, and probably the author lost interest in improving it. What do you think, does Common Lisp needs an alternative streams API?&lt;/p&gt;
-</description>
-            <pubDate>Sun, 02 Aug 2020 23:42:23 +0300</pubDate>
         </item>
     </channel>
 </rss>

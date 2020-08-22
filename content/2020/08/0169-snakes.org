@@ -8,11 +8,11 @@
 :CI:       :(
 :END:
 
-This system makes it very easy to create and use generator in Python
+This system makes it very easy to create and use a generator in Python
 style.
 
-This code demostrates how a simple generator works in Python. Generator
-creates an iterable object and values can be extracted by calling ~next~
+This code demostrates how a simple generator works in Python. The generator
+creates an iterable object and values can be extracted by calling the ~next~
 function:
 
 #+begin_src python
@@ -63,8 +63,8 @@ SNAKES:GENERATOR-STOP
 
 #+end_src
 
-Here is a more interesting example of the generator which produces an
-infinite sequence of fibbonacchi numbers:
+Here is the more interesting example of the generator which produces an
+infinite sequence of Fibonacci numbers:
 
 #+begin_src lisp
 
