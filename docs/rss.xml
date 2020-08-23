@@ -6,6 +6,65 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>portable-threads</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0170-portable-threads.html</link>
+            <description>&lt;p&gt;This system is similar to &lt;a href=&quot;https://sionescu.github.io/bordeaux-threads/&quot;&gt;bordeaux-threads&lt;/a&gt; but has some unique features.&lt;/p&gt;
+&lt;p&gt;What I like is that &lt;code&gt;portable-threads&lt;/code&gt; forces you to give the thread a name. No more Anonumous threads!&lt;/p&gt;
+&lt;p&gt;Also, there is a shortcut macro to start any code in a thread without wrapping it into an explicit lambda:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (portable-threads:spawn-form 
+             (format t &amp;quot;Running in ~S thread&amp;quot;
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+Running in &amp;quot;Form (FORMAT T ...)&amp;quot; thread
+#&amp;lt;SB-THREAD:THREAD &amp;quot;Form (FORMAT T ...)&amp;quot; FINISHED values: NIL {10051E61C3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or there is also a shortcut to run periodical tasks in the thread:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun periodic ()
+             (format t &amp;quot;[~A] Running in ~S thread~%&amp;quot;
+                     (local-time:now)
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+POFTHEDAY&amp;gt; (portable-threads:spawn-periodic-function
+            #&amp;#039;periodic
+            5
+            :count 3
+            :verbose t)
+
+;; Spawning periodic-function thread for...
+#&amp;lt;SB-THREAD:THREAD &amp;quot;Periodic Function&amp;quot; RUNNING {100466CDB3}&amp;gt;
+[2020-08-23T14:00:35.207071+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
+[2020-08-23T14:00:40.214253+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
+[2020-08-23T14:00:45.215454+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
+;; Exiting periodic-function thread&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another cool feature not found in &lt;code&gt;bordeaux-threads&lt;/code&gt; is thread hibernation. Any thread can fall asleep and be awakened later:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun do-the-job ()
+             (format t &amp;quot;Started a thread ~A~%&amp;quot;
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread)))
+             ;; Now we&amp;#039;ll fall asleep until somebody will
+             ;; call awake.
+             (portable-threads:hibernate-thread)
+             (format t &amp;quot;Thread ~A works again!~%&amp;quot;
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+POFTHEDAY&amp;gt; (defparameter *thread*
+             (portable-threads:spawn-thread &amp;quot;Worker&amp;quot;
+                                            #&amp;#039;do-the-job))
+Started a thread Worker
+
+POFTHEDAY&amp;gt; (portable-threads:thread-whostate *thread*)
+&amp;quot;Alive&amp;quot;
+
+;; Now we wake thread up:
+
+POFTHEDAY&amp;gt; (portable-threads:awaken-thread *thread*)
+Thread Worker works again!
+0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other interesting helpers like protected calls to work with lists.&lt;/p&gt;
+&lt;p&gt;Read &lt;a href=&quot;http://gbbopen.org/hyperdoc/ref-portable-thread-entities.html&quot;&gt;the documentation&lt;/a&gt; to find more gems!&lt;/p&gt;
+</description>
+            <pubDate>Sun, 23 Aug 2020 14:05:34 +0300</pubDate>
+        </item>
+        <item>
             <title>snakes</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0169-snakes.html</link>
             <description>&lt;p&gt;This system makes it very easy to create and use a generator in Python style.&lt;/p&gt;
@@ -1152,79 +1211,6 @@ My message handled!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other cool f
 &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;cl-events&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html&quot;&gt;piping&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 </description>
             <pubDate>Tue, 04 Aug 2020 22:09:53 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-speedy-queue</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0150-cl-speedy-queue.html</link>
-            <description>&lt;p&gt;This system implements a non-consing queue. Internally it uses a simple vector to organize a circular buffer. First two elements of the buffer are reserved for start and end pointers:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *q*
-             (cl-speedy-queue:make-queue 10))
-
-POFTHEDAY&amp;gt; *q*
-#(2 2 #:EMPTY 0 0 0 0 0 0 0 0 0)
-
-POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :a *q*)
-:A
-
-POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :b *q*)
-:B
-
-POFTHEDAY&amp;gt; (cl-speedy-queue:enqueue :c *q*)
-:C
-
-POFTHEDAY&amp;gt; *q*
-#(2 5 :A :B :C 0 0 0 0 0 0 0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When an item is extracted from the queue, the left pointer is moved to the right:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
-:A
-POFTHEDAY&amp;gt; *q*
-#(3 5 :A :B :C 0 0 0 0 0 0 0)
-POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
-:B
-POFTHEDAY&amp;gt; *q*
-#(4 5 :A :B :C 0 0 0 0 0 0 0)
-POFTHEDAY&amp;gt; (cl-speedy-queue:dequeue *q*)
-:C
-POFTHEDAY&amp;gt; *q*
-#(5 5 :A :B :C #:EMPTY 0 0 0 0 0 0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also a few other functions in the API: to check queue&apos;s length, to peek the next item, etc. A queue can signal conditions if it is empty or full and you are trying to do something wrong.&lt;/p&gt;
-&lt;p&gt;This data structure is not thread-safe. Use locks if share queue between threads.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;cl-speedy-queue&lt;/code&gt; is really fast. Queue and deque operations take about 7.5 nanoseconds:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time (loop with q = (cl-speedy-queue:make-queue 10)
-                       repeat 1000000000
-                       do (cl-speedy-queue:enqueue :foo q)
-                          (cl-speedy-queue:dequeue q)))
-Evaluation took:
-  7.588 seconds of real time
-  7.573354 seconds of total run time (7.554277 user, 0.019077 system)
-  99.80% CPU
-  16,755,940,604 processor cycles
-  0 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To compare, here is the test of Python&apos;s standard &lt;code&gt;SimpleQueue&lt;/code&gt;. It takes 226 nanoseconds:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [10]: from queue import SimpleQueue
-
-In [11]: def test(q, n):
-    ...:     while n &amp;gt; 0:
-    ...:         q.put(1)
-    ...:         q.get()
-    ...:         n -= 1
-    ...:
-
-In [12]: %time test(SimpleQueue(), 1000000000)
-CPU times: user 3min 46s, sys: 605 ms, total: 3min 47s
-Wall time: 3min 48s&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Python also has another standard structure for queues - &lt;code&gt;deque&lt;/code&gt;. It is slightly faster than &lt;code&gt;SimpleQueue&lt;/code&gt; but still 18 times slower than Common Lisp&apos;s &lt;code&gt;cl-speedy-queue&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;It takes 141 nanoseconds to make put/get operations with &lt;code&gt;deque&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [22]: from collections import deque
-
-In [23]: def test(q, n):
-    ...:     while n &amp;gt; 0:
-    ...:         q.append(1)
-    ...:         q.popleft()
-    ...:         n -= 1
-
-In [25]: %time test(deque(), 1000000000)
-CPU times: user 2min 21s, sys: 330 ms, total: 2min 22s
-Wall time: 2min 22s&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, Python&apos;s deque is written in C:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&quot;&gt;https://github.com/python/cpython/blob/master/Modules/_collectionsmodule.c#L206&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Mon, 03 Aug 2020 23:44:34 +0300</pubDate>
         </item>
     </channel>
 </rss>

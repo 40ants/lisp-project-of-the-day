@@ -1,4 +1,4 @@
-* portable-threads :theads:compatibility_layer:
+* portable-threads :threads:compatibility_layer:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -55,7 +55,7 @@ POFTHEDAY> (portable-threads:spawn-periodic-function
 #+end_src
 
 Another cool feature not found in ~bordeaux-threads~ is thread
-hybernation. Any thread can fall asleep and be awakened later:
+hibernation. Any thread can fall asleep and be awakened later:
 
 #+begin_src lisp
 
