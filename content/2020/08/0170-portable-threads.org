@@ -1,0 +1,93 @@
+* portable-threads :theads:compatibility_layer:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :|s
+:CI:       :(
+:END:
+
+This system is similar to [[https://sionescu.github.io/bordeaux-threads/][bordeaux-threads]] but has some unique
+features.
+
+What I like is that ~portable-threads~ forces you to give the thread a
+name. No more Anonumous threads!
+
+Also, there is a shortcut macro to start any code in a thread without
+wrapping it into an explicit lambda:
+
+#+begin_src lisp
+
+POFTHEDAY> (portable-threads:spawn-form 
+             (format t "Running in ~S thread"
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+Running in "Form (FORMAT T ...)" thread
+#<SB-THREAD:THREAD "Form (FORMAT T ...)" FINISHED values: NIL {10051E61C3}>
+
+#+end_src
+
+Or there is also a shortcut to run periodical tasks in the thread:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun periodic ()
+             (format t "[~A] Running in ~S thread~%"
+                     (local-time:now)
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+POFTHEDAY> (portable-threads:spawn-periodic-function
+            #'periodic
+            5
+            :count 3
+            :verbose t)
+
+;; Spawning periodic-function thread for...
+#<SB-THREAD:THREAD "Periodic Function" RUNNING {100466CDB3}>
+[2020-08-23T14:00:35.207071+03:00] Running in "Periodic Function" thread
+[2020-08-23T14:00:40.214253+03:00] Running in "Periodic Function" thread
+[2020-08-23T14:00:45.215454+03:00] Running in "Periodic Function" thread
+;; Exiting periodic-function thread
+
+#+end_src
+
+Another cool feature not found in ~bordeaux-threads~ is thread
+hybernation. Any thread can fall asleep and be awakened later:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun do-the-job ()
+             (format t "Started a thread ~A~%"
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread)))
+             ;; Now we'll fall asleep until somebody will
+             ;; call awake.
+             (portable-threads:hibernate-thread)
+             (format t "Thread ~A works again!~%"
+                     (portable-threads:thread-name
+                      (portable-threads:current-thread))))
+
+POFTHEDAY> (defparameter *thread*
+             (portable-threads:spawn-thread "Worker"
+                                            #'do-the-job))
+Started a thread Worker
+
+POFTHEDAY> (portable-threads:thread-whostate *thread*)
+"Alive"
+
+;; Now we wake thread up:
+
+POFTHEDAY> (portable-threads:awaken-thread *thread*)
+Thread Worker works again!
+0
+
+#+end_src
+
+There are other interesting helpers like protected calls to work with
+lists.
+
+Read [[http://gbbopen.org/hyperdoc/ref-portable-thread-entities.html][the documentation]] to find more gems!
+
