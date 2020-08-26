@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>lazy
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lazy</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>lazy<span class='tags'><a href='../../tags/language.html'><span class='label label-default'>language</span></a></span></h1><p>This is a small library by <a href="https://twitter.com/codeninja_blog">@codeninja_blog</a>. It provides only a macro to wrap and remember any form and a function to force its evaluation.</p>
+<p>For example, let's create a few functions which accept and return lazy objects:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun request-name ()
+             (lazy:lazy
+               (format t &quot;What is your name?~%&quot;)
+               (read-line)))
+
+
+POFTHEDAY&gt; (defun greet (name)
+             (lazy:lazy
+               (format nil &quot;Hello ~A!~%&quot;
+                       (lazy:lazy-value name))))
+
+POFTHEDAY&gt; (greet (request-name))
+#&lt;LAZY::THUNK UNREALIZED&gt;
+
+POFTHEDAY&gt; (lazy:lazy-value *)
+What is your name?
+Bob
+&quot;Hello Bob!
+&quot;
+
+;; Second attempt to get the greeting value
+;; is not request for the user&#039;s name:
+POFTHEDAY&gt; (lazy:lazy-value **)
+&quot;Hello Bob!
+&quot;</code></pre><p>Or we can build a simple lazy sequences library.</p>
+<p>This function will create a sequence of numbers:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun make-lazy-sequence (&amp;optional (start 0) (step 1))
+             (lazy:lazy
+               (values start
+                       (make-lazy-sequence (+ start step)
+                                           step))))</code></pre><p>This one will skip a number of items:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun lazy-skip (n lazy-sequence)
+             (lazy:lazy
+               (loop do
+                 (multiple-value-bind (item rest)
+                     (lazy:lazy-value lazy-sequence)
+                   (when (zerop n)
+                     (return (values item rest)))
+                   (decf n)
+                   (setf lazy-sequence rest)))))</code></pre><p>And this one will force lazy evaluation and transform the sequence into the list:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun lazy-to-list (n lazy-sequence)
+             (loop with result = nil
+                   do (multiple-value-bind (item rest)
+                          (lazy:lazy-value lazy-sequence)
+                        (when (zerop n)
+                          (return (nreverse result)))
+                        (push item result)
+                        (setf lazy-sequence rest)
+                        (decf n))))</code></pre><p>And of cause we need a generic map function to apply transformations:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun lazy-mapcar (func sequence)
+             (lazy:lazy
+               (multiple-value-bind (item rest)
+                   (lazy:lazy-value sequence)
+                 (values (funcall func item)
+                         (lazy-mapcar func rest)))))</code></pre><p>Here is how we can apply these functions to process a lazy sequence:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (make-lazy-sequence)
+
+POFTHEDAY&gt; (lazy-skip 5 *)
+
+POFTHEDAY&gt; (lazy-mapcar (lambda (x)
+                          (format t &quot;Multiplying ~A to ~A~%&quot;
+                                  x x)
+                          (* x x))
+                        *)
+
+POFTHEDAY&gt; (lazy-to-list 3 *)
+Multiplying 5 to 5
+Multiplying 6 to 6
+Multiplying 7 to 7
+Multiplying 8 to 8
+(25 36 49)</code></pre><p>But this will work only with my <a href="https://github.com/massung/lazy/pull/1">pull request</a> which makes the <code>lazy-value</code> return all values, returned by original form.</p>
+<p>So, <code>lazy</code> is small and very nice library. Thank you,  <a href="https://twitter.com/codeninja_blog">@codeninja_blog</a>.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

@@ -1,9 +1,9 @@
 * lazy :language:
 
 This is a small library by [[https://twitter.com/codeninja_blog][@codeninja_blog]]. It provides only a macro to
-wrap and remember any form and a function to force it's evaluation.
+wrap and remember any form and a function to force its evaluation.
 
-For example I'll create a few functions which accept and return lazy
+For example, let's create a few functions which accept and return lazy
 objects:
 
 #+begin_src lisp
@@ -36,8 +36,9 @@ POFTHEDAY> (lazy:lazy-value **)
 
 #+end_src
 
-Or we can build a simple lazy sequences library. This function will
-create a sequence of numbers:
+Or we can build a simple lazy sequences library.
+
+This function will create a sequence of numbers:
 
 #+begin_src lisp
 
@@ -49,7 +50,7 @@ POFTHEDAY> (defun make-lazy-sequence (&optional (start 0) (step 1))
 
 #+end_src
 
-This one will allow to skip a number of items:
+This one will skip a number of items:
 
 #+begin_src lisp
 
@@ -65,6 +66,8 @@ POFTHEDAY> (defun lazy-skip (n lazy-sequence)
 
 #+end_src
 
+And this one will force lazy evaluation and transform the sequence into
+the list:
 
 #+begin_src lisp
 
@@ -79,3 +82,44 @@ POFTHEDAY> (defun lazy-to-list (n lazy-sequence)
                         (decf n))))
 
 #+end_src
+
+And of cause we need a generic map function to apply transformations:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun lazy-mapcar (func sequence)
+             (lazy:lazy
+               (multiple-value-bind (item rest)
+                   (lazy:lazy-value sequence)
+                 (values (funcall func item)
+                         (lazy-mapcar func rest)))))
+
+#+end_src
+
+Here is how we can apply these functions to process a lazy sequence:
+
+#+begin_src lisp
+
+POFTHEDAY> (make-lazy-sequence)
+
+POFTHEDAY> (lazy-skip 5 *)
+
+POFTHEDAY> (lazy-mapcar (lambda (x)
+                          (format t "Multiplying ~A to ~A~%"
+                                  x x)
+                          (* x x))
+                        *)
+
+POFTHEDAY> (lazy-to-list 3 *)
+Multiplying 5 to 5
+Multiplying 6 to 6
+Multiplying 7 to 7
+Multiplying 8 to 8
+(25 36 49)
+
+#+end_src
+
+But this will work only with my [[https://github.com/massung/lazy/pull/1][pull request]] which makes the ~lazy-value~
+return all values, returned by original form.
+
+Anyway, ~lazy~ is a small and very nice library. Thank you,  [[https://twitter.com/codeninja_blog][@codeninja_blog]].
