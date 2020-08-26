@@ -6,6 +6,203 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lazy</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0172-lazy.html</link>
+            <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;. It provides only a macro to wrap and remember any form and a function to force its evaluation.&lt;/p&gt;
+&lt;p&gt;For example, let&apos;s create a few functions which accept and return lazy objects:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun request-name ()
+             (lazy:lazy
+               (format t &amp;quot;What is your name?~%&amp;quot;)
+               (read-line)))
+
+
+POFTHEDAY&amp;gt; (defun greet (name)
+             (lazy:lazy
+               (format nil &amp;quot;Hello ~A!~%&amp;quot;
+                       (lazy:lazy-value name))))
+
+POFTHEDAY&amp;gt; (greet (request-name))
+#&amp;lt;LAZY::THUNK UNREALIZED&amp;gt;
+
+POFTHEDAY&amp;gt; (lazy:lazy-value *)
+What is your name?
+Bob
+&amp;quot;Hello Bob!
+&amp;quot;
+
+;; Second attempt to get the greeting value
+;; is not request for the user&amp;#039;s name:
+POFTHEDAY&amp;gt; (lazy:lazy-value **)
+&amp;quot;Hello Bob!
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or we can build a simple lazy sequences library.&lt;/p&gt;
+&lt;p&gt;This function will create a sequence of numbers:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-lazy-sequence (&amp;amp;optional (start 0) (step 1))
+             (lazy:lazy
+               (values start
+                       (make-lazy-sequence (+ start step)
+                                           step))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This one will skip a number of items:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-skip (n lazy-sequence)
+             (lazy:lazy
+               (loop do
+                 (multiple-value-bind (item rest)
+                     (lazy:lazy-value lazy-sequence)
+                   (when (zerop n)
+                     (return (values item rest)))
+                   (decf n)
+                   (setf lazy-sequence rest)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this one will force lazy evaluation and transform the sequence into the list:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-to-list (n lazy-sequence)
+             (loop with result = nil
+                   do (multiple-value-bind (item rest)
+                          (lazy:lazy-value lazy-sequence)
+                        (when (zerop n)
+                          (return (nreverse result)))
+                        (push item result)
+                        (setf lazy-sequence rest)
+                        (decf n))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And of cause we need a generic map function to apply transformations:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-mapcar (func sequence)
+             (lazy:lazy
+               (multiple-value-bind (item rest)
+                   (lazy:lazy-value sequence)
+                 (values (funcall func item)
+                         (lazy-mapcar func rest)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can apply these functions to process a lazy sequence:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-lazy-sequence)
+
+POFTHEDAY&amp;gt; (lazy-skip 5 *)
+
+POFTHEDAY&amp;gt; (lazy-mapcar (lambda (x)
+                          (format t &amp;quot;Multiplying ~A to ~A~%&amp;quot;
+                                  x x)
+                          (* x x))
+                        *)
+
+POFTHEDAY&amp;gt; (lazy-to-list 3 *)
+Multiplying 5 to 5
+Multiplying 6 to 6
+Multiplying 7 to 7
+Multiplying 8 to 8
+(25 36 49)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But this will work only with my &lt;a href=&quot;https://github.com/massung/lazy/pull/1&quot;&gt;pull request&lt;/a&gt; which makes the &lt;code&gt;lazy-value&lt;/code&gt; return all values, returned by original form.&lt;/p&gt;
+&lt;p&gt;Anyway, &lt;code&gt;lazy&lt;/code&gt; is a small and very nice library. Thank you,  &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 26 Aug 2020 23:47:24 +0300</pubDate>
+        </item>
+        <item>
+            <title>dynamic-classes</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html</link>
+            <description>&lt;p&gt;This library allows to dynamically create CLOS classes as a mixin composition. Mixins are choosen depending on parameters given to the constructor.&lt;/p&gt;
+&lt;p&gt;For example, if we have in our system users, which can be authenticated and additionally can be admins, then we can to define their classes like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+             ())
+
+POFTHEDAY&amp;gt; (defclass authenticated ()
+             ((email :initarg :email)))
+
+POFTHEDAY&amp;gt; (defclass admin ()
+             ())&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to tell the system how to apply our mixins when different parameters are passed. If there is &lt;code&gt;:email&lt;/code&gt;, then the user will be considered authenticated. If there is &lt;code&gt;:is-admin t&lt;/code&gt; - he is the admin.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dynamic-classes:add-parameter-&amp;gt;dynamic-class
+            :user :email &amp;#039;authenticated)
+NIL
+POFTHEDAY&amp;gt; (dynamic-classes:add-parameter-&amp;gt;dynamic-class
+            :user :is-admin &amp;#039;admin)
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also have to declare these methods to make the framework do its job. Probably this can be avoided if only the default implementation was specialized not on &lt;code&gt;class-type (eql nil)&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &amp;amp;rest parameters)
+             &amp;quot;This method can modify list of classes used to combine into a new class
+              for given parameters. Or some restrictions can be applied.&amp;quot;
+             (declare (ignorable dynamic-class parameters))
+             class-list)
+
+POFTHEDAY&amp;gt; (defmethod dynamic-classes:existing-subclass
+               ((class-type (eql :user)) class-list)
+             &amp;quot;This method allows to return a custom class. If it returns nil,
+              the first class from the class-list will be choosen.&amp;quot;
+             (declare (ignorable class-list))
+             (values nil))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s check how it works. There is a function to create and return the class depending on the parameters:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user)
+USER
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user :email &amp;quot;some@gmail.com&amp;quot;)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user :email nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :email &amp;quot;some@gmail.com&amp;quot;
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :is-admin t)
+USER-AND-ADMIN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Do you see there a strange behavior? We can pass the &lt;code&gt;nil&lt;/code&gt; as an email and user will be considered &lt;code&gt;authenticated&lt;/code&gt; or we can use &lt;code&gt;:is-admin&lt;/code&gt; without email and will get unauthenticated admin class!&lt;/p&gt;
+&lt;p&gt;Fortunately, there is a hook to apply additional restrictions:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &amp;amp;rest parameters)
+             (declare (ignorable dynamic-class parameters))
+
+             ;; If email is not given we don&amp;#039;t want consider
+             ;; the user authenticated:
+             (when (and (member :email parameters)
+                        (null (getf parameters :email)))
+               (rutils:removef class-list &amp;#039;authenticated))
+
+             ;; And if :is-admin nil then he is not an admin:
+             (when (and (member :is-admin parameters)
+                        (null (getf parameters :is-admin)))
+               (rutils:removef class-list &amp;#039;admin))
+
+             ;; Also, we need admins always be authenticated:
+             (when (and (member &amp;#039;admin class-list)
+                        (not (member &amp;#039;authenticated class-list)))
+               (error &amp;quot;Admin should have an email!&amp;quot;))
+
+             class-list)
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :email &amp;quot;some@gmail.com&amp;quot;
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :email &amp;quot;some@gmail.com&amp;quot;
+                                                    :is-admin nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :email nil
+                                                    :is-admin nil)
+USER
+
+POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
+                                                    :email nil
+                                                    :is-admin t)
+; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Admin should have an email!&amp;quot; {100B6CAD73}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to wrap this into a single constructor &lt;code&gt;make-user&lt;/code&gt; which will return objects of different class depending on arguments:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-user (&amp;amp;rest args &amp;amp;key email is-admin)
+             (declare (ignore email is-admin))
+             (let ((class (apply #&amp;#039;dynamic-classes:determine-dynamic-class
+                                 :user &amp;#039;user
+                                 args)))
+               (apply #&amp;#039;make-instance class
+                      ;; We don&amp;#039;t store is-admin as the slot:
+                      (rutils:remove-from-plist args :is-admin))))
+
+POFTHEDAY&amp;gt; (make-user)
+#&amp;lt;USER {1006704893}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-user :email &amp;quot;blah@min.or&amp;quot;)
+#&amp;lt;USER-AND-AUTHENTICATED {1006779083}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-user :email &amp;quot;blah@min.or&amp;quot; :is-admin t)
+#&amp;lt;USER-AND-AUTHENTICATED-AND-ADMIN {10067C26C3}&amp;gt;
+
+POFTHEDAY&amp;gt; (make-user :is-admin t)
+; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Admin should have an email!&amp;quot; {10067D0193}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make these classes print in a human-readable way, use &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html&quot;&gt;print-items&lt;/a&gt; library, reviewed in the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html&quot;&gt;post #0145&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The more sophisticated use of the &lt;code&gt;dynamic-classes&lt;/code&gt; can be found in the &lt;a href=&quot;https://github.com/gwkkwg/cl-containers/blob/810927e19d933bcf38ffeb7a23ce521efc432d45/dev/dynamic-class-defs.lisp&quot;&gt;cl-containers&lt;/a&gt; library. It uses dynamic-classes to mix container and iterator classes to give them different traits depending on constructor&apos;s parameters.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 26 Aug 2020 10:53:32 +0300</pubDate>
+        </item>
+        <item>
             <title>portable-threads</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0170-portable-threads.html</link>
             <description>&lt;p&gt;This system is similar to &lt;a href=&quot;https://sionescu.github.io/bordeaux-threads/&quot;&gt;bordeaux-threads&lt;/a&gt; but has some unique features.&lt;/p&gt;
@@ -1140,77 +1337,6 @@ POFTHEDAY&amp;gt; (packet:unpack * &amp;#039;person)
 &lt;p&gt;If you are interested in packing data into binary formats, look at &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/serialization.html&quot;&gt;other libraries&lt;/a&gt; reviewed in #poftheday posts.&lt;/p&gt;
 </description>
             <pubDate>Thu, 06 Aug 2020 23:38:30 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-qprint</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0152-cl-qprint.html</link>
-            <description>&lt;p&gt;This small library implements a &lt;a href=&quot;https://tools.ietf.org/html/rfc2045#section-6.7&quot;&gt;Quoted-Printable&lt;/a&gt; encoding algorithm suitable to use in multipart emails.&lt;/p&gt;
-&lt;p&gt;In this example, we&apos;ll encode a string into the quoted-printable and then back into the Lisp string. &lt;code&gt;CL-QPrint&lt;/code&gt; encodes bytes. That is why I&apos;m using &lt;a href=&quot;http://quickdocs.org/babel/&quot;&gt;babel&lt;/a&gt; here:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (babel:string-to-octets
-            &amp;quot;Hello World! &amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;)
-#(72 101 108 108 111 32 87 111 114 108 100 33
-  32 208 159 209 128 208 184 208 178 208 181
-  209 130 32 208 156 208 184 209 128 33)
-
-POFTHEDAY&amp;gt; (cl-qprint:encode *)
-&amp;quot;Hello=20World!=20=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82=20=D0=9C=D0=B8=D1=80!&amp;quot;
-
-;; Now we can transfer this text through the wire
-;; and to decode it on other end:
-
-POFTHEDAY&amp;gt; (cl-qprint:decode *)
-#(72 101 108 108 111 32 87 111 114 108 100 33
-  32 208 159 209 128 208 184 208 178 208 181
-  209 130 32 208 156 208 184 209 128 33)
-
-POFTHEDAY&amp;gt; (babel:octets-to-string *)
-&amp;quot;Hello World! &amp;#x41F;&amp;#x440;&amp;#x438;&amp;#x432;&amp;#x435;&amp;#x442; &amp;#x41C;&amp;#x438;&amp;#x440;!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This encoding can be used in multipart emails instead of &lt;code&gt;base64&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;It is especially useful for texts, containing a large amount of ASCII symbols. This could be source codes where some comments use international symbols.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 05 Aug 2020 23:28:15 +0300</pubDate>
-        </item>
-        <item>
-            <title>deeds</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0151-deeds.html</link>
-            <description>&lt;p&gt;This is library by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It implements a message-passing protocol.&lt;/p&gt;
-&lt;p&gt;With &lt;code&gt;deeds&lt;/code&gt; you are sending events of some class to the handlers.&lt;/p&gt;
-&lt;p&gt;Handlers are much like methods, but with additional abilities. For example, here is the handler which filters and process only messages containing &quot;Hello&quot;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (deeds:define-handler (foo deeds:info-event) (event message)
-             :filter &amp;#039;(search &amp;quot;Hello&amp;quot; message)
-             (format t &amp;quot;GREETING: ~A~%&amp;quot; message))
-
-POFTHEDAY&amp;gt; (deeds:do-issue deeds:info-event :message &amp;quot;Blah&amp;quot;)
-#&amp;lt;DEEDS:INFO-EVENT 2020.08.04 21:36:08 :ORIGIN #&amp;lt;PACKAGE &amp;quot;POFTHEDAY&amp;quot;&amp;gt; {1006D0A7E3}&amp;gt;
-
-POFTHEDAY&amp;gt; (deeds:do-issue deeds:info-event :message &amp;quot;Hello Bob!&amp;quot;)
-#&amp;lt;DEEDS:INFO-EVENT 2020.08.04 21:36:14 :ORIGIN #&amp;lt;PACKAGE &amp;quot;POFTHEDAY&amp;quot;&amp;gt; {1006D3F833}&amp;gt;
-GREETING: Hello Bob!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention, we see output only after the second &lt;code&gt;do-issue&lt;/code&gt; call. And it goes after the information about &lt;code&gt;DEEDS:INFO-EVENT&lt;/code&gt;, which is the result of the &lt;code&gt;do-issue&lt;/code&gt; form.&lt;/p&gt;
-&lt;p&gt;All events are handled in a separate thread.&lt;/p&gt;
-&lt;p&gt;You also can define your own classes for events. They should inherit from &lt;code&gt;deeds:event&lt;/code&gt; because they carry &quot;origin&quot; slot. This slot is filled by the Lisp package where the event was fired.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass my-message (deeds:event)
-             ())
-
-POFTHEDAY&amp;gt; (defclass special-message (my-message)
-             ())
-
-POFTHEDAY&amp;gt; (deeds:define-handler (foo my-message) (event)
-             (format t &amp;quot;My message handled!~%&amp;quot;))
-
-POFTHEDAY&amp;gt; (deeds:define-handler (bar special-message) (event)
-             (format t &amp;quot;Special message handled!~%&amp;quot;))
-
-
-POFTHEDAY&amp;gt; (deeds:do-issue my-message)
-My message handled!
-
-;; Both handlers will match because of class inheritance:
-POFTHEDAY&amp;gt; (deeds:do-issue special-message)
-Special message handled!
-My message handled!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other cool features, covered by &lt;a href=&quot;https://github.com/Shinmera/deeds&quot;&gt;the documentation&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If you are interested in Common Lisp library for message passing, read about two other systems, reviewed in the #poftheday series:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0130-cl-events.html&quot;&gt;cl-events&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0131-piping.html&quot;&gt;piping&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
-</description>
-            <pubDate>Tue, 04 Aug 2020 22:09:53 +0300</pubDate>
         </item>
     </channel>
 </rss>
