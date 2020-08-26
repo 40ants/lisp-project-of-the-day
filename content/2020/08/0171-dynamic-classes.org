@@ -1,0 +1,175 @@
+* dynamic-classes :clos:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library allows to dynamically create CLOS classes as a mixin
+composition. Mixins are choosed depending on parameters given to the
+constructor.
+
+For example, if we have in our system users, which can be authenticated
+and additionally can be admins, then we can to define their classes
+like:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass user ()
+             ())
+
+POFTHEDAY> (defclass authenticated ()
+             ((email :initarg :email)))
+
+POFTHEDAY> (defclass admin ()
+             ())
+
+#+end_src
+
+Now we need to tell the system how to apply our mixins when different
+parameters are passed. If there is ~:email~, then user will be considered
+authenticated. If there is ~:is-admin t~ - he is the admin.
+
+#+begin_src lisp
+
+POFTHEDAY> (dynamic-classes:add-parameter->dynamic-class
+            :user :email 'authenticated)
+NIL
+POFTHEDAY> (dynamic-classes:add-parameter->dynamic-class
+            :user :is-admin 'admin)
+NIL
+
+#+end_src
+
+We also have to declare these methods to make the framework do it's job:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &rest parameters)
+             "This method can modify list of classes used to combine into a new class
+              for given parameters. Or some restrictions can be applied."
+             (declare (ignorable dynamic-class parameters))
+             class-list)
+
+POFTHEDAY> (defmethod dynamic-classes:existing-subclass
+               ((class-type (eql :user)) class-list)
+             "This method allows to return a custom class. If it returns nil,
+              the first class from the class-list will be choosen."
+             (declare (ignorable class-list))
+             (values nil))
+
+#+end_src
+
+Now let's check how it works. There is a function to create and return
+the class depending on parameters:
+
+#+begin_src lisp
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user)
+USER
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user :email "some@gmail.com")
+USER-AND-AUTHENTICATED
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user :email nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :email "some@gmail.com"
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :is-admin t)
+USER-AND-ADMIN
+
+#+end_src
+
+Do you see there a strange behavior? We can pass the ~nil~ as an email and
+user will be considered ~authenticated~ or we can use ~:is-admin~ without
+email and will get unauthenticated admin class!
+
+Fortunately, there is a hook to apply additional restrictions:
+
+#+begin_src lisp
+
+POFTHEDAY> (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &rest parameters)
+             (declare (ignorable dynamic-class parameters))
+
+             ;; If email is not given we don't want consider
+             ;; the user authenticated:
+             (when (and (member :email parameters)
+                        (null (getf parameters :email)))
+               (rutils:removef class-list 'authenticated))
+
+             ;; And if :is-admin nil then he is not an admin:
+             (when (and (member :is-admin parameters)
+                        (null (getf parameters :is-admin)))
+               (rutils:removef class-list 'admin))
+
+             ;; Also, we need admins always be authenticated:
+             (when (and (member 'admin class-list)
+                        (not (member 'authenticated class-list)))
+               (error "Admin should have an email!"))
+
+             class-list)
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :email "some@gmail.com"
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :email "some@gmail.com"
+                                                    :is-admin nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :email nil
+                                                    :is-admin nil)
+USER
+
+POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
+                                                    :email nil
+                                                    :is-admin t)
+; Debugger entered on #<SIMPLE-ERROR "Admin should have an email!" {100B6CAD73}>
+
+#+end_src
+
+Now we need to wrap this into a single constructor ~make-user~ which will
+return objects of different classes depending on arguments:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun make-user (&rest args &key email is-admin)
+             (declare (ignore email is-admin))
+             (let ((class (apply #'dynamic-classes:determine-dynamic-class
+                                 :user 'user
+                                 args)))
+               (apply #'make-instance class
+                      ;; We don't store is-admin as the slot:
+                      (rutils:remove-from-plist args :is-admin))))
+
+POFTHEDAY> (make-user)
+#<USER {1006704893}>
+
+POFTHEDAY> (make-user :email "blah@min.or")
+#<USER-AND-AUTHENTICATED {1006779083}>
+
+POFTHEDAY> (make-user :email "blah@min.or" :is-admin t)
+#<USER-AND-AUTHENTICATED-AND-ADMIN {10067C26C3}>
+
+POFTHEDAY> (make-user :is-admin t)
+; Debugger entered on #<SIMPLE-ERROR "Admin should have an email!" {10067D0193}>
+
+#+end_src
+
+To make these classes print in a human readable way, use [[https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html][print-items]]
+library, reviewed in the [[https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html][post #0145]].

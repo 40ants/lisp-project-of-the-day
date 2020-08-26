@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>dynamic-classes
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>dynamic-classes</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>dynamic-classes<span class='tags'><a href='../../tags/clos.html'><span class='label label-default'>clos</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This library allows to dynamically create CLOS classes as a mixin composition. Mixins are choosed depending on parameters given to the constructor.</p>
+<p>For example, if we have in our system users, which can be authenticated and additionally can be admins, then we can to define their classes like:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defclass user ()
+             ())
+
+POFTHEDAY&gt; (defclass authenticated ()
+             ((email :initarg :email)))
+
+POFTHEDAY&gt; (defclass admin ()
+             ())</code></pre><p>Now we need to tell the system how to apply our mixins when different parameters are passed. If there is <code>:email</code>, then user will be considered authenticated. If there is <code>:is-admin t</code> - he is the admin.</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (dynamic-classes:add-parameter-&gt;dynamic-class
+            :user :email &#039;authenticated)
+NIL
+POFTHEDAY&gt; (dynamic-classes:add-parameter-&gt;dynamic-class
+            :user :is-admin &#039;admin)
+NIL</code></pre><p>We also have to declare these methods to make the framework do it's job:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &amp;rest parameters)
+             &quot;This method can modify list of classes used to combine into a new class
+              for given parameters. Or some restrictions can be applied.&quot;
+             (declare (ignorable dynamic-class parameters))
+             class-list)
+
+POFTHEDAY&gt; (defmethod dynamic-classes:existing-subclass
+               ((class-type (eql :user)) class-list)
+             &quot;This method allows to return a custom class. If it returns nil,
+              the first class from the class-list will be choosen.&quot;
+             (declare (ignorable class-list))
+             (values nil))</code></pre><p>Now let's check how it works. There is a function to create and return the class depending on parameters:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user)
+USER
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user :email &quot;some@gmail.com&quot;)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user :email nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :email &quot;some@gmail.com&quot;
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :is-admin t)
+USER-AND-ADMIN</code></pre><p>Do you see there a strange behavior? We can pass the <code>nil</code> as an email and user will be considered <code>authenticated</code> or we can use <code>:is-admin</code> without email and will get unauthenticated admin class!</p>
+<p>Fortunately, there is a hook to apply additional restrictions:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defmethod dynamic-classes:include-class-dependencies
+               ((class-type (eql :user))
+                dynamic-class class-list &amp;rest parameters)
+             (declare (ignorable dynamic-class parameters))
+
+             ;; If email is not given we don&#039;t want consider
+             ;; the user authenticated:
+             (when (and (member :email parameters)
+                        (null (getf parameters :email)))
+               (rutils:removef class-list &#039;authenticated))
+
+             ;; And if :is-admin nil then he is not an admin:
+             (when (and (member :is-admin parameters)
+                        (null (getf parameters :is-admin)))
+               (rutils:removef class-list &#039;admin))
+
+             ;; Also, we need admins always be authenticated:
+             (when (and (member &#039;admin class-list)
+                        (not (member &#039;authenticated class-list)))
+               (error &quot;Admin should have an email!&quot;))
+
+             class-list)
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :email &quot;some@gmail.com&quot;
+                                                    :is-admin t)
+USER-AND-AUTHENTICATED-AND-ADMIN
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :email &quot;some@gmail.com&quot;
+                                                    :is-admin nil)
+USER-AND-AUTHENTICATED
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :email nil
+                                                    :is-admin nil)
+USER
+
+POFTHEDAY&gt; (dynamic-classes:determine-dynamic-class :user &#039;user
+                                                    :email nil
+                                                    :is-admin t)
+; Debugger entered on #&lt;SIMPLE-ERROR &quot;Admin should have an email!&quot; {100B6CAD73}&gt;</code></pre><p>Now we need to wrap this into a single constructor <code>make-user</code> which will return objects of different classes depending on arguments:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun make-user (&amp;rest args &amp;key email is-admin)
+             (declare (ignore email is-admin))
+             (let ((class (apply #&#039;dynamic-classes:determine-dynamic-class
+                                 :user &#039;user
+                                 args)))
+               (apply #&#039;make-instance class
+                      ;; We don&#039;t store is-admin as the slot:
+                      (rutils:remove-from-plist args :is-admin))))
+
+POFTHEDAY&gt; (make-user)
+#&lt;USER {1006704893}&gt;
+
+POFTHEDAY&gt; (make-user :email &quot;blah@min.or&quot;)
+#&lt;USER-AND-AUTHENTICATED {1006779083}&gt;
+
+POFTHEDAY&gt; (make-user :email &quot;blah@min.or&quot; :is-admin t)
+#&lt;USER-AND-AUTHENTICATED-AND-ADMIN {10067C26C3}&gt;
+
+POFTHEDAY&gt; (make-user :is-admin t)
+; Debugger entered on #&lt;SIMPLE-ERROR &quot;Admin should have an email!&quot; {10067D0193}&gt;</code></pre><p>To make these classes print in a human readable way, use <a href="https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html">print-items</a> library, reviewed in the <a href="https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html">post #0145</a>.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
