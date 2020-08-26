@@ -1,0 +1,81 @@
+* lazy :language:
+
+This is a small library by [[https://twitter.com/codeninja_blog][@codeninja_blog]]. It provides only a macro to
+wrap and remember any form and a function to force it's evaluation.
+
+For example I'll create a few functions which accept and return lazy
+objects:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun request-name ()
+             (lazy:lazy
+               (format t "What is your name?~%")
+               (read-line)))
+
+
+POFTHEDAY> (defun greet (name)
+             (lazy:lazy
+               (format nil "Hello ~A!~%"
+                       (lazy:lazy-value name))))
+
+POFTHEDAY> (greet (request-name))
+#<LAZY::THUNK UNREALIZED>
+
+POFTHEDAY> (lazy:lazy-value *)
+What is your name?
+Bob
+"Hello Bob!
+"
+
+;; Second attempt to get the greeting value
+;; is not request for the user's name:
+POFTHEDAY> (lazy:lazy-value **)
+"Hello Bob!
+"
+
+#+end_src
+
+Or we can build a simple lazy sequences library. This function will
+create a sequence of numbers:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun make-lazy-sequence (&optional (start 0) (step 1))
+             (lazy:lazy
+               (values start
+                       (make-lazy-sequence (+ start step)
+                                           step))))
+
+#+end_src
+
+This one will allow to skip a number of items:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun lazy-skip (n lazy-sequence)
+             (lazy:lazy
+               (loop do
+                 (multiple-value-bind (item rest)
+                     (lazy:lazy-value lazy-sequence)
+                   (when (zerop n)
+                     (return (values item rest)))
+                   (decf n)
+                   (setf lazy-sequence rest)))))
+
+#+end_src
+
+
+#+begin_src lisp
+
+POFTHEDAY> (defun lazy-to-list (n lazy-sequence)
+             (loop with result = nil
+                   do (multiple-value-bind (item rest)
+                          (lazy:lazy-value lazy-sequence)
+                        (when (zerop n)
+                          (return (nreverse result)))
+                        (push item result)
+                        (setf lazy-sequence rest)
+                        (decf n))))
+
+#+end_src

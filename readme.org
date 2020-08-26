@@ -29,7 +29,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 21 August - [[content/2020/08/0168-texp.org][texp]] ([[https://twitter.com/svetlyak40wt/status/1296862545874161666][twitter]])
 - 22 August - [[content/2020/08/0169-snakes][snakes]] ([[https://twitter.com/svetlyak40wt/status/1297254695258533890][twitter]])
 - 23 August - [[content/2020/08/0170-portable-threads.org][portable-threads]] ([[https://twitter.com/svetlyak40wt/status/1297595282536923137][twitter]])
-- 26 August - [[content/2020/08/0171-dynamic-classes.org][dynamic-classes]]
+- 26 August - [[content/2020/08/0171-dynamic-classes.org][dynamic-classes]] ([[https://twitter.com/svetlyak40wt/status/1298528945768341504][twitter]])
+- 27 August - [[content/2020/08/0172-lazy.org][lazy]]
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
@@ -1205,6 +1206,7 @@ files, and extracting their ":defsystem-depends-on".
 - http://quickdocs.org/mockingbird/
 - http://quickdocs.org/trivial-main-thread/
 - https://github.com/sirherrbatka/vellum - dataframes
+- http://massung.github.io/quickdoc/example.html - interesting markup language
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
