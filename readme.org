@@ -29,6 +29,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 21 August - [[content/2020/08/0168-texp.org][texp]] ([[https://twitter.com/svetlyak40wt/status/1296862545874161666][twitter]])
 - 22 August - [[content/2020/08/0169-snakes][snakes]] ([[https://twitter.com/svetlyak40wt/status/1297254695258533890][twitter]])
 - 23 August - [[content/2020/08/0170-portable-threads.org][portable-threads]] ([[https://twitter.com/svetlyak40wt/status/1297595282536923137][twitter]])
+- 26 August - [[content/2020/08/0171-dynamic-classes.org][dynamic-classes]]
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])

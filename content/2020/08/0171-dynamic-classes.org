@@ -9,7 +9,7 @@
 :END:
 
 This library allows to dynamically create CLOS classes as a mixin
-composition. Mixins are choosed depending on parameters given to the
+composition. Mixins are choosen depending on parameters given to the
 constructor.
 
 For example, if we have in our system users, which can be authenticated
@@ -30,7 +30,7 @@ POFTHEDAY> (defclass admin ()
 #+end_src
 
 Now we need to tell the system how to apply our mixins when different
-parameters are passed. If there is ~:email~, then user will be considered
+parameters are passed. If there is ~:email~, then the user will be considered
 authenticated. If there is ~:is-admin t~ - he is the admin.
 
 #+begin_src lisp
@@ -44,7 +44,9 @@ NIL
 
 #+end_src
 
-We also have to declare these methods to make the framework do it's job:
+We also have to declare these methods to make the framework do its
+job. Probably this can be avoided if only the default implementation was
+specialized not on ~class-type (eql nil)~.
 
 #+begin_src lisp
 
@@ -66,7 +68,7 @@ POFTHEDAY> (defmethod dynamic-classes:existing-subclass
 #+end_src
 
 Now let's check how it works. There is a function to create and return
-the class depending on parameters:
+the class depending on the parameters:
 
 #+begin_src lisp
 
@@ -144,7 +146,7 @@ POFTHEDAY> (dynamic-classes:determine-dynamic-class :user 'user
 #+end_src
 
 Now we need to wrap this into a single constructor ~make-user~ which will
-return objects of different classes depending on arguments:
+return objects of different class depending on arguments:
 
 #+begin_src lisp
 
@@ -171,5 +173,11 @@ POFTHEDAY> (make-user :is-admin t)
 
 #+end_src
 
-To make these classes print in a human readable way, use [[https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html][print-items]]
+To make these classes print in a human-readable way, use [[https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html][print-items]]
 library, reviewed in the [[https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html][post #0145]].
+
+The more sophisticated use of the ~dynamic-classes~ can be found in the
+[[https://github.com/gwkkwg/cl-containers/blob/810927e19d933bcf38ffeb7a23ce521efc432d45/dev/dynamic-class-defs.lisp][cl-containers]] library. It uses dynamic-classes to mix container and
+iterator classes to give them different traits depending on constructor's
+parameters.
+

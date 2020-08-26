@@ -4,7 +4,7 @@
 :Docstrings: :)
 :Tests:    :)
 :Examples: :(
-:RepositoryActivity: :|s
+:RepositoryActivity: :|
 :CI:       :(
 :END:
 
