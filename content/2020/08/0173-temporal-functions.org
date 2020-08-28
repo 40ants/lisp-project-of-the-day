@@ -1,0 +1,61 @@
+* temporal-functions :datetime:utils:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a small library by [[https://twitter.com/thebaggers/][@thebaggers]] allows you to define functions
+which work only specified amount of time. You can use it to define a
+named function or to create a lambda.
+
+This will print a greeting only 10 seconds since definition:
+
+#+begin_src lisp
+
+POFTHEDAY> (temporal-functions:defun-t foo ()
+             (temporal-functions:before (temporal-functions:seconds 10)
+               (print "Hello Lisp World!")))
+
+POFTHEDAY> (foo)
+"Hello Lisp World!" 
+"Hello Lisp World!"
+
+POFTHEDAY> (foo)
+"Hello Lisp World!" 
+"Hello Lisp World!"
+
+POFTHEDAY> (foo)
+NIL
+
+POFTHEDAY> (temporal-functions:expiredp (foo))
+T
+
+#+end_src
+
+It is possible to create a function which starts doing something after
+the specified amount of time:
+
+#+begin_src lisp
+
+POFTHEDAY> (temporal-functions:tlambda ()
+             (temporal-functions:after (temporal-functions:seconds 10)
+               (print "Now I'm working!")))
+#<CLOSURE (LAMBDA ()) {1001D5183B}>
+
+POFTHEDAY> (funcall *)
+NIL
+
+POFTHEDAY> (funcall **)
+
+"Now I'm working!" 
+"Now I'm working!"
+
+#+end_src
+
+There are also other constructions like ~then~, ~repeat~, ~each~, ~until~ and
+~once~. But I wasn't able to figure out the right way to use them. It
+would be wonderful if  [[https://twitter.com/thebaggers/][@thebaggers]] update the documentation!
