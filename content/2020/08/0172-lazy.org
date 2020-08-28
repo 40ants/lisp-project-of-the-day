@@ -1,4 +1,12 @@
 * lazy :language:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
 This is a small library by [[https://twitter.com/codeninja_blog][@codeninja_blog]]. It provides only a macro to
 wrap and remember any form and a function to force its evaluation.

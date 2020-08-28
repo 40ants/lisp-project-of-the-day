@@ -6,6 +6,43 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>temporal-functions</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0173-temporal-functions.html</link>
+            <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; allows you to define functions which work only specified amount of time. You can use it to define a named function or to create a lambda.&lt;/p&gt;
+&lt;p&gt;This will print a greeting only 10 seconds since definition:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (temporal-functions:defun-t foo ()
+             (temporal-functions:before (temporal-functions:seconds 10)
+               (print &amp;quot;Hello Lisp World!&amp;quot;)))
+
+POFTHEDAY&amp;gt; (foo)
+&amp;quot;Hello Lisp World!&amp;quot; 
+&amp;quot;Hello Lisp World!&amp;quot;
+
+POFTHEDAY&amp;gt; (foo)
+&amp;quot;Hello Lisp World!&amp;quot; 
+&amp;quot;Hello Lisp World!&amp;quot;
+
+POFTHEDAY&amp;gt; (foo)
+NIL
+
+POFTHEDAY&amp;gt; (temporal-functions:expiredp (foo))
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is possible to create a function which starts doing something after the specified amount of time:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (temporal-functions:tlambda ()
+             (temporal-functions:after (temporal-functions:seconds 10)
+               (print &amp;quot;Now I&amp;#039;m working!&amp;quot;)))
+#&amp;lt;CLOSURE (LAMBDA ()) {1001D5183B}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall *)
+NIL
+
+POFTHEDAY&amp;gt; (funcall **)
+
+&amp;quot;Now I&amp;#039;m working!&amp;quot; 
+&amp;quot;Now I&amp;#039;m working!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other constructions like &lt;code&gt;then&lt;/code&gt;, &lt;code&gt;repeat&lt;/code&gt;, &lt;code&gt;each&lt;/code&gt;, &lt;code&gt;until&lt;/code&gt; and &lt;code&gt;once&lt;/code&gt;. But I wasn&apos;t able to figure out the right way to use them. It would be wonderful if  &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; update the documentation!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 28 Aug 2020 23:05:12 +0300</pubDate>
+        </item>
+        <item>
             <title>lazy</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0172-lazy.html</link>
             <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;. It provides only a macro to wrap and remember any form and a function to force its evaluation.&lt;/p&gt;
@@ -1277,66 +1314,6 @@ Use *BREAK-ON-SIGNALS* to intercept.
  The variable LEVEL is unbound.
  It is a local variable not available at compile-time.&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Fri, 07 Aug 2020 23:05:02 +0300</pubDate>
-        </item>
-        <item>
-            <title>packet</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0153-packet.html</link>
-            <description>&lt;p&gt;This library is suitable to build a binary protocol to exchange data with programs written in other languages like C.&lt;/p&gt;
-&lt;p&gt;It is possible to define data structures like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (packet:defpacket person
-               ((name (:string 20)
-                      :initform &amp;quot;&amp;quot;
-                      :initarg :name
-                      :reader name)
-                (admin :bool
-                       :initform nil
-                       :initarg :admin
-                       :reader admin))
-             (:documentation &amp;quot;A person structure&amp;quot;))
-
-POFTHEDAY&amp;gt; (defmethod print-object ((person person) stream)
-             (print-unreadable-object (person stream :type t :identity t)
-               (format stream &amp;quot;~A~@[ admin~]&amp;quot;
-                       (name person)
-                       (admin person))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can serialize and deserialize objects of this type:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-instance &amp;#039;person
-                           :name &amp;quot;Bob&amp;quot;
-                           :admin t)
-#&amp;lt;PERSON Bob admin {1002C2F7A3}&amp;gt;
-
-POFTHEDAY&amp;gt; (packet:pack * &amp;#039;person)
-#(66 111 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
-
-POFTHEDAY&amp;gt; (packet:unpack * &amp;#039;person)
-#&amp;lt;PERSON Bob admin {1002E60C73}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;defpacket&lt;/code&gt; macro expands into the &lt;code&gt;CLOS&lt;/code&gt; class definition and the serialization code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(progn
- (defclass person nil
-           ((name :initform &amp;quot;&amp;quot; :initarg :name :reader name)
-            (admin :initform nil :initarg :admin :reader admin))
-           (:documentation &amp;quot;A person structure&amp;quot;))
-
- (let ((#:packing919 packet::*default-packing*))
-   (multiple-value-bind (#:slots921 #:size920)
-       (packet::compute-real-slots
-        (list (list &amp;#039;name (list &amp;#039;:string 20))
-              (list &amp;#039;admin &amp;#039;:bool))
-        #:packing919 nil)
-     (packet::%define-type
-      &amp;#039;person
-      (lambda
-          (packet::object packet::buffer packet::start)
-        (packet::pack-object packet::object #:slots921
-                             packet::buffer
-                             packet::start))
-      (lambda (packet::buffer packet::start)
-        (packet::unpack-object (make-instance &amp;#039;person)
-                               #:slots921 packet::buffer
-                               packet::start))
-      #:size920)))
- &amp;#039;person)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, nested types are supported. You will find such examples in &lt;a href=&quot;https://github.com/fjames86/packet&quot;&gt;the documentation&lt;/a&gt;. There are other features as well. Read the docs!&lt;/p&gt;
-&lt;p&gt;If you are interested in packing data into binary formats, look at &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/serialization.html&quot;&gt;other libraries&lt;/a&gt; reviewed in #poftheday posts.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 06 Aug 2020 23:38:30 +0300</pubDate>
         </item>
     </channel>
 </rss>
