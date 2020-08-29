@@ -6,6 +6,31 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>list-named-class</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0174-list-named-class.html</link>
+            <description>&lt;p&gt;This is &lt;a href=&quot;https://github.com/phoe/list-named-class&quot;&gt;the library&lt;/a&gt; by Michał &quot;phoe&quot; Herda. It extends CLOS allowing to use lists of symbols as class names:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (list-named-class:defclass (:user :model) ()
+             ())
+
+POFTHEDAY&amp;gt; (list-named-class:defclass (:user :view) ()
+             ())
+
+POFTHEDAY&amp;gt; (list-named-class:defgeneric render (obj))
+
+POFTHEDAY&amp;gt; (list-named-class:defmethod render ((obj (:user :view)))
+             (format nil &amp;quot;Rendered User View&amp;quot;))
+
+POFTHEDAY&amp;gt; (list-named-class:make-instance &amp;#039;(:user :view))
+#&amp;lt;(:USER :VIEW) {10076F6CC3}&amp;gt;
+
+POFTHEDAY&amp;gt; (render *)
+&amp;quot;Rendered User View&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can be useful when classes are defined using some macros. Not sure why somebody should prefer such class-names instead of symbols.&lt;/p&gt;
+&lt;p&gt;Here are some examples of &lt;code&gt;list-named-class&lt;/code&gt; usage I found in the wild:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+</description>
+            <pubDate>Sat, 29 Aug 2020 23:31:36 +0300</pubDate>
+        </item>
+        <item>
             <title>temporal-functions</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0173-temporal-functions.html</link>
             <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; allows you to define functions which work only specified amount of time. You can use it to define a named function or to create a lambda.&lt;/p&gt;
@@ -1196,124 +1221,6 @@ POFTHEDAY&amp;gt; (dufy:qrgb-deltae00
 &lt;p&gt;Probably there are other function for color manipulation which I don&apos;t understand.&lt;/p&gt;
 </description>
             <pubDate>Sat, 08 Aug 2020 23:42:45 +0300</pubDate>
-        </item>
-        <item>
-            <title>macrodynamics</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0154-macrodynamics.html</link>
-            <description>&lt;p&gt;Found a useful library for writing macro and using dynamic variables during expansion. I didn&apos;t try to figure out how does it work (yet) but decided to make a more visual example than the code from library&apos;s README.&lt;/p&gt;
-&lt;p&gt;Let&apos;s pretend we tried to write the code like this, manually placing h1, h2, h3, for headers:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (:h1 &amp;quot;Hello&amp;quot;)
-             (:h2 &amp;quot;World&amp;quot;)
-             (:p &amp;quot;This is an example&amp;quot;))
-&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
- &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
- &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;d like to write more semantic code separated into the sections:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (section &amp;quot;Hello&amp;quot;
-               (section &amp;quot;World&amp;quot;
-                 (:p &amp;quot;This is an example&amp;quot;))))
-&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
- &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
- &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;First, let&apos;s try to implement the &lt;code&gt;section&lt;/code&gt; macro using Lisp&apos;s dynamic variable:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro section (title &amp;amp;body body)
-             (let* ((*level* (1+ *level*))
-                    (tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
-                    (tag (alexandria:make-keyword tag-name)))
-               `(spinneret:with-html
-                  (,tag ,title)
-                  ,@body)))
-
-POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (section &amp;quot;Hello&amp;quot;
-               (section &amp;quot;World&amp;quot;
-                 (:p &amp;quot;This is an example&amp;quot;))))
-&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
- &amp;lt;h1&amp;gt;World&amp;lt;/h1&amp;gt;
- &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This does not work.&lt;/p&gt;
-&lt;p&gt;Why did this happened? Let&apos;s add some logging to our macro function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmacro section (title &amp;amp;body body)
-             (let* ((*level* (1+ *level*))
-                    (tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
-                    (tag (alexandria:make-keyword tag-name)))
-               (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
-                       *level*)
-               `(spinneret:with-html
-                  (,tag ,title)
-                  ,@body)))
-
-POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (section &amp;quot;Hello&amp;quot;
-               (section &amp;quot;World&amp;quot;
-                 (:p &amp;quot;This is an example&amp;quot;))))
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=1
-&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
- &amp;lt;h1&amp;gt;World&amp;lt;/h1&amp;gt;
- &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Don&apos;t know why does it output 6 times instead of 2. But definitely, there is something wrong with our dynamic variable&apos;s value, isn&apos;t it?&lt;/p&gt;
-&lt;p&gt;Now let&apos;s use &lt;code&gt;macrodynamics&lt;/code&gt; to define the variable, macro and the binding:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (macrodynamics:def-dynenv-var *level* 0)
-
-POFTHEDAY&amp;gt; (macrodynamics:def-dynenv-macro section (title &amp;amp;body body)
-             (macrodynamics:ct-let ((*level* (1+ *level*)))
-               (let* ((tag-name (format nil &amp;quot;H~A&amp;quot; *level*))
-                      (tag (alexandria:make-keyword tag-name)))
-                 (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
-                         *level*)
-                 `(spinneret:with-html
-                    (,tag ,title)
-                    ,@body))))
-
-POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (section &amp;quot;Hello&amp;quot;
-               (section &amp;quot;World&amp;quot;
-                 (:p &amp;quot;This is an example&amp;quot;))))
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=1
-Expanding section with level=2
-Expanding section with level=2
-&amp;quot;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;
- &amp;lt;h2&amp;gt;World&amp;lt;/h2&amp;gt;
- &amp;lt;p&amp;gt;This is an example&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Wonderful! Now it works!&lt;/p&gt;
-&lt;h2&gt;Update&lt;/h2&gt;&lt;p&gt;@PuercoPop &lt;a href=&quot;https://twitter.com/PuercoPop/status/1291887983822544898&quot;&gt;asked on Twitter&lt;/a&gt; if &lt;code&gt;macrolet&lt;/code&gt; will be enough in the above example. I&apos;ve tested this hypothesis and no, it is not suitable replacement for &lt;code&gt;macrodynamics&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((level 0))
-             (macrolet ((section (title &amp;amp;body body)
-                         (let* ((level (1+ level))
-                                (tag-name (format nil &amp;quot;H~A&amp;quot; level))
-                                (tag (alexandria:make-keyword tag-name)))
-                           (format t &amp;quot;Expanding section with level=~A~%&amp;quot;
-                                   level)
-                           `(spinneret:with-html
-                              (,tag ,title)
-                              ,@body))))
-                (spinneret:with-html-string
-                  (section &amp;quot;Hello&amp;quot;
-                    (section &amp;quot;World&amp;quot;
-                      (:p &amp;quot;This is an example&amp;quot;))))))
-
-;; It ends with this error:
-
-Execution of a form compiled with errors.
-Form:
-  (SECTION &amp;quot;Hello&amp;quot;
-  (SECTION &amp;quot;World&amp;quot;
-    (SPINNERET::WITH-TAG (:P)
-      &amp;quot;This is an example&amp;quot;)))
-Compile-time error:
-  during macroexpansion of
-(SECTION &amp;quot;Hello&amp;quot;
-  (SECTION &amp;quot;World&amp;quot;
-    #)).
-Use *BREAK-ON-SIGNALS* to intercept.
-
- The variable LEVEL is unbound.
- It is a local variable not available at compile-time.&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Fri, 07 Aug 2020 23:05:02 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -32,10 +32,10 @@ POFTHEDAY> (render *)
 
 #+end_src
 
-This can be useful when classes are defined using some macroses. Not
+This can be useful when classes are defined using some macros. Not
 sure why somebody should prefer such class-names instead of symbols.
 
-Here is some examples of ~list-named-class~ usage I found in the wild:
+Here are some examples of ~list-named-class~ usage I found in the wild:
 
 - https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp
 - https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp

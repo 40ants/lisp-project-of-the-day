@@ -32,6 +32,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 26 August - [[content/2020/08/0171-dynamic-classes.org][dynamic-classes]] ([[https://twitter.com/svetlyak40wt/status/1298528945768341504][twitter]])
 - 27 August - [[content/2020/08/0172-lazy.org][lazy]] ([[https://twitter.com/svetlyak40wt/status/1298735259480207360][twitter]])
 - 28 August - [[content/2020/08/0173-temporal-functions.org][temporal-functions]] ([[https://twitter.com/svetlyak40wt/status/1299437831769780225][twitter]])
+- 29 August - [[content/2020/08/0174-list-named-class.org][list-named-class]] ([[https://twitter.com/svetlyak40wt/status/1299806884493393926][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
