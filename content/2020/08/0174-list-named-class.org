@@ -1,0 +1,41 @@
+* list-named-class :language:clos:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is [[https://github.com/phoe/list-named-class][the library]] by Michał "phoe" Herda. It extends CLOS allowing to
+use lists of symbols as class names:
+
+#+begin_src lisp
+
+POFTHEDAY> (list-named-class:defclass (:user :model) ()
+             ())
+
+POFTHEDAY> (list-named-class:defclass (:user :view) ()
+             ())
+
+POFTHEDAY> (list-named-class:defgeneric render (obj))
+
+POFTHEDAY> (list-named-class:defmethod render ((obj (:user :view)))
+             (format nil "Rendered User View"))
+
+POFTHEDAY> (list-named-class:make-instance '(:user :view))
+#<(:USER :VIEW) {10076F6CC3}>
+
+POFTHEDAY> (render *)
+"Rendered User View"
+
+#+end_src
+
+This can be useful when classes are defined using some macroses. Not
+sure why somebody should prefer such class-names instead of symbols.
+
+Here is some examples of ~list-named-class~ usage I found in the wild:
+
+- https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp
+- https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp
