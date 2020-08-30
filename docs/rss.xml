@@ -6,6 +6,116 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>smug</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0175-smug.html</link>
+            <description>&lt;p&gt;This system provides a framework for building parsers in a functional way.&lt;/p&gt;
+&lt;p&gt;Smug parsers are lisp functions which can be combined together to process complex grammar. Actually, it can process anything, not only the text - any data source which can be read token by token is suitable.&lt;/p&gt;
+&lt;p&gt;Documentation on &lt;code&gt;smug&lt;/code&gt; is extremely good! I&apos;ll how only the basics. Good job, &lt;a href=&quot;https://twitter.com/drewcrampsie&quot;&gt;@drewcrampsie&lt;/a&gt;. Read &lt;a href=&quot;http://smug.drewc.ca/tutorial.html&quot;&gt;the official tutorial&lt;/a&gt; to learn in deep how this sytem works!&lt;/p&gt;
+&lt;p&gt;Today we&apos;ll create a parser which will be able to transform texts like &quot;3 days ago&quot; into the &lt;code&gt;local-time-duration:duration&lt;/code&gt; objects.&lt;/p&gt;
+&lt;p&gt;To start, let&apos;s create a simple parser which will match a digit character:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .digit ()
+             (smug:.is #&amp;#039;digit-char-p))
+
+POFTHEDAY&amp;gt; (smug:run (.digit)
+                     &amp;quot;17 hours ago&amp;quot;)
+((#\1 . &amp;quot;7 hours ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can use &lt;code&gt;.map&lt;/code&gt; to capture a sequence of digits matched to the parser:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (smug:run (smug:.map &amp;#039;list (.digit))
+                     &amp;quot;17 hours ago&amp;quot;)
+(((#\1 #\7) . &amp;quot; hours ago&amp;quot;)
+ ((#\1)     . &amp;quot;7 hours ago&amp;quot;))
+
+;; We also might produce strings:
+POFTHEDAY&amp;gt; (smug:run (smug:.map &amp;#039;string (.digit))
+                     &amp;quot;17 hours ago&amp;quot;)
+((&amp;quot;17&amp;quot; . &amp;quot; hours ago&amp;quot;)
+ (&amp;quot;1&amp;quot;  . &amp;quot;7 hours ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to transform it into the number. I&apos;ll wrap all code into the parser function and use &lt;code&gt;smug:.bind&lt;/code&gt; to process the captured values:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .integer ()
+             (smug:.bind (smug:.map &amp;#039;string (.digit))
+                         (lambda (text)
+                           (smug:.identity (read-from-string text)))))
+
+POFTHEDAY&amp;gt; (smug:run (.integer)
+                     &amp;quot;17 hours ago &amp;quot;)
+((17 . &amp;quot; hours ago &amp;quot;)
+ (1 . &amp;quot;7 hours ago &amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to parse time units:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (smug:run (smug:.prog1 (smug:.string-equal &amp;quot;hour&amp;quot;)
+                                  ;; This will &amp;quot;eat&amp;quot; the &amp;quot;s&amp;quot; letter
+                                  ;; on the end of the plural form
+                                  ;; if it is used:
+                                  (smug:.string-equal &amp;quot;s&amp;quot;))
+                    &amp;quot;hours ago&amp;quot;)
+((&amp;quot;hour&amp;quot; . &amp;quot; ago&amp;quot;))
+
+;; Again, we&amp;#039;ll want to convert the string into the keyword and to wrap
+;; the parser into a function:
+
+POFTHEDAY&amp;gt; (defun .unit ()
+             (smug:.bind (smug:.prog1 (smug:.or (smug:.string-equal &amp;quot;hour&amp;quot;)
+                                                (smug:.string-equal &amp;quot;minute&amp;quot;)
+                                                (smug:.string-equal &amp;quot;second&amp;quot;))
+                                      ;; This will &amp;quot;eat&amp;quot; the &amp;quot;s&amp;quot; letter
+                                      ;; on the end of the plural form
+                                      ;; if it is used:
+                                      (smug:.or (smug:.string-equal &amp;quot;s&amp;quot;)
+                                                (smug:.identity nil)))
+                         (lambda (text)
+                           (smug:.identity (alexandria:make-keyword
+                                            (string-upcase text))))))
+
+POFTHEDAY&amp;gt; (smug:run (.unit)
+                     &amp;quot;hours ago&amp;quot;)
+((:HOUR . &amp;quot; ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we need a parser to process optional suffix pointing to the time in past:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .in-past-p ()
+             (smug:.or (smug:.string-equal &amp;quot;ago&amp;quot;)
+                       (smug:.identity nil)))
+
+POFTHEDAY&amp;gt; (smug:run (.in-past-p)
+                     &amp;quot;ago&amp;quot;)
+((&amp;quot;ago&amp;quot; . &amp;quot;&amp;quot;))
+
+POFTHEDAY&amp;gt; (smug:run (.in-past-p)
+                     &amp;quot;some&amp;quot;)
+((NIL . &amp;quot;some&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to combine our parsers into a more complex one which will return a &lt;code&gt;local-time-duration&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .whitespace ()
+             (smug:.is #&amp;#039;member
+                       &amp;#039;(#\Space #\Tab #\Newline)))
+
+POFTHEDAY&amp;gt; (defun .duration ()
+             (smug:.let* ((value (.integer))
+                          (_ (.whitespace))
+                          (unit (.unit))
+                          (_ (.whitespace))
+                          (in-past (.in-past-p)))
+               (let* ((seconds
+                        (* value
+                           (ecase unit
+                             (:hour (* 60 60))
+                             (:minute 60)
+                             (:second 1))
+                           (if in-past
+                               -1
+                               1)))
+                      (duration
+                        (make-instance &amp;#039;local-time-duration:duration
+                                       :sec seconds)))
+                 
+                 (smug:.identity duration))))
+
+;; A few checks if everything is OK:
+
+POFTHEDAY&amp;gt; (smug:parse (.duration)
+                       &amp;quot;17 hours ago&amp;quot;)
+#&amp;lt;LOCAL-TIME-DURATION:DURATION [0/-61200/0]  -17 hours&amp;gt;
+
+POFTHEDAY&amp;gt; (smug:parse (.duration)
+                       &amp;quot;5 minute &amp;quot;)
+#&amp;lt;LOCAL-TIME-DURATION:DURATION [0/300/0]  5 minutes&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today. And again, to learn more, read SMUG&apos;s documentation. It is one of the best-documented Lisp systems I&apos;ve ever seen:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://smug.drewc.ca/smug.html&quot;&gt;http://smug.drewc.ca/smug.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Thank you, @drewcrampsie!&lt;/p&gt;
+</description>
+            <pubDate>Sun, 30 Aug 2020 22:50:00 +0300</pubDate>
+        </item>
+        <item>
             <title>list-named-class</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0174-list-named-class.html</link>
             <description>&lt;p&gt;This is &lt;a href=&quot;https://github.com/phoe/list-named-class&quot;&gt;the library&lt;/a&gt; by Michał &quot;phoe&quot; Herda. It extends CLOS allowing to use lists of symbols as class names:&lt;/p&gt;
@@ -1146,81 +1256,6 @@ CL-USER&amp;gt; (set-difference *features*
 (:LITTLE-ENDIAN :BSD :64-BIT)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To finalize, if you are going to use the conditional reader in your system and depend on OS or CPU architecture - use &lt;code&gt;trivial-features&lt;/code&gt;.&lt;/p&gt;
 </description>
             <pubDate>Sun, 09 Aug 2020 23:41:17 +0300</pubDate>
-        </item>
-        <item>
-            <title>dufy</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html</link>
-            <description>&lt;p&gt;This library is named in honour of &lt;a href=&quot;https://en.wikipedia.org/wiki/Raoul_Dufy&quot;&gt;Raoul Dufy&lt;/a&gt;, the French painter. It provides functions for color manipulation and conversion in various color spaces.&lt;/p&gt;
-&lt;p&gt;To experiment with &lt;code&gt;Dufy&lt;/code&gt; we&apos;ll write a two helper function to convert &lt;code&gt;RGB&lt;/code&gt; colors from and to hexadecimal representation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun string-to-rgb (s)
-             (loop for i from 1 to 5 by 2
-                   collect (parse-integer s
-                                          :start i
-                                          :end (+ 2 i)
-                                          :radix 16)
-                     into result
-                   finally (return (values-list result))))
-
-POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#F4BBFF&amp;quot;)
-244
-187
-255
-
-POFTHEDAY&amp;gt; (defun rgb-to-string (r g b)
-             (format nil &amp;quot;#~2,&amp;#039;0X~2,&amp;#039;0X~2,&amp;#039;0X&amp;quot;
-                     r g b))
-
-POFTHEDAY&amp;gt; (rgb-to-string 244 187 255)
-&amp;quot;#F4BBFF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to test how does color conversion work:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dufy:qrgb-to-hsv 244 187 255)
-290.2941176470588d0
-0.2666666666666667d0
-1.0d0 (100.0d0%)
-
-POFTHEDAY&amp;gt; (dufy:hsv-to-qrgb 290.2941176470588d0
-                             0.2666666666666667d0
-                             1.0d0)
-244
-187
-255&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;Dufy&lt;/code&gt; provides a number of such functions. It also implements functions for &lt;a href=&quot;https://en.wikipedia.org/wiki/Color_difference&quot;&gt;color difference&lt;/a&gt; calculation.&lt;/p&gt;
-&lt;p&gt;But let&apos;s do something more practical - create a color which is a little bit darker but has the same tone.&lt;/p&gt;
-&lt;p&gt;To do this, we need to convert &lt;code&gt;RGB&lt;/code&gt; to &lt;code&gt;HSV&lt;/code&gt;, reduce &lt;code&gt;V&lt;/code&gt; part and convert it back. This function can be useful when generating &lt;code&gt;CSS&lt;/code&gt; using &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0021-lass.html&quot;&gt;Lass&lt;/a&gt; library:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun darker (color &amp;amp;optional (ratio 0.75))
-             &amp;quot;Returns CSS color which is a little bit darker&amp;quot;
-             (rutils:with ((r g b (string-to-rgb color))
-                           (h s v (dufy:qrgb-to-hsv r g b))
-                           (new-r new-g new-b (dufy:hsv-to-qrgb h s (* v ratio))))
-               (rgb-to-string new-r new-g new-b)))
-
-POFTHEDAY&amp;gt; (darker &amp;quot;#F4BBFF&amp;quot;)
-&amp;quot;#B78CBF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
-&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;Original (#F4BBFF)&lt;/div&gt;
-
-&lt;div style=&quot;background-color: #B78CBF; width: 400px; height: 50px; padding: 10px&quot;&gt;Darker (#B78CBF)&lt;/div&gt;&lt;p&gt;Let&apos;s tests the function for distance calculation and find out how different these two colors!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#F4BBFF&amp;quot;)
-244
-187
-255
-
-POFTHEDAY&amp;gt; (string-to-rgb &amp;quot;#B78CBF&amp;quot;)
-183
-140
-191
-
-POFTHEDAY&amp;gt; (dufy:qrgb-deltae00
-              244 187 255
-              183 140 191)
-14.557112327275474d0
-
-;; The difference between black and white:
-
-POFTHEDAY&amp;gt; (dufy:qrgb-deltae00
-              255 255 255
-              0 0 0)
-100.00000000000003d0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/cxxxr/lem&quot;&gt;Lem&lt;/a&gt; uses a similar function to &lt;a href=&quot;https://github.com/cxxxr/lem/blob/0ada0951c47817964e6994b1e76b559f9859447d/frontends/ncurses/term.lisp#L341-L351&quot;&gt;pick the nearest color index&lt;/a&gt;. But seems it is much simpler. I&apos;ll try to replace it with an algorithm from &lt;code&gt;Dufy&lt;/code&gt; and see if my problem with Solarized color theme will disappear.&lt;/p&gt;
-&lt;p&gt;Probably there are other function for color manipulation which I don&apos;t understand.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 08 Aug 2020 23:42:45 +0300</pubDate>
         </item>
     </channel>
 </rss>
