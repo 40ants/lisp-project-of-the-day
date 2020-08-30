@@ -1,0 +1,172 @@
+* smug :parsing:text_processing:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system provides a framework for building parsers in a functional way.
+
+Smug parsers are lisp functions which can be combined together to
+process complex grammar. Actually, it can process anything, not only the
+text - any data source which can be read token by token is suitable.
+
+Documentation on ~smug~ is extremely good! I'll how only the basics. Good
+job, [[https://twitter.com/drewcrampsie][@drewcrampsie]]. Read [[http://smug.drewc.ca/tutorial.html][the official tutorial]] to learn in deep how this
+sytem works!
+
+Today we'll create a parser which will be able to transform texts like
+"3 days ago" into the ~local-time-duration:duration~ objects.
+
+To start, let's create a simple parser which will match a digit character:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun .digit ()
+             (smug:.is #'digit-char-p))
+
+POFTHEDAY> (smug:run (.digit)
+                     "17 hours ago")
+((#\1 . "7 hours ago"))
+
+#+end_src
+
+We can use ~.map~ to capture a sequence of digits matched to the parser:
+
+#+begin_src lisp
+
+POFTHEDAY> (smug:run (smug:.map 'list (.digit))
+                     "17 hours ago")
+(((#\1 #\7) . " hours ago")
+ ((#\1)     . "7 hours ago"))
+
+;; We also might produce strings:
+POFTHEDAY> (smug:run (smug:.map 'string (.digit))
+                     "17 hours ago")
+(("17" . " hours ago")
+ ("1"  . "7 hours ago"))
+
+#+end_src
+
+Now it is time to transform it into the number. I'll wrap all code into
+the parser function and use ~smug:.bind~ to process the captured values:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun .integer ()
+             (smug:.bind (smug:.map 'string (.digit))
+                         (lambda (text)
+                           (smug:.identity (read-from-string text)))))
+
+POFTHEDAY> (smug:run (.integer)
+                     "17 hours ago ")
+((17 . " hours ago ")
+ (1 . "7 hours ago "))
+
+#+end_src
+
+It is time to parse time units:
+
+#+begin_src lisp
+
+POFTHEDAY> (smug:run (smug:.prog1 (smug:.string-equal "hour")
+                                  ;; This will "eat" the "s" letter
+                                  ;; on the end of the plural form
+                                  ;; if it is used:
+                                  (smug:.string-equal "s"))
+                    "hours ago")
+(("hour" . " ago"))
+
+;; Again, we'll want to convert the string into the keyword and to wrap
+;; the parser into a function:
+
+POFTHEDAY> (defun .unit ()
+             (smug:.bind (smug:.prog1 (smug:.or (smug:.string-equal "hour")
+                                                (smug:.string-equal "minute")
+                                                (smug:.string-equal "second"))
+                                      ;; This will "eat" the "s" letter
+                                      ;; on the end of the plural form
+                                      ;; if it is used:
+                                      (smug:.or (smug:.string-equal "s")
+                                                (smug:.identity nil)))
+                         (lambda (text)
+                           (smug:.identity (alexandria:make-keyword
+                                            (string-upcase text))))))
+
+POFTHEDAY> (smug:run (.unit)
+                     "hours ago")
+((:HOUR . " ago"))
+
+#+end_src
+
+And finally, we need a parser to process optional suffix pointing to the
+time in past:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun .in-past-p ()
+             (smug:.or (smug:.string-equal "ago")
+                       (smug:.identity nil)))
+
+POFTHEDAY> (smug:run (.in-past-p)
+                     "ago")
+(("ago" . ""))
+
+POFTHEDAY> (smug:run (.in-past-p)
+                     "some")
+((NIL . "some"))
+
+#+end_src
+
+It is time to combine our parsers into a more complex one which will
+return a ~local-time-duration~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun .whitespace ()
+             (smug:.is #'member
+                       '(#\Space #\Tab #\Newline)))
+
+POFTHEDAY> (defun .duration ()
+             (smug:.let* ((value (.integer))
+                          (_ (.whitespace))
+                          (unit (.unit))
+                          (_ (.whitespace))
+                          (in-past (.in-past-p)))
+               (let* ((seconds
+                        (* value
+                           (ecase unit
+                             (:hour (* 60 60))
+                             (:minute 60)
+                             (:second 1))
+                           (if in-past
+                               -1
+                               1)))
+                      (duration
+                        (make-instance 'local-time-duration:duration
+                                       :sec seconds)))
+                 
+                 (smug:.identity duration))))
+
+;; A few checks if everything is OK:
+
+POFTHEDAY> (smug:parse (.duration)
+                       "17 hours ago")
+#<LOCAL-TIME-DURATION:DURATION [0/-61200/0]  -17 hours>
+
+POFTHEDAY> (smug:parse (.duration)
+                       "5 minute ")
+#<LOCAL-TIME-DURATION:DURATION [0/300/0]  5 minutes>
+
+#+end_src
+
+That is it for today. And again, to learn more, read SMUG's
+documentation. It is one of the best-documented Lisp systems I've ever
+seen:
+
+http://smug.drewc.ca/smug.html
+
+Thank you, @drewcrampsie!
