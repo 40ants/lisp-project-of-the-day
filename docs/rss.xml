@@ -6,6 +6,39 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-ltsv</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0176-cl-ltsv.html</link>
+            <description>&lt;p&gt;This system implements an LTSV logs parser and serializer. LTSV is based on TSV format but each field has a name. This lets us easily add new fields and to process logs in a manageable way:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-ltsv:alist-ltsv &amp;#039;((&amp;quot;message&amp;quot; . &amp;quot;Hello world!&amp;quot;)
+                                 (&amp;quot;request_id&amp;quot; . 100500)))
+&amp;quot;message:Hello world!	request_id:100500&amp;quot;
+
+POFTHEDAY&amp;gt; (cl-ltsv:parse-line *)
+((&amp;quot;message&amp;quot; . &amp;quot;Hello world!&amp;quot;)
+ (&amp;quot;request_id&amp;quot; . &amp;quot;100500&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;LTSV is based on &lt;a href=&quot;https://en.wikipedia.org/wiki/Tab-separated_values&quot;&gt;TSV format&lt;/a&gt; which has some escaping rules for tabs, newlines and backslashes, but LTSV FAQ says &lt;a href=&quot;http://ltsv.org/faq.html#doesnt-it-have-to-have-escaping-in-its-spec&quot;&gt;forget about escaping&lt;/a&gt;, we don&apos;t need it for our access logs.&lt;/p&gt;
+&lt;p&gt;I think this decision makes LTSV unusable for general-purpose logs.&lt;/p&gt;
+&lt;p&gt;For example, if you have newlines or tabs in the logged value, a log will be broken:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (concatenate &amp;#039;string
+                        &amp;quot;Hello&amp;quot;
+                        &amp;#039;(#\Newline #\Tab)
+                        &amp;quot;World!&amp;quot;)
+&amp;quot;Hello
+	World!&amp;quot;
+
+;; This call should produce a single line,
+;; replacing a newline with \n and tab with \t:
+POFTHEDAY&amp;gt; (cl-ltsv:alist-ltsv (list (cons &amp;quot;message&amp;quot; *)))
+&amp;quot;message:Hello
+	World!&amp;quot;
+
+;; Parsing does not process escaped symbols either:
+
+POFTHEDAY&amp;gt; (cl-ltsv:parse-line &amp;quot;message:Hello\\n\\tWorld!&amp;quot;)
+((&amp;quot;message&amp;quot; . &amp;quot;Hello\\n\\tWorld!&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all I have for today. Probably tomorrow we&apos;ll catch a more interesting library.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 31 Aug 2020 22:52:40 +0300</pubDate>
+        </item>
+        <item>
             <title>smug</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0175-smug.html</link>
             <description>&lt;p&gt;This system provides a framework for building parsers in a functional way.&lt;/p&gt;
@@ -1213,49 +1246,6 @@ POFTHEDAY&amp;gt; (simple-rgb:xmlify-rgb *)
 &lt;div style=&quot;background-color: #B7CCBF; width: 400px; height: 50px; padding: 10px&quot;&gt;GREENER (#B7CCBF)&lt;/div&gt;&lt;p&gt;So, if want just to play with &lt;code&gt;RGB&lt;/code&gt; colors, this library is exactly what you need!&lt;/p&gt;
 </description>
             <pubDate>Mon, 10 Aug 2020 20:58:45 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-features</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0156-trivial-features.html</link>
-            <description>&lt;p&gt;This little library unifies the way how do different features are represented in &lt;code&gt;*features*&lt;/code&gt; variable.&lt;/p&gt;
-&lt;p&gt;It provides information about an operating system, endianness and CPU architecture. Unification simplifies writing the cross-platform libraries.&lt;/p&gt;
-&lt;p&gt;For example, here is what we have on Closure CL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;CL-USER&amp;gt; (lisp-implementation-type)
-&amp;quot;Clozure Common Lisp&amp;quot;
-
-CL-USER&amp;gt; (member :64-bit *features*)
-NIL
-
-CL-USER&amp;gt; (member :darwin *features*)
-(:DARWIN :LITTLE-ENDIAN-TARGET :LITTLE-ENDIAN-HOST)
-
-CL-USER&amp;gt; (member :little-endian *features*)
-NIL
-
-CL-USER&amp;gt; (member :x86-64 *features*)
-(:X86-64 :X86_64 :X86-TARGET :X86-HOST :X8664-TARGET ...)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But after the loading of the &lt;code&gt;trivial-features&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;CL-USER&amp;gt; (ql:quickload :trivial-features)
-
-CL-USER&amp;gt; (member :64-bit *features*)
-(:64-BIT :BSD :LITTLE-ENDIAN :SLYNK :QUICKLISP :ASDF3.3 :ASDF3.2 ...)
-
-CL-USER&amp;gt; (member :darwin *features*)
-(:DARWIN :LITTLE-ENDIAN-TARGET :LITTLE-ENDIAN-HOST)
-
-CL-USER&amp;gt; (member :x86-64 *features*)
-(:X86-64 :X86_64 :X86-TARGET :X86-HOST :X8664-TARGET :X8664-HOST ...)
-
-CL-USER&amp;gt; (member :little-endian *features*)
-(:LITTLE-ENDIAN :SLYNK :QUICKLISP :ASDF3.3 :ASDF3.2 :ASDF3.1 ...)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is what this library adds to the &lt;code&gt;*features*&lt;/code&gt; for ClozureCL:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;CL-USER&amp;gt; (defparameter *original-features* (copy-list *features*))
-
-CL-USER&amp;gt; (ql:quickload :trivial-features)
-
-CL-USER&amp;gt; (set-difference *features*
-                         *original-features*)
-(:LITTLE-ENDIAN :BSD :64-BIT)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To finalize, if you are going to use the conditional reader in your system and depend on OS or CPU architecture - use &lt;code&gt;trivial-features&lt;/code&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 09 Aug 2020 23:41:17 +0300</pubDate>
         </item>
     </channel>
 </rss>

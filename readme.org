@@ -34,6 +34,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 28 August - [[content/2020/08/0173-temporal-functions.org][temporal-functions]] ([[https://twitter.com/svetlyak40wt/status/1299437831769780225][twitter]])
 - 29 August - [[content/2020/08/0174-list-named-class.org][list-named-class]] ([[https://twitter.com/svetlyak40wt/status/1299806884493393926][twitter]])
 - 30 August - [[content/2020/08/0175-smug.org][smug]] ([[https://twitter.com/svetlyak40wt/status/1300156301222215680][twitter]])
+- 31 August - [[content/2020/08/0176-cl-ltsv.org][cl-ltsv]] ([[https://twitter.com/svetlyak40wt/status/1300521089387331586][twitter]])
 
 ** July
 - 01 July - [[content/2020/07/0117-clack-pretend.org][clack-pretend]] ([[https://twitter.com/svetlyak40wt/status/1278412219798216704][twitter]])
