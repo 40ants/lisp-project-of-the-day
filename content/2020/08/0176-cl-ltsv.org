@@ -1,0 +1,59 @@
+* cl-ltsv :data_formats:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system implements an LTSV logs parser and serializer. LTSV is based
+on TSV format but each field has a name. This lets us easily add new
+fields and to process logs in a manageable way:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-ltsv:alist-ltsv '(("message" . "Hello world!")
+                                 ("request_id" . 100500)))
+"message:Hello world!	request_id:100500"
+
+POFTHEDAY> (cl-ltsv:parse-line *)
+(("message" . "Hello world!")
+ ("request_id" . "100500"))
+
+#+end_src
+
+LTSV is based on [[https://en.wikipedia.org/wiki/Tab-separated_values][TSV format]] which has some escaping rules for tabs,
+newlines and backslashes, but LTSV FAQ says [[http://ltsv.org/faq.html#doesnt-it-have-to-have-escaping-in-its-spec][forget about escaping]], we
+don't need it for our access logs.
+
+I think this decision makes LTSV unusable for general-purpose logs.
+
+For example, if you have newlines or tabs in the logged value, a log will
+be broken:
+
+#+begin_src lisp
+
+POFTHEDAY> (concatenate 'string
+                        "Hello"
+                        '(#\Newline #\Tab)
+                        "World!")
+"Hello
+	World!"
+
+;; This call should produce a single line,
+;; replacing a newline with \n and tab with \t:
+POFTHEDAY> (cl-ltsv:alist-ltsv (list (cons "message" *)))
+"message:Hello
+	World!"
+
+;; Parsing does not process escaped symbols either:
+
+POFTHEDAY> (cl-ltsv:parse-line "message:Hello\\n\\tWorld!")
+(("message" . "Hello\\n\\tWorld!"))
+
+#+end_src
+
+That is all I have for today. Probably tomorrow we'll catch a more
+interesting library.
