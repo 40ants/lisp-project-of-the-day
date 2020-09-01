@@ -165,7 +165,7 @@ POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&
       (:italic (i #1#))
       (:fixed-width (code #1#))
       (:url (multiple-value-bind (string url) #1#
-              (a [:href (or url string)] (or string url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I don&apos;t know the proper name of the Lisp&apos;s feature, but it allows to refer to the piece of data-structure defined ealier. The most common usage I&apos;ve seen before is circular list&apos;s definition:&lt;/p&gt;
+              (a [:href (or url string)] (or string url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I don&apos;t know the proper name of the Lisp&apos;s feature, but it allows to refer to the piece of data-structure defined earslier. The most common usage I&apos;ve seen before is a circular list&apos;s definition:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; &amp;#039;#1=(1 2 3 . #1#)
 (1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
  1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3

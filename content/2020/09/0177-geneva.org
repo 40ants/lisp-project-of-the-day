@@ -227,8 +227,8 @@ times.
 #+end_src
 
 I don't know the proper name of the Lisp's feature, but it allows to
-refer to the piece of data-structure defined ealier. The most common
-usage I've seen before is circular list's definition:
+refer to the piece of data-structure defined earslier. The most common
+usage I've seen before is a circular list's definition:
 
 #+begin_src lisp
 

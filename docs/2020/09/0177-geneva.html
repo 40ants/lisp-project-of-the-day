@@ -208,7 +208,7 @@ POFTHEDAY&gt; (geneva.html:render-html * :index-p nil)</code></pre><p>It will re
       (:italic (i #1#))
       (:fixed-width (code #1#))
       (:url (multiple-value-bind (string url) #1#
-              (a [:href (or url string)] (or string url)))))))</code></pre><p>I don't know the proper name of the Lisp's feature, but it allows to refer to the piece of data-structure defined ealier. The most common usage I've seen before is circular list's definition:</p>
+              (a [:href (or url string)] (or string url)))))))</code></pre><p>I don't know the proper name of the Lisp's feature, but it allows to refer to the piece of data-structure defined earslier. The most common usage I've seen before is a circular list's definition:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; &#039;#1=(1 2 3 . #1#)
 (1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
  1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
