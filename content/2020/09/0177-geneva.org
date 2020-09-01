@@ -1,0 +1,205 @@
+* geneva :documentation:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is yet another project by Max Rottenkolber ([[https://twitter.com/eugeneia_][@eugeneia_]]). Geneva is
+the documentation system. It includes a few subsystems:
+
+- the core;
+- the markup language;
+- renderers for HTML, LaTeX and plain text.
+
+Geneva separates a document structure from it's representation.
+
+Core package proviides the way to define a document's structure using
+calls to Lisp functions:
+
+#+begin_src lisp
+
+POFTHEDAY> (geneva:make-document
+            (list
+             (geneva:make-section (list "First secion")
+                (list
+                 (geneva:make-paragraph (list "Foo bar"))
+                 (geneva:make-paragraph (list "Blah minor"))))
+             (geneva:make-section (list "Second secion")
+                 (list
+                  (geneva:make-paragraph (list (geneva:make-bold "Hello World!")))))))
+((:SECTION ("First secion")
+  ((:PARAGRAPH ("Foo bar"))
+   (:PARAGRAPH ("Blah minor"))))
+ (:SECTION ("Second secion")
+  ((:PARAGRAPH ((:BOLD "Hello World!"))))))
+
+POFTHEDAY> (geneva.html:render-html * :index-p nil)
+
+#+end_src
+
+As you can see, the document is a bunch of Lisp lists. It easily can be
+rendered into the HTML:
+
+#+begin_src html :render
+
+<SECTION>
+  <HEADER>
+    <A NAME="section-1">
+      <H1><SPAN CLASS="geneva-index">1</SPAN> First secion</H1>
+    </A>
+  </HEADER>
+  <P>Foo bar</P>
+  <P>Blah minor</P>
+</SECTION>
+
+<SECTION>
+  <HEADER>
+    <A NAME="section-2">
+      <H1><SPAN CLASS="geneva-index">2</SPAN> Second secion</H1>
+    </A>
+  </HEADER>
+  <P><B>Hello World!</B></P>
+</SECTION>
+
+#+end_src
+
+Or you might want to render it into the plain text:
+
+#+begin_src lisp
+
+POFTHEDAY> (geneva.plain-text:render-plain-text * :index-p nil)
+
+1 First secion
+
+   Foo bar
+
+   Blah minor
+
+2 Second secion
+
+   Hello World!
+
+#+end_src
+
+Humans usually prefer to use specilialized markup languages. Geneva
+provides MK2 markup language to define a rich text. For example, text
+from the previos example can be written like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((text "
+< First section
+
+  Foo bar
+
+  Blah minor
+
+>
+
+< Second section
+
+  *Hello World!*
+
+>"))
+             (with-input-from-string (s text)
+               (geneva.mk2:read-mk2 s)))
+((:SECTION ("First section")
+  ((:PARAGRAPH ("Foo bar"))
+   (:PARAGRAPH ("Blah minor"))))
+ (:SECTION ("Second section")
+  ((:PARAGRAPH ((:BOLD "Hello World!"))))))
+
+#+end_src
+
+There is also a system to process documentation strings into the Geneva
+document. It can be used to render documentation for your own
+system. Docstrings can be written in MK2 markup.
+
+Now we'll create a test Lisp package and fill it with a variable,
+function and macro.
+
+#+begin_src lisp
+
+POFTHEDAY> (defpackage foo
+             (:use #:cl)
+             (:documentation "This is an example
+                              of the package.
+
+                              Documentation can be written in *MK2 format*.
+
+                              And include _rich_ text with links."))
+
+POFTHEDAY> (defun foo::bar (minor)
+             "Makes some tranformation.
+
+              *Arguments*:
+
+              {minor} - an object to transform."
+
+             ;; do the job
+             (values))
+
+POFTHEDAY> (defvar foo::*blah* :blah
+             "Switches between two modes: {:blah} and {:minor}")
+
+POFTHEDAY> (defmacro foo::with-minor (&body body)
+             "Runs {body} with {:minor} mode applied."
+             `(let ((foo::*blah* :minor))
+                ,@body))
+
+POFTHEDAY> (export '(foo::*blah* foo::bar foo::with-minor)
+                   :foo)
+
+#+end_src
+
+Now we can build a documentation for this package in two simple steps:
+
+#+begin_src lisp
+
+POFTHEDAY> (geneva.cl:api-document :foo)
+((:SECTION ("foo (Package)")
+  ((:PARAGRAPH ("This is an example of the package."))
+   (:PARAGRAPH ("Documentation can be written in " (:BOLD "MK2 format") "."))
+   (:PARAGRAPH ("And include " (:ITALIC "rich") " text with links."))
+   (:SECTION ("*blah* (Variable)")
+    ((:PARAGRAPH ((:BOLD "Initial Value:")))
+     (:PARAGRAPH ((:FIXED-WIDTH ":BLAH")))
+     (:PARAGRAPH
+      ("Switches between two modes: " (:FIXED-WIDTH ":blah") " and "
+       (:FIXED-WIDTH ":minor")))))
+   (:SECTION ("bar (Function)")
+    ((:PARAGRAPH ((:BOLD "Syntax:")))
+     (:PARAGRAPH ("— Function: " (:BOLD "bar") " " (:ITALIC "minor")))
+     (:PARAGRAPH ("Makes some tranformation."))
+     (:PARAGRAPH ((:BOLD "Arguments") ":"))
+     (:PARAGRAPH ((:FIXED-WIDTH "minor") " - an object to transform."))))
+   (:SECTION ("with-minor (Macro)")
+    ((:PARAGRAPH ((:BOLD "Syntax:")))
+     (:PARAGRAPH
+      ("— Macro: " (:BOLD "with-minor") " " (:FIXED-WIDTH "&body") " "
+       (:ITALIC "body")))
+     (:PARAGRAPH
+      ("Runs " (:FIXED-WIDTH "body") " with " (:FIXED-WIDTH ":minor")
+       " mode applied.")))))))
+
+POFTHEDAY> (geneva.html:render-html * :index-p nil)
+
+#+end_src
+
+It will render this HTML:
+
+#+begin_src html :render-without-code
+
+<SECTION><HEADER><A NAME="section-1"><H1><SPAN CLASS="geneva-index">1</SPAN> foo (Package)</H1></A></HEADER><P>This is an example of the package.</P><P>Documentation can be written in <B>MK2 format</B>.</P><P>And include <I>rich</I> text with links.</P><SECTION><HEADER><A NAME="section-1-1"><H2><SPAN CLASS="geneva-index">1.1</SPAN> *blah* (Variable)</H2></A></HEADER><P><B>Initial Value:</B></P><P><CODE>:BLAH</CODE></P><P>Switches between two modes: <CODE>:blah</CODE> and <CODE>:minor</CODE></P></SECTION><SECTION><HEADER><A NAME="section-1-2"><H2><SPAN CLASS="geneva-index">1.2</SPAN> bar (Function)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Function: <B>bar</B> <I>minor</I></P><P>Makes some tranformation.</P><P><B>Arguments</B>:</P><P><CODE>minor</CODE> - an object to transform.</P></SECTION><SECTION><HEADER><A NAME="section-1-3"><H2><SPAN CLASS="geneva-index">1.3</SPAN> with-minor (Macro)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Macro: <B>with-minor</B> <CODE>&amp;body</CODE> <I>body</I></P><P>Runs <CODE>body</CODE> with <CODE>:minor</CODE> mode applied.</P></SECTION></SECTION>
+
+#+end_src
+
+I think Geneva might become a great replacement to reStructured text for
+documentation of my own libraries. Thank you, [[https://twitter.com/eugeneia_][@eugeneia_]]!.
+
+Though, it would be wonderful to add a little extensibility and ability to cross
+referencing between different documentation sections.
