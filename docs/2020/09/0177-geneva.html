@@ -53,28 +53,28 @@ h1 .tags {
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>geneva</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>geneva<span class='tags'><a href='../../tags/documentation.html'><span class='label label-default'>documentation</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This is yet another project by Max Rottenkolber (<a href="https://twitter.com/eugeneia_">@eugeneia_</a>). Geneva is the documentation system. It includes a few subsystems:</p>
 <ul><li>the core;</li><li>the markup language;</li><li>renderers for HTML, LaTeX and plain text.</li></ul>
-<p>Geneva separates a document structure from it's representation.</p>
-<p>Core package proviides the way to define a document's structure using calls to Lisp functions:</p>
+<p>Geneva separates a document structure from its representation.</p>
+<p>Core package provides the way to define a document's structure using calls to Lisp functions:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (geneva:make-document
             (list
-             (geneva:make-section (list &quot;First secion&quot;)
+             (geneva:make-section (list &quot;First section&quot;)
                 (list
                  (geneva:make-paragraph (list &quot;Foo bar&quot;))
                  (geneva:make-paragraph (list &quot;Blah minor&quot;))))
-             (geneva:make-section (list &quot;Second secion&quot;)
+             (geneva:make-section (list &quot;Second section&quot;)
                  (list
                   (geneva:make-paragraph (list (geneva:make-bold &quot;Hello World!&quot;)))))))
-((:SECTION (&quot;First secion&quot;)
+((:SECTION (&quot;First section&quot;)
   ((:PARAGRAPH (&quot;Foo bar&quot;))
    (:PARAGRAPH (&quot;Blah minor&quot;))))
- (:SECTION (&quot;Second secion&quot;)
+ (:SECTION (&quot;Second section&quot;)
   ((:PARAGRAPH ((:BOLD &quot;Hello World!&quot;))))))
 
 POFTHEDAY&gt; (geneva.html:render-html * :index-p nil)</code></pre><p>As you can see, the document is a bunch of Lisp lists. It easily can be rendered into the HTML:</p>
 <h4>Code</h4><pre><code class='html :render'>&lt;SECTION&gt;
   &lt;HEADER&gt;
     &lt;A NAME=&quot;section-1&quot;&gt;
-      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; First secion&lt;/H1&gt;
+      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; First section&lt;/H1&gt;
     &lt;/A&gt;
   &lt;/HEADER&gt;
   &lt;P&gt;Foo bar&lt;/P&gt;
@@ -84,14 +84,14 @@ POFTHEDAY&gt; (geneva.html:render-html * :index-p nil)</code></pre><p>As you can
 &lt;SECTION&gt;
   &lt;HEADER&gt;
     &lt;A NAME=&quot;section-2&quot;&gt;
-      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;2&lt;/SPAN&gt; Second secion&lt;/H1&gt;
+      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;2&lt;/SPAN&gt; Second section&lt;/H1&gt;
     &lt;/A&gt;
   &lt;/HEADER&gt;
   &lt;P&gt;&lt;B&gt;Hello World!&lt;/B&gt;&lt;/P&gt;
 &lt;/SECTION&gt;</code></pre><h4>Result</h4><SECTION>
   <HEADER>
     <A NAME="section-1">
-      <H1><SPAN CLASS="geneva-index">1</SPAN> First secion</H1>
+      <H1><SPAN CLASS="geneva-index">1</SPAN> First section</H1>
     </A>
   </HEADER>
   <P>Foo bar</P>
@@ -101,22 +101,22 @@ POFTHEDAY&gt; (geneva.html:render-html * :index-p nil)</code></pre><p>As you can
 <SECTION>
   <HEADER>
     <A NAME="section-2">
-      <H1><SPAN CLASS="geneva-index">2</SPAN> Second secion</H1>
+      <H1><SPAN CLASS="geneva-index">2</SPAN> Second section</H1>
     </A>
   </HEADER>
   <P><B>Hello World!</B></P>
 </SECTION><p>Or you might want to render it into the plain text:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (geneva.plain-text:render-plain-text * :index-p nil)
 
-1 First secion
+1 First section
 
    Foo bar
 
    Blah minor
 
-2 Second secion
+2 Second section
 
-   Hello World!</code></pre><p>Humans usually prefer to use specilialized markup languages. Geneva provides MK2 markup language to define a rich text. For example, text from the previos example can be written like that:</p>
+   Hello World!</code></pre><p>Humans usually prefer to use specialized markup languages. Geneva provides MK2 markup language to define a rich text. For example, text from the previous example can be written like that:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (let ((text &quot;
 &lt; First section
 
@@ -167,7 +167,7 @@ POFTHEDAY&gt; (defmacro foo::with-minor (&amp;body body)
                 ,@body))
 
 POFTHEDAY&gt; (export &#039;(foo::*blah* foo::bar foo::with-minor)
-                   :foo)</code></pre><p>Now we can build a documentation for this package in two simple steps:</p>
+                   :foo)</code></pre><p>Now we can build documentation for this package in two simple steps:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (geneva.cl:api-document :foo)
 ((:SECTION (&quot;foo (Package)&quot;)
   ((:PARAGRAPH (&quot;This is an example of the package.&quot;))
@@ -195,7 +195,35 @@ POFTHEDAY&gt; (export &#039;(foo::*blah* foo::bar foo::with-minor)
        &quot; mode applied.&quot;)))))))
 
 POFTHEDAY&gt; (geneva.html:render-html * :index-p nil)</code></pre><p>It will render this HTML:</p>
-<SECTION><HEADER><A NAME="section-1"><H1><SPAN CLASS="geneva-index">1</SPAN> foo (Package)</H1></A></HEADER><P>This is an example of the package.</P><P>Documentation can be written in <B>MK2 format</B>.</P><P>And include <I>rich</I> text with links.</P><SECTION><HEADER><A NAME="section-1-1"><H2><SPAN CLASS="geneva-index">1.1</SPAN> *blah* (Variable)</H2></A></HEADER><P><B>Initial Value:</B></P><P><CODE>:BLAH</CODE></P><P>Switches between two modes: <CODE>:blah</CODE> and <CODE>:minor</CODE></P></SECTION><SECTION><HEADER><A NAME="section-1-2"><H2><SPAN CLASS="geneva-index">1.2</SPAN> bar (Function)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Function: <B>bar</B> <I>minor</I></P><P>Makes some tranformation.</P><P><B>Arguments</B>:</P><P><CODE>minor</CODE> - an object to transform.</P></SECTION><SECTION><HEADER><A NAME="section-1-3"><H2><SPAN CLASS="geneva-index">1.3</SPAN> with-minor (Macro)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Macro: <B>with-minor</B> <CODE>&amp;body</CODE> <I>body</I></P><P>Runs <CODE>body</CODE> with <CODE>:minor</CODE> mode applied.</P></SECTION></SECTION>
+<SECTION><HEADER><A NAME="section-1"><H1><SPAN CLASS="geneva-index">1</SPAN> foo (Package)</H1></A></HEADER><P>This is an example of the package.</P><P>Documentation can be written in <B>MK2 format</B>.</P><P>And include <I>rich</I> text with links.</P><SECTION><HEADER><A NAME="section-1-1"><H2><SPAN CLASS="geneva-index">1.1</SPAN> *blah* (Variable)</H2></A></HEADER><P><B>Initial Value:</B></P><P><CODE>:BLAH</CODE></P><P>Switches between two modes: <CODE>:blah</CODE> and <CODE>:minor</CODE></P></SECTION><SECTION><HEADER><A NAME="section-1-2"><H2><SPAN CLASS="geneva-index">1.2</SPAN> bar (Function)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Function: <B>bar</B> <I>minor</I></P><P>Makes some tranformation.</P><P><B>Arguments</B>:</P><P><CODE>minor</CODE> - an object to transform.</P></SECTION><SECTION><HEADER><A NAME="section-1-3"><H2><SPAN CLASS="geneva-index">1.3</SPAN> with-minor (Macro)</H2></A></HEADER><P><B>Syntax:</B></P><P>— Macro: <B>with-minor</B> <CODE>&amp;body</CODE> <I>body</I></P><P>Runs <CODE>body</CODE> with <CODE>:minor</CODE> mode applied.</P></SECTION></SECTION><p>Of cause, you can provide your own CSS stylesheets to make the page looks like you want.</p>
+<p>I think Geneva might become a great replacement to reStructured text for documentation of my own libraries. Thank you, <a href="https://twitter.com/eugeneia_">@eugeneia_</a>!.</p>
+<p>Though, it would be wonderful to add a little extensibility and ability to cross-referencing between different documentation sections.</p>
+<p>By the way, in Geneva's sources I found an interesting way to keep DRY principle. This piece of code reuses <code>(content-values text-token)</code> 5 times.</p>
+<pre><code class='lisp'>(defun render-text (text)
+  &quot;Render TEXT as HTML.&quot;
+  (dolist (text-token text)
+    (ecase (content-type text-token)
+      (:plain (text #1=(content-values text-token)))
+      (:bold (b #1#))
+      (:italic (i #1#))
+      (:fixed-width (code #1#))
+      (:url (multiple-value-bind (string url) #1#
+              (a [:href (or url string)] (or string url)))))))</code></pre><p>I don't know the proper name of the Lisp's feature, but it allows to refer to the piece of data-structure defined ealier. The most common usage I've seen before is circular list's definition:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; &#039;#1=(1 2 3 . #1#)
+(1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 ...)</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

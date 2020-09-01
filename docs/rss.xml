@@ -6,6 +6,184 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>geneva</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html</link>
+            <description>&lt;p&gt;This is yet another project by Max Rottenkolber (&lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;). Geneva is the documentation system. It includes a few subsystems:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;the core;&lt;/li&gt;&lt;li&gt;the markup language;&lt;/li&gt;&lt;li&gt;renderers for HTML, LaTeX and plain text.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Geneva separates a document structure from its representation.&lt;/p&gt;
+&lt;p&gt;Core package provides the way to define a document&apos;s structure using calls to Lisp functions:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva:make-document
+            (list
+             (geneva:make-section (list &amp;quot;First section&amp;quot;)
+                (list
+                 (geneva:make-paragraph (list &amp;quot;Foo bar&amp;quot;))
+                 (geneva:make-paragraph (list &amp;quot;Blah minor&amp;quot;))))
+             (geneva:make-section (list &amp;quot;Second section&amp;quot;)
+                 (list
+                  (geneva:make-paragraph (list (geneva:make-bold &amp;quot;Hello World!&amp;quot;)))))))
+((:SECTION (&amp;quot;First section&amp;quot;)
+  ((:PARAGRAPH (&amp;quot;Foo bar&amp;quot;))
+   (:PARAGRAPH (&amp;quot;Blah minor&amp;quot;))))
+ (:SECTION (&amp;quot;Second section&amp;quot;)
+  ((:PARAGRAPH ((:BOLD &amp;quot;Hello World!&amp;quot;))))))
+
+POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, the document is a bunch of Lisp lists. It easily can be rendered into the HTML:&lt;/p&gt;
+&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;SECTION&amp;gt;
+  &amp;lt;HEADER&amp;gt;
+    &amp;lt;A NAME=&amp;quot;section-1&amp;quot;&amp;gt;
+      &amp;lt;H1&amp;gt;&amp;lt;SPAN CLASS=&amp;quot;geneva-index&amp;quot;&amp;gt;1&amp;lt;/SPAN&amp;gt; First section&amp;lt;/H1&amp;gt;
+    &amp;lt;/A&amp;gt;
+  &amp;lt;/HEADER&amp;gt;
+  &amp;lt;P&amp;gt;Foo bar&amp;lt;/P&amp;gt;
+  &amp;lt;P&amp;gt;Blah minor&amp;lt;/P&amp;gt;
+&amp;lt;/SECTION&amp;gt;
+
+&amp;lt;SECTION&amp;gt;
+  &amp;lt;HEADER&amp;gt;
+    &amp;lt;A NAME=&amp;quot;section-2&amp;quot;&amp;gt;
+      &amp;lt;H1&amp;gt;&amp;lt;SPAN CLASS=&amp;quot;geneva-index&amp;quot;&amp;gt;2&amp;lt;/SPAN&amp;gt; Second section&amp;lt;/H1&amp;gt;
+    &amp;lt;/A&amp;gt;
+  &amp;lt;/HEADER&amp;gt;
+  &amp;lt;P&amp;gt;&amp;lt;B&amp;gt;Hello World!&amp;lt;/B&amp;gt;&amp;lt;/P&amp;gt;
+&amp;lt;/SECTION&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;SECTION&gt;
+  &lt;HEADER&gt;
+    &lt;A NAME=&quot;section-1&quot;&gt;
+      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; First section&lt;/H1&gt;
+    &lt;/A&gt;
+  &lt;/HEADER&gt;
+  &lt;P&gt;Foo bar&lt;/P&gt;
+  &lt;P&gt;Blah minor&lt;/P&gt;
+&lt;/SECTION&gt;
+
+&lt;SECTION&gt;
+  &lt;HEADER&gt;
+    &lt;A NAME=&quot;section-2&quot;&gt;
+      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;2&lt;/SPAN&gt; Second section&lt;/H1&gt;
+    &lt;/A&gt;
+  &lt;/HEADER&gt;
+  &lt;P&gt;&lt;B&gt;Hello World!&lt;/B&gt;&lt;/P&gt;
+&lt;/SECTION&gt;&lt;p&gt;Or you might want to render it into the plain text:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva.plain-text:render-plain-text * :index-p nil)
+
+1 First section
+
+   Foo bar
+
+   Blah minor
+
+2 Second section
+
+   Hello World!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Humans usually prefer to use specialized markup languages. Geneva provides MK2 markup language to define a rich text. For example, text from the previous example can be written like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((text &amp;quot;
+&amp;lt; First section
+
+  Foo bar
+
+  Blah minor
+
+&amp;gt;
+
+&amp;lt; Second section
+
+  *Hello World!*
+
+&amp;gt;&amp;quot;))
+             (with-input-from-string (s text)
+               (geneva.mk2:read-mk2 s)))
+((:SECTION (&amp;quot;First section&amp;quot;)
+  ((:PARAGRAPH (&amp;quot;Foo bar&amp;quot;))
+   (:PARAGRAPH (&amp;quot;Blah minor&amp;quot;))))
+ (:SECTION (&amp;quot;Second section&amp;quot;)
+  ((:PARAGRAPH ((:BOLD &amp;quot;Hello World!&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a system to process documentation strings into the Geneva document. It can be used to render documentation for your own system. Docstrings can be written in MK2 markup.&lt;/p&gt;
+&lt;p&gt;Now we&apos;ll create a test Lisp package and fill it with a variable, function and macro.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defpackage foo
+             (:use #:cl)
+             (:documentation &amp;quot;This is an example
+                              of the package.
+
+                              Documentation can be written in *MK2 format*.
+
+                              And include _rich_ text with links.&amp;quot;))
+
+POFTHEDAY&amp;gt; (defun foo::bar (minor)
+             &amp;quot;Makes some tranformation.
+
+              *Arguments*:
+
+              {minor} - an object to transform.&amp;quot;
+
+             ;; do the job
+             (values))
+
+POFTHEDAY&amp;gt; (defvar foo::*blah* :blah
+             &amp;quot;Switches between two modes: {:blah} and {:minor}&amp;quot;)
+
+POFTHEDAY&amp;gt; (defmacro foo::with-minor (&amp;amp;body body)
+             &amp;quot;Runs {body} with {:minor} mode applied.&amp;quot;
+             `(let ((foo::*blah* :minor))
+                ,@body))
+
+POFTHEDAY&amp;gt; (export &amp;#039;(foo::*blah* foo::bar foo::with-minor)
+                   :foo)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can build documentation for this package in two simple steps:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva.cl:api-document :foo)
+((:SECTION (&amp;quot;foo (Package)&amp;quot;)
+  ((:PARAGRAPH (&amp;quot;This is an example of the package.&amp;quot;))
+   (:PARAGRAPH (&amp;quot;Documentation can be written in &amp;quot; (:BOLD &amp;quot;MK2 format&amp;quot;) &amp;quot;.&amp;quot;))
+   (:PARAGRAPH (&amp;quot;And include &amp;quot; (:ITALIC &amp;quot;rich&amp;quot;) &amp;quot; text with links.&amp;quot;))
+   (:SECTION (&amp;quot;*blah* (Variable)&amp;quot;)
+    ((:PARAGRAPH ((:BOLD &amp;quot;Initial Value:&amp;quot;)))
+     (:PARAGRAPH ((:FIXED-WIDTH &amp;quot;:BLAH&amp;quot;)))
+     (:PARAGRAPH
+      (&amp;quot;Switches between two modes: &amp;quot; (:FIXED-WIDTH &amp;quot;:blah&amp;quot;) &amp;quot; and &amp;quot;
+       (:FIXED-WIDTH &amp;quot;:minor&amp;quot;)))))
+   (:SECTION (&amp;quot;bar (Function)&amp;quot;)
+    ((:PARAGRAPH ((:BOLD &amp;quot;Syntax:&amp;quot;)))
+     (:PARAGRAPH (&amp;quot;&amp;#x2014; Function: &amp;quot; (:BOLD &amp;quot;bar&amp;quot;) &amp;quot; &amp;quot; (:ITALIC &amp;quot;minor&amp;quot;)))
+     (:PARAGRAPH (&amp;quot;Makes some tranformation.&amp;quot;))
+     (:PARAGRAPH ((:BOLD &amp;quot;Arguments&amp;quot;) &amp;quot;:&amp;quot;))
+     (:PARAGRAPH ((:FIXED-WIDTH &amp;quot;minor&amp;quot;) &amp;quot; - an object to transform.&amp;quot;))))
+   (:SECTION (&amp;quot;with-minor (Macro)&amp;quot;)
+    ((:PARAGRAPH ((:BOLD &amp;quot;Syntax:&amp;quot;)))
+     (:PARAGRAPH
+      (&amp;quot;&amp;#x2014; Macro: &amp;quot; (:BOLD &amp;quot;with-minor&amp;quot;) &amp;quot; &amp;quot; (:FIXED-WIDTH &amp;quot;&amp;amp;body&amp;quot;) &amp;quot; &amp;quot;
+       (:ITALIC &amp;quot;body&amp;quot;)))
+     (:PARAGRAPH
+      (&amp;quot;Runs &amp;quot; (:FIXED-WIDTH &amp;quot;body&amp;quot;) &amp;quot; with &amp;quot; (:FIXED-WIDTH &amp;quot;:minor&amp;quot;)
+       &amp;quot; mode applied.&amp;quot;)))))))
+
+POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will render this HTML:&lt;/p&gt;
+&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1&quot;&gt;&lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; foo (Package)&lt;/H1&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;This is an example of the package.&lt;/P&gt;&lt;P&gt;Documentation can be written in &lt;B&gt;MK2 format&lt;/B&gt;.&lt;/P&gt;&lt;P&gt;And include &lt;I&gt;rich&lt;/I&gt; text with links.&lt;/P&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-1&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.1&lt;/SPAN&gt; *blah* (Variable)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Initial Value:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;&lt;CODE&gt;:BLAH&lt;/CODE&gt;&lt;/P&gt;&lt;P&gt;Switches between two modes: &lt;CODE&gt;:blah&lt;/CODE&gt; and &lt;CODE&gt;:minor&lt;/CODE&gt;&lt;/P&gt;&lt;/SECTION&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-2&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.2&lt;/SPAN&gt; bar (Function)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Syntax:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;— Function: &lt;B&gt;bar&lt;/B&gt; &lt;I&gt;minor&lt;/I&gt;&lt;/P&gt;&lt;P&gt;Makes some tranformation.&lt;/P&gt;&lt;P&gt;&lt;B&gt;Arguments&lt;/B&gt;:&lt;/P&gt;&lt;P&gt;&lt;CODE&gt;minor&lt;/CODE&gt; - an object to transform.&lt;/P&gt;&lt;/SECTION&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-3&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.3&lt;/SPAN&gt; with-minor (Macro)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Syntax:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;— Macro: &lt;B&gt;with-minor&lt;/B&gt; &lt;CODE&gt;&amp;amp;body&lt;/CODE&gt; &lt;I&gt;body&lt;/I&gt;&lt;/P&gt;&lt;P&gt;Runs &lt;CODE&gt;body&lt;/CODE&gt; with &lt;CODE&gt;:minor&lt;/CODE&gt; mode applied.&lt;/P&gt;&lt;/SECTION&gt;&lt;/SECTION&gt;&lt;p&gt;Of cause, you can provide your own CSS stylesheets to make the page looks like you want.&lt;/p&gt;
+&lt;p&gt;I think Geneva might become a great replacement to reStructured text for documentation of my own libraries. Thank you, &lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;!.&lt;/p&gt;
+&lt;p&gt;Though, it would be wonderful to add a little extensibility and ability to cross-referencing between different documentation sections.&lt;/p&gt;
+&lt;p&gt;By the way, in Geneva&apos;s sources I found an interesting way to keep DRY principle. This piece of code reuses &lt;code&gt;(content-values text-token)&lt;/code&gt; 5 times.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun render-text (text)
+  &amp;quot;Render TEXT as HTML.&amp;quot;
+  (dolist (text-token text)
+    (ecase (content-type text-token)
+      (:plain (text #1=(content-values text-token)))
+      (:bold (b #1#))
+      (:italic (i #1#))
+      (:fixed-width (code #1#))
+      (:url (multiple-value-bind (string url) #1#
+              (a [:href (or url string)] (or string url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I don&apos;t know the proper name of the Lisp&apos;s feature, but it allows to refer to the piece of data-structure defined ealier. The most common usage I&apos;ve seen before is circular list&apos;s definition:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; &amp;#039;#1=(1 2 3 . #1#)
+(1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 ...)&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Tue, 01 Sep 2020 23:56:50 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-ltsv</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0176-cl-ltsv.html</link>
             <description>&lt;p&gt;This system implements an LTSV logs parser and serializer. LTSV is based on TSV format but each field has a name. This lets us easily add new fields and to process logs in a manageable way:&lt;/p&gt;
@@ -1196,56 +1374,6 @@ NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to add/set/delete eleme
 &lt;p&gt;Comparing to the &lt;code&gt;JSON path&lt;/code&gt;, the &lt;code&gt;pointer&lt;/code&gt; has clearer character escaping rules and is able to work with keys containing dots and slashes and other symbols. But it does not support slicing and some other features of the &lt;code&gt;JSON path&lt;/code&gt;.&lt;/p&gt;
 </description>
             <pubDate>Tue, 11 Aug 2020 23:13:03 +0300</pubDate>
-        </item>
-        <item>
-            <title>simple-rgb</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0157-simple-rgb.html</link>
-            <description>&lt;p&gt;Two days ago I wrote about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0155-dufy.html&quot;&gt;Dufy&lt;/a&gt; - the color manipulation library. While preparing that post, I found another library which is more practical if you need to work only with &lt;code&gt;RGB&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;It is able to convert to and from string representation and has some function for color manipulation.&lt;/p&gt;
-&lt;p&gt;For example, it has a builtin function similar to the one I wrote in the post about &lt;code&gt;Dufy&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (simple-rgb:parse &amp;quot;#F4BBFF&amp;quot;)
-#(244 187 255)
-
-POFTHEDAY&amp;gt; (simple-rgb:darken-rgb * :alpha 0.25)
-#(183 140 191)
-
-POFTHEDAY&amp;gt; (simple-rgb:xmlify-rgb *)
-&amp;quot;#B78CBF&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The result is the same:&lt;/p&gt;
-&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;Original (#F4BBFF)&lt;/div&gt;
-
-&lt;div style=&quot;background-color: #B78CBF; width: 400px; height: 50px; padding: 10px&quot;&gt;Darker (#B78CBF)&lt;/div&gt;&lt;p&gt;Also, there are other functions for color manipulation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (flet ((h (c)
-                    (simple-rgb:xmlify-rgb c)))
-             (let ((color (simple-rgb:parse &amp;quot;#F4BBFF&amp;quot;)))
-               (list
-                :original (h color)
-                :grayscale (h (simple-rgb:greyscale-rgb color))
-                :complement (h (simple-rgb:complement-rgb color))
-                :inverted (h (simple-rgb:invert-rgb color))
-                :contrasted (h (simple-rgb:contrast-rgb color))
-                :lighter (h (simple-rgb:lighten-rgb color))
-                :darker (h (simple-rgb:darken-rgb color))
-                :greener (h (simple-rgb:mix-rgb
-                             color
-                             (simple-rgb:parse &amp;quot;#00FF00&amp;quot;)
-                             :alpha 0.25)))))
-(:ORIGINAL &amp;quot;#F4BBFF&amp;quot;
- :GRAYSCALE &amp;quot;#D4D4D4&amp;quot;
- :COMPLEMENT &amp;quot;#C6FFBB&amp;quot;
- :INVERTED &amp;quot;#0B4400&amp;quot;
- :CONTRASTED &amp;quot;#FFFFFF&amp;quot;
- :LIGHTER &amp;quot;#FADDFF&amp;quot;
- :DARKER &amp;quot;#7A5E80&amp;quot;
- :GREENER &amp;quot;#B7CCBF&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;div style=&quot;background-color: #F4BBFF; width: 400px; height: 50px; padding: 10px&quot;&gt;ORIGINAL (#F4BBFF)&lt;/div&gt;
-&lt;div style=&quot;background-color: #D4D4D4; width: 400px; height: 50px; padding: 10px&quot;&gt;GRAYSCALE (#D4D4D4)&lt;/div&gt;
-&lt;div style=&quot;background-color: #C6FFBB; width: 400px; height: 50px; padding: 10px&quot;&gt;COMPLEMENT (#C6FFBB)&lt;/div&gt;
-&lt;div style=&quot;color: #EEE; background-color: #0B4400; width: 400px; height: 50px; padding: 10px&quot;&gt;INVERTED (#0B4400)&lt;/div&gt;
-&lt;div style=&quot;background-color: #FFFFFF; width: 400px; height: 50px; padding: 10px&quot;&gt;CONTRASTED (#FFFFFF)&lt;/div&gt;
-&lt;div style=&quot;background-color: #FADDFF; width: 400px; height: 50px; padding: 10px&quot;&gt;LIGHTER (#FADDFF)&lt;/div&gt;
-&lt;div style=&quot;color: #EEE; background-color: #7A5E80; width: 400px; height: 50px; padding: 10px&quot;&gt;DARKER (#7A5E80)&lt;/div&gt;
-&lt;div style=&quot;background-color: #B7CCBF; width: 400px; height: 50px; padding: 10px&quot;&gt;GREENER (#B7CCBF)&lt;/div&gt;&lt;p&gt;So, if want just to play with &lt;code&gt;RGB&lt;/code&gt; colors, this library is exactly what you need!&lt;/p&gt;
-</description>
-            <pubDate>Mon, 10 Aug 2020 20:58:45 +0300</pubDate>
         </item>
     </channel>
 </rss>

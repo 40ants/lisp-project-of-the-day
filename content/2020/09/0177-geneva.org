@@ -15,26 +15,26 @@ the documentation system. It includes a few subsystems:
 - the markup language;
 - renderers for HTML, LaTeX and plain text.
 
-Geneva separates a document structure from it's representation.
+Geneva separates a document structure from its representation.
 
-Core package proviides the way to define a document's structure using
+Core package provides the way to define a document's structure using
 calls to Lisp functions:
 
 #+begin_src lisp
 
 POFTHEDAY> (geneva:make-document
             (list
-             (geneva:make-section (list "First secion")
+             (geneva:make-section (list "First section")
                 (list
                  (geneva:make-paragraph (list "Foo bar"))
                  (geneva:make-paragraph (list "Blah minor"))))
-             (geneva:make-section (list "Second secion")
+             (geneva:make-section (list "Second section")
                  (list
                   (geneva:make-paragraph (list (geneva:make-bold "Hello World!")))))))
-((:SECTION ("First secion")
+((:SECTION ("First section")
   ((:PARAGRAPH ("Foo bar"))
    (:PARAGRAPH ("Blah minor"))))
- (:SECTION ("Second secion")
+ (:SECTION ("Second section")
   ((:PARAGRAPH ((:BOLD "Hello World!"))))))
 
 POFTHEDAY> (geneva.html:render-html * :index-p nil)
@@ -49,7 +49,7 @@ rendered into the HTML:
 <SECTION>
   <HEADER>
     <A NAME="section-1">
-      <H1><SPAN CLASS="geneva-index">1</SPAN> First secion</H1>
+      <H1><SPAN CLASS="geneva-index">1</SPAN> First section</H1>
     </A>
   </HEADER>
   <P>Foo bar</P>
@@ -59,7 +59,7 @@ rendered into the HTML:
 <SECTION>
   <HEADER>
     <A NAME="section-2">
-      <H1><SPAN CLASS="geneva-index">2</SPAN> Second secion</H1>
+      <H1><SPAN CLASS="geneva-index">2</SPAN> Second section</H1>
     </A>
   </HEADER>
   <P><B>Hello World!</B></P>
@@ -73,21 +73,21 @@ Or you might want to render it into the plain text:
 
 POFTHEDAY> (geneva.plain-text:render-plain-text * :index-p nil)
 
-1 First secion
+1 First section
 
    Foo bar
 
    Blah minor
 
-2 Second secion
+2 Second section
 
    Hello World!
 
 #+end_src
 
-Humans usually prefer to use specilialized markup languages. Geneva
+Humans usually prefer to use specialized markup languages. Geneva
 provides MK2 markup language to define a rich text. For example, text
-from the previos example can be written like that:
+from the previous example can be written like that:
 
 #+begin_src lisp
 
@@ -156,7 +156,7 @@ POFTHEDAY> (export '(foo::*blah* foo::bar foo::with-minor)
 
 #+end_src
 
-Now we can build a documentation for this package in two simple steps:
+Now we can build documentation for this package in two simple steps:
 
 #+begin_src lisp
 
@@ -198,8 +198,54 @@ It will render this HTML:
 
 #+end_src
 
+Of cause, you can provide your own CSS stylesheets to make the page
+looks like you want.
+
 I think Geneva might become a great replacement to reStructured text for
 documentation of my own libraries. Thank you, [[https://twitter.com/eugeneia_][@eugeneia_]]!.
 
-Though, it would be wonderful to add a little extensibility and ability to cross
-referencing between different documentation sections.
+Though, it would be wonderful to add a little extensibility and ability
+to cross-referencing between different documentation sections.
+
+By the way, in Geneva's sources I found an interesting way to keep DRY
+principle. This piece of code reuses ~(content-values text-token)~ 5
+times.
+
+#+begin_src lisp
+
+(defun render-text (text)
+  "Render TEXT as HTML."
+  (dolist (text-token text)
+    (ecase (content-type text-token)
+      (:plain (text #1=(content-values text-token)))
+      (:bold (b #1#))
+      (:italic (i #1#))
+      (:fixed-width (code #1#))
+      (:url (multiple-value-bind (string url) #1#
+              (a [:href (or url string)] (or string url)))))))
+
+#+end_src
+
+I don't know the proper name of the Lisp's feature, but it allows to
+refer to the piece of data-structure defined ealier. The most common
+usage I've seen before is circular list's definition:
+
+#+begin_src lisp
+
+POFTHEDAY> '#1=(1 2 3 . #1#)
+(1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
+ 1 2 3 1 2 ...)
+
+#+end_src
