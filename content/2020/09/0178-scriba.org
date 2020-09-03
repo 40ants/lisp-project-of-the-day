@@ -1,0 +1,136 @@
+* scriba :markup:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Previous post was about [[https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html][Geneva]] - the CL documentation system.
+[[https://twitter.com/VPostnicov][Vasily Postnicov]] [[https://twitter.com/VPostnicov/status/1301009915092365312][mentioned on twitter]] another Lisp documentation tool
+called Codex.
+
+Codex is based on ~Scriba~ markup and today we'll look how to use it.
+
+#+begin_src lisp
+
+POFTHEDAY> (scriba.parser:parse-string "Blah minor")
+(:DOCUMENT "Blah minor")
+
+
+POFTHEDAY> (scriba.parser:parse-string "@b(Blah) minor")
+(:DOCUMENT (:NAME "b" :ATTRS NIL :BODY ("Blah")) " minor")
+
+POFTHEDAY> (defparameter *doc* *)
+*DOC*
+
+#+end_src
+
+But this is an internal AST representation. ~Scriba~ is based on other
+Fernando Boretti's library - ~CommonDoc~ and they should be used in tandem:
+
+#+begin_src lisp
+
+POFTHEDAY> (make-instance 'scriba:scriba)
+#<SCRIBA:SCRIBA {10023FD193}>
+
+POFTHEDAY> (defparameter *format* (make-instance 'scriba:scriba))
+*FORMAT*
+
+POFTHEDAY> (common-doc.format:parse-document *format* "@b(Hello) @i(World)!")
+#<COMMON-DOC:DOCUMENT "">
+
+POFTHEDAY> (common-doc.format:emit-to-string *format* *)
+"@title()
+
+@b(Hello)@i(World)!
+"
+
+#+end_src
+
+There is also another CL library, also made by Fernando - ~pandocl~. It
+can be used when you need to convert the document into ~HTML~ or other
+format.
+
+For example, here how we can render our hello world into the HTML:
+
+#+begin_src lisp
+
+POFTHEDAY> (pandocl:parse-string
+            "@b(Hello) @i(World)!"
+            :scriba)
+#<COMMON-DOC:DOCUMENT "">
+
+POFTHEDAY> (pandocl:emit  * "hello.html")
+#<COMMON-DOC:DOCUMENT "">
+
+POFTHEDAY> (alexandria:read-file-into-string "hello.html")
+"<!DOCTYPE html>
+ <html>
+   <head><title></title></head>
+   <body>
+     <b>Hello</b><i>World</i>!
+   </body>
+ </html>"
+
+#+end_src
+
+But what I'm really interested is Scriba's extensibility.
+
+Let's pretend, everyday we are writing texts, mentioning different
+twitter users and want a shorthand syntax for them! When rendering into
+HTML, these tags should be transformed into the link and real user name.
+
+Naive approach does not work, because we did nothing to extend the protocol:
+
+#+begin_src lisp
+
+POFTHEDAY> (common-doc.format:parse-document *format*
+                                             "Hello @twitter(bob)!")
+; Debugger entered on #<SIMPLE-ERROR "No node with name twitter" {100324FCC3}>
+
+#+end_src
+
+But I found the way to do this. Thanks to the CLOS!
+
+What we need, is to define the ~twitter~ node, using this ~CommonDoc~ macro:
+
+#+begin_src lisp
+
+POFTHEDAY> (common-doc:define-node twitter (common-doc:markup)
+                                   ()
+                                   (:tag-name "twitter"))
+
+POFTHEDAY> (common-html.emitter::define-emitter (node twitter)
+             (let* ((username (common-doc:text (first (common-doc:children node))))
+                    (url (format nil "https://twitter/~A" username))
+                    (name (format nil "@~A" username)))
+               (common-html.emitter::with-tag ("a" node :attributes `(("href" . ,url)))
+                                              (write-string name
+                                                            common-html.emitter::*output-stream*))))
+
+POFTHEDAY> (common-doc.format:parse-document *format* "Hello @twitter(bob)!")
+#<COMMON-DOC:DOCUMENT "">
+
+POFTHEDAY> (pandocl:emit  * "hello.html")
+#<COMMON-DOC:DOCUMENT "">
+
+POFTHEDAY> (alexandria:read-file-into-string "hello.html")
+"<!DOCTYPE html>
+ <html>
+    <head><title></title></head>
+    <body>
+       Hello <a href=\"https://twitter/bob\">@bob</a>!
+    </body>
+</html>"
+
+#+end_src
+
+As you can see, I've used a bunch of internal symbols, to extend
+~Common HTML~ and make it work the way I need. Probably it will be a good
+idea to make this API public.
+
+Anyway, I like Scriba and Common Doc because it was relatively easy to
+hack and do what I need.
