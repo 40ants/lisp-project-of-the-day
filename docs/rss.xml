@@ -6,6 +6,84 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>scriba</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0178-scriba.html</link>
+            <description>&lt;p&gt;The previous post was about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html&quot;&gt;Geneva&lt;/a&gt; - the CL documentation system. &lt;a href=&quot;https://twitter.com/VPostnicov&quot;&gt;Vasily Postnicov&lt;/a&gt; &lt;a href=&quot;https://twitter.com/VPostnicov/status/1301009915092365312&quot;&gt;mentioned on twitter&lt;/a&gt; another Lisp documentation tool called Codex.&lt;/p&gt;
+&lt;p&gt;Codex is based on &lt;code&gt;Scriba&lt;/code&gt; markup and today we&apos;ll look at how to use it.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (scriba.parser:parse-string &amp;quot;Blah minor&amp;quot;)
+(:DOCUMENT &amp;quot;Blah minor&amp;quot;)
+
+
+POFTHEDAY&amp;gt; (scriba.parser:parse-string &amp;quot;@b(Blah) minor&amp;quot;)
+(:DOCUMENT (:NAME &amp;quot;b&amp;quot; :ATTRS NIL :BODY (&amp;quot;Blah&amp;quot;)) &amp;quot; minor&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But this is an internal AST representation. &lt;code&gt;Scriba&lt;/code&gt; is based on other Fernando Boretti&apos;s library - &lt;code&gt;CommonDoc&lt;/code&gt; and they should be used in tandem:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-instance &amp;#039;scriba:scriba)
+#&amp;lt;SCRIBA:SCRIBA {10023FD193}&amp;gt;
+
+POFTHEDAY&amp;gt; (defparameter *format* (make-instance &amp;#039;scriba:scriba))
+*FORMAT*
+
+POFTHEDAY&amp;gt; (common-doc.format:parse-document *format* &amp;quot;@b(Hello) @i(World)!&amp;quot;)
+#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (common-doc.format:emit-to-string *format* *)
+&amp;quot;@title()
+
+@b(Hello)@i(World)!
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also another CL library, also made by Fernando - &lt;code&gt;pandocl&lt;/code&gt;. It can be used when you need to convert the document into &lt;code&gt;HTML&lt;/code&gt; or another format.&lt;/p&gt;
+&lt;p&gt;For example, here how we can render our hello world into the HTML:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (pandocl:parse-string
+            &amp;quot;@b(Hello) @i(World)!&amp;quot;
+            :scriba)
+#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (pandocl:emit  * &amp;quot;hello.html&amp;quot;)
+#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (alexandria:read-file-into-string &amp;quot;hello.html&amp;quot;)
+&amp;quot;&amp;lt;!DOCTYPE html&amp;gt;
+ &amp;lt;html&amp;gt;
+   &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;
+   &amp;lt;body&amp;gt;
+     &amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&amp;lt;i&amp;gt;World&amp;lt;/i&amp;gt;!
+   &amp;lt;/body&amp;gt;
+ &amp;lt;/html&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what I&apos;m really interested in is Scriba&apos;s extensibility. The text consists of inline and multiline blocks. Each block has a name and optional attributes.&lt;/p&gt;
+&lt;p&gt;Let&apos;s pretend, everyday we are writing texts, mentioning different twitter users and want a shorthand syntax for them! When rendering into HTML, these tags should be transformed into the link and real user name.&lt;/p&gt;
+&lt;p&gt;Naive approach does not work, because we did nothing to extend the protocol:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (common-doc.format:parse-document *format*
+                                             &amp;quot;Hello @twitter(bob)!&amp;quot;)
+; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;No node with name twitter&amp;quot; {100324FCC3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But I found the way to do this. Thanks to the CLOS!&lt;/p&gt;
+&lt;p&gt;What we need, is to define the &lt;code&gt;twitter&lt;/code&gt; node, using this &lt;code&gt;CommonDoc&lt;/code&gt; macro:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (common-doc:define-node twitter (common-doc:markup)
+                                   ()
+                                   (:tag-name &amp;quot;twitter&amp;quot;))
+
+POFTHEDAY&amp;gt; (common-html.emitter::define-emitter (node twitter)
+             (let* ((username (common-doc:text (first (common-doc:children node))))
+                    (url (format nil &amp;quot;https://twitter/~A&amp;quot; username))
+                    (name (format nil &amp;quot;@~A&amp;quot; username)))
+               (common-html.emitter::with-tag (&amp;quot;a&amp;quot; node :attributes `((&amp;quot;href&amp;quot; . ,url)))
+                                              (write-string name
+                                                            common-html.emitter::*output-stream*))))
+
+POFTHEDAY&amp;gt; (common-doc.format:parse-document *format* &amp;quot;Hello @twitter(bob)!&amp;quot;)
+#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (pandocl:emit  * &amp;quot;hello.html&amp;quot;)
+#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (alexandria:read-file-into-string &amp;quot;hello.html&amp;quot;)
+&amp;quot;&amp;lt;!DOCTYPE html&amp;gt;
+ &amp;lt;html&amp;gt;
+    &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;
+    &amp;lt;body&amp;gt;
+       Hello &amp;lt;a href=\&amp;quot;https://twitter/bob\&amp;quot;&amp;gt;@bob&amp;lt;/a&amp;gt;!
+    &amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, I&apos;ve used a bunch of internal symbols, to extend &lt;code&gt;Common HTML&lt;/code&gt; and make it work the way I need. Probably it will be a good idea to make this API public.&lt;/p&gt;
+&lt;p&gt;Anyway, I like Scriba and Common Doc because it was relatively easy to hack and do what I need.&lt;/p&gt;
+</description>
+            <pubDate>Thu, 03 Sep 2020 21:05:10 +0300</pubDate>
+        </item>
+        <item>
             <title>geneva</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html</link>
             <description>&lt;p&gt;This is yet another project by Max Rottenkolber (&lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;). Geneva is the documentation system. It includes a few subsystems:&lt;/p&gt;
@@ -824,13 +902,13 @@ B
         <item>
             <title>breeze</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/08/0166-breeze.html</link>
-            <description>&lt;p&gt;This project is still in the development phase but I like its idea. &lt;code&gt;Breeze&lt;/code&gt; tries to improve the development process. Especially interesting feature - it&apos;s ability to run tests on function redefinition!&lt;/p&gt;
-&lt;p&gt;To make it work, you have to use &lt;code&gt;defun&lt;/code&gt; and &lt;code&gt;deftest&lt;/code&gt; from the &lt;code&gt;breeze&lt;/code&gt;:&lt;/p&gt;
+            <description>&lt;p&gt;This project is still in the development phase but I like its idea. &lt;a href=&quot;https://github.com/fstamour/breeze&quot;&gt;Breeze&lt;/a&gt; tries to improve the development process. An especially interesting feature: its ability to run tests on function redefinition!&lt;/p&gt;
+&lt;p&gt;To make it work, you have to use &lt;code&gt;defun&lt;/code&gt; and &lt;code&gt;deftest&lt;/code&gt; from &lt;code&gt;breeze&lt;/code&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (breeze:defun foo ()
              100)
 
 ;; When we define the test, it is immediately
-;; runned in a separate thread:
+;; run in a separate thread:
 POFTHEDAY&amp;gt; (breeze:deftest test-foo
              (unless (= (foo) 42)
                (error &amp;quot;Foo should return 42&amp;quot;)))
@@ -843,8 +921,8 @@ Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
 Done [0/1] tests passed.
 
 ;; Now I&amp;#039;m going to fix it.
-;; Pay attention on output. Breeze automatically
-;; runs tests for &amp;#039;foo function in a separate thread:
+;; Pay attention on the output. Breeze automatically
+;; runs tests of the &amp;#039;foo function in a separate thread:
 POFTHEDAY&amp;gt; (breeze:defun foo ()
              42)
 Running all tests....
@@ -861,7 +939,7 @@ Test TEST-FOO failed with condition Foo should return 42
 Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
 &amp;quot;Foo should return 42&amp;quot;
 Done [0/1] tests passed.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also some extension for Emacs and SLIME, but I didn&apos;t test it yet. I hope the author will make this system more usable.&lt;/p&gt;
-&lt;p&gt;The first feature which comes in mind is support for existing unit-testing frameworks. The second is an indicator for Emacs mode-line if some tests failed after I hit &lt;code&gt;C-c C-c&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The first feature which comes to mind is support for existing unit-testing frameworks. The second is an indicator for the Emacs mode-line if some tests failed after I hit &lt;code&gt;C-c C-c&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;To conclude, make good tooling! Tooling should be convenient!&lt;/p&gt;
 </description>
             <pubDate>Wed, 19 Aug 2020 23:32:01 +0300</pubDate>
@@ -1335,45 +1413,6 @@ POFTHEDAY&amp;gt; (glacier:run-bot (*bot*))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The
 &lt;p&gt;There is also API to define commands bot should react on. You will find the example in the &lt;a href=&quot;https://github.com/compufox/glacier/blob/master/README.md&quot;&gt;README&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Wed, 12 Aug 2020 22:57:57 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-json-pointer</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0158-cl-json-pointer.html</link>
-            <description>&lt;p&gt;This library implements &lt;a href=&quot;https://tools.ietf.org/html/rfc6901&quot;&gt;RFC 6901&lt;/a&gt; - a format for accessing nested JSON data-structures. It some sense, &lt;code&gt;JSON pointer&lt;/code&gt; is similar to &lt;a href=&quot;https://jsonpath.com/&quot;&gt;JSON path&lt;/a&gt;, but more suitable for use as a part of the URL fragment.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;cl-json-pointer&lt;/code&gt;&apos;s README provides many examples, but all of them are applied to the object which almost flat. Let&apos;s try to reproduce an example from the &lt;code&gt;JSON path&lt;/code&gt;&apos;s site:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;json&apos;&gt;{
-  &amp;quot;firstName&amp;quot;: &amp;quot;John&amp;quot;,
-  &amp;quot;lastName&amp;quot; : &amp;quot;doe&amp;quot;,
-  &amp;quot;age&amp;quot;      : 26,
-  &amp;quot;address&amp;quot;  : {
-    &amp;quot;streetAddress&amp;quot;: &amp;quot;naist street&amp;quot;,
-    &amp;quot;city&amp;quot;         : &amp;quot;Nara&amp;quot;,
-    &amp;quot;postalCode&amp;quot;   : &amp;quot;630-0192&amp;quot;
-  },
-  &amp;quot;phoneNumbers&amp;quot;: [
-    {
-      &amp;quot;type&amp;quot;  : &amp;quot;iPhone&amp;quot;,
-      &amp;quot;number&amp;quot;: &amp;quot;0123-4567-8888&amp;quot;
-    },
-    {
-      &amp;quot;type&amp;quot;  : &amp;quot;home&amp;quot;,
-      &amp;quot;number&amp;quot;: &amp;quot;0123-4567-8910&amp;quot;
-    }
-  ]
-}&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll translate this JSON path: &lt;code&gt;$.phoneNumbers[0].type&lt;/code&gt; into JSON pointer &lt;code&gt;/phoneNumbers/0/type&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *obj* 
-             (jsown:parse
-              (alexandria:read-file-into-string &amp;quot;data.json&amp;quot;)))
-
-POFTHEDAY&amp;gt; (cl-json-pointer:get-by-json-pointer *obj* &amp;quot;/phoneNumbers/0/type&amp;quot;
-                                                :flavor :jsown)
-&amp;quot;iPhone&amp;quot;
-(&amp;quot;type&amp;quot; . &amp;quot;iPhone&amp;quot;)
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to add/set/delete elements using &lt;code&gt;cl-json-pointer&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;You will find more examples in the &lt;a href=&quot;https://github.com/y2q-actionman/cl-json-pointer&quot;&gt;official docs&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Comparing to the &lt;code&gt;JSON path&lt;/code&gt;, the &lt;code&gt;pointer&lt;/code&gt; has clearer character escaping rules and is able to work with keys containing dots and slashes and other symbols. But it does not support slicing and some other features of the &lt;code&gt;JSON path&lt;/code&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 11 Aug 2020 23:13:03 +0300</pubDate>
         </item>
     </channel>
 </rss>

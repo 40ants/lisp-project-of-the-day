@@ -3,16 +3,16 @@
 :Documentation: :)
 :Docstrings: :)
 :Tests:    :)
-:Examples: :)
+:Examples: :|
 :RepositoryActivity: :(
 :CI:       :(
 :END:
 
-Previous post was about [[https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html][Geneva]] - the CL documentation system.
+The previous post was about [[https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html][Geneva]] - the CL documentation system.
 [[https://twitter.com/VPostnicov][Vasily Postnicov]] [[https://twitter.com/VPostnicov/status/1301009915092365312][mentioned on twitter]] another Lisp documentation tool
 called Codex.
 
-Codex is based on ~Scriba~ markup and today we'll look how to use it.
+Codex is based on ~Scriba~ markup and today we'll look at how to use it.
 
 #+begin_src lisp
 
@@ -22,9 +22,6 @@ POFTHEDAY> (scriba.parser:parse-string "Blah minor")
 
 POFTHEDAY> (scriba.parser:parse-string "@b(Blah) minor")
 (:DOCUMENT (:NAME "b" :ATTRS NIL :BODY ("Blah")) " minor")
-
-POFTHEDAY> (defparameter *doc* *)
-*DOC*
 
 #+end_src
 
@@ -51,7 +48,7 @@ POFTHEDAY> (common-doc.format:emit-to-string *format* *)
 #+end_src
 
 There is also another CL library, also made by Fernando - ~pandocl~. It
-can be used when you need to convert the document into ~HTML~ or other
+can be used when you need to convert the document into ~HTML~ or another
 format.
 
 For example, here how we can render our hello world into the HTML:
@@ -77,7 +74,9 @@ POFTHEDAY> (alexandria:read-file-into-string "hello.html")
 
 #+end_src
 
-But what I'm really interested is Scriba's extensibility.
+But what I'm really interested in is Scriba's extensibility. The text
+consists of inline and multiline blocks. Each block has a name and
+optional attributes.
 
 Let's pretend, everyday we are writing texts, mentioning different
 twitter users and want a shorthand syntax for them! When rendering into
