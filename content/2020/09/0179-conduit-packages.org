@@ -1,0 +1,111 @@
+* conduit-packages :language:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system is pretty old. It does not have its own revision control and
+[[http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp][is hosted here]]. It provides the replacement for the ~defpackage~
+macro. This replacement makes easy to "inherit" your package from
+another and to replace some symbols with your own.
+
+For example, [[https://twitter.com/stylewarning][@stylewarning]]'s ~cl-generic-arithmetic~ uses it to redefine
+some functions from ~cl~ package. It defines a new package which uses ~cl~
+and reexports all symbols except some which are defined in by the
+~cl-generic-arithmetic~ as generic functions.
+
+Let's repeat this to make ~+~ a function generic!
+
+#+begin_src lisp
+
+POFTHEDAY> (org.tfeb.clc:defpackage cl-generic
+             (:extends/excluding #:cl
+                                 #:+)
+             (:export #:+))
+
+;; For simplicity, I'll define this operation as
+;; binary. But for real implementation it should
+;; support variadic arguments.
+POFTHEDAY> (defgeneric cl-generic:+ (left right)
+             (:method ((left number) (right number))
+               (cl:+ left right))
+             (:method ((left string) (right string))
+               (concatenate 'string left right))
+             (:method ((left string) (right number))
+               (format nil "~A~A" left right)))
+
+#+end_src
+
+Now we can define another package which will use this generic
+function. Note, I'll just ~:use~ this new package instead of standard ~:cl~
+package:
+
+#+begin_src lisp
+
+POFTHEDAY> (defpackage foo
+             (:use :cl-generic))
+
+POFTHEDAY> (in-package foo)
+
+FOO> (+ 1 2)
+3
+
+FOO> (+ "Hello " "World!")
+"Hello World!"
+
+;; Other function are standard, becase they are inherited
+;; from the standard package:
+FOO> (- 5 3)
+2
+
+FOO> (- "Hello " "World!")
+; Debugger entered on #<TYPE-ERROR expected-type: NUMBER datum: "Hello ">
+
+#+end_src
+
+By the way, you can get the same effect by using
+~uiop:define-package~. But it will be a little bit wordy:
+
+#+begin_src lisp
+
+POFTHEDAY> (uiop:define-package cl-generic2
+             (:use #:cl)
+             (:shadow #:+)
+             (:reexport #:cl))
+#<PACKAGE "CL-GENERIC2">
+
+POFTHEDAY> (defgeneric cl-generic2:+ (left right)
+             (:method ((left number) (right number))
+               (cl:+ left right))
+             (:method ((left string) (right string))
+               (concatenate 'string left right))
+             (:method ((left string) (right number))
+               (format nil "~A~A" left right)))
+
+POFTHEDAY> (defpackage foo2
+             (:use :cl-generic2))
+
+POFTHEDAY> (in-package foo)
+
+POFTHEDAY> (in-package foo2)
+
+FOO2> (+ 1 2)
+3
+
+FOO2> (+ "Hello " "World!")
+"Hello World!"
+
+FOO2> (- 5 3)
+2
+
+FOO2> (- "Hello " "World!")
+; Debugger entered on #<TYPE-ERROR expected-type: NUMBER datum: "Hello ">
+
+#+end_src
+
+Probably I missed some of the ~conduit-packages~ features. Please, read
+its [[http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp][sources]] and tell me if you will find something interesting!
