@@ -8,6 +8,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
 - 03 September - [[content/2020/09/0178-scriba.org][scriba]] ([[https://twitter.com/svetlyak40wt/status/1301583177505538048][twitter]])
+- 04 September - [[content/2020/09/0179-conduit-packages.org][conduit-packages]] ([[https://twitter.com/svetlyak40wt/status/1301939615914512392][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

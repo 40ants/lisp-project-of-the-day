@@ -6,6 +6,80 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>conduit-packages</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0179-conduit-packages.html</link>
+            <description>&lt;p&gt;This system is pretty old. It does not have its own revision control and &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;is hosted here&lt;/a&gt;. It provides the replacement for the &lt;code&gt;defpackage&lt;/code&gt; macro. This replacement makes easy to &quot;inherit&quot; your package from another and to replace some symbols with your own.&lt;/p&gt;
+&lt;p&gt;For example, &lt;a href=&quot;https://twitter.com/stylewarning&quot;&gt;@stylewarning&lt;/a&gt;&apos;s &lt;code&gt;cl-generic-arithmetic&lt;/code&gt; uses it to redefine some functions from &lt;code&gt;cl&lt;/code&gt; package. It defines a new package which uses &lt;code&gt;cl&lt;/code&gt; and reexports all symbols except some which are defined in by the &lt;code&gt;cl-generic-arithmetic&lt;/code&gt; as generic functions.&lt;/p&gt;
+&lt;p&gt;Let&apos;s repeat this to make &lt;code&gt;+&lt;/code&gt; a function generic!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (org.tfeb.clc:defpackage cl-generic
+             (:extends/excluding #:cl
+                                 #:+)
+             (:export #:+))
+
+;; For simplicity, I&amp;#039;ll define this operation as
+;; binary. But for real implementation it should
+;; support variadic arguments.
+POFTHEDAY&amp;gt; (defgeneric cl-generic:+ (left right)
+             (:method ((left number) (right number))
+               (cl:+ left right))
+             (:method ((left string) (right string))
+               (concatenate &amp;#039;string left right))
+             (:method ((left string) (right number))
+               (format nil &amp;quot;~A~A&amp;quot; left right)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can define another package which will use this generic function. Note, I&apos;ll just &lt;code&gt;:use&lt;/code&gt; this new package instead of standard &lt;code&gt;:cl&lt;/code&gt; package:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defpackage foo
+             (:use :cl-generic))
+
+POFTHEDAY&amp;gt; (in-package foo)
+
+FOO&amp;gt; (+ 1 2)
+3
+
+FOO&amp;gt; (+ &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
+&amp;quot;Hello World!&amp;quot;
+
+;; Other function are standard, becase they are inherited
+;; from the standard package:
+FOO&amp;gt; (- 5 3)
+2
+
+FOO&amp;gt; (- &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
+; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;Hello &amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, you can get the same effect by using &lt;code&gt;uiop:define-package&lt;/code&gt;. But it will be a little bit wordy:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (uiop:define-package cl-generic2
+             (:use #:cl)
+             (:shadow #:+)
+             (:reexport #:cl))
+#&amp;lt;PACKAGE &amp;quot;CL-GENERIC2&amp;quot;&amp;gt;
+
+POFTHEDAY&amp;gt; (defgeneric cl-generic2:+ (left right)
+             (:method ((left number) (right number))
+               (cl:+ left right))
+             (:method ((left string) (right string))
+               (concatenate &amp;#039;string left right))
+             (:method ((left string) (right number))
+               (format nil &amp;quot;~A~A&amp;quot; left right)))
+
+POFTHEDAY&amp;gt; (defpackage foo2
+             (:use :cl-generic2))
+
+POFTHEDAY&amp;gt; (in-package foo)
+
+POFTHEDAY&amp;gt; (in-package foo2)
+
+FOO2&amp;gt; (+ 1 2)
+3
+
+FOO2&amp;gt; (+ &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
+&amp;quot;Hello World!&amp;quot;
+
+FOO2&amp;gt; (- 5 3)
+2
+
+FOO2&amp;gt; (- &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
+; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;Hello &amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably I missed some of the &lt;code&gt;conduit-packages&lt;/code&gt; features. Please, read its &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;sources&lt;/a&gt; and tell me if you will find something interesting!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 04 Sep 2020 20:52:13 +0300</pubDate>
+        </item>
+        <item>
             <title>scriba</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0178-scriba.html</link>
             <description>&lt;p&gt;The previous post was about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html&quot;&gt;Geneva&lt;/a&gt; - the CL documentation system. &lt;a href=&quot;https://twitter.com/VPostnicov&quot;&gt;Vasily Postnicov&lt;/a&gt; &lt;a href=&quot;https://twitter.com/VPostnicov/status/1301009915092365312&quot;&gt;mentioned on twitter&lt;/a&gt; another Lisp documentation tool called Codex.&lt;/p&gt;
@@ -1317,102 +1391,6 @@ Iteration 4
 Iteration 5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Without &lt;code&gt;num-attempts&lt;/code&gt; trick, a thread will be restarted eternally. This is useful for long-running threads which should be kept alive.&lt;/p&gt;
 </description>
             <pubDate>Thu, 13 Aug 2020 22:04:49 +0300</pubDate>
-        </item>
-        <item>
-            <title>glacier</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0159-glacier.html</link>
-            <description>&lt;p&gt;This is the library by &lt;a href=&quot;https://twitter.com/_compufox&quot;&gt;@_compufox&lt;/a&gt;. It is a wrapper around Mastodon&apos;s API allowing to write bots for this messaging platform.&lt;/p&gt;
-&lt;p&gt;To test the &lt;code&gt;Glacier&lt;/code&gt;, you need to create a development application for Mastodon and get the API access token. Here is &lt;a href=&quot;https://botwiki.org/resource/tutorial/how-to-make-a-mastodon-botsin-space-app-bot/&quot;&gt;an article&lt;/a&gt; describing how to do it.&lt;/p&gt;
-&lt;p&gt;Now you can send a single message (they are called toots on Mastodon).&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *bot*
-             (make-instance &amp;#039;glacier:mastodon-bot
-                            :config-file &amp;quot;glacier.config&amp;quot;))
-
-POFTHEDAY&amp;gt; (glacier:run-bot (*bot*)
-             (glacier:post (format nil &amp;quot;Hello from Common Lisp bot!&amp;quot;)
-                           :visibility :public))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0159/first-hello-world.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;There is also a macro to make the bot do something in a specified time interval. With this code it will make a post every 5 minutes:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((number 0))
-             (glacier:run-bot (*bot*)
-               (glacier:after-every (5 :minutes :run-immediately t)
-                 (incf number)
-                 (glacier:post (format nil &amp;quot;Iteration ~A&amp;quot; number)
-                               :visibility :public))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But to make bot useful, we need to teach it how to listen to other people. Usually, when I&apos;m learning something, the first thing I&apos;m trying is something stupid.&lt;/p&gt;
-&lt;p&gt;In this case, it was a little function which saves into the global variable the last message received by the bot:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *last-message*)
-
-POFTHEDAY&amp;gt; (defun on-message (message)
-             (setf *last-message* message))
-
-POFTHEDAY&amp;gt; (defparameter *bot*
-             (make-instance &amp;#039;glacier:mastodon-bot
-                            :config-file &amp;quot;glacier.config&amp;quot;
-                            :on-notification &amp;#039;on-message))
-
-POFTHEDAY&amp;gt; (glacier:run-bot (*bot*))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Message stores the toot&apos;s type, author, timestamp and id. Also, it has the &lt;code&gt;status&lt;/code&gt; attribute. &quot;Status&quot; is another object holding all metadata about a toot:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (tooter:status *last-message*)
-#&amp;lt;TOOTER-OBJECTS:STATUS svetlyak40wt@fosstodon.org #104677985579935599&amp;gt;
-
-POFTHEDAY&amp;gt; (describe *)
-#&amp;lt;TOOTER-OBJECTS:STATUS svetlyak40wt@fosstodon.org #104677985579935599&amp;gt;
-
- @svetlyak40wt@fosstodon.org                          2020.8.12 19:08:21
-|  Hello Bot!
-                                                                   0&amp;#x267A; 0&amp;#x2764;
-
-;; In Emacs Inspector
-
-#&amp;lt;TOOTER-OBJECTS:STATUS {1004669693}&amp;gt;
---------------------
-Class: #&amp;lt;STANDARD-CLASS TOOTER-OBJECTS:STATUS&amp;gt;
---------------------
- Group slots by inheritance [ ]
- Sort slots alphabetically  [X]
-
-All Slots:
-[ ]  ACCOUNT                = #&amp;lt;TOOTER-OBJECTS:ACCOUNT svetlyak40wt@fosstodon.org #249236&amp;gt;
-[ ]  APPLICATION            = NIL
-[ ]  BOOKMARKED             = NIL
-[ ]  CONTENT                = &amp;quot; Hello Bot!&amp;quot;
-[ ]  CREATED-AT             = 3806248101
-[ ]  EMOJIS                 = NIL
-[ ]  FAVOURITED             = NIL
-[ ]  FAVOURITES-COUNT       = 0
-[ ]  ID                     = &amp;quot;104677985579935599&amp;quot;
-[ ]  IN-REPLY-TO-ACCOUNT-ID = NIL
-[ ]  IN-REPLY-TO-ID         = NIL
-[ ]  LANGUAGE               = :EN
-[ ]  MEDIA-ATTACHMENTS      = NIL
-[ ]  MENTIONS               = (#&amp;lt;TOOTER-OBJECTS:MENTION poftheday #249231&amp;gt;)
-[ ]  MUTED                  = NIL
-[ ]  PARENT                 = NIL
-[ ]  PINNED                 = NIL
-[ ]  POLL                   = NIL
-[ ]  PREVIEW-CARD           = NIL
-[ ]  REBLOGGED              = NIL
-[ ]  REBLOGS-COUNT          = 0
-[ ]  REPLIES-COUNT          = 0
-[ ]  SENSITIVE              = NIL
-[ ]  SPOILER-TEXT           = &amp;quot;&amp;quot;
-[ ]  TAGS                   = NIL
-[ ]  URI                    = &amp;quot;https://fosstodon.org/users/svetlyak40wt/statuses/104677985568296654&amp;quot;
-[ ]  URL                    = &amp;quot;https://fosstodon.org/@svetlyak40wt/104677985568296654&amp;quot;
-[ ]  VISIBILITY             = :DIRECT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s teach our bot to reply with a reversed string:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun on-message (message)
-             (when (glacier:mention-p message)
-               (let* ((status (tooter:status message))
-                      (text (tooter:content status)))
-                 (glacier:reply status
-                                (reverse (string-trim &amp;#039;(#\Space)
-                                                      text))))))
-
-POFTHEDAY&amp;gt; (glacier:run-bot (*bot*))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There result is:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0159/bot-reply.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;To make this code work, I have to patch &lt;code&gt;glacier&lt;/code&gt; because a library it uses changed and break the &lt;code&gt;glacier&lt;/code&gt; in some places. If you want to try it yourself apply this patch or use my fork:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/compufox/glacier/pull/5&quot;&gt;https://github.com/compufox/glacier/pull/5&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;There is also API to define commands bot should react on. You will find the example in the &lt;a href=&quot;https://github.com/compufox/glacier/blob/master/README.md&quot;&gt;README&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 12 Aug 2020 22:57:57 +0300</pubDate>
         </item>
     </channel>
 </rss>
