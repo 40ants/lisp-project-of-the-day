@@ -9,6 +9,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
 - 03 September - [[content/2020/09/0178-scriba.org][scriba]] ([[https://twitter.com/svetlyak40wt/status/1301583177505538048][twitter]])
 - 04 September - [[content/2020/09/0179-conduit-packages.org][conduit-packages]] ([[https://twitter.com/svetlyak40wt/status/1301939615914512392][twitter]])
+- 05 September - [[content/2020/09/0180-global-vars.org][global-vars]] ([[https://twitter.com/svetlyak40wt/status/1302320218321149953][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
@@ -310,7 +311,8 @@ that:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *google-code* "
-  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- Global
+ site tag (gtag.js) - Google Analytics -->
   <script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-162105820-1\"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -1216,6 +1218,7 @@ files, and extracting their ":defsystem-depends-on".
 - http://quickdocs.org/trivial-main-thread/
 - https://github.com/sirherrbatka/vellum - dataframes
 - http://massung.github.io/quickdoc/example.html - interesting markup language
+- https://github.com/naryl/cl-cooperative
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

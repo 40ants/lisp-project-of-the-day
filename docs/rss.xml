@@ -6,6 +6,41 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>global-vars</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0180-global-vars.html</link>
+            <description>&lt;p&gt;This system is a compatibility layer for defining global variables. Global variables cannot be dynamically bound and sometimes is faster than variables defined with &lt;code&gt;defvar&lt;/code&gt; or &lt;code&gt;defparameter&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Also, when you are using &lt;code&gt;globals-vars&lt;/code&gt; to define a variable, you tell the user of the library that this variable is not intended to by dynamically bound.&lt;/p&gt;
+&lt;p&gt;Here is a test for speed, comparing access to standard variable and global variable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 1) (speed 3)))
+
+POFTHEDAY&amp;gt; (defvar *global* 0)
+*GLOBAL*
+
+POFTHEDAY&amp;gt; (global-vars:define-global-var -global- 0)
+-GLOBAL-
+
+POFTHEDAY&amp;gt; (time (loop repeat 1000000000
+                       do (incf *global*)))
+Evaluation took:
+  2.339 seconds of real time
+  2.339325 seconds of total run time (2.336514 user, 0.002811 system)
+  100.00% CPU
+  5,164,301,132 processor cycles
+  0 bytes consed
+
+POFTHEDAY&amp;gt; (time (loop repeat 1000000000
+                       do (incf -global-)))
+Evaluation took:
+  1.560 seconds of real time
+  1.560328 seconds of total run time (1.558862 user, 0.001466 system)
+  100.00% CPU
+  3,444,078,626 processor cycles
+  0 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, accessing of variable, defined as &lt;code&gt;global&lt;/code&gt; is almost twice faster on SBCL.&lt;/p&gt;
+&lt;p&gt;There is also macros &lt;code&gt;define-global-var*&lt;/code&gt; and &lt;code&gt;define-global-parameter*&lt;/code&gt;. They will define variables which will not be available in compile-time. Why does somebody might want this?&lt;/p&gt;
+</description>
+            <pubDate>Sat, 05 Sep 2020 22:00:45 +0300</pubDate>
+        </item>
+        <item>
             <title>conduit-packages</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0179-conduit-packages.html</link>
             <description>&lt;p&gt;This system is pretty old. It does not have its own revision control and &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;is hosted here&lt;/a&gt;. It provides the replacement for the &lt;code&gt;defpackage&lt;/code&gt; macro. This replacement makes easy to &quot;inherit&quot; your package from another and to replace some symbols with your own.&lt;/p&gt;
@@ -1353,44 +1388,6 @@ exec ros -Q -- $0 &amp;quot;$@&amp;quot;
 &amp;lt;/svg&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;img src=&quot;../../media/0161/test.svg&quot; /&gt;&lt;p&gt;There are more drawing primitives covered by the documentation. Read the docs and create more interesting pictures. Also, you can combine these SVGs with JS code produced by &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt;, to create interactive graphics!&lt;/p&gt;
 </description>
             <pubDate>Fri, 14 Aug 2020 23:39:13 +0300</pubDate>
-        </item>
-        <item>
-            <title>moira</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0160-moira.html</link>
-            <description>&lt;p&gt;This small library, made by &lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, implements an abstraction over &lt;code&gt;bordeaux-threads&lt;/code&gt;. It is able to restart threads in case of errors. &lt;code&gt;Moira&lt;/code&gt; monitors all started threads.&lt;/p&gt;
-&lt;p&gt;In the next example, I&apos;m creating a thread which runs 5 iterations and fails. When the same thread restarted, it ends without an error:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (moira:start-monitor)
-
-POFTHEDAY&amp;gt; (let ((num-attempts 1))
-             (moira:spawn &amp;quot;Counter&amp;quot;
-                (format t &amp;quot;Starting the thread~%&amp;quot;)
-                (loop for i from 0 upto 5
-                      do (format t &amp;quot;Iteration ~A~%&amp;quot; i)
-                         (sleep 1)
-                      finally (when (&amp;gt; num-attempts 0)
-                                (decf num-attempts)
-                                (format t &amp;quot;Exiting with error~%&amp;quot;)
-                                (error &amp;quot;Some shit happened!&amp;quot;)))))
-Starting the thread
-Iteration 0
-#&amp;lt;SB-THREAD:THREAD &amp;quot;Counter&amp;quot; RUNNING {10028CBD93}&amp;gt;
-#&amp;lt;MOIRA::MONITORED-THREAD Counter&amp;gt;
-Iteration 1
-Iteration 2
-Iteration 3
-Iteration 4
-Iteration 5
-Exiting with error
-
-Starting the thread
-Iteration 0
-Iteration 1
-Iteration 2
-Iteration 3
-Iteration 4
-Iteration 5&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Without &lt;code&gt;num-attempts&lt;/code&gt; trick, a thread will be restarted eternally. This is useful for long-running threads which should be kept alive.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 13 Aug 2020 22:04:49 +0300</pubDate>
         </item>
     </channel>
 </rss>
