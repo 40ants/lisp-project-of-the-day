@@ -1,0 +1,57 @@
+* global-vars :language:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system is a compatibility layer for defining global
+variables. Global variables cannot be dynamically bound and sometimes is
+faster than variables defined with ~defvar~ or ~defparameter~.
+
+Also, when you are using ~globals-vars~ to define a variable, you tell the
+user of the library that this variable is not intended to by dynamically
+bound.
+
+Here is a test for speed, comparing access to standard variable and
+global variable:
+
+#+begin_src lisp
+
+POFTHEDAY> (declaim (optimize (debug 1) (speed 3)))
+
+POFTHEDAY> (defvar *global* 0)
+*GLOBAL*
+
+POFTHEDAY> (global-vars:define-global-var -global- 0)
+-GLOBAL-
+
+POFTHEDAY> (time (loop repeat 1000000000
+                       do (incf *global*)))
+Evaluation took:
+  2.339 seconds of real time
+  2.339325 seconds of total run time (2.336514 user, 0.002811 system)
+  100.00% CPU
+  5,164,301,132 processor cycles
+  0 bytes consed
+
+POFTHEDAY> (time (loop repeat 1000000000
+                       do (incf -global-)))
+Evaluation took:
+  1.560 seconds of real time
+  1.560328 seconds of total run time (1.558862 user, 0.001466 system)
+  100.00% CPU
+  3,444,078,626 processor cycles
+  0 bytes consed
+
+#+end_src
+
+As you can see, accessing of variable, defined as ~global~ is almost
+twice faster on SBCL.
+
+There is also macros ~define-global-var*~ and
+~define-global-parameter*~. They will define variables which will not be
+available in compile-time. Why does somebody might want this?
