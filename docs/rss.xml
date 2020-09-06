@@ -6,6 +6,52 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-left-pad</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0181-trivial-left-pad.html</link>
+            <description>&lt;p&gt;Did you hear &lt;a href=&quot;https://www.theregister.com/2016/03/23/npm_left_pad_chaos/&quot;&gt;the story&lt;/a&gt; of how one developer broke thousand JavaScript libraries by removing 11 lines of code from NPM?&lt;/p&gt;
+&lt;p&gt;Now we can to repeat this feat because we have our own &lt;code&gt;left-pad&lt;/code&gt; for Common Lisp! :)&lt;/p&gt;
+&lt;p&gt;This library brings only one function, which adds some spaces, to make a string of given length:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Foo&amp;quot; 16)
+&amp;quot;             Foo&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Bar&amp;quot; 16)
+&amp;quot;             Bar&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Blah&amp;quot; 16)
+&amp;quot;            Blah&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Minor&amp;quot; 16)
+&amp;quot;           Minor&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16)
+&amp;quot;    Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You also can specify a custom padding as a character or a string:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;.&amp;quot;)
+&amp;quot;....Hello world!&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 #\.)
+&amp;quot;....Hello world!&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;.!&amp;quot;)
+&amp;quot;.!.!Hello world!&amp;quot;
+
+POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;-&amp;gt;&amp;quot;)
+&amp;quot;-&amp;gt;-&amp;gt;Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, this library is useful only if you need padding from more than one character. In other cases it is much easier to use standard format function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (format nil &amp;quot;~16@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
+&amp;quot;    Hello world!&amp;quot;
+
+POFTHEDAY&amp;gt; (format nil &amp;quot;~16,,,&amp;#039;_@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
+&amp;quot;____Hello world!&amp;quot;
+
+POFTHEDAY&amp;gt; (format nil &amp;quot;~16,,,&amp;#039;+@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
+&amp;quot;++++Hello world!&amp;quot;
+
+;; If you want to pass padding in runtime:
+
+POFTHEDAY&amp;gt; (format nil &amp;quot;~v,,,v@A&amp;quot; 16 #\+ &amp;quot;Hello world!&amp;quot;)
+&amp;quot;++++Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
+            <pubDate>Sun, 06 Sep 2020 18:21:46 +0300</pubDate>
+        </item>
+        <item>
             <title>global-vars</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0180-global-vars.html</link>
             <description>&lt;p&gt;This system is a compatibility layer for defining global variables. Global variables cannot be dynamically bound and sometimes is faster than variables defined with &lt;code&gt;defvar&lt;/code&gt; or &lt;code&gt;defparameter&lt;/code&gt;.&lt;/p&gt;
@@ -1356,38 +1402,6 @@ exec ros -Q -- $0 &amp;quot;$@&amp;quot;
 &lt;p&gt;Please, try it on your system whether it is OSX or Linux and let me know it started successfuly.&lt;/p&gt;
 </description>
             <pubDate>Sat, 15 Aug 2020 23:31:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-svg</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0161-cl-svg.html</link>
-            <description>&lt;p&gt;This is a library for SVG generation. It has &lt;a href=&quot;https://github.com/wmannis/cl-svg/blob/master/docs/API.md&quot;&gt;nice documentation&lt;/a&gt;. I will show only a simple example of how to create the SVG with a circle filled with the gradient:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-svg:with-svg-to-file (svg &amp;#039;cl-svg:svg-1.1-toplevel :height 200 :width 200)
-               (&amp;quot;docs/media/0161/test.svg&amp;quot; :if-exists :supersede)
-             (cl-svg:draw svg
-                 (:circle :cx 100 :cy 100 :r 100)
-                 :fill (cl-svg:xlink-href
-                        (cl-svg:make-linear-gradient svg
-                            (:id :fill
-                             :x1 &amp;quot;0%&amp;quot; :y1 &amp;quot;0%&amp;quot;
-                             :x2 &amp;quot;100%&amp;quot; :y2 &amp;quot;100%&amp;quot;)
-                          (cl-svg:stop :color &amp;quot;red&amp;quot; :offset &amp;quot;0%&amp;quot;)
-                          (cl-svg:stop :color &amp;quot;blue&amp;quot; :offset &amp;quot;100%&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;xml&apos;&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; standalone=&amp;quot;no&amp;quot;?&amp;gt;
-&amp;lt;!DOCTYPE svg PUBLIC &amp;quot;-//W3C//DTD SVG 1.1//EN&amp;quot; 
-  &amp;quot;http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd&amp;quot;&amp;gt;
-&amp;lt;svg width=&amp;quot;200&amp;quot; height=&amp;quot;200&amp;quot; version=&amp;quot;1.1&amp;quot; id=&amp;quot;toplevel&amp;quot;
-    xmlns=&amp;quot;http://www.w3.org/2000/svg&amp;quot;
-    xmlns:xlink=&amp;quot;http://www.w3.org/1999/xlink&amp;quot;&amp;gt;
-  &amp;lt;defs&amp;gt;
-    &amp;lt;linearGradient id=&amp;quot;FILL&amp;quot; x1=&amp;quot;0%&amp;quot; y1=&amp;quot;0%&amp;quot; x2=&amp;quot;100%&amp;quot; y2=&amp;quot;100%&amp;quot;&amp;gt;
-      &amp;lt;stop stop-color=&amp;quot;red&amp;quot; stop-opacity=&amp;quot;1.00&amp;quot; offset=&amp;quot;0%&amp;quot;/&amp;gt;
-      &amp;lt;stop stop-color=&amp;quot;blue&amp;quot; stop-opacity=&amp;quot;1.00&amp;quot; offset=&amp;quot;100%&amp;quot;/&amp;gt;
-    &amp;lt;/linearGradient&amp;gt;
-  &amp;lt;/defs&amp;gt;
-  &amp;lt;circle cx=&amp;quot;100&amp;quot; cy=&amp;quot;100&amp;quot; r=&amp;quot;100&amp;quot; fill=&amp;quot;url(#FILL)&amp;quot;/&amp;gt;
-&amp;lt;/svg&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;img src=&quot;../../media/0161/test.svg&quot; /&gt;&lt;p&gt;There are more drawing primitives covered by the documentation. Read the docs and create more interesting pictures. Also, you can combine these SVGs with JS code produced by &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0071-parenscript.html&quot;&gt;Parenscript&lt;/a&gt;, to create interactive graphics!&lt;/p&gt;
-</description>
-            <pubDate>Fri, 14 Aug 2020 23:39:13 +0300</pubDate>
         </item>
     </channel>
 </rss>
