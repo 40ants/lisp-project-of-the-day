@@ -1,0 +1,77 @@
+* trivial-left-pad :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Did you hear [[https://www.theregister.com/2016/03/23/npm_left_pad_chaos/][the story]] of how one developer broke thousand JavaScript
+libraries by removing 11 lines of code from NPM?
+
+Now we can to repeat this feat because we have our own ~left-pad~ for
+Common Lisp! :)
+
+This library brings only one function, which adds some spaces, to make a
+string of given length:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-left-pad:left-pad "Foo" 16)
+"             Foo"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Bar" 16)
+"             Bar"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Blah" 16)
+"            Blah"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Minor" 16)
+"           Minor"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Hello world!" 16)
+"    Hello world!"
+
+#+end_src
+
+You also can specify a custom padding as a character or a string:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-left-pad:left-pad "Hello world!" 16 ".")
+"....Hello world!"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Hello world!" 16 #\.)
+"....Hello world!"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Hello world!" 16 ".!")
+".!.!Hello world!"
+
+POFTHEDAY> (trivial-left-pad:left-pad "Hello world!" 16 "->")
+"->->Hello world!"
+
+#+end_src
+
+Of cause, this library is useful only if you need padding from more
+than one character. In other cases it is much easier to use standard
+format function:
+
+#+begin_src lisp
+
+POFTHEDAY> (format nil "~16@A" "Hello world!")
+"    Hello world!"
+
+POFTHEDAY> (format nil "~16,,,'_@A" "Hello world!")
+"____Hello world!"
+
+POFTHEDAY> (format nil "~16,,,'+@A" "Hello world!")
+"++++Hello world!"
+
+;; If you want to pass padding in runtime:
+
+POFTHEDAY> (format nil "~v,,,v@A" 16 #\+ "Hello world!")
+"++++Hello world!"
+
+#+end_src
