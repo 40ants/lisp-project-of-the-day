@@ -4,3 +4,5 @@ dist ultralisp http://dist.ultralisp.org/
 # https://github.com/ultralisp/ultralisp/issues/70
 github cl-json hankhero/cl-json
 
+github cl-vcr kidd/cl-vcr
+

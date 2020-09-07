@@ -1,4 +1,5 @@
-* cl-vcr :testing:
+* TODO cl-vcr                                                       :testing:
+SCHEDULED: <2020-09-07 Mon>
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :(
@@ -19,6 +20,8 @@ By the way, ~cl-vcr~ is not in Quicklisp. Here is the link to the
 repository:
 
 https://github.com/kidd/cl-vcr
+
+Let's try it!
 
 #+begin_src lisp
 
@@ -72,7 +75,8 @@ As you can see, here we have two problems:
 
 Fortunately, there is cool Dexador, which "just works" and a hack to
 make ~cl-vcr~ use it. But "ups!" it does not work either, because ~cl-vcr~
-tries to remeber all returned values, including 
+tries to remember all returned values, including SSL stream and
+associated CFFI structure of the networking socket:
 
 #+begin_src lisp
 
@@ -82,6 +86,7 @@ POFTHEDAY> (time
                 (dex:get "https://httpbin.org/delay/10"))))
 ; Debugger entered on #<CL-STORE:STORE-ERROR {100C4C3E73}>
 
+;; This is what dex:get returns as it's values:
 POFTHEDAY> (dex:get "https://httpbin.org/delay/10")
 "{
   \"args\": {}, 
@@ -106,8 +111,10 @@ POFTHEDAY> (dex:get "https://httpbin.org/delay/10")
 
 #+end_src
 
-We can overcome this difficulties by creating a wrapper to make HTTP
-requests and return only the result:
+We can overcome these difficulties by creating a wrapper to make HTTP
+requests and return only the result.
+
+First call returns in 10 seconds:
 
 #+begin_src lisp
 
@@ -142,6 +149,13 @@ Evaluation took:
   \"url\": \"https://httpbin.org/delay/10\"
 }
 "
+
+#+end_src
+
+But second call returns immediately:
+
+#+begin_src lisp
+
 POFTHEDAY> (time
             (let ((cl-vcr::*http-call* 'http-get))
               (cl-vcr:with-vcr "the-tape"
@@ -175,7 +189,7 @@ Evaluation took:
 
 There is another problem with ~cl-vcr~ - it does not use ~unwind-protect~ to
 run ~unmemoize~. That is why it applied memoization patch to the
-~dex:request~ function, but didn't rolled it back on the error.
+~dex:request~ function, but didn't roll it back on the error.
 
-What could I say? ~CL-VCR~ is a good example of really bad implementation of
+What could I say? ~CL-VCR~ is a good example of a really bad implementation of
 a nice idea :)

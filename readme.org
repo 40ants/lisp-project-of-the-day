@@ -11,6 +11,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 04 September - [[content/2020/09/0179-conduit-packages.org][conduit-packages]] ([[https://twitter.com/svetlyak40wt/status/1301939615914512392][twitter]])
 - 05 September - [[content/2020/09/0180-global-vars.org][global-vars]] ([[https://twitter.com/svetlyak40wt/status/1302320218321149953][twitter]])
 - 06 September - [[content/2020/09/0181-trivial-left-pad.org][trivial-left-pad]] ([[https://twitter.com/svetlyak40wt/status/1302625207778242561][twitter]])
+- 07 September - [[content/2020/09/0182-cl-vcr.org][cl-vcr]] ([[https://twitter.com/svetlyak40wt/status/1303063599640915978][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
@@ -1196,11 +1197,9 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/Shinmera/modularize
 - http://quickdocs.org/modularize-hooks/
 - https://github.com/markcox80/lisp-executable
-- https://github.com/kidd/cl-vcr
 - http://clast.sourceforge.net/
 - https://github.com/s-expressionists/Trucler
 - https://github.com/bufferswap/ViralityEngine
-- http://quickdocs.org/cl-mechanize/
 - http://quickdocs.org/cl-hash-util/
 - https://github.com/g000001/mbe - Scheme Macros for Common Lisp
 - http://verisimilitudes.net/2017-12-30 shut-it-down
@@ -1219,6 +1218,7 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/sirherrbatka/vellum - dataframes
 - http://massung.github.io/quickdoc/example.html - interesting markup language
 - https://github.com/naryl/cl-cooperative
+- http://quickdocs.org/screamer/
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
