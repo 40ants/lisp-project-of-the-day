@@ -1,0 +1,181 @@
+* cl-vcr :testing:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :(
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This system provides a simple macro which will remember all HTTP
+requests. Results are stored to the disk and will be reused. This should
+be useful if you need to rerun your integration tests frequently.
+
+The README is short and only say that ~cl-vcr~ was inspired by
+https://github.com/vcr/vcr.
+
+By the way, ~cl-vcr~ is not in Quicklisp. Here is the link to the
+repository:
+
+https://github.com/kidd/cl-vcr
+
+#+begin_src lisp
+
+;; CL-VCR stores it's data in /tmp/vcr/, but does
+;; not create it itself :(
+POFTHEDAY> (ensure-directories-exist "/tmp/vcr/")
+
+
+POFTHEDAY> (time
+            (cl-vcr:with-vcr "the-tape"
+              (drakma:http-request "https://httpbin.org/delay/10")))
+Evaluation took:
+  10.859 seconds of real time
+  0.037955 seconds of total run time (0.025274 user, 0.012681 system)
+  0.35% CPU
+  12 lambdas converted
+  23,975,316,800 processor cycles
+  5 page faults
+  1,176,304 bytes consed
+  
+#(123 10 32 32 34 97 114 103 115 34 58 32 123 125 44 32 10 32 32 34 100 97 116
+  97 34 58 32 34 34 44 32 10 32 32 34 102 105 108 101 115 34 58 32 123 125 44
+  32 10 32 32 34 102 111 114 109 34 58 32 123 125 44 32 10 32 32 34 104 101 97
+  100 101 114 115 34 58 32 123 10 32 32 32 32 34 65 99 99 101 112 116 34 58 32
+  34 42 47 42 34 44 32 10 32 32 32 32 34 72 111 115 116 34 58 32 34 104 116 116
+  112 98 105 110 46 111 114 103 34 44 32 10 32 32 32 32 34 85 115 101 114 45 65
+  103 101 110 116 34 58 32 34 68 114 97 107 109 97 47 50 46 48 46 55 32 40 83
+  66 67 76 32 50 46 48 46 56 59 32 68 97 114 119 105 110 59 32 49 57 46 53 46
+  48 59 32 104 116 116 112 58 47 47 119 101 105 116 122 46 100 101 47 100 114
+  97 107 109 97 47 41 34 44 32 10 32 32 32 32 34 88 45 65 109 122 110 45 84 114
+  97 99 101 45 73 100 34 58 32 34 82 111 111 116 61 49 45 53 102 53 54 56 98 57
+  48 45 98 55 102 53 56 99 98 48 52 57 57 55 51 51 53 48 100 52 48 56 52 55 55
+  48 34 10 32 32 125 44 32 10 32 32 34 111 114 105 103 105 110 34 58 32 34 51
+  49 46 49 55 51 46 56 48 46 55 34 44 32 10 32 32 34 117 114 108 34 58 32 34
+  104 116 116 112 115 58 47 47 104 116 116 112 98 105 110 46 111 114 103 47 100
+  101 108 97 121 47 49 48 34 10 125 10)
+
+POFTHEDAY> (time
+            (cl-vcr:with-vcr "the-tape"
+              (drakma:http-request "https://httpbin.org/delay/10")))
+; Debugger entered on #<SIMPLE-TYPE-ERROR expected-type: SB-IMPL::FUNCTION-NAME
+;                     datum: (LAMBDA () :IN DRAKMA::MAKE-SSL-STREAM)>
+
+#+end_src
+
+As you can see, here we have two problems:
+
+- cl-vcr does not work;
+- drakma is not able to decode httpbin.org's JSON response (honestly, I
+  tried different arguments to ~http-request~.
+
+Fortunately, there is cool Dexador, which "just works" and a hack to
+make ~cl-vcr~ use it. But "ups!" it does not work either, because ~cl-vcr~
+tries to remeber all returned values, including 
+
+#+begin_src lisp
+
+POFTHEDAY> (time
+            (let ((cl-vcr::*http-call* 'dex:request))
+              (cl-vcr:with-vcr "the-tape"
+                (dex:get "https://httpbin.org/delay/10"))))
+; Debugger entered on #<CL-STORE:STORE-ERROR {100C4C3E73}>
+
+POFTHEDAY> (dex:get "https://httpbin.org/delay/10")
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Content-Length\": \"0\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f568fb6-f74ff20069c9dca0a0b0c760\"
+  }, 
+  \"origin\": \"31.173.80.7\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+200 (8 bits, #xC8, #o310, #b11001000)
+#<HASH-TABLE :TEST EQUAL :COUNT 7 {100C4BBC93}>
+#<QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/10>
+#<CL+SSL::SSL-STREAM for #<FD-STREAM for "socket 192.168.43.216:64553, peer: 35.170.21.246:443" {100C4AE583}>>
+
+#+end_src
+
+We can overcome this difficulties by creating a wrapper to make HTTP
+requests and return only the result:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun http-get (url)
+             (values (dex:get url)))
+
+POFTHEDAY> (time
+            (let ((cl-vcr::*http-call* 'http-get))
+              (cl-vcr:with-vcr "the-tape"
+                (http-get "https://httpbin.org/delay/10"))))
+Evaluation took:
+  10.175 seconds of real time
+  0.020157 seconds of total run time (0.013977 user, 0.006180 system)
+  0.20% CPU
+  52 lambdas converted
+  22,465,739,006 processor cycles
+  4,203,120 bytes consed
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Content-Length\": \"0\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5692a6-fde6da521dce37dc2983bb9e\"
+  }, 
+  \"origin\": \"31.173.80.7\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+POFTHEDAY> (time
+            (let ((cl-vcr::*http-call* 'http-get))
+              (cl-vcr:with-vcr "the-tape"
+                (http-get "https://httpbin.org/delay/10"))))
+Evaluation took:
+  0.005 seconds of real time
+  0.005484 seconds of total run time (0.004814 user, 0.000670 system)
+  100.00% CPU
+  26 lambdas converted
+  12,198,056 processor cycles
+  1,996,128 bytes consed
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Content-Length\": \"0\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5692a6-fde6da521dce37dc2983bb9e\"
+  }, 
+  \"origin\": \"31.173.80.7\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+
+#+end_src
+
+There is another problem with ~cl-vcr~ - it does not use ~unwind-protect~ to
+run ~unmemoize~. That is why it applied memoization patch to the
+~dex:request~ function, but didn't rolled it back on the error.
+
+What could I say? ~CL-VCR~ is a good example of really bad implementation of
+a nice idea :)
