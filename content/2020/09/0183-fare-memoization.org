@@ -10,7 +10,7 @@
 
 This library is used by ~cl-vcr~, [[https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html][reviewed yesterday]].
 
-Previosly I've used another library for caching function results and
+Previously I've used another library for caching function results and
 ~fare-memoization~ seems interesting because it allows to "memoize" any
 function unless it is inlined.
 
@@ -63,5 +63,7 @@ Evaluation took:
 #+end_src
 
 There is also a macro to define memoized functions and apply/funcall and
-remember results. The only thing I miss is an ability to cache results
+remember results. The only thing I miss is the ability to cache results
 for a given amount of time.
+
+Read [[http://quickdocs.org/fare-memoization/][the documentation]], [[https://twitter.com/ngnghm][@ngnghm]] did a very good job!

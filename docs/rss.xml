@@ -6,6 +6,198 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>fare-memoization</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html</link>
+            <description>&lt;p&gt;This library is used by &lt;code&gt;cl-vcr&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Previously I&apos;ve used another library for caching function results and &lt;code&gt;fare-memoization&lt;/code&gt; seems interesting because it allows to &quot;memoize&quot; any function unless it is inlined.&lt;/p&gt;
+&lt;p&gt;Also, this &quot;memoization&quot; effect can be undone:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo (a b)
+             &amp;quot;Waits 5 seconds and multiplies a and b.&amp;quot;
+             (sleep 5)
+             (* a b))
+
+POFTHEDAY&amp;gt; (time (foo 2 3))
+Evaluation took:
+  5.003 seconds of real time
+
+6
+
+POFTHEDAY&amp;gt; (time (foo 2 3))
+Evaluation took:
+  5.005 seconds of real time
+  
+6
+
+POFTHEDAY&amp;gt; (fare-memoization:memoize &amp;#039;foo)
+
+;; This call will cache it&amp;#039;s result:
+POFTHEDAY&amp;gt; (time (foo 2 3))
+Evaluation took:
+  5.004 seconds of real time
+  
+6
+
+;; And next call will return immediately:
+POFTHEDAY&amp;gt; (time (foo 2 3))
+Evaluation took:
+  0.000 seconds of real time
+  
+6
+
+;; Now we&amp;#039;ll undone the effect:
+POFTHEDAY&amp;gt; (fare-memoization:unmemoize &amp;#039;foo)
+
+POFTHEDAY&amp;gt; (time (foo 2 3))
+Evaluation took:
+  5.005 seconds of real time
+  
+6&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a macro to define memoized functions and apply/funcall and remember results. The only thing I miss is the ability to cache results for a given amount of time.&lt;/p&gt;
+&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/fare-memoization/&quot;&gt;the documentation&lt;/a&gt;, &lt;a href=&quot;https://twitter.com/ngnghm&quot;&gt;@ngnghm&lt;/a&gt; did a very good job!&lt;/p&gt;
+</description>
+            <pubDate>Tue, 08 Sep 2020 22:44:20 +0300</pubDate>
+        </item>
+        <item>
+            <title>cl-vcr</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html</link>
+            <description>&lt;p&gt;This system provides a simple macro which will remember all HTTP requests. Results are stored to the disk and will be reused. This should be useful if you need to rerun your integration tests frequently.&lt;/p&gt;
+&lt;p&gt;The README is short and only say that &lt;code&gt;cl-vcr&lt;/code&gt; was inspired by &lt;a href=&quot;https://github.com/vcr/vcr&quot;&gt;https://github.com/vcr/vcr&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;By the way, &lt;code&gt;cl-vcr&lt;/code&gt; is not in Quicklisp. Here is the link to the repository:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/kidd/cl-vcr&quot;&gt;https://github.com/kidd/cl-vcr&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Let&apos;s try it!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; CL-VCR stores it&amp;#039;s data in /tmp/vcr/, but does
+;; not create it itself :(
+POFTHEDAY&amp;gt; (ensure-directories-exist &amp;quot;/tmp/vcr/&amp;quot;)
+
+
+POFTHEDAY&amp;gt; (time
+            (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
+              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
+Evaluation took:
+  10.859 seconds of real time
+  0.037955 seconds of total run time (0.025274 user, 0.012681 system)
+  0.35% CPU
+  12 lambdas converted
+  23,975,316,800 processor cycles
+  5 page faults
+  1,176,304 bytes consed
+  
+#(123 10 32 32 34 97 114 103 115 34 58 32 123 125 44 32 10 32 32 34 100 97 116
+  97 34 58 32 34 34 44 32 10 32 32 34 102 105 108 101 115 34 58 32 123 125 44
+  32 10 32 32 34 102 111 114 109 34 58 32 123 125 44 32 10 32 32 34 104 101 97
+  100 101 114 115 34 58 32 123 10 32 32 32 32 34 65 99 99 101 112 116 34 58 32
+  34 42 47 42 34 44 32 10 32 32 32 32 34 72 111 115 116 34 58 32 34 104 116 116
+  112 98 105 110 46 111 114 103 34 44 32 10 32 32 32 32 34 85 115 101 114 45 65
+  103 101 110 116 34 58 32 34 68 114 97 107 109 97 47 50 46 48 46 55 32 40 83
+  66 67 76 32 50 46 48 46 56 59 32 68 97 114 119 105 110 59 32 49 57 46 53 46
+  48 59 32 104 116 116 112 58 47 47 119 101 105 116 122 46 100 101 47 100 114
+  97 107 109 97 47 41 34 44 32 10 32 32 32 32 34 88 45 65 109 122 110 45 84 114
+  97 99 101 45 73 100 34 58 32 34 82 111 111 116 61 49 45 53 102 53 54 56 98 57
+  48 45 98 55 102 53 56 99 98 48 52 57 57 55 51 51 53 48 100 52 48 56 52 55 55
+  48 34 10 32 32 125 44 32 10 32 32 34 111 114 105 103 105 110 34 58 32 34 51
+  49 46 49 55 51 46 56 48 46 55 34 44 32 10 32 32 34 117 114 108 34 58 32 34
+  104 116 116 112 115 58 47 47 104 116 116 112 98 105 110 46 111 114 103 47 100
+  101 108 97 121 47 49 48 34 10 125 10)
+
+POFTHEDAY&amp;gt; (time
+            (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
+              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
+; Debugger entered on #&amp;lt;SIMPLE-TYPE-ERROR expected-type: SB-IMPL::FUNCTION-NAME
+;                     datum: (LAMBDA () :IN DRAKMA::MAKE-SSL-STREAM)&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, here we have two problems:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;cl-vcr does not work;&lt;/li&gt;&lt;li&gt;drakma is not able to decode httpbin.org&apos;s JSON response (honestly, I   tried different arguments to &lt;code&gt;http-request&lt;/code&gt;.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Fortunately, there is cool Dexador, which &quot;just works&quot; and a hack to make &lt;code&gt;cl-vcr&lt;/code&gt; use it. But &quot;ups!&quot; it does not work either, because &lt;code&gt;cl-vcr&lt;/code&gt; tries to remember all returned values, including SSL stream and associated CFFI structure of the networking socket:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
+            (let ((cl-vcr::*http-call* &amp;#039;dex:request))
+              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
+                (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
+; Debugger entered on #&amp;lt;CL-STORE:STORE-ERROR {100C4C3E73}&amp;gt;
+
+;; This is what dex:get returns as it&amp;#039;s values:
+POFTHEDAY&amp;gt; (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;)
+&amp;quot;{
+  \&amp;quot;args\&amp;quot;: {}, 
+  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
+  \&amp;quot;files\&amp;quot;: {}, 
+  \&amp;quot;form\&amp;quot;: {}, 
+  \&amp;quot;headers\&amp;quot;: {
+    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
+    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
+    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
+    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
+    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f568fb6-f74ff20069c9dca0a0b0c760\&amp;quot;
+  }, 
+  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
+  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
+}
+&amp;quot;
+200 (8 bits, #xC8, #o310, #b11001000)
+#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 7 {100C4BBC93}&amp;gt;
+#&amp;lt;QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/10&amp;gt;
+#&amp;lt;CL+SSL::SSL-STREAM for #&amp;lt;FD-STREAM for &amp;quot;socket 192.168.43.216:64553, peer: 35.170.21.246:443&amp;quot; {100C4AE583}&amp;gt;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can overcome these difficulties by creating a wrapper to make HTTP requests and return only the result.&lt;/p&gt;
+&lt;p&gt;First call returns in 10 seconds:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun http-get (url)
+             (values (dex:get url)))
+
+POFTHEDAY&amp;gt; (time
+            (let ((cl-vcr::*http-call* &amp;#039;http-get))
+              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
+                (http-get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
+Evaluation took:
+  10.175 seconds of real time
+  0.020157 seconds of total run time (0.013977 user, 0.006180 system)
+  0.20% CPU
+  52 lambdas converted
+  22,465,739,006 processor cycles
+  4,203,120 bytes consed
+  
+&amp;quot;{
+  \&amp;quot;args\&amp;quot;: {}, 
+  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
+  \&amp;quot;files\&amp;quot;: {}, 
+  \&amp;quot;form\&amp;quot;: {}, 
+  \&amp;quot;headers\&amp;quot;: {
+    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
+    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
+    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
+    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
+    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5692a6-fde6da521dce37dc2983bb9e\&amp;quot;
+  }, 
+  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
+  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
+}
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But second call returns immediately:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
+            (let ((cl-vcr::*http-call* &amp;#039;http-get))
+              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
+                (http-get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
+Evaluation took:
+  0.005 seconds of real time
+  0.005484 seconds of total run time (0.004814 user, 0.000670 system)
+  100.00% CPU
+  26 lambdas converted
+  12,198,056 processor cycles
+  1,996,128 bytes consed
+  
+&amp;quot;{
+  \&amp;quot;args\&amp;quot;: {}, 
+  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
+  \&amp;quot;files\&amp;quot;: {}, 
+  \&amp;quot;form\&amp;quot;: {}, 
+  \&amp;quot;headers\&amp;quot;: {
+    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
+    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
+    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
+    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
+    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5692a6-fde6da521dce37dc2983bb9e\&amp;quot;
+  }, 
+  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
+  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
+}
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is another problem with &lt;code&gt;cl-vcr&lt;/code&gt; - it does not use &lt;code&gt;unwind-protect&lt;/code&gt; to run &lt;code&gt;unmemoize&lt;/code&gt;. That is why it applied memoization patch to the &lt;code&gt;dex:request&lt;/code&gt; function, but didn&apos;t roll it back on the error.&lt;/p&gt;
+&lt;p&gt;What could I say? &lt;code&gt;CL-VCR&lt;/code&gt; is a good example of a really bad implementation of a nice idea :)&lt;/p&gt;
+</description>
+            <pubDate>Mon, 07 Sep 2020 23:11:19 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-left-pad</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0181-trivial-left-pad.html</link>
             <description>&lt;p&gt;Did you hear &lt;a href=&quot;https://www.theregister.com/2016/03/23/npm_left_pad_chaos/&quot;&gt;the story&lt;/a&gt; of how one developer broke thousand JavaScript libraries by removing 11 lines of code from NPM?&lt;/p&gt;
@@ -1251,157 +1443,6 @@ Running in &amp;quot;runner thread&amp;quot; thread.
 &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/threads.html&quot;&gt;threads&lt;/a&gt;;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/multiprocessing.html&quot;&gt;multiprocessing&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;
 </description>
             <pubDate>Mon, 17 Aug 2020 23:27:19 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-string-template</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0163-trivial-string-template.html</link>
-            <description>&lt;p&gt;This is a simple templating engine. It will be useful if you want to use user&apos;s input as the templates and dont want to give a user the full power of Lisp&apos;s &lt;code&gt;format&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;There is a function which replaces placeholders in the template:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;$who likes $what&amp;quot;
-                                               :who &amp;quot;Bob&amp;quot;
-                                               :what &amp;quot;Common Lisp&amp;quot;)
-&amp;quot;Bob likes Common Lisp&amp;quot;
-
-;; Also, you can use curly braces around the placeholder:
-
-POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;${who} likes ${what}&amp;quot;
-                                               :who &amp;quot;Bob&amp;quot;
-                                               :what &amp;quot;Common Lisp&amp;quot;)
-&amp;quot;Bob likes Common Lisp&amp;quot;
-
-;; If some variable wasn&amp;#039;t given, it will raise an error:
-
-POFTHEDAY&amp;gt; (trivial-string-template:substitute &amp;quot;${who} likes ${what}&amp;quot;
-                                               :who &amp;quot;Bob&amp;quot;)
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Missing variable ~A~A information.&amp;quot; {100687A6C3}&amp;gt;
-
-;; But there is a safe version of the function which just ignores:
-
-POFTHEDAY&amp;gt; (trivial-string-template:safe-substitute &amp;quot;${who} likes ${what}&amp;quot;
-                                                    :who &amp;quot;Bob&amp;quot;)
-&amp;quot;Bob likes $what&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, you can define a template object. It will be funcallable and can be used in two ways.&lt;/p&gt;
-&lt;p&gt;The first way - to create a template object and funcall it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:template &amp;quot;${who} likes ${what}&amp;quot;)
-#&amp;lt;TRIVIAL-STRING-TEMPLATE:TEMPLATE {10076CA14B}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *
-                    :who &amp;quot;Bob&amp;quot;
-                    :what &amp;quot;Common Lisp&amp;quot;)
-&amp;quot;Bob likes Common Lisp&amp;quot;
-
-POFTHEDAY&amp;gt; (funcall **
-                    :who &amp;quot;Mary&amp;quot;
-                    :what &amp;quot;Common Lisp&amp;quot;)
-&amp;quot;Mary likes Common Lisp&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The second way is to define a function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-string-template:define-template who-&amp;#x2665;&amp;#xFE0F;-what ()
-                                                    &amp;quot;${who} likes ${what}&amp;quot;)
-#&amp;lt;TRIVIAL-STRING-TEMPLATE:TEMPLATE {100635045B}&amp;gt;
-
-POFTHEDAY&amp;gt; (describe &amp;#039;who-&amp;#x2665;&amp;#xFE0F;-what)
-
-POFTHEDAY::WHO-&amp;#x2665;&amp;#xFE0F;-WHAT
-  [symbol]
-
-WHO-&amp;#x2665;&amp;#xFE0F;-WHAT names a compiled function:
-  Lambda-list: (&amp;amp;KEY (WHO NIL WHO-SUPPLIED-P)
-                (WHAT NIL WHAT-SUPPLIED-P))
-  Derived type: (FUNCTION (&amp;amp;KEY (:WHO T) (:WHAT T))
-                 (VALUES SIMPLE-STRING &amp;amp;OPTIONAL))
-  Source form:
-    (LAMBDA (&amp;amp;KEY (WHO NIL WHO-SUPPLIED-P) (WHAT NIL WHAT-SUPPLIED-P))
-      (PROGN
-       (UNLESS WHO-SUPPLIED-P
-         (ERROR
-          #1=&amp;quot;The variable ~A~A is not supplied, which must be supplied in non-safe mode.&amp;quot;
-          #\$ &amp;quot;who&amp;quot;))
-       (UNLESS WHAT-SUPPLIED-P (ERROR #1# #\$ &amp;quot;what&amp;quot;))
-       (FORMAT NIL &amp;quot;~A likes ~A&amp;quot; WHO WHAT)))
-
-POFTHEDAY&amp;gt; (who-&amp;#x2665;&amp;#xFE0F;-what :who &amp;quot;Bob&amp;quot; :what &amp;quot;LISP&amp;quot;)
-&amp;quot;Bob likes LISP&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What is interesting is that the template object uses this meta class: &lt;code&gt;closer-mop:funcallable-standard-class&lt;/code&gt;. It makes possible to create instances which can be called the same way as the functions.&lt;/p&gt;
-&lt;p&gt;Here is an example of how to make a class for which instances will be funcallable:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass foo ()
-             ()
-             (:metaclass closer-mop:funcallable-standard-class))
-#&amp;lt;SB-MOP:FUNCALLABLE-STANDARD-CLASS POFTHEDAY::FOO&amp;gt;
-
-POFTHEDAY&amp;gt; (defmethod initialize-instance :after ((this foo) &amp;amp;key)
-             (closer-mop:set-funcallable-instance-function
-              this
-              (lambda ()
-                (format t &amp;quot;Hello Lisp World!~%&amp;quot;))))
-#&amp;lt;STANDARD-METHOD COMMON-LISP:INITIALIZE-INSTANCE :AFTER (FOO) {10020B09B3}&amp;gt;
-
-POFTHEDAY&amp;gt; (make-instance &amp;#039;foo)
-#&amp;lt;FOO {10020B585B}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *)
-Hello Lisp World!
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Such objects can be used instead of closure in cases where you will need to redefine some of the instance slots after the object was created.&lt;/p&gt;
-&lt;p&gt;Ok, now it is time to say goodbye. See you tomorrow in the next #poftheday post!&lt;/p&gt;
-</description>
-            <pubDate>Sun, 16 Aug 2020 21:56:15 +0300</pubDate>
-        </item>
-        <item>
-            <title>shuffletron</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0162-shuffletron.html</link>
-            <description>&lt;p&gt;Shuffletron is a console music player. Today there will not be much of code, because I wasn&apos;t able to run this player on OSX. It crashes inside a &lt;code&gt;libao&lt;/code&gt; C library:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;[poftheday] qlot exec ./shuffletron.ros
-This is Shuffletron 0.0.5
-Library contains 1 files.
-        0 Baby Gramps, Rogue&amp;#039;s Gallery: Pirate Ballads, Sea Songs, and Chanteys,  1: Cape Cod Girls
-library&amp;gt;
-Unhandled DIVISION-BY-ZERO in thread #&amp;lt;SB-THREAD:THREAD &amp;quot;Mixer thread 44,100 Hz&amp;quot; RUNNING
-                                        {1001593EA3}&amp;gt;:
-  arithmetic error DIVISION-BY-ZERO signalled
-
-Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;Mixer thread 44,100 Hz&amp;quot; RUNNING {1001593EA3}&amp;gt;
-0: (&amp;quot;bogus stack frame&amp;quot;)
-1: (&amp;quot;foreign function: _ZN17SincKernelFactory19ReferenceSincKernelEiidd&amp;quot;)
-2: (&amp;quot;foreign function: _ZN10Resampler2C2Eddiiidb&amp;quot;)
-3: (&amp;quot;foreign function: _ZN19SampleRateConverter16ReplaceResamplerEv&amp;quot;)
-4: (&amp;quot;foreign function: _ZN19PCMConverterFactory6AddSRCER14StreamDescPairRK18ChainBuildSettingsRNSt3__16vectorIP22BufferedAudioConverterNS5_9allocatorIS8_EEEE&amp;quot;)
-5: (&amp;quot;foreign function: _ZN19PCMConverterFactory19BuildConverterChainERK14StreamDescPairRK18ChainBuildSettingsP19AudioConverterChainPS_&amp;quot;)
-6: (&amp;quot;foreign function: _AudioConverterNewInternal&amp;quot;)
-7: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-8: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-9: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-10: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-11: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-12: (&amp;quot;foreign function: DefaultOutputAUFactory&amp;quot;)
-13: (&amp;quot;foreign function: ao_plugin_open&amp;quot;)
-14: (&amp;quot;foreign function: _open_device&amp;quot;)
-15: (MIXALOT::AO-OPEN-LIVE :INVALID-VALUE-FOR-UNESCAPED-REGISTER-STORAGE #.(SB-SYS:INT-SAP #X06043FE0) :INVALID-VALUE-FOR-UNESCAPED-REGISTER-STORAGE)
-16: (MIXALOT::OPEN-AO :RATE 44100)
-17: ((LAMBDA NIL :IN MIXALOT:CREATE-MIXER))
-18: ((LABELS BORDEAUX-THREADS::%BINDING-DEFAULT-SPECIALS-WRAPPER :IN BORDEAUX-THREADS::BINDING-DEFAULT-SPECIALS))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how it should look like when up and running:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0162/shuffletron.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;The only thing I can share right now is this small Roswell script I&apos;ve used instead of overcomplicated Shuffletron&apos;s build scripts:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;#!/bin/sh
-#|-*- mode:lisp -*-|#
-#|
-exec ros -Q -- $0 &amp;quot;$@&amp;quot;
-|#
-(progn ;;init forms
-  (ros:ensure-asdf)
-  #+quicklisp
-  (ql:quickload &amp;#039;(:shuffletron)
-                :silent t))
-
-(defpackage :ros.script.shuffletron
-  (:use :cl))
-(in-package :ros.script.shuffletron)
-
-
-(defun main (&amp;amp;rest argv)
-  (declare (ignorable argv))
-  (shuffletron:run))
-
-;;; vim: set ft=lisp lisp:&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With this script you&apos;ll be able to run the program as &lt;code&gt;./shuffletron.ros&lt;/code&gt; or to build a binary with &lt;code&gt;ros build shuffletron.ros&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;On OSX you have to do &lt;code&gt;brew install libao&lt;/code&gt; to install required C library.&lt;/p&gt;
-&lt;p&gt;Please, try it on your system whether it is OSX or Linux and let me know it started successfuly.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 15 Aug 2020 23:31:00 +0300</pubDate>
         </item>
     </channel>
 </rss>

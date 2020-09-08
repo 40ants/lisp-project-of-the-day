@@ -1,12 +1,11 @@
-* TODO cl-vcr                                                       :testing:
-SCHEDULED: <2020-09-07 Mon>
+* cl-vcr                                                            :testing:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :(
 :Tests:    :(
 :Examples: :(
 :RepositoryActivity: :(
-:CI:       :(
+:CI:       :)
 :END:
 
 This system provides a simple macro which will remember all HTTP
