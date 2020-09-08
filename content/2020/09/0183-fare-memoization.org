@@ -1,0 +1,67 @@
+* fare-memoization :functools:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library is used by ~cl-vcr~, [[https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html][reviewed yesterday]].
+
+Previosly I've used another library for caching function results and
+~fare-memoization~ seems interesting because it allows to "memoize" any
+function unless it is inlined.
+
+Also, this "memoization" effect can be undone:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun foo (a b)
+             "Waits 5 seconds and multiplies a and b."
+             (sleep 5)
+             (* a b))
+
+POFTHEDAY> (time (foo 2 3))
+Evaluation took:
+  5.003 seconds of real time
+
+6
+
+POFTHEDAY> (time (foo 2 3))
+Evaluation took:
+  5.005 seconds of real time
+  
+6
+
+POFTHEDAY> (fare-memoization:memoize 'foo)
+
+;; This call will cache it's result:
+POFTHEDAY> (time (foo 2 3))
+Evaluation took:
+  5.004 seconds of real time
+  
+6
+
+;; And next call will return immediately:
+POFTHEDAY> (time (foo 2 3))
+Evaluation took:
+  0.000 seconds of real time
+  
+6
+
+;; Now we'll undone the effect:
+POFTHEDAY> (fare-memoization:unmemoize 'foo)
+
+POFTHEDAY> (time (foo 2 3))
+Evaluation took:
+  5.005 seconds of real time
+  
+6
+
+#+end_src
+
+There is also a macro to define memoized functions and apply/funcall and
+remember results. The only thing I miss is an ability to cache results
+for a given amount of time.
