@@ -1,0 +1,87 @@
+* function-cache :functools:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Yesterday I've reviewed [[https://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html][fare-memoization]] and decided to tell you about
+the library I'm using for memoization instead.
+
+The main features are ability to set TTL and an extendable caching
+protocol which allows to use different kinds of caches.
+
+For example, here we'll use LRU cache which will remember only 3
+results:
+
+#+begin_src lisp
+
+POFTHEDAY> (function-cache:defcached (foo :cache-class 'function-cache:lru-cache
+                                          :capacity 3)
+               (param)
+             (format t "Not cached, returning the value: ~A~%" param)
+             param)
+
+POFTHEDAY> (foo 1)
+Not cached, returning the value: 1
+1
+
+;; Now the value returned from the cache:
+POFTHEDAY> (foo 1)
+1
+
+;; Let's fill the cache:
+POFTHEDAY> (foo 2)
+Not cached, returning the value: 2
+2
+POFTHEDAY> (foo 3)
+Not cached, returning the value: 3
+3
+POFTHEDAY> (foo 4)
+Not cached, returning the value: 4
+4
+POFTHEDAY> (foo 5)
+Not cached, returning the value: 5
+5
+
+;; Value for 1 was evicted from the cache:
+POFTHEDAY> (foo 1)
+Not cached, returning the value: 1
+1
+
+#+end_src
+
+And there is how we can set TTL and make the function result remembered
+for 5 seconds:
+
+#+begin_src lisp
+
+POFTHEDAY> (function-cache:defcached (foo :timeout 5)
+               ()
+             (let ((ts (local-time:now)))
+               (format t "Not cached, returning the value: ~A~%" ts)
+               ts))
+
+POFTHEDAY> (foo)
+Not cached, returning the value: 2020-09-09T22:36:05.630085+03:00
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY> (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY> (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY> (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY> (foo)
+Not cached, returning the value: 2020-09-09T22:36:10.767777+03:00
+@2020-09-09T22:36:10.767777+03:00
+
+#+end_src
+
+Sometimes it can be very convenient to cache rarely changed data this way.
