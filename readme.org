@@ -13,6 +13,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 06 September - [[content/2020/09/0181-trivial-left-pad.org][trivial-left-pad]] ([[https://twitter.com/svetlyak40wt/status/1302625207778242561][twitter]])
 - 07 September - [[content/2020/09/0182-cl-vcr.org][cl-vcr]] ([[https://twitter.com/svetlyak40wt/status/1303063599640915978][twitter]])
 - 08 September - [[content/2020/09/0183-fare-memoization.org][fare-memoization]] ([[https://twitter.com/svetlyak40wt/status/1303418854551564290][twitter]])
+- 09 September - [[content/2020/09/0184-function-cache.org][function-cache]] ([[https://twitter.com/svetlyak40wt/status/1303780414864134146][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

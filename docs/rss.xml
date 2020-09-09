@@ -6,6 +6,69 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>function-cache</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0184-function-cache.html</link>
+            <description>&lt;p&gt;Yesterday I&apos;ve reviewed &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html&quot;&gt;fare-memoization&lt;/a&gt; and decided to tell you about the library I&apos;m using for memoization instead.&lt;/p&gt;
+&lt;p&gt;The main features are ability to set TTL and an extendable caching protocol which allows to use different kinds of caches.&lt;/p&gt;
+&lt;p&gt;For example, here we&apos;ll use LRU cache which will remember only 3 results:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (function-cache:defcached (foo :cache-class &amp;#039;function-cache:lru-cache
+                                          :capacity 3)
+               (param)
+             (format t &amp;quot;Not cached, returning the value: ~A~%&amp;quot; param)
+             param)
+
+POFTHEDAY&amp;gt; (foo 1)
+Not cached, returning the value: 1
+1
+
+;; Now the value returned from the cache:
+POFTHEDAY&amp;gt; (foo 1)
+1
+
+;; Let&amp;#039;s fill the cache:
+POFTHEDAY&amp;gt; (foo 2)
+Not cached, returning the value: 2
+2
+POFTHEDAY&amp;gt; (foo 3)
+Not cached, returning the value: 3
+3
+POFTHEDAY&amp;gt; (foo 4)
+Not cached, returning the value: 4
+4
+POFTHEDAY&amp;gt; (foo 5)
+Not cached, returning the value: 5
+5
+
+;; Value for 1 was evicted from the cache:
+POFTHEDAY&amp;gt; (foo 1)
+Not cached, returning the value: 1
+1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And here is how we can set TTL and make the function result remembered for 5 seconds:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (function-cache:defcached (foo :timeout 5)
+               ()
+             (let ((ts (local-time:now)))
+               (format t &amp;quot;Not cached, returning the value: ~A~%&amp;quot; ts)
+               ts))
+
+POFTHEDAY&amp;gt; (foo)
+Not cached, returning the value: 2020-09-09T22:36:05.630085+03:00
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY&amp;gt; (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY&amp;gt; (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY&amp;gt; (foo)
+@2020-09-09T22:36:05.630085+03:00
+
+POFTHEDAY&amp;gt; (foo)
+Not cached, returning the value: 2020-09-09T22:36:10.767777+03:00
+@2020-09-09T22:36:10.767777+03:00&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sometimes it can be very convenient to cache rarely changed data this way.&lt;/p&gt;
+</description>
+            <pubDate>Wed, 09 Sep 2020 22:41:05 +0300</pubDate>
+        </item>
+        <item>
             <title>fare-memoization</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html</link>
             <description>&lt;p&gt;This library is used by &lt;code&gt;cl-vcr&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
@@ -1362,87 +1425,6 @@ So he wrote it all in Lisp.&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is als
 &lt;p&gt;&lt;a href=&quot;https://gist.github.com/jimweirich/6181853&quot;&gt;https://gist.github.com/jimweirich/6181853&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Tue, 18 Aug 2020 23:52:17 +0300</pubDate>
-        </item>
-        <item>
-            <title>simple-tasks</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0164-simple-tasks.html</link>
-            <description>&lt;p&gt;This is a &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s library for task processing. It implements abstraction over multithreading/multiprocessing which operates by means of a runner and a task.&lt;/p&gt;
-&lt;p&gt;A runner in the &lt;code&gt;simple-task&lt;/code&gt; is an object responsible for task scheduling. By default, only a simple &lt;code&gt;queued-runner&lt;/code&gt; is implemented. It executes all task in a single thread one by one.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;simple-task&lt;/code&gt; has &lt;a href=&quot;https://shinmera.github.io/simple-tasks/&quot;&gt;good documentation&lt;/a&gt; but there is no big example showing the essence of the runner/task concept. Let&apos;s fix it!&lt;/p&gt;
-&lt;p&gt;Next example creates a single thread for the runner and starts separate threads where each thread executes a task in a different way.&lt;/p&gt;
-&lt;p&gt;First, we need to start the runner:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *thread*
-             (simple-tasks:make-runner-thread *runner*))
-
-;; It is the third in this list:
-
-POFTHEDAY&amp;gt; (bt:all-threads)
-(#&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {10037F5B93}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;reader-thread&amp;quot; RUNNING {10026F8103}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;runner thread&amp;quot; waiting on:
-      #&amp;lt;WAITQUEUE task-runner-condition {1003231D63}&amp;gt;
-    {100323F833}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;slynk-indentation-cache-thread&amp;quot; waiting on:
-      #&amp;lt;WAITQUEUE  {1002700143}&amp;gt;
-    {10026F8233}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;main thread&amp;quot; RUNNING {1001538543}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;Slynk Sentinel&amp;quot; waiting on:
-      #&amp;lt;WAITQUEUE  {10025300B3}&amp;gt;
-    {1002529253}&amp;gt;
- #&amp;lt;SB-THREAD:THREAD &amp;quot;control-thread&amp;quot; waiting on:
-      #&amp;lt;WAITQUEUE  {10026F8343}&amp;gt;
-    {10026F5D73}&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we&apos;ll start our tasks. Each of them will print the current thread. This way we&apos;ll ensure all of them are running in the runner&apos;s thread:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-and-return-current-thread ()
-             (let ((name (bt:thread-name (bt:current-thread))))
-               (format t &amp;quot;Running in \&amp;quot;~A\&amp;quot; thread.~%&amp;quot;
-                       name)
-               (values name)))
-
-POFTHEDAY&amp;gt; (defvar *first-task*
-             (make-instance
-              &amp;#039;simple-tasks:call-task
-              :func #&amp;#039;print-and-return-current-thread))
-
-POFTHEDAY&amp;gt; (simple-tasks:status *first-task*)
-:CREATED
-
-POFTHEDAY&amp;gt; (simple-tasks:schedule-task *first-task*
-                                       *runner*)
-Running in &amp;quot;runner thread&amp;quot; thread.
-
-POFTHEDAY&amp;gt; (simple-tasks:status *first-task*)
-:COMPLETED
-
-POFTHEDAY&amp;gt; (simple-tasks:return-values *first-task*)
-&amp;quot;runner thread&amp;quot;
-
-POFTHEDAY&amp;gt; (defvar *second-task*
-             (make-instance
-              &amp;#039;simple-tasks:blocking-call-task
-              :func #&amp;#039;print-and-return-current-thread))
-
-POFTHEDAY&amp;gt; (simple-tasks:schedule-task *second-task*
-                                       *runner*)
-Running in &amp;quot;runner thread&amp;quot; thread.
-
-POFTHEDAY&amp;gt; (simple-tasks:return-values *second-task*)
-&amp;quot;runner thread&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also a few shortcuts:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (simple-tasks:call-as-task #&amp;#039;print-and-return-current-thread
-                                      *runner*)
-Running in &amp;quot;runner thread&amp;quot; thread.
-&amp;quot;runner thread&amp;quot;
-
-;; Or
-
-POFTHEDAY&amp;gt; (simple-tasks:with-body-as-task (*runner*)
-             (print-and-return-current-thread))
-Running in &amp;quot;runner thread&amp;quot; thread.
-&amp;quot;runner thread&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library can be useful when you are working with some subsystems or external libraries which should be accessed only from the single thread.&lt;/p&gt;
-&lt;p&gt;For example, &lt;a href=&quot;https://common-lisp.net/project/rcl/&quot;&gt;RCL&lt;/a&gt; (CL interface to the R language) library uses it to interop with &lt;a href=&quot;https://www.r-project.org/&quot;&gt;R language&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If you are interested in other solutions for multithreading and multiprocessing, look at #poftheday posts grouped by corresponding tags:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/threads.html&quot;&gt;threads&lt;/a&gt;;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/multiprocessing.html&quot;&gt;multiprocessing&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;
-</description>
-            <pubDate>Mon, 17 Aug 2020 23:27:19 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -54,7 +54,7 @@ Not cached, returning the value: 1
 
 #+end_src
 
-And there is how we can set TTL and make the function result remembered
+And here is how we can set TTL and make the function result remembered
 for 5 seconds:
 
 #+begin_src lisp
