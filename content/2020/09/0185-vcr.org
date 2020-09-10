@@ -1,4 +1,12 @@
 * vcr :testing:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
 A few days ago, I tried to review a [[https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html][cl-vcr]] - a library which should
 remember and replay HTTP calls in your tests. But unfortunately it
@@ -12,7 +20,7 @@ https://github.com/tsikov/vcr
 
 Today we'll check if ~vcr~ will work for remembering our HTTP calls.
 
-First, lets make Drakma understand that ~application/json~ is a text
+First, let's make Drakma understand that ~application/json~ is a text
 format. Thanks to the [[https://twitter.com/vseloved][@vseloved]] for [[https://twitter.com/vseloved/status/1303167210744147968][this tip]]!
 
 #+begin_src lisp
@@ -104,6 +112,9 @@ Seems the library works. But it does not support multiple values and it
 will break you application if it uses status code or headers, returned
 as the second and third values.
 
+This is strange because I see in it's code an attempt to handle multiple
+values :/
+
 Now, how about making it work with ~Dexador~? To do this, we have to
 rebind the ~vcr:*original-fn-symbol*~ variable:
 
@@ -137,10 +148,6 @@ POFTHEDAY> (let ((vcr:*original-fn-symbol* 'dexador:request))
                 (dex:get "https://httpbin.org/delay/10"))))
 Evaluation took:
   0.001 seconds of real time
-  0.001029 seconds of total run time (0.000439 user, 0.000590 system)
-  100.00% CPU
-  2,268,690 processor cycles
-  32,768 bytes consed
   
 "{
   \"args\": {}, 
