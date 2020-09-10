@@ -1,0 +1,245 @@
+* vcr :testing:
+
+A few days ago, I tried to review a [[https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html][cl-vcr]] - a library which should
+remember and replay HTTP calls in your tests. But unfortunately it
+didn't work.
+
+But [[https://github.com/vindarel][Vincent Dardel]] did a good job, finding the similar project called
+~vcr~. It is not in Quicklisp, but can be downloaded from GitHub or
+Ultralisp:
+
+https://github.com/tsikov/vcr
+
+Today we'll check if ~vcr~ will work for remembering our HTTP calls.
+
+First, lets make Drakma understand that ~application/json~ is a text
+format. Thanks to the [[https://twitter.com/vseloved][@vseloved]] for [[https://twitter.com/vseloved/status/1303167210744147968][this tip]]!
+
+#+begin_src lisp
+
+POFTHEDAY> (push '("application" . "json")
+                 drakma:*text-content-types*)
+(("application" . "json") ("text"))
+
+POFTHEDAY> (drakma:http-request "https://httpbin.org/delay/5")
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7371-a16e828d5dc4cb52867d2d09\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/5\"
+}
+"
+200 (8 bits, #xC8, #o310, #b11001000)
+((:DATE . "Thu, 10 Sep 2020 18:41:58 GMT") (:CONTENT-TYPE . "application/json")
+ (:CONTENT-LENGTH . "360") (:CONNECTION . "close")
+ (:SERVER . "gunicorn/19.9.0") (:ACCESS-CONTROL-ALLOW-ORIGIN . "*")
+ (:ACCESS-CONTROL-ALLOW-CREDENTIALS . "true"))
+#<PURI:URI https://httpbin.org/delay/5>
+#<FLEXI-STREAMS:FLEXI-IO-STREAM {100238A0A3}>
+T
+"OK"
+
+#+end_src
+
+Now it is time to see if our requests will be cached:
+
+#+begin_src lisp
+
+POFTHEDAY> (time
+            (vcr:with-vcr "foo"
+              (drakma:http-request "https://httpbin.org/delay/10")))
+Evaluation took:
+  10.849 seconds of real time
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7b55-4ceacc38a3d473a1e8ce9f01\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+
+;; Second call returns immediately!
+POFTHEDAY> (time
+            (vcr:with-vcr "foo"
+              (drakma:http-request "https://httpbin.org/delay/10")))
+Evaluation took:
+  0.001 seconds of real time
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7b55-4ceacc38a3d473a1e8ce9f01\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+
+#+end_src
+
+Seems the library works. But it does not support multiple values and it
+will break you application if it uses status code or headers, returned
+as the second and third values.
+
+Now, how about making it work with ~Dexador~? To do this, we have to
+rebind the ~vcr:*original-fn-symbol*~ variable:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((vcr:*original-fn-symbol* 'dexador:request))
+             (time
+              (vcr:with-vcr "foo"
+                (dex:get "https://httpbin.org/delay/10"))))
+Evaluation took:
+  10.721 seconds of real time
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7d84-7de184b7a8524404e7ecc234\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+POFTHEDAY> (let ((vcr:*original-fn-symbol* 'dexador:request))
+             (time
+              (vcr:with-vcr "foo"
+                (dex:get "https://httpbin.org/delay/10"))))
+Evaluation took:
+  0.001 seconds of real time
+  0.001029 seconds of total run time (0.000439 user, 0.000590 system)
+  100.00% CPU
+  2,268,690 processor cycles
+  32,768 bytes consed
+  
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7d84-7de184b7a8524404e7ecc234\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+
+#+end_src
+
+Ups! Why did we send "Drakma" in the User-Agent header??? Let's recheck
+without the ~vcr~ wrapper:
+
+#+begin_src lisp
+
+POFTHEDAY> (dex:get "https://httpbin.org/delay/10")
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7e04-fed39a80da9ac640b6835a00\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+200 (8 bits, #xC8, #o310, #b11001000)
+((:DATE . "Thu, 10 Sep 2020 19:27:10 GMT") (:CONTENT-TYPE . "application/json")
+ (:CONTENT-LENGTH . "361") (:CONNECTION . "close")
+ (:SERVER . "gunicorn/19.9.0") (:ACCESS-CONTROL-ALLOW-ORIGIN . "*")
+ (:ACCESS-CONTROL-ALLOW-CREDENTIALS . "true"))
+#<PURI:URI https://httpbin.org/delay/10>
+#<FLEXI-STREAMS:FLEXI-IO-STREAM {1006A2DB43}>
+T
+"OK"
+
+#+end_src
+
+Hmm, but if we'll restart our lisp process and check it on the fresh,
+the result will be different (and correct):
+
+#+begin_src lisp
+
+POFTHEDAY> (dex:get "https://httpbin.org/delay/10")
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Content-Length\": \"0\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f5a7ef4-ede1ef0036cd44c08b326080\"
+  }, 
+  \"origin\": \"178.176.74.47\", 
+  \"url\": \"https://httpbin.org/delay/10\"
+}
+"
+200 (8 bits, #xC8, #o310, #b11001000)
+#<HASH-TABLE :TEST EQUAL :COUNT 7 {1004BD1153}>
+#<QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/10>
+#<CL+SSL::SSL-STREAM for #<FD-STREAM for "socket 192.168.43.216:63549, peer: 3.221.81.55:443" {1003F79823}>>
+
+#+end_src
+
+Oh, seems, ~vcr~ is always calling ~dexador:http-request~, because that is
+what it does on the top level:
+
+#+begin_src lisp
+
+(defparameter *original-fn-symbol* 'drakma:http-request)
+
+;; The symbol original-fn is internal for the package so
+;; no name conflict is possible.
+(setf (symbol-function 'original-fn)
+      (symbol-function *original-fn-symbol*))
+
+#+end_src
+
+Also, I found the same problem as with the original ~cl-vcr~ - this
+library does not use ~unwind-protect~ and in case if some error will be
+signalled, it will break the original ~drakma:http-request~ function :(
+
+To finalize, I think it can be used by those who are using Drakma if
+somebody will fix how the multiple values are handled and original
+function restoration.
