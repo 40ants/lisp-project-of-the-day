@@ -6,6 +6,50 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>secret-values</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0186-secret-values.html</link>
+            <description>&lt;p&gt;This library can be useful for anybody who is writing services which logs their errors with backtraces. It will protect you from leaking sensitive data like passwords and tokens.&lt;/p&gt;
+&lt;p&gt;For example, let&apos;s pretend we have some code which authenticates to a database with a password. At some moment and error can happen and when you log the backtrace, the password will be logged as well:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun authenticate (password)
+             (format t &amp;quot;Authenticating with ~A&amp;quot;
+                     password)
+             (sb-debug:print-backtrace :count 3))
+
+POFTHEDAY&amp;gt; (defun bar (password)
+             (authenticate password))
+
+POFTHEDAY&amp;gt; (bar &amp;quot;The Secret Password&amp;quot;)
+
+Authenticating with The Secret Password
+
+Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003692013}&amp;gt;
+0: (AUTHENTICATE &amp;quot;The Secret Password&amp;quot;)
+1: (BAR &amp;quot;The Secret Password&amp;quot;)
+2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (BAR &amp;quot;The Secret Password&amp;quot;) #&amp;lt;NULL-LEXENV&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;secret-values&lt;/code&gt; allows to wrap the secret value into the object and retrieve the real value as needed.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (secret-values:conceal-value &amp;quot;The Secret Password&amp;quot; :name &amp;quot;password&amp;quot;)
+#&amp;lt;SECRET-VALUES:SECRET-VALUE password {100450B623}&amp;gt;
+
+POFTHEDAY&amp;gt; (secret-values:reveal-value *)
+&amp;quot;The Secret Password&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here how we can use it in our example. Pay attention to the backtrace. Now it does not contain the password and such backtrace can be written into the file or sent for diagnostic to the developer:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun authenticate (password)
+             (format t &amp;quot;Authenticating with ~A&amp;quot;
+                     (secret-values:reveal-value password))
+             (sb-debug:print-backtrace :count 3))
+
+POFTHEDAY&amp;gt; (let ((pass (secret-values:conceal-value &amp;quot;The Secret Password&amp;quot;)))
+             (bar pass))
+
+Authenticating with The Secret Password
+
+Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003692013}&amp;gt;
+0: (AUTHENTICATE #&amp;lt;SECRET-VALUES:SECRET-VALUE  {10043ABB23}&amp;gt;)
+1: (BAR #&amp;lt;SECRET-VALUES:SECRET-VALUE  {10043ABB23}&amp;gt;)
+2: ((LAMBDA ()))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I definitely will use it! And you should too!&lt;/p&gt;
+&lt;p&gt;By the way, does somebody know something about the author Thomas Bakketun and his company &lt;a href=&quot;https://github.com/copyleft&quot;&gt;Copyleft&lt;/a&gt;? Seems they are using the Common Lisp in their stack.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 11 Sep 2020 19:38:20 +0300</pubDate>
+        </item>
+        <item>
             <title>vcr</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0185-vcr.html</link>
             <description>&lt;p&gt;A few days ago, I tried to review a &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;cl-vcr&lt;/a&gt; - a library which should remember and replay HTTP calls in your tests. But unfortunately it didn&apos;t work.&lt;/p&gt;
@@ -1491,51 +1535,6 @@ B
    100.0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hope to see you tomorrow in the next #poftheday post!&lt;/p&gt;
 </description>
             <pubDate>Thu, 20 Aug 2020 22:55:56 +0300</pubDate>
-        </item>
-        <item>
-            <title>breeze</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0166-breeze.html</link>
-            <description>&lt;p&gt;This project is still in the development phase but I like its idea. &lt;a href=&quot;https://github.com/fstamour/breeze&quot;&gt;Breeze&lt;/a&gt; tries to improve the development process. An especially interesting feature: its ability to run tests on function redefinition!&lt;/p&gt;
-&lt;p&gt;To make it work, you have to use &lt;code&gt;defun&lt;/code&gt; and &lt;code&gt;deftest&lt;/code&gt; from &lt;code&gt;breeze&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (breeze:defun foo ()
-             100)
-
-;; When we define the test, it is immediately
-;; run in a separate thread:
-POFTHEDAY&amp;gt; (breeze:deftest test-foo
-             (unless (= (foo) 42)
-               (error &amp;quot;Foo should return 42&amp;quot;)))
-Running all tests...
-WARNING: 
-Test TEST-FOO failed with condition Foo should return 42
-
-Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
-&amp;quot;Foo should return 42&amp;quot;
-Done [0/1] tests passed.
-
-;; Now I&amp;#039;m going to fix it.
-;; Pay attention on the output. Breeze automatically
-;; runs tests of the &amp;#039;foo function in a separate thread:
-POFTHEDAY&amp;gt; (breeze:defun foo ()
-             42)
-Running all tests....
-Done [1/1] tests passed.
-
-;; Now let&amp;#039;s break it again!
-POFTHEDAY&amp;gt; (breeze:defun foo ()
-             77)
-FOO
-Running all tests...
-WARNING: 
-Test TEST-FOO failed with condition Foo should return 42
-
-Test &amp;quot;TEST-FOO&amp;quot; failed with condition:
-&amp;quot;Foo should return 42&amp;quot;
-Done [0/1] tests passed.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also some extension for Emacs and SLIME, but I didn&apos;t test it yet. I hope the author will make this system more usable.&lt;/p&gt;
-&lt;p&gt;The first feature which comes to mind is support for existing unit-testing frameworks. The second is an indicator for the Emacs mode-line if some tests failed after I hit &lt;code&gt;C-c C-c&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;To conclude, make good tooling! Tooling should be convenient!&lt;/p&gt;
-</description>
-            <pubDate>Wed, 19 Aug 2020 23:32:01 +0300</pubDate>
         </item>
     </channel>
 </rss>
