@@ -12,7 +12,7 @@ A few days ago, I tried to review a [[https://40ants.com/lisp-project-of-the-day
 remember and replay HTTP calls in your tests. But unfortunately it
 didn't work.
 
-But [[https://github.com/vindarel][Vincent Dardel]] did a good job, finding the similar project called
+But [[https://github.com/vindarel][Vincent "vindarel"]] did a good job, finding the similar project called
 ~vcr~. It is not in Quicklisp, but can be downloaded from GitHub or
 Ultralisp:
 
