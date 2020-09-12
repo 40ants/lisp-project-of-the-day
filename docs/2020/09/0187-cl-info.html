@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-info
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-info</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>cl-info<span class='tags'><a href='../../tags/utils.html'><span class='label label-default'>utils</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This utility was made by me to help with to collect reports from my software. It is especially useful in CI pipeline, to log OS, Lisp and systems versions.</p>
+<p>Here is how it works:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-info:get-cl-info)
+OS:   Darwin 19.5.0
+Lisp: SBCL 2.0.8
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+POFTHEDAY&gt; (cl-info:get-system-info :cl-who)
+System: CL-WHO 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+POFTHEDAY&gt; (cl-info:get-system-info :cl-json)
+System: CL-JSON 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/</code></pre><p>There is also a command line utility with similar functionality. It can be installed using <a href="https://github.com/roswell/roswell">Roswell</a>:</p>
+<pre><code class='bash'>[poftheday]% ros install 40ants/cl-info
+Installing from github 40ants/cl-info
+...
+[1/3] System &#039;cl-info&#039; found. Loading the system..
+[2/3] Processing build-hook..
+[3/3] Attempting to install the scripts in roswell/ subdirectory of the system...
+Found 1 scripts: cl-info
+/Users/art/.roswell/bin/cl-info</code></pre><p>Now you can call this utility from the command line. By default it outputs an information about OS, Lisp, ASDF versions and installed Quicklisp distributions.</p>
+<p>But you can also specify system names to get additiona information:</p>
+<pre><code class='bash'>[poftheday]% cl-info cl-who cl-json
+OS:   Darwin 19.5.0
+Lisp: SBCL 1.5.6
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+System: cl-who 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+System: cl-json 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/</code></pre>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

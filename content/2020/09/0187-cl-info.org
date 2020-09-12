@@ -1,0 +1,82 @@
+* cl-info :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :(
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This utility was made by me to help to collect reports from my
+software. It is especially useful in CI pipeline, to log OS, Lisp and
+systems versions.
+
+Here is how it works:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-info:get-cl-info)
+OS:   Darwin 19.5.0
+Lisp: SBCL 2.0.8
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+POFTHEDAY> (cl-info:get-system-info :cl-who)
+System: CL-WHO 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+POFTHEDAY> (cl-info:get-system-info :cl-json)
+System: CL-JSON 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/
+
+#+end_src
+
+There is also a command-line utility with similar functionality. It can
+be installed using [[https://github.com/roswell/roswell][Roswell]]:
+
+#+begin_src bash
+
+[poftheday]% ros install 40ants/cl-info
+Installing from github 40ants/cl-info
+...
+[1/3] System 'cl-info' found. Loading the system..
+[2/3] Processing build-hook..
+[3/3] Attempting to install the scripts in roswell/ subdirectory of the system...
+Found 1 scripts: cl-info
+/Users/art/.roswell/bin/cl-info
+
+#+end_src
+
+Now you can call this utility from the command line. By default, it
+outputs information about OS, Lisp, ASDF versions and installed
+Quicklisp distributions.
+
+But you can also specify system names to get additional information:
+
+#+begin_src bash
+
+[poftheday]% cl-info cl-who cl-json
+OS:   Darwin 19.5.0
+Lisp: SBCL 1.5.6
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+System: cl-who 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+System: cl-json 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/
+
+#+end_src
+
+Again. This can be useful in CI pipelines or to output information when
+your program is called with --version --verbose options.
+
+This system is available from https://ultralisp.org and GitHub:
+
+https://github.com/40ants/cl-info
