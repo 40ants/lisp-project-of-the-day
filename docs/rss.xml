@@ -53,7 +53,7 @@ Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&
             <title>vcr</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0185-vcr.html</link>
             <description>&lt;p&gt;A few days ago, I tried to review a &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;cl-vcr&lt;/a&gt; - a library which should remember and replay HTTP calls in your tests. But unfortunately it didn&apos;t work.&lt;/p&gt;
-&lt;p&gt;But &lt;a href=&quot;https://github.com/vindarel&quot;&gt;Vincent Dardel&lt;/a&gt; did a good job, finding the similar project called &lt;code&gt;vcr&lt;/code&gt;. It is not in Quicklisp, but can be downloaded from GitHub or Ultralisp:&lt;/p&gt;
+&lt;p&gt;But &lt;a href=&quot;https://github.com/vindarel&quot;&gt;Vincent &quot;vindarel&quot;&lt;/a&gt; did a good job, finding the similar project called &lt;code&gt;vcr&lt;/code&gt;. It is not in Quicklisp, but can be downloaded from GitHub or Ultralisp:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/tsikov/vcr&quot;&gt;https://github.com/tsikov/vcr&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Today we&apos;ll check if &lt;code&gt;vcr&lt;/code&gt; will work for remembering our HTTP calls.&lt;/p&gt;
 &lt;p&gt;First, let&apos;s make Drakma understand that &lt;code&gt;application/json&lt;/code&gt; is a text format. Thanks to the &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt; for &lt;a href=&quot;https://twitter.com/vseloved/status/1303167210744147968&quot;&gt;this tip&lt;/a&gt;!&lt;/p&gt;
