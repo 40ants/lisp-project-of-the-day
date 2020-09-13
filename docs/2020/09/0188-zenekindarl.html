@@ -58,7 +58,9 @@ h1 .tags {
 #&lt;FUNCTION (LAMBDA (&amp;KEY :NAME)) {231D16FB}&gt;
 
 POFTHEDAY&gt; (funcall * :name &quot;Bob&quot;)
-&quot;Hello Bob!&quot;</code></pre><p>Documentation says, this library is faster than Python's <a href="https://jinja.palletsprojects.com/en/2.11.x/">Jinja2</a> which known for it's ability to compile templates into the bytecode.</p>
+&quot;Hello Bob!&quot;</code></pre><p>Interesting fact – it is named after a <a href="https://ultra.fandom.com/wiki/Zenekindarl_people">race of ancient people</a>.</p>
+<p>When searching this information, I've also found <a href="https://kaylingkaiju.blogspot.com/2016/09/dexador.html?m=0">this page</a> about the Dexador which is a dragon of Zenekindarl people and also a CL HTTP library :)</p>
+<p>Documentation says, this library is faster than Python's <a href="https://jinja.palletsprojects.com/en/2.11.x/">Jinja2</a> which known for it's ability to compile templates into the bytecode.</p>
 <p>Let's make our own comparison! We'll do the test more complex and extend it to the <code>cl-who</code>. Later I'll add to this comparison other template engines during the writing their review.</p>
 <p>Let's start with the baseline test for Jinja2:</p>
 <pre><code class='python'>Python 3.7.7 (default, Mar 10 2020, 15:43:33)
@@ -99,7 +101,7 @@ Evaluation took:
   [ Run times consist of 0.173 seconds GC time, and 1.374 seconds non-GC time. ]
   100.52% CPU
   3,395,746,202 processor cycles
-  911,998,848 bytes consed</code></pre><p>Hmm, with <code>zenekindarl</code> it takes 1.54 microseconds. This is only 4 times faster, not 25 times like promiced by the documentation.</p>
+  911,998,848 bytes consed</code></pre><p>Hmm, with <code>zenekindarl</code> it takes 1.54 microseconds. This is only 4 times faster, not 25 times like promised by the documentation.</p>
 <p>Now let's compare it with the hand-written <code>cl-who</code> code:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defun render (title items)
              (cl-who:with-html-output-to-string (s)
@@ -120,7 +122,7 @@ Evaluation took:
   100.18% CPU
   3,630,166,196 processor cycles
   687,990,384 bytes consed</code></pre><p>Well, we've received almost the same performance - 1.64 microseconds!</p>
-<p>This library seems interesting to me. But lack of documentation does not allow to understand it's limits. Probably it is very extensible. Hope, <a href="https://twitter.com/blackenedgold">@blackenedgold</a> will write more documentation or a tutorial some day.</p>
+<p>This library seems interesting to me. But lack of documentation does not allow to understand its limits. Probably it is very extensible. Hope, <a href="https://twitter.com/blackenedgold">@blackenedgold</a> will write more documentation or a tutorial someday.</p>
 <h2>Performance results</h2><p>This code will render us a chart:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (let* ((data &#039;((&quot;Jinja2&quot; 6.18 &quot;red&quot;)
                           (&quot;zenekindarl&quot; 1.538 &quot;green&quot;)

@@ -24,6 +24,12 @@ POFTHEDAY> (funcall * :name "Bob")
 
 #+end_src
 
+Interesting fact – it is named after a [[https://ultra.fandom.com/wiki/Zenekindarl_people][race of ancient people]].
+
+When searching this information, I've also found [[https://kaylingkaiju.blogspot.com/2016/09/dexador.html?m=0][this page]] about the
+Dexador which is a dragon of Zenekindarl people and also a CL HTTP
+library :)
+
 Documentation says, this library is faster than Python's [[https://jinja.palletsprojects.com/en/2.11.x/][Jinja2]] which
 known for it's ability to compile templates into the bytecode.
 
@@ -86,7 +92,7 @@ Evaluation took:
 #+end_src
 
 Hmm, with ~zenekindarl~ it takes 1.54 microseconds. This is only 4 times
-faster, not 25 times like promiced by the documentation.
+faster, not 25 times like promised by the documentation.
 
 Now let's compare it with the hand-written ~cl-who~ code:
 
@@ -117,8 +123,8 @@ Evaluation took:
 Well, we've received almost the same performance - 1.64 microseconds!
 
 This library seems interesting to me. But lack of documentation does not
-allow to understand it's limits. Probably it is very extensible. Hope,
-[[https://twitter.com/blackenedgold][@blackenedgold]] will write more documentation or a tutorial some day.
+allow to understand its limits. Probably it is very extensible. Hope,
+[[https://twitter.com/blackenedgold][@blackenedgold]] will write more documentation or a tutorial someday.
 
 ** Performance results
 

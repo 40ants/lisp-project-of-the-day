@@ -16,7 +16,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 09 September - [[content/2020/09/0184-function-cache.org][function-cache]] ([[https://twitter.com/svetlyak40wt/status/1303780414864134146][twitter]])
 - 10 September - [[content/2020/09/0185-vcr.org][vcr]] ([[https://twitter.com/svetlyak40wt/status/1304142183516209154][twitter]])
 - 11 September - [[content/2020/09/0186-secret-values.org][secret-values]] ([[https://twitter.com/svetlyak40wt/status/1304459185543958530][twitter]])
-- 12 September - [[content/2020/09/0187-cl-info.org][cl-info]]
+- 12 September - [[content/2020/09/0187-cl-info.org][cl-info]] ([[https://twitter.com/svetlyak40wt/status/1304862533266931712][twitter]])
+- 13 September - [[content/2020/09/0188-zenekindarl.org][zenekindarl]] ([[https://twitter.com/svetlyak40wt/status/1305236308508520448][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

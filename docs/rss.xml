@@ -6,6 +6,150 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>zenekindarl</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html</link>
+            <description>&lt;p&gt;This is a template engine which is able to compile templates into the fast code.&lt;/p&gt;
+&lt;p&gt;Here is a quick example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (zenekindarl:compile-template-string
+            :string &amp;quot;Hello {{var name}}!&amp;quot;)
+#&amp;lt;FUNCTION (LAMBDA (&amp;amp;KEY :NAME)) {231D16FB}&amp;gt;
+
+POFTHEDAY&amp;gt; (funcall * :name &amp;quot;Bob&amp;quot;)
+&amp;quot;Hello Bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Interesting fact – it is named after a &lt;a href=&quot;https://ultra.fandom.com/wiki/Zenekindarl_people&quot;&gt;race of ancient people&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;When searching this information, I&apos;ve also found &lt;a href=&quot;https://kaylingkaiju.blogspot.com/2016/09/dexador.html?m=0&quot;&gt;this page&lt;/a&gt; about the Dexador which is a dragon of Zenekindarl people and also a CL HTTP library :)&lt;/p&gt;
+&lt;p&gt;Documentation says, this library is faster than Python&apos;s &lt;a href=&quot;https://jinja.palletsprojects.com/en/2.11.x/&quot;&gt;Jinja2&lt;/a&gt; which known for it&apos;s ability to compile templates into the bytecode.&lt;/p&gt;
+&lt;p&gt;Let&apos;s make our own comparison! We&apos;ll do the test more complex and extend it to the &lt;code&gt;cl-who&lt;/code&gt;. Later I&apos;ll add to this comparison other template engines during the writing their review.&lt;/p&gt;
+&lt;p&gt;Let&apos;s start with the baseline test for Jinja2:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type &amp;#039;copyright&amp;#039;, &amp;#039;credits&amp;#039; or &amp;#039;license&amp;#039; for more information
+IPython 7.8.0 -- An enhanced Interactive Python. Type &amp;#039;?&amp;#039; for help.
+
+In [1]: from jinja2 import Template
+
+In [2]: template = Template(&amp;quot;&amp;quot;&amp;quot;
+   ...: &amp;lt;h1&amp;gt;{{ title }}&amp;lt;/h1&amp;gt;
+   ...: &amp;lt;ul&amp;gt;
+   ...: {% for item in items %}
+   ...:   &amp;lt;li&amp;gt;{{ item }}&amp;lt;/li&amp;gt;
+   ...: {% endfor %}
+   ...: &amp;lt;/ul&amp;gt;
+   ...: &amp;quot;&amp;quot;&amp;quot;)
+
+In [3]: %timeit template.render(title=&amp;#039;Foo Bar&amp;#039;, items=[&amp;#039;One&amp;#039;, &amp;#039;Two&amp;#039;, &amp;#039;Tree&amp;#039;])
+6.18 &amp;#xB5;s &amp;#xB1; 37 ns per loop (mean &amp;#xB1; std. dev. of 7 runs, 100000 loops each)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, each call to the &lt;code&gt;render&lt;/code&gt; takes 6.18 microseconds.&lt;/p&gt;
+&lt;p&gt;Now we&apos;ll implement it in &lt;code&gt;zenekindarl&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((tmpl (zenekindarl:compile-template-string
+                        :string &amp;quot;
+&amp;lt;h1&amp;gt;{{ var title }}&amp;lt;/h1&amp;gt;
+&amp;lt;ul&amp;gt;
+{{ loop items as item }}
+  &amp;lt;li&amp;gt;{{ var item }}&amp;lt;/li&amp;gt;
+{{ endloop }}
+&amp;lt;/ul&amp;gt;
+&amp;quot;)))
+             (time
+              (loop repeat 1000000
+                    do (funcall tmpl
+                                :title &amp;quot;Foo Bar&amp;quot;
+                                :items &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;)))))
+Evaluation took:
+  1.538 seconds of real time
+  1.546164 seconds of total run time (1.525024 user, 0.021140 system)
+  [ Run times consist of 0.173 seconds GC time, and 1.374 seconds non-GC time. ]
+  100.52% CPU
+  3,395,746,202 processor cycles
+  911,998,848 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hmm, with &lt;code&gt;zenekindarl&lt;/code&gt; it takes 1.54 microseconds. This is only 4 times faster, not 25 times like promised by the documentation.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s compare it with the hand-written &lt;code&gt;cl-who&lt;/code&gt; code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render (title items)
+             (cl-who:with-html-output-to-string (s)
+               (:h1 (cl-who:esc title)
+                    (:ul
+                     (loop for item in items
+                           do (cl-who:htm
+                               (:li (cl-who:esc item))))))))
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (render &amp;quot;Foo Bar&amp;quot;
+                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  1.644 seconds of real time
+  1.646934 seconds of total run time (1.619237 user, 0.027697 system)
+  [ Run times consist of 0.130 seconds GC time, and 1.517 seconds non-GC time. ]
+  100.18% CPU
+  3,630,166,196 processor cycles
+  687,990,384 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, we&apos;ve received almost the same performance - 1.64 microseconds!&lt;/p&gt;
+&lt;p&gt;This library seems interesting to me. But lack of documentation does not allow to understand its limits. Probably it is very extensible. Hope, &lt;a href=&quot;https://twitter.com/blackenedgold&quot;&gt;@blackenedgold&lt;/a&gt; will write more documentation or a tutorial someday.&lt;/p&gt;
+&lt;h2&gt;Performance results&lt;/h2&gt;&lt;p&gt;This code will render us a chart:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2&amp;quot; 6.18 &amp;quot;red&amp;quot;)
+                          (&amp;quot;zenekindarl&amp;quot; 1.538 &amp;quot;green&amp;quot;)
+                          (&amp;quot;cl-who&amp;quot; 1.644 &amp;quot;blue&amp;quot;)))
+                  (baseline (second (first data)))
+                  (base-width 600))
+             (cl-who:with-html-output-to-string (s)
+               (loop for (name value color) in data
+                     for width = (* (/ base-width baseline)
+                                    value)
+                     for style = (format nil &amp;quot;width: ~Apx; background-color: ~A; color: white; padding: 0.5em; display: inline-block;&amp;quot;
+                                         width
+                                         color)
+                     do (cl-who:htm
+                         (:div :style &amp;quot;margin-top: 1em;&amp;quot;
+                          (:span :style style
+                                      (cl-who:esc name))
+                          &amp;quot; &amp;#x2013; &amp;quot;
+                          (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.538 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.644 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;</description>
+            <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
+        </item>
+        <item>
+            <title>cl-info</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0187-cl-info.html</link>
+            <description>&lt;p&gt;This utility was made by me to help to collect reports from my software. It is especially useful in CI pipeline, to log OS, Lisp and systems versions.&lt;/p&gt;
+&lt;p&gt;Here is how it works:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-info:get-cl-info)
+OS:   Darwin 19.5.0
+Lisp: SBCL 2.0.8
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+POFTHEDAY&amp;gt; (cl-info:get-system-info :cl-who)
+System: CL-WHO 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+POFTHEDAY&amp;gt; (cl-info:get-system-info :cl-json)
+System: CL-JSON 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a command-line utility with similar functionality. It can be installed using &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday]% ros install 40ants/cl-info
+Installing from github 40ants/cl-info
+...
+[1/3] System &amp;#039;cl-info&amp;#039; found. Loading the system..
+[2/3] Processing build-hook..
+[3/3] Attempting to install the scripts in roswell/ subdirectory of the system...
+Found 1 scripts: cl-info
+/Users/art/.roswell/bin/cl-info&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now you can call this utility from the command line. By default, it outputs information about OS, Lisp, ASDF versions and installed Quicklisp distributions.&lt;/p&gt;
+&lt;p&gt;But you can also specify system names to get additional information:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday]% cl-info cl-who cl-json
+OS:   Darwin 19.5.0
+Lisp: SBCL 1.5.6
+ASDF: 3.3.4
+QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
+      quicklisp 2020-07-15
+      ultralisp 20200910134005
+
+System: cl-who 1.1.4
+        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
+
+System: cl-json 0.5.0
+        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Again. This can be useful in CI pipelines or to output information when your program is called with --version --verbose options.&lt;/p&gt;
+&lt;p&gt;This system is available from &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt; and GitHub:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/40ants/cl-info&quot;&gt;https://github.com/40ants/cl-info&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Sat, 12 Sep 2020 22:25:09 +0300</pubDate>
+        </item>
+        <item>
             <title>secret-values</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0186-secret-values.html</link>
             <description>&lt;p&gt;This library can be useful for anybody who is writing services which logs their errors with backtraces. It will protect you from leaking sensitive data like passwords and tokens.&lt;/p&gt;
@@ -1420,121 +1564,6 @@ POFTHEDAY&amp;gt; (snakes:generator-&amp;gt;list
 &lt;p&gt;&lt;code&gt;Snakes&lt;/code&gt; has &lt;a href=&quot;http://quickdocs.org/snakes/&quot;&gt;a comprehensive documentation&lt;/a&gt; which covers all its features.&lt;/p&gt;
 </description>
             <pubDate>Sat, 22 Aug 2020 22:27:25 +0300</pubDate>
-        </item>
-        <item>
-            <title>texp</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0168-texp.html</link>
-            <description>&lt;p&gt;This is a little wrapper around TeX language to make it compatible with Lisp&apos;s sexps. Written by &lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Here is a little example, I&apos;ve taken from the documentation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun tex-menu (menu)
-             (texp:deftex item (caption price)
-               (texp:$ caption) &amp;quot; &amp;quot; (texp:$ (texp:escape &amp;quot;$&amp;quot;)) (texp:$ price)
-               (texp:br)
-               (texp::bigskip))
-             (loop for (caption price) in menu
-                   do (texp:tex (item {(texp:$ (texp:escape caption))}
-                                      {(texp:$ (texp:escape price))})))
-             (texp:tex (bye)))
-
-
-POFTHEDAY&amp;gt; (tex-menu &amp;#039;((&amp;quot;Mozzarella Sticks&amp;quot; &amp;quot;5.99&amp;quot;)
-                       (&amp;quot;Onion Rings&amp;quot; &amp;quot;4.99&amp;quot;)
-                       (&amp;quot;Spinach&amp;quot; &amp;quot;5.99&amp;quot;)))
-\def \item #1#2{#1 \$#2
-
-\bigskip }
-
-\item {Mozzarella Sticks}{5.99}\item {Onion Rings}{4.99}\item {Spinach}{5.99}\bye&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To render the DVI file, save this output into the file &lt;code&gt;example.tex&lt;/code&gt; and run &lt;code&gt;tex example.tex&lt;/code&gt;. (On OSX you can install TeX using &lt;code&gt;brew cask install mactex&lt;/code&gt;.)&lt;/p&gt;
-&lt;p&gt;This command will generate example.tex file which will look like that:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0168/example.png&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;With this system, you can use full power or the Lisp to write publishing systems. For example, &lt;a href=&quot;https://github.com/eugeneia/geneva&quot;&gt;Geneva&lt;/a&gt; documentation system uses it to generate TeX and LaTeX outputs.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 21 Aug 2020 20:35:42 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-flat-tree</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0167-cl-flat-tree.html</link>
-            <description>&lt;p&gt;This system implements an interesting algorithm suitable for storing binary tries or transmitting them over the wire without overhead on storing pointers.&lt;/p&gt;
-&lt;p&gt;There is almost no information about this algorithm on the internet. The best description I found is:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://datprotocol.github.io/book/ch01-01-flat-tree.html&quot;&gt;https://datprotocol.github.io/book/ch01-01-flat-tree.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Also, there are versions for Go, C, JS, Rust and Kotlin listed here:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/mafintosh/flat-tree&quot;&gt;https://github.com/mafintosh/flat-tree&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Let&apos;s try to serialize a binary tree, represented by lists into a flat vector. First, we need to prepare a vector which size depends on the depth of the tree:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Here is a tree:
-;;            /
-;;       *
-;;   +     15   100.0
-;; A   B
-
-POFTHEDAY&amp;gt; (defparameter *structure*
-             &amp;#039;(/ (* (+ a b)
-                    15)
-                 100.0))
-
-POFTHEDAY&amp;gt; (defparameter *depth*
-             (rutils:tree-depth *structure*))
-
-POFTHEDAY&amp;gt; *depth*
-4
-
-POFTHEDAY&amp;gt; (defparameter *size* (expt 2 *depth*))
-
-POFTHEDAY&amp;gt; (defparameter *data*
-             (make-array (list (expt 2 *depth*))
-                         :initial-element nil))
-#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Missing nodes are filled with nils.&lt;/p&gt;
-&lt;p&gt;Flat-tree is not a data-structure; it is an algorithm to calculate the tree node&apos;s index in the flat vector.&lt;/p&gt;
-&lt;p&gt;That is why we need to write a function which will take lists forming a binary tree and dump it into the vector as a &quot;flat-tree&quot;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun fill-tree (vector obj depth offset)
-             (let ((index (flat-tree:index depth offset)))
-               (cond
-                 ((listp obj)
-                  (setf (aref vector index)
-                        (first obj))
-                  (fill-tree vector (second obj)
-                             (1- depth) 0)
-                  (fill-tree vector (third obj)
-                             (1- depth) 1))
-                 ;; If it is a symbol
-                 (t
-                  (setf (aref vector index)
-                        obj))))
-             (values vector
-                     obj))
-
-POFTHEDAY&amp;gt; (fill-tree *data* *structure* 3 0)
-
-;; The first value is a resulting vector
-#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL)
-
-;; And the second is original data-structure
-(/ (* (+ A B) 15) 100.0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also can define a function to print our tree in a readable form.&lt;/p&gt;
-&lt;p&gt;If you are more skilled in ASCII Art than me, maybe you can provide a more advanced version?&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun print-flat-tree (vector)
-             (loop for item across vector
-                   for index upfrom 0
-                   for as-str = (format nil &amp;quot;~S&amp;quot; item)
-                   for depth = (flat-tree:depth index)
-                   for padded = (str:pad-left (* depth 5) as-str)
-                   when item
-                     do (format t &amp;quot;~A~%&amp;quot;
-                                padded)))
-
-POFTHEDAY&amp;gt; (print-flat-tree *data*)
-A
-    +
-B
-         *
-   15
-              /
-     100.0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As a home task, I&apos;ll leave a function which restores the lisp data-structure from the vector. The solution should work with sparse tries like this one:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; read-flat-tree(#(A + B * NIL 15 NIL / NIL NIL NIL 100.0 NIL NIL NIL NIL))
-
-(/ (* (+ A B)
-      15)
-   100.0)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hope to see you tomorrow in the next #poftheday post!&lt;/p&gt;
-</description>
-            <pubDate>Thu, 20 Aug 2020 22:55:56 +0300</pubDate>
         </item>
     </channel>
 </rss>
