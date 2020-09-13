@@ -1,0 +1,156 @@
+* zenekindarl :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This is a template engine which is able to compile templates into the
+fast code.
+
+Here is a quick example:
+
+#+begin_src lisp
+
+POFTHEDAY> (zenekindarl:compile-template-string
+            :string "Hello {{var name}}!")
+#<FUNCTION (LAMBDA (&KEY :NAME)) {231D16FB}>
+
+POFTHEDAY> (funcall * :name "Bob")
+"Hello Bob!"
+
+#+end_src
+
+Documentation says, this library is faster than Python's [[https://jinja.palletsprojects.com/en/2.11.x/][Jinja2]] which
+known for it's ability to compile templates into the bytecode.
+
+Let's make our own comparison! We'll do the test more complex and extend
+it to the ~cl-who~. Later I'll add to this comparison other template
+engines during the writing their review.
+
+Let's start with the baseline test for Jinja2:
+
+#+begin_src python
+
+Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.8.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: from jinja2 import Template
+
+In [2]: template = Template("""
+   ...: <h1>{{ title }}</h1>
+   ...: <ul>
+   ...: {% for item in items %}
+   ...:   <li>{{ item }}</li>
+   ...: {% endfor %}
+   ...: </ul>
+   ...: """)
+
+In [3]: %timeit template.render(title='Foo Bar', items=['One', 'Two', 'Tree'])
+6.18 µs ± 37 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+
+#+end_src
+
+As you see, each call to the ~render~ takes 6.18 microseconds.
+
+Now we'll implement it in ~zenekindarl~:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((tmpl (zenekindarl:compile-template-string
+                        :string "
+<h1>{{ var title }}</h1>
+<ul>
+{{ loop items as item }}
+  <li>{{ var item }}</li>
+{{ endloop }}
+</ul>
+")))
+             (time
+              (loop repeat 1000000
+                    do (funcall tmpl
+                                :title "Foo Bar"
+                                :items '("One" "Two" "Three")))))
+Evaluation took:
+  1.538 seconds of real time
+  1.546164 seconds of total run time (1.525024 user, 0.021140 system)
+  [ Run times consist of 0.173 seconds GC time, and 1.374 seconds non-GC time. ]
+  100.52% CPU
+  3,395,746,202 processor cycles
+  911,998,848 bytes consed
+
+#+end_src
+
+Hmm, with ~zenekindarl~ it takes 1.54 microseconds. This is only 4 times
+faster, not 25 times like promiced by the documentation.
+
+Now let's compare it with the hand-written ~cl-who~ code:
+
+<#+begin_src lisp
+
+POFTHEDAY> (defun render (title items)
+             (cl-who:with-html-output-to-string (s)
+               (:h1 (cl-who:esc title)
+                    (:ul
+                     (loop for item in items
+                           do (cl-who:htm
+                               (:li (cl-who:esc item))))))))
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render "Foo Bar"
+                             '("One" "Two" "Three"))))
+Evaluation took:
+  1.644 seconds of real time
+  1.646934 seconds of total run time (1.619237 user, 0.027697 system)
+  [ Run times consist of 0.130 seconds GC time, and 1.517 seconds non-GC time. ]
+  100.18% CPU
+  3,630,166,196 processor cycles
+  687,990,384 bytes consed
+
+#+end_src
+
+Well, we've received almost the same performance - 1.64 microseconds!
+
+This library seems interesting to me. But lack of documentation does not
+allow to understand it's limits. Probably it is very extensible. Hope,
+[[https://twitter.com/blackenedgold][@blackenedgold]] will write more documentation or a tutorial some day.
+
+** Performance results
+
+This code will render us a chart:
+
+#+begin_src lisp
+
+POFTHEDAY> (let* ((data '(("Jinja2" 6.18 "red")
+                          ("zenekindarl" 1.538 "green")
+                          ("cl-who" 1.644 "blue")))
+                  (baseline (second (first data)))
+                  (base-width 600))
+             (cl-who:with-html-output-to-string (s)
+               (loop for (name value color) in data
+                     for width = (* (/ base-width baseline)
+                                    value)
+                     for style = (format nil "width: ~Apx; background-color: ~A; color: white; padding: 0.5em; display: inline-block;"
+                                         width
+                                         color)
+                     do (cl-who:htm
+                         (:div :style "margin-top: 1em;"
+                          (:span :style style
+                                      (cl-who:esc name))
+                          " – "
+                          (:span (cl-who:esc (format nil "~A µs" value))))))))
+
+#+end_src
+
+This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:
+
+#+begin_src html :render-without-code
+
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div>
+
+#+end_src

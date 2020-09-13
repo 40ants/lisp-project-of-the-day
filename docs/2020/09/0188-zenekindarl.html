@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>zenekindarl
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>zenekindarl</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>zenekindarl<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This is a template engine which is able to compile templates into the fast code.</p>
+<p>Here is a quick example:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (zenekindarl:compile-template-string
+            :string &quot;Hello {{var name}}!&quot;)
+#&lt;FUNCTION (LAMBDA (&amp;KEY :NAME)) {231D16FB}&gt;
+
+POFTHEDAY&gt; (funcall * :name &quot;Bob&quot;)
+&quot;Hello Bob!&quot;</code></pre><p>Documentation says, this library is faster than Python's <a href="https://jinja.palletsprojects.com/en/2.11.x/">Jinja2</a> which known for it's ability to compile templates into the bytecode.</p>
+<p>Let's make our own comparison! We'll do the test more complex and extend it to the <code>cl-who</code>. Later I'll add to this comparison other template engines during the writing their review.</p>
+<p>Let's start with the baseline test for Jinja2:</p>
+<pre><code class='python'>Python 3.7.7 (default, Mar 10 2020, 15:43:33)
+Type &#039;copyright&#039;, &#039;credits&#039; or &#039;license&#039; for more information
+IPython 7.8.0 -- An enhanced Interactive Python. Type &#039;?&#039; for help.
+
+In [1]: from jinja2 import Template
+
+In [2]: template = Template(&quot;&quot;&quot;
+   ...: &lt;h1&gt;{{ title }}&lt;/h1&gt;
+   ...: &lt;ul&gt;
+   ...: {% for item in items %}
+   ...:   &lt;li&gt;{{ item }}&lt;/li&gt;
+   ...: {% endfor %}
+   ...: &lt;/ul&gt;
+   ...: &quot;&quot;&quot;)
+
+In [3]: %timeit template.render(title=&#039;Foo Bar&#039;, items=[&#039;One&#039;, &#039;Two&#039;, &#039;Tree&#039;])
+6.18 &#xB5;s &#xB1; 37 ns per loop (mean &#xB1; std. dev. of 7 runs, 100000 loops each)</code></pre><p>As you see, each call to the <code>render</code> takes 6.18 microseconds.</p>
+<p>Now we'll implement it in <code>zenekindarl</code>:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((tmpl (zenekindarl:compile-template-string
+                        :string &quot;
+&lt;h1&gt;{{ var title }}&lt;/h1&gt;
+&lt;ul&gt;
+{{ loop items as item }}
+  &lt;li&gt;{{ var item }}&lt;/li&gt;
+{{ endloop }}
+&lt;/ul&gt;
+&quot;)))
+             (time
+              (loop repeat 1000000
+                    do (funcall tmpl
+                                :title &quot;Foo Bar&quot;
+                                :items &#039;(&quot;One&quot; &quot;Two&quot; &quot;Three&quot;)))))
+Evaluation took:
+  1.538 seconds of real time
+  1.546164 seconds of total run time (1.525024 user, 0.021140 system)
+  [ Run times consist of 0.173 seconds GC time, and 1.374 seconds non-GC time. ]
+  100.52% CPU
+  3,395,746,202 processor cycles
+  911,998,848 bytes consed</code></pre><p>Hmm, with <code>zenekindarl</code> it takes 1.54 microseconds. This is only 4 times faster, not 25 times like promiced by the documentation.</p>
+<p>Now let's compare it with the hand-written <code>cl-who</code> code:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun render (title items)
+             (cl-who:with-html-output-to-string (s)
+               (:h1 (cl-who:esc title)
+                    (:ul
+                     (loop for item in items
+                           do (cl-who:htm
+                               (:li (cl-who:esc item))))))))
+
+POFTHEDAY&gt; (time
+            (loop repeat 1000000
+                  do (render &quot;Foo Bar&quot;
+                             &#039;(&quot;One&quot; &quot;Two&quot; &quot;Three&quot;))))
+Evaluation took:
+  1.644 seconds of real time
+  1.646934 seconds of total run time (1.619237 user, 0.027697 system)
+  [ Run times consist of 0.130 seconds GC time, and 1.517 seconds non-GC time. ]
+  100.18% CPU
+  3,630,166,196 processor cycles
+  687,990,384 bytes consed</code></pre><p>Well, we've received almost the same performance - 1.64 microseconds!</p>
+<p>This library seems interesting to me. But lack of documentation does not allow to understand it's limits. Probably it is very extensible. Hope, <a href="https://twitter.com/blackenedgold">@blackenedgold</a> will write more documentation or a tutorial some day.</p>
+<h2>Performance results</h2><p>This code will render us a chart:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let* ((data &#039;((&quot;Jinja2&quot; 6.18 &quot;red&quot;)
+                          (&quot;zenekindarl&quot; 1.538 &quot;green&quot;)
+                          (&quot;cl-who&quot; 1.644 &quot;blue&quot;)))
+                  (baseline (second (first data)))
+                  (base-width 600))
+             (cl-who:with-html-output-to-string (s)
+               (loop for (name value color) in data
+                     for width = (* (/ base-width baseline)
+                                    value)
+                     for style = (format nil &quot;width: ~Apx; background-color: ~A; color: white; padding: 0.5em; display: inline-block;&quot;
+                                         width
+                                         color)
+                     do (cl-who:htm
+                         (:div :style &quot;margin-top: 1em;&quot;
+                          (:span :style style
+                                      (cl-who:esc name))
+                          &quot; &#x2013; &quot;
+                          (:span (cl-who:esc (format nil &quot;~A &#xB5;s&quot; value))))))))</code></pre><p>This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:</p>
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div>
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>
