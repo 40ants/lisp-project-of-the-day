@@ -165,4 +165,4 @@ This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7
 ** Update from 2020-09-14
 
 Performance results for Spinneret were added to the chart. Code is in
-the post #0189.
+[[https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html][the post #0189]].
