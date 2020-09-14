@@ -1,0 +1,125 @@
+* spinneret :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+Spinneret is a sexp based templating engine similar to cl-who, reviewed
+in [[https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html][the post number #0075]]. Today we'll reimplement the snippets from the
+~cl-who~ post and I'll show you a few features I'm especially like in
+Spinneret.
+
+First example is very simple. It is almost identical to ~cl-who~, but more
+consice:
+
+#+begin_src lisp
+
+POFTHEDAY> (spinneret:with-html-string
+             (:body
+              (:p "Hello world!")))
+"<body>
+ <p>Hello world!
+</body>"
+
+#+end_src
+
+Next example in the ~cl-who~ post showed, how to escape values propertly
+to protect your site from JavaScript Injection attacks. With ~Spinneret~
+you don't need this, because it always escapes the values.
+
+But if you really need to inject the HTML or JS into the page, then you
+have to use ~raw~ mode:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY> (let ((user (make-instance
+                        'user
+                        :name "Bob <script>alert('You are hacked')</script>")))
+             (spinneret:with-html-string
+               (:div :class "comment"
+                     ;; Here Spinneret protects you:
+                     (:div :class "username"
+                           (get-name user))
+                     ;; This way you can force RAW mode.
+                     ;; DON'T do this unless the value is from the
+                     ;; trusted source!
+                     (:div :class "raw-user"
+                           (:raw (get-name user))))))
+"<div class=comment>
+ <div class=username>
+  Bob &lt;script&gtalert('You are hacked')&lt;/script&gt
+ </div>
+ <div class=raw-user>Bob <script>alert('You are hacked')</script>
+ </div>
+</div>"
+
+#+end_src
+
+With ~cl-who~ you migth misuse ~str~ and ~esc~ functions. But with ~Spinneret~
+there is less probability for such mistake.
+
+Another cool Spinneret's feature is it's code walker. It allows to mix
+usual Common Lisp forms with HTML sexps. Compare this code snippet with
+the corresponding part from ~cl-who~ post:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((list (list 1 2 3 4 5)))
+             (spinneret:with-html-string
+               (:ul
+                (loop for item in list
+                      do (:li (format nil "Item number ~A"
+                                      item))))))
+"<ul>
+ <li>Item number 1
+ <li>Item number 2
+ <li>Item number 3
+ <li>Item number 4
+ <li>Item number 5
+</ul>"
+
+#+end_src
+
+We don't have to use a wrappers like ~cl-who:htm~ and ~cl-who:esc~ here.
+
+Finally, let's compare Spinneret's performance with ~Zenekindarl~,
+reviewed yesterday:
+
+#+begin_src lisp
+
+POFTHEDAY> (declaim (optimize (debug 1) (speed 3)))
+
+POFTHEDAY> (defun render (title items)
+             (spinneret:with-html-string
+               (:h1 title
+                    (:ul
+                     (loop for item in items
+                           do (:li item))))))
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render "Foo Bar"
+                             '("One" "Two" "Three"))))
+Evaluation took:
+  4.939 seconds of real time
+  4.950155 seconds of total run time (4.891959 user, 0.058196 system)
+  [ Run times consist of 0.078 seconds GC time, and 4.873 seconds non-GC time. ]
+  100.22% CPU
+  10,905,720,340 processor cycles
+  991,997,936 bytes consed
+  
+#+end_src
+
+Sadly, but in this test ~Spinneret~ 3 times slower than ~Zenekindarl~ and
+~CL-WHO~. Probably that is because it conses more memory?
+
+[[https://twitter.com/ruricolist][@ruricolist]], do you have idea why does spinneret 3 times slower than
+cl-who?

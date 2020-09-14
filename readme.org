@@ -18,6 +18,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 11 September - [[content/2020/09/0186-secret-values.org][secret-values]] ([[https://twitter.com/svetlyak40wt/status/1304459185543958530][twitter]])
 - 12 September - [[content/2020/09/0187-cl-info.org][cl-info]] ([[https://twitter.com/svetlyak40wt/status/1304862533266931712][twitter]])
 - 13 September - [[content/2020/09/0188-zenekindarl.org][zenekindarl]] ([[https://twitter.com/svetlyak40wt/status/1305236308508520448][twitter]])
+- 14 September - [[content/2020/09/0189-spinneret.org][spinneret]]
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

@@ -134,7 +134,8 @@ This code will render us a chart:
 
 POFTHEDAY> (let* ((data '(("Jinja2" 6.18 "red")
                           ("zenekindarl" 1.538 "green")
-                          ("cl-who" 1.644 "blue")))
+                          ("cl-who" 1.644 "blue")
+                          ("spinneret" 4.939 "orange")))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -157,6 +158,11 @@ This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7
 
 #+begin_src html :render-without-code
 
-<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div>
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.5146px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.939 &#xB5;s</span></div>
 
 #+end_src
+
+** Update from 2020-09-14
+
+Performance results for Spinneret were added to the chart. Code is in
+the post #0189.
