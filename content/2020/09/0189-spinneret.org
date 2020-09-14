@@ -9,12 +9,12 @@
 :END:
 
 Spinneret is a sexp based templating engine similar to cl-who, reviewed
-in [[https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html][the post number #0075]]. Today we'll reimplement the snippets from the
+in [[https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html][post number #0075]]. Today we'll reimplement the snippets from the
 ~cl-who~ post and I'll show you a few features I'm especially like in
 Spinneret.
 
-First example is very simple. It is almost identical to ~cl-who~, but more
-consice:
+The first example is very simple. It is almost identical to ~cl-who~, but more
+concise:
 
 #+begin_src lisp
 
@@ -27,8 +27,8 @@ POFTHEDAY> (spinneret:with-html-string
 
 #+end_src
 
-Next example in the ~cl-who~ post showed, how to escape values propertly
-to protect your site from JavaScript Injection attacks. With ~Spinneret~
+Next example in the ~cl-who~ post showed, how to escape values properly
+to protect your site from JavaScript Injection attacks. With ~Spinneret~,
 you don't need this, because it always escapes the values.
 
 But if you really need to inject the HTML or JS into the page, then you
@@ -63,10 +63,10 @@ POFTHEDAY> (let ((user (make-instance
 
 #+end_src
 
-With ~cl-who~ you migth misuse ~str~ and ~esc~ functions. But with ~Spinneret~
-there is less probability for such mistake.
+With ~cl-who~ you might misuse ~str~ and ~esc~ functions. But with ~Spinneret~
+there is less probability for such a mistake.
 
-Another cool Spinneret's feature is it's code walker. It allows to mix
+Another cool Spinneret's feature is its code walker. It allows mixing
 usual Common Lisp forms with HTML sexps. Compare this code snippet with
 the corresponding part from ~cl-who~ post:
 
@@ -88,7 +88,7 @@ POFTHEDAY> (let ((list (list 1 2 3 4 5)))
 
 #+end_src
 
-We don't have to use a wrappers like ~cl-who:htm~ and ~cl-who:esc~ here.
+We don't have to use wrappers like ~cl-who:htm~ and ~cl-who:esc~ here.
 
 Finally, let's compare Spinneret's performance with ~Zenekindarl~,
 reviewed yesterday:
@@ -121,5 +121,5 @@ Evaluation took:
 Sadly, but in this test ~Spinneret~ 3 times slower than ~Zenekindarl~ and
 ~CL-WHO~. Probably that is because it conses more memory?
 
-[[https://twitter.com/ruricolist][@ruricolist]], do you have idea why does spinneret 3 times slower than
-cl-who?
+[[https://twitter.com/ruricolist][@ruricolist]], do you have an idea why does ~Spinneret~ 3 times slower than
+~CL-WHO~?

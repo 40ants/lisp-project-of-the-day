@@ -6,6 +6,81 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>spinneret</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html</link>
+            <description>&lt;p&gt;Spinneret is a sexp based templating engine similar to cl-who, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html&quot;&gt;post number #0075&lt;/a&gt;. Today we&apos;ll reimplement the snippets from the &lt;code&gt;cl-who&lt;/code&gt; post and I&apos;ll show you a few features I&apos;m especially like in Spinneret.&lt;/p&gt;
+&lt;p&gt;The first example is very simple. It is almost identical to &lt;code&gt;cl-who&lt;/code&gt;, but more concise:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
+             (:body
+              (:p &amp;quot;Hello world!&amp;quot;)))
+&amp;quot;&amp;lt;body&amp;gt;
+ &amp;lt;p&amp;gt;Hello world!
+&amp;lt;/body&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next example in the &lt;code&gt;cl-who&lt;/code&gt; post showed, how to escape values properly to protect your site from JavaScript Injection attacks. With &lt;code&gt;Spinneret&lt;/code&gt;, you don&apos;t need this, because it always escapes the values.&lt;/p&gt;
+&lt;p&gt;But if you really need to inject the HTML or JS into the page, then you have to use &lt;code&gt;raw&lt;/code&gt; mode:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
+             ((name :initarg :name
+                    :reader get-name)))
+
+POFTHEDAY&amp;gt; (let ((user (make-instance
+                        &amp;#039;user
+                        :name &amp;quot;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;&amp;quot;)))
+             (spinneret:with-html-string
+               (:div :class &amp;quot;comment&amp;quot;
+                     ;; Here Spinneret protects you:
+                     (:div :class &amp;quot;username&amp;quot;
+                           (get-name user))
+                     ;; This way you can force RAW mode.
+                     ;; DON&amp;#039;T do this unless the value is from the
+                     ;; trusted source!
+                     (:div :class &amp;quot;raw-user&amp;quot;
+                           (:raw (get-name user))))))
+&amp;quot;&amp;lt;div class=comment&amp;gt;
+ &amp;lt;div class=username&amp;gt;
+  Bob &amp;amp;lt;script&amp;amp;gtalert(&amp;#039;You are hacked&amp;#039;)&amp;amp;lt;/script&amp;amp;gt
+ &amp;lt;/div&amp;gt;
+ &amp;lt;div class=raw-user&amp;gt;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;
+ &amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-who&lt;/code&gt; you might misuse &lt;code&gt;str&lt;/code&gt; and &lt;code&gt;esc&lt;/code&gt; functions. But with &lt;code&gt;Spinneret&lt;/code&gt; there is less probability for such a mistake.&lt;/p&gt;
+&lt;p&gt;Another cool Spinneret&apos;s feature is its code walker. It allows mixing usual Common Lisp forms with HTML sexps. Compare this code snippet with the corresponding part from &lt;code&gt;cl-who&lt;/code&gt; post:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((list (list 1 2 3 4 5)))
+             (spinneret:with-html-string
+               (:ul
+                (loop for item in list
+                      do (:li (format nil &amp;quot;Item number ~A&amp;quot;
+                                      item))))))
+&amp;quot;&amp;lt;ul&amp;gt;
+ &amp;lt;li&amp;gt;Item number 1
+ &amp;lt;li&amp;gt;Item number 2
+ &amp;lt;li&amp;gt;Item number 3
+ &amp;lt;li&amp;gt;Item number 4
+ &amp;lt;li&amp;gt;Item number 5
+&amp;lt;/ul&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We don&apos;t have to use wrappers like &lt;code&gt;cl-who:htm&lt;/code&gt; and &lt;code&gt;cl-who:esc&lt;/code&gt; here.&lt;/p&gt;
+&lt;p&gt;Finally, let&apos;s compare Spinneret&apos;s performance with &lt;code&gt;Zenekindarl&lt;/code&gt;, reviewed yesterday:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 1) (speed 3)))
+
+POFTHEDAY&amp;gt; (defun render (title items)
+             (spinneret:with-html-string
+               (:h1 title
+                    (:ul
+                     (loop for item in items
+                           do (:li item))))))
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (render &amp;quot;Foo Bar&amp;quot;
+                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  4.939 seconds of real time
+  4.950155 seconds of total run time (4.891959 user, 0.058196 system)
+  [ Run times consist of 0.078 seconds GC time, and 4.873 seconds non-GC time. ]
+  100.22% CPU
+  10,905,720,340 processor cycles
+  991,997,936 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, but in this test &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;Zenekindarl&lt;/code&gt; and &lt;code&gt;CL-WHO&lt;/code&gt;. Probably that is because it conses more memory?&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, do you have an idea why does &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;CL-WHO&lt;/code&gt;?&lt;/p&gt;
+</description>
+            <pubDate>Mon, 14 Sep 2020 21:24:57 +0300</pubDate>
+        </item>
+        <item>
             <title>zenekindarl</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html</link>
             <description>&lt;p&gt;This is a template engine which is able to compile templates into the fast code.&lt;/p&gt;
@@ -83,7 +158,8 @@ Evaluation took:
 &lt;h2&gt;Performance results&lt;/h2&gt;&lt;p&gt;This code will render us a chart:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2&amp;quot; 6.18 &amp;quot;red&amp;quot;)
                           (&amp;quot;zenekindarl&amp;quot; 1.538 &amp;quot;green&amp;quot;)
-                          (&amp;quot;cl-who&amp;quot; 1.644 &amp;quot;blue&amp;quot;)))
+                          (&amp;quot;cl-who&amp;quot; 1.644 &amp;quot;blue&amp;quot;)
+                          (&amp;quot;spinneret&amp;quot; 4.939 &amp;quot;orange&amp;quot;)))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -99,7 +175,8 @@ Evaluation took:
                                       (cl-who:esc name))
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.538 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.644 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;</description>
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.538 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.644 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.5146px; background-color: orange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.939 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for Spinneret were added to the chart. Code is in the post #0189.&lt;/p&gt;
+</description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
         <item>
@@ -1502,68 +1579,6 @@ Thread Worker works again!
 &lt;p&gt;Read &lt;a href=&quot;http://gbbopen.org/hyperdoc/ref-portable-thread-entities.html&quot;&gt;the documentation&lt;/a&gt; to find more gems!&lt;/p&gt;
 </description>
             <pubDate>Sun, 23 Aug 2020 14:05:34 +0300</pubDate>
-        </item>
-        <item>
-            <title>snakes</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0169-snakes.html</link>
-            <description>&lt;p&gt;This system makes it very easy to create and use a generator in Python style.&lt;/p&gt;
-&lt;p&gt;This code demostrates how a simple generator works in Python. The generator creates an iterable object and values can be extracted by calling the &lt;code&gt;next&lt;/code&gt; function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;In [1]: def simple():
-   ...:     yield 1
-   ...:     print(&amp;#039;LOG: Going to the second yield&amp;#039;)
-   ...:     yield 2
-   ...:
-
-In [2]: simple()
-Out[2]: &amp;lt;generator object simple at 0x10752a050&amp;gt;
-
-In [3]: next(_2)
-Out[3]: 1
-
-In [4]: next(_2)
-LOG: Going to the second yield
-Out[4]: 2
-
-In [5]: next(_2)
-------------------
-StopIteration&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The similar generator can be implemented with &lt;code&gt;snakes&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (snakes:defgenerator simple ()
-             (snakes:yield 1)
-             (format t &amp;quot;LOG: Going to the second yield~%&amp;quot;)
-             (snakes:yield 2))
-
-POFTHEDAY&amp;gt; (simple)
-#&amp;lt;SNAKES:BASIC-GENERATOR {1008454D4B}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *)
-LOG: Going to the second yield
-1
-
-POFTHEDAY&amp;gt; (funcall **)
-2
-
-POFTHEDAY&amp;gt; (funcall ***)
-SNAKES:GENERATOR-STOP&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the more interesting example of the generator which produces an infinite sequence of Fibonacci numbers:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (snakes:defgenerator fib ()
-             (loop with a = 0
-                   with b = 1
-                   for new-b = (+ a b)
-                   do (snakes:yield a)
-                      (setf a b
-                            b new-b)))
-
-POFTHEDAY&amp;gt; (snakes:take 20 (fib))
-(0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
-
-;; Or we can skip first 50 numbers and output 5 next:
-POFTHEDAY&amp;gt; (snakes:generator-&amp;gt;list
-            (snakes:islice (fib)
-                           50 55))
-(12586269025 20365011074 32951280099 53316291173 86267571272)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other features like:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;anonymous generators;&lt;/li&gt;&lt;li&gt;yield-from form;&lt;/li&gt;&lt;li&gt;forms to iterate over generators;&lt;/li&gt;&lt;li&gt;functions ported from Python&apos;s &lt;code&gt;itertools&lt;/code&gt;;&lt;/li&gt;&lt;li&gt;integration with &lt;code&gt;iterate&lt;/code&gt; library.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;&lt;code&gt;Snakes&lt;/code&gt; has &lt;a href=&quot;http://quickdocs.org/snakes/&quot;&gt;a comprehensive documentation&lt;/a&gt; which covers all its features.&lt;/p&gt;
-</description>
-            <pubDate>Sat, 22 Aug 2020 22:27:25 +0300</pubDate>
         </item>
     </channel>
 </rss>

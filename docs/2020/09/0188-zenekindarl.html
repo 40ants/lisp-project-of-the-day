@@ -126,7 +126,8 @@ Evaluation took:
 <h2>Performance results</h2><p>This code will render us a chart:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (let* ((data &#039;((&quot;Jinja2&quot; 6.18 &quot;red&quot;)
                           (&quot;zenekindarl&quot; 1.538 &quot;green&quot;)
-                          (&quot;cl-who&quot; 1.644 &quot;blue&quot;)))
+                          (&quot;cl-who&quot; 1.644 &quot;blue&quot;)
+                          (&quot;spinneret&quot; 4.939 &quot;orange&quot;)))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -142,7 +143,8 @@ Evaluation took:
                                       (cl-who:esc name))
                           &quot; &#x2013; &quot;
                           (:span (cl-who:esc (format nil &quot;~A &#xB5;s&quot; value))))))))</code></pre><p>This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:</p>
-<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div>
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.5146px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.939 &#xB5;s</span></div><h2>Update from 2020-09-14</h2><p>Performance results for Spinneret were added to the chart. Code is in the post #0189.</p>
+
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"
