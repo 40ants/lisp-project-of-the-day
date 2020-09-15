@@ -1,0 +1,76 @@
+* cl-mustache :web:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+I decided to continue reviewing the template engines. Our today's
+library implements Mustache syntax, which also implemented for many
+other languages.
+
+~Mustache~ syntax is very simple and does not allow to write complex
+application logic. You will find some examples in this documentation:
+
+http://mustache.github.io/mustache.5.html
+
+Let's try to rewrite our performance test from the ~zenekindarl~ post to
+~Mustache~!
+
+#+begin_src lisp
+
+POFTHEDAY> (mustache:define render
+             "
+<title>{{title}}</title>
+<ul>
+{{#items}}<li>{{value}}</li>{{/items}}
+</ul>
+")
+
+POFTHEDAY> (with-output-to-string (out)
+             (render '((:title . "Foo Bar")
+                       (:items .
+                        (((:value . "One"))
+                         ((:value . "Two"))
+                         ((:value . "Three")))))
+                     out))
+"
+<title>Foo Bar</title>
+<ul>
+<li>One</li><li>Two</li><li>Three</li>
+</ul>
+"
+
+POFTHEDAY> (time
+            (loop with context = '((:title . "Foo Bar")
+                                   (:items .
+                                    (((:value . "One"))
+                                     ((:value . "Two"))
+                                     ((:value . "Three")))))
+                  repeat 1000000
+                  do (with-output-to-string (out)
+                       (render context out))))
+Evaluation took:
+  5.213 seconds of real time
+  5.252826 seconds of total run time (5.155530 user, 0.097296 system)
+  [ Run times consist of 0.445 seconds GC time, and 4.808 seconds non-GC time. ]
+  100.77% CPU
+  11,510,317,038 processor cycles
+  4,319,993,136 bytes consed
+
+#+end_src
+
+So, the results is slightly slower than ~Spinneret~ is almost as slow as
+Python's ~Jinja2~:
+
+#+begin_src html :render-without-code
+
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.54 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.64 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.94 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;'>cl-mustache</span> – <span>5.21 &#xB5;s</span></div>
+
+#+end_src
+
+If you have some other template engines in mind, please, leave comments
+and I'll make a review.

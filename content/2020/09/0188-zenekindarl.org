@@ -133,9 +133,10 @@ This code will render us a chart:
 #+begin_src lisp
 
 POFTHEDAY> (let* ((data '(("Jinja2" 6.18 "red")
-                          ("zenekindarl" 1.538 "green")
-                          ("cl-who" 1.644 "blue")
-                          ("spinneret" 4.939 "orange")))
+                          ("zenekindarl" 1.54 "green")
+                          ("cl-who" 1.64 "blue")
+                          ("spinneret" 4.94 "orange")
+                          ("cl-mustache" 5.21 "cyan")))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -158,11 +159,16 @@ This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7
 
 #+begin_src html :render-without-code
 
-<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.538 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.644 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.5146px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.939 &#xB5;s</span></div>
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.54 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.64 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.94 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;'>cl-mustache</span> – <span>5.21 &#xB5;s</span></div>
 
 #+end_src
 
 ** Update from 2020-09-14
 
-Performance results for Spinneret were added to the chart. Code is in
+Performance results for ~Spinneret~ were added to the chart. Code is in
 [[https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html][the post #0189]].
+
+** Update from 2020-09-15
+
+Performance results for ~cl-mustache~ were added to the chart. Code is in
+[[https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html][the post #0190]].
