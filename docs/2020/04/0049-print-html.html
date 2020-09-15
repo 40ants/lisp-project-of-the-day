@@ -109,7 +109,38 @@ POFTHEDAY&gt; (print-html:print-html-to-string
 &lt;/section&gt;
 &lt;/article&gt;
 &quot;</code></pre><p>Seems this is an interesting approach to render HTML. What do you think?</p>
+<h1>Update from 2020-09-15<span class='tags'></span></h1><p>Added performance test to compare with other template renderers. Main post with comparison <a href="https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html">is here</a>.</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun render (title items)
+             (print-html:print-html-to-string
+              (print-html:html
+                (:h1 title
+                     (:ul
+                      (loop for item in items
+                            collect (print-html:html
+                                      (:li item))))))))
 
+POFTHEDAY&gt; (render &quot;Foo Bar&quot;
+                   &#039;(&quot;One&quot; &quot;Two&quot; &quot;Tree&quot;))
+&quot;&lt;h1&gt;Foo Bar
+&lt;ul&gt;
+&lt;li&gt;One&lt;/li&gt;
+&lt;li&gt;Two&lt;/li&gt;
+&lt;li&gt;Tree&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/h1&gt;
+&quot;
+
+POFTHEDAY&gt; (time
+            (loop repeat 1000000
+                  do (render &quot;Foo Bar&quot;
+                             &#039;(&quot;One&quot; &quot;Two&quot; &quot;Three&quot;))))
+Evaluation took:
+  3.259 seconds of real time
+  3.280993 seconds of total run time (3.226489 user, 0.054504 system)
+  [ Run times consist of 0.258 seconds GC time, and 3.023 seconds non-GC time. ]
+  100.68% CPU
+  7,195,206,822 processor cycles
+  2,560,006,112 bytes consed</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"

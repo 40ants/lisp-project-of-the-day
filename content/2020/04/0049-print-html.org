@@ -87,3 +87,44 @@ POFTHEDAY> (print-html:print-html-to-string
 #+END_SRC
 
 Seems this is an interesting approach to render HTML. What do you think?
+
+* Update from 2020-09-15
+
+Added performance test to compare with other template renderers. Main
+post with comparison [[https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html][is here]].
+
+#+begin_src lisp
+
+POFTHEDAY> (defun render (title items)
+             (print-html:print-html-to-string
+              (print-html:html
+                (:h1 title
+                     (:ul
+                      (loop for item in items
+                            collect (print-html:html
+                                      (:li item))))))))
+
+POFTHEDAY> (render "Foo Bar"
+                   '("One" "Two" "Tree"))
+"<h1>Foo Bar
+<ul>
+<li>One</li>
+<li>Two</li>
+<li>Tree</li>
+</ul>
+</h1>
+"
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render "Foo Bar"
+                             '("One" "Two" "Three"))))
+Evaluation took:
+  3.259 seconds of real time
+  3.280993 seconds of total run time (3.226489 user, 0.054504 system)
+  [ Run times consist of 0.258 seconds GC time, and 3.023 seconds non-GC time. ]
+  100.68% CPU
+  7,195,206,822 processor cycles
+  2,560,006,112 bytes consed
+
+#+end_src

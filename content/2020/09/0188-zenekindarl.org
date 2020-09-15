@@ -132,11 +132,14 @@ This code will render us a chart:
 
 #+begin_src lisp
 
-POFTHEDAY> (let* ((data '(("Jinja2" 6.18 "red")
-                          ("zenekindarl" 1.54 "green")
-                          ("cl-who" 1.64 "blue")
-                          ("spinneret" 4.94 "orange")
-                          ("cl-mustache" 5.21 "cyan")))
+;; Colors are taken from
+;; https://www.html-color-names.com/
+POFTHEDAY> (let* ((data '(("Jinja2" 6.18 "Tomato")
+                          ("zenekindarl" 1.54 "MediumSeaGreen")
+                          ("cl-who" 1.64 "RoyalBlue")
+                          ("spinneret" 4.94 "SandyBrown")
+                          ("cl-mustache" 5.21 "DeepPink")
+                          ("print-html" 3.26 "GreenYellow")))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -159,7 +162,7 @@ This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7
 
 #+begin_src html :render-without-code
 
-<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.54 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.64 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.94 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;'>cl-mustache</span> – <span>5.21 &#xB5;s</span></div>
+<div style='margin-top: 1em;'><span style='width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.54 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.64 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.94 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;'>cl-mustache</span> – <span>5.21 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;'>print-html</span> – <span>3.26 &#xB5;s</span></div>
 
 #+end_src
 
@@ -170,5 +173,5 @@ Performance results for ~Spinneret~ were added to the chart. Code is in
 
 ** Update from 2020-09-15
 
-Performance results for ~cl-mustache~ were added to the chart. Code is in
-[[https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html][the post #0190]].
+Performance results for ~cl-mustache~ and ~print-html~ were added to the chart. Code is in
+[[https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html][the post #0190]] and [[https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html][post #0049]].
