@@ -6,6 +6,58 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-mustache</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html</link>
+            <description>&lt;p&gt;I decided to continue reviewing the template engines. Our today&apos;s library implements Mustache syntax, which also implemented for many other languages.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Mustache&apos;s&lt;/code&gt; syntax is very simple and does not allow to write complex application logic. You will find some examples in this documentation:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://mustache.github.io/mustache.5.html&quot;&gt;http://mustache.github.io/mustache.5.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Let&apos;s try to rewrite our performance test from the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;zenekindarl post&lt;/a&gt; to &lt;code&gt;Mustache&lt;/code&gt;!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (mustache:define render
+             &amp;quot;
+&amp;lt;title&amp;gt;{{title}}&amp;lt;/title&amp;gt;
+&amp;lt;ul&amp;gt;
+{{#items}}&amp;lt;li&amp;gt;{{value}}&amp;lt;/li&amp;gt;{{/items}}
+&amp;lt;/ul&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (with-output-to-string (out)
+             (render &amp;#039;((:title . &amp;quot;Foo Bar&amp;quot;)
+                       (:items .
+                        (((:value . &amp;quot;One&amp;quot;))
+                         ((:value . &amp;quot;Two&amp;quot;))
+                         ((:value . &amp;quot;Three&amp;quot;)))))
+                     out))
+&amp;quot;
+&amp;lt;title&amp;gt;Foo Bar&amp;lt;/title&amp;gt;
+&amp;lt;ul&amp;gt;
+&amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;
+
+POFTHEDAY&amp;gt; (time
+            (loop with context = &amp;#039;((:title . &amp;quot;Foo Bar&amp;quot;)
+                                   (:items .
+                                    (((:value . &amp;quot;One&amp;quot;))
+                                     ((:value . &amp;quot;Two&amp;quot;))
+                                     ((:value . &amp;quot;Three&amp;quot;)))))
+                  repeat 1000000
+                  do (with-output-to-string (out)
+                       (render context out))))
+Evaluation took:
+  5.213 seconds of real time
+  5.252826 seconds of total run time (5.155530 user, 0.097296 system)
+  [ Run times consist of 0.445 seconds GC time, and 4.808 seconds non-GC time. ]
+  100.77% CPU
+  11,510,317,038 processor cycles
+  4,319,993,136 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, the results are slightly slower than &lt;code&gt;Spinneret&lt;/code&gt; is almost as slow as Python&apos;s &lt;code&gt;Jinja2&lt;/code&gt;:&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;p&gt;That is because cl-mustache&apos;s &lt;code&gt;compile-template&lt;/code&gt; function does not do the real compilation.&lt;/p&gt;
+&lt;p&gt;It only parses the template and returns a lambda which iterates and calls generic functions in runtime during rendering step.&lt;/p&gt;
+&lt;p&gt;To conclude, use &lt;code&gt;cl-mustache&lt;/code&gt; if you really want to limit the amount of logic on the frontend.&lt;/p&gt;
+&lt;p&gt;If you have some other template engines in mind, please, leave comments and I&apos;ll make a review.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 15 Sep 2020 22:36:01 +0300</pubDate>
+        </item>
+        <item>
             <title>spinneret</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html</link>
             <description>&lt;p&gt;Spinneret is a sexp based templating engine similar to cl-who, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html&quot;&gt;post number #0075&lt;/a&gt;. Today we&apos;ll reimplement the snippets from the &lt;code&gt;cl-who&lt;/code&gt; post and I&apos;ll show you a few features I&apos;m especially like in Spinneret.&lt;/p&gt;
@@ -157,9 +209,10 @@ Evaluation took:
 &lt;p&gt;This library seems interesting to me. But lack of documentation does not allow to understand its limits. Probably it is very extensible. Hope, &lt;a href=&quot;https://twitter.com/blackenedgold&quot;&gt;@blackenedgold&lt;/a&gt; will write more documentation or a tutorial someday.&lt;/p&gt;
 &lt;h2&gt;Performance results&lt;/h2&gt;&lt;p&gt;This code will render us a chart:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2&amp;quot; 6.18 &amp;quot;red&amp;quot;)
-                          (&amp;quot;zenekindarl&amp;quot; 1.538 &amp;quot;green&amp;quot;)
-                          (&amp;quot;cl-who&amp;quot; 1.644 &amp;quot;blue&amp;quot;)
-                          (&amp;quot;spinneret&amp;quot; 4.939 &amp;quot;orange&amp;quot;)))
+                          (&amp;quot;zenekindarl&amp;quot; 1.54 &amp;quot;green&amp;quot;)
+                          (&amp;quot;cl-who&amp;quot; 1.64 &amp;quot;blue&amp;quot;)
+                          (&amp;quot;spinneret&amp;quot; 4.94 &amp;quot;orange&amp;quot;)
+                          (&amp;quot;cl-mustache&amp;quot; 5.21 &amp;quot;cyan&amp;quot;)))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -175,7 +228,8 @@ Evaluation took:
                                       (cl-who:esc name))
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.32039px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.538 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.61166px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.644 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.5146px; background-color: orange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.939 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for Spinneret were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
@@ -1520,65 +1574,6 @@ POFTHEDAY&amp;gt; (make-user :is-admin t)
 &lt;p&gt;The more sophisticated use of the &lt;code&gt;dynamic-classes&lt;/code&gt; can be found in the &lt;a href=&quot;https://github.com/gwkkwg/cl-containers/blob/810927e19d933bcf38ffeb7a23ce521efc432d45/dev/dynamic-class-defs.lisp&quot;&gt;cl-containers&lt;/a&gt; library. It uses dynamic-classes to mix container and iterator classes to give them different traits depending on constructor&apos;s parameters.&lt;/p&gt;
 </description>
             <pubDate>Wed, 26 Aug 2020 10:53:32 +0300</pubDate>
-        </item>
-        <item>
-            <title>portable-threads</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0170-portable-threads.html</link>
-            <description>&lt;p&gt;This system is similar to &lt;a href=&quot;https://sionescu.github.io/bordeaux-threads/&quot;&gt;bordeaux-threads&lt;/a&gt; but has some unique features.&lt;/p&gt;
-&lt;p&gt;What I like is that &lt;code&gt;portable-threads&lt;/code&gt; forces you to give the thread a name. No more Anonumous threads!&lt;/p&gt;
-&lt;p&gt;Also, there is a shortcut macro to start any code in a thread without wrapping it into an explicit lambda:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (portable-threads:spawn-form 
-             (format t &amp;quot;Running in ~S thread&amp;quot;
-                     (portable-threads:thread-name
-                      (portable-threads:current-thread))))
-
-Running in &amp;quot;Form (FORMAT T ...)&amp;quot; thread
-#&amp;lt;SB-THREAD:THREAD &amp;quot;Form (FORMAT T ...)&amp;quot; FINISHED values: NIL {10051E61C3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or there is also a shortcut to run periodical tasks in the thread:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun periodic ()
-             (format t &amp;quot;[~A] Running in ~S thread~%&amp;quot;
-                     (local-time:now)
-                     (portable-threads:thread-name
-                      (portable-threads:current-thread))))
-
-POFTHEDAY&amp;gt; (portable-threads:spawn-periodic-function
-            #&amp;#039;periodic
-            5
-            :count 3
-            :verbose t)
-
-;; Spawning periodic-function thread for...
-#&amp;lt;SB-THREAD:THREAD &amp;quot;Periodic Function&amp;quot; RUNNING {100466CDB3}&amp;gt;
-[2020-08-23T14:00:35.207071+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
-[2020-08-23T14:00:40.214253+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
-[2020-08-23T14:00:45.215454+03:00] Running in &amp;quot;Periodic Function&amp;quot; thread
-;; Exiting periodic-function thread&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another cool feature not found in &lt;code&gt;bordeaux-threads&lt;/code&gt; is thread hibernation. Any thread can fall asleep and be awakened later:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun do-the-job ()
-             (format t &amp;quot;Started a thread ~A~%&amp;quot;
-                     (portable-threads:thread-name
-                      (portable-threads:current-thread)))
-             ;; Now we&amp;#039;ll fall asleep until somebody will
-             ;; call awake.
-             (portable-threads:hibernate-thread)
-             (format t &amp;quot;Thread ~A works again!~%&amp;quot;
-                     (portable-threads:thread-name
-                      (portable-threads:current-thread))))
-
-POFTHEDAY&amp;gt; (defparameter *thread*
-             (portable-threads:spawn-thread &amp;quot;Worker&amp;quot;
-                                            #&amp;#039;do-the-job))
-Started a thread Worker
-
-POFTHEDAY&amp;gt; (portable-threads:thread-whostate *thread*)
-&amp;quot;Alive&amp;quot;
-
-;; Now we wake thread up:
-
-POFTHEDAY&amp;gt; (portable-threads:awaken-thread *thread*)
-Thread Worker works again!
-0&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are other interesting helpers like protected calls to work with lists.&lt;/p&gt;
-&lt;p&gt;Read &lt;a href=&quot;http://gbbopen.org/hyperdoc/ref-portable-thread-entities.html&quot;&gt;the documentation&lt;/a&gt; to find more gems!&lt;/p&gt;
-</description>
-            <pubDate>Sun, 23 Aug 2020 14:05:34 +0300</pubDate>
         </item>
     </channel>
 </rss>

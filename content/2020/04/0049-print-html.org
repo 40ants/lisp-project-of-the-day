@@ -1,4 +1,4 @@
-* print-html :web:
+* print-html :web:templates:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

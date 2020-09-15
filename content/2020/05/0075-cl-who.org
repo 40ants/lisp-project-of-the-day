@@ -1,4 +1,4 @@
-* cl-who :web:
+* cl-who :web:templates:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

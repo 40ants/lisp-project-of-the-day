@@ -1,4 +1,4 @@
-* spinneret :web:
+* spinneret :web:templates:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

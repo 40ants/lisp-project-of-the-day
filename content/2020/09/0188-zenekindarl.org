@@ -1,4 +1,4 @@
-* zenekindarl :web:
+* zenekindarl :web:templates:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

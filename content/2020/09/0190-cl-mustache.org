@@ -1,4 +1,4 @@
-* cl-mustache :web:
+* cl-mustache :web:templates:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -12,12 +12,12 @@ I decided to continue reviewing the template engines. Our today's
 library implements Mustache syntax, which also implemented for many
 other languages.
 
-~Mustache~ syntax is very simple and does not allow to write complex
+~Mustache's~ syntax is very simple and does not allow to write complex
 application logic. You will find some examples in this documentation:
 
 http://mustache.github.io/mustache.5.html
 
-Let's try to rewrite our performance test from the ~zenekindarl~ post to
+Let's try to rewrite our performance test from the [[https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html][zenekindarl post]] to
 ~Mustache~!
 
 #+begin_src lisp
@@ -63,7 +63,7 @@ Evaluation took:
 
 #+end_src
 
-So, the results is slightly slower than ~Spinneret~ is almost as slow as
+So, the results are slightly slower than ~Spinneret~ is almost as slow as
 Python's ~Jinja2~:
 
 #+begin_src html :render-without-code
@@ -71,6 +71,15 @@ Python's ~Jinja2~:
 <div style='margin-top: 1em;'><span style='width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;'>Jinja2</span> – <span>6.18 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;'>zenekindarl</span> – <span>1.54 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;'>cl-who</span> – <span>1.64 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;'>spinneret</span> – <span>4.94 &#xB5;s</span></div><div style='margin-top: 1em;'><span style='width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;'>cl-mustache</span> – <span>5.21 &#xB5;s</span></div>
 
 #+end_src
+
+That is because cl-mustache's ~compile-template~ function does not do the real
+compilation.
+
+It only parses the template and returns a lambda which iterates and calls
+generic functions in runtime during rendering step.
+
+To conclude, use ~cl-mustache~ if you really want to limit the amount of
+logic on the frontend.
 
 If you have some other template engines in mind, please, leave comments
 and I'll make a review.
