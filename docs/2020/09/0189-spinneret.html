@@ -118,8 +118,22 @@ Evaluation took:
   [ Run times consist of 0.078 seconds GC time, and 4.873 seconds non-GC time. ]
   100.22% CPU
   10,905,720,340 processor cycles
-  991,997,936 bytes consed</code></pre><p>Sadly, but in this test <code>Spinneret</code> 3 times slower than <code>Zenekindarl</code> and <code>CL-WHO</code>. Probably that is because it conses more memory?</p>
+  991,997,936 bytes consed
+
+POFTHEDAY&gt; (time
+            (loop with *print-pretty* = nil
+                  repeat 1000000
+                  do (render &quot;Foo Bar&quot;
+                             &#039;(&quot;One&quot; &quot;Two&quot; &quot;Three&quot;))))
+Evaluation took:
+  1.079 seconds of real time
+  1.081015 seconds of total run time (1.072325 user, 0.008690 system)
+  [ Run times consist of 0.043 seconds GC time, and 1.039 seconds non-GC time. ]
+  100.19% CPU
+  2,381,893,880 processor cycles
+  368,001,648 bytes consed</code></pre><p>Sadly, but in this test <code>Spinneret</code> 3 times slower than <code>Zenekindarl</code> and <code>CL-WHO</code>. Probably that is because it conses more memory?</p>
 <p><a href="https://twitter.com/ruricolist">@ruricolist</a>, do you have an idea why does <code>Spinneret</code> 3 times slower than <code>CL-WHO</code>?</p>
+<h1>Update from 2020-09-16<span class='tags'></span></h1><p>Paul <a href="https://twitter.com/ruricolist/status/1306304089685458950">suggested</a> to turn off pretty printing for <code>Spinneret</code>. And with this setting it outperforms <code>CL-WHO</code>. Added both results to the chart.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

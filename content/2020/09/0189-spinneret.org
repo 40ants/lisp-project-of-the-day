@@ -115,6 +115,19 @@ Evaluation took:
   100.22% CPU
   10,905,720,340 processor cycles
   991,997,936 bytes consed
+
+POFTHEDAY> (time
+            (loop with *print-pretty* = nil
+                  repeat 1000000
+                  do (render "Foo Bar"
+                             '("One" "Two" "Three"))))
+Evaluation took:
+  1.079 seconds of real time
+  1.081015 seconds of total run time (1.072325 user, 0.008690 system)
+  [ Run times consist of 0.043 seconds GC time, and 1.039 seconds non-GC time. ]
+  100.19% CPU
+  2,381,893,880 processor cycles
+  368,001,648 bytes consed
   
 #+end_src
 
@@ -123,3 +136,8 @@ Sadly, but in this test ~Spinneret~ 3 times slower than ~Zenekindarl~ and
 
 [[https://twitter.com/ruricolist][@ruricolist]], do you have an idea why does ~Spinneret~ 3 times slower than
 ~CL-WHO~?
+
+* Update from 2020-09-16
+
+Paul [[https://twitter.com/ruricolist/status/1306304089685458950][suggested]] to turn off pretty printing for ~Spinneret~. And with this
+setting it outperforms ~CL-WHO~. Added both results to the chart.

@@ -267,8 +267,22 @@ Evaluation took:
   [ Run times consist of 0.078 seconds GC time, and 4.873 seconds non-GC time. ]
   100.22% CPU
   10,905,720,340 processor cycles
-  991,997,936 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, but in this test &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;Zenekindarl&lt;/code&gt; and &lt;code&gt;CL-WHO&lt;/code&gt;. Probably that is because it conses more memory?&lt;/p&gt;
+  991,997,936 bytes consed
+
+POFTHEDAY&amp;gt; (time
+            (loop with *print-pretty* = nil
+                  repeat 1000000
+                  do (render &amp;quot;Foo Bar&amp;quot;
+                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  1.079 seconds of real time
+  1.081015 seconds of total run time (1.072325 user, 0.008690 system)
+  [ Run times consist of 0.043 seconds GC time, and 1.039 seconds non-GC time. ]
+  100.19% CPU
+  2,381,893,880 processor cycles
+  368,001,648 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, but in this test &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;Zenekindarl&lt;/code&gt; and &lt;code&gt;CL-WHO&lt;/code&gt;. Probably that is because it conses more memory?&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, do you have an idea why does &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;CL-WHO&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;Paul &lt;a href=&quot;https://twitter.com/ruricolist/status/1306304089685458950&quot;&gt;suggested&lt;/a&gt; to turn off pretty printing for &lt;code&gt;Spinneret&lt;/code&gt;. And with this setting it outperforms &lt;code&gt;CL-WHO&lt;/code&gt;. Added both results to the chart.&lt;/p&gt;
 </description>
             <pubDate>Mon, 14 Sep 2020 21:24:57 +0300</pubDate>
         </item>
@@ -353,7 +367,8 @@ Evaluation took:
 POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6.18 &amp;quot;Tomato&amp;quot;)
                           (&amp;quot;zenekindarl&amp;quot; 1.54 &amp;quot;MediumSeaGreen&amp;quot;)
                           (&amp;quot;cl-who&amp;quot; 1.64 &amp;quot;RoyalBlue&amp;quot;)
-                          (&amp;quot;spinneret&amp;quot; 4.94 &amp;quot;SandyBrown&amp;quot;)
+                          (&amp;quot;spinneret (pretty)&amp;quot; 4.94 &amp;quot;SandyBrown&amp;quot;)
+                          (&amp;quot;spinneret&amp;quot; 1.08 &amp;quot;SandyBrown&amp;quot;)
                           (&amp;quot;cl-mustache&amp;quot; 5.21 &amp;quot;DeepPink&amp;quot;)
                           (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)
                           (&amp;quot;djula&amp;quot; 4.48 &amp;quot;Gold&amp;quot;)
@@ -375,9 +390,9 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
 &lt;p&gt;Shorter bar is better - it shows the library is faster:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the djula library.&lt;/p&gt;
+&lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the djula library. Also added the result of calling &lt;code&gt;Spinneret&lt;/code&gt; without pretty printing.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
