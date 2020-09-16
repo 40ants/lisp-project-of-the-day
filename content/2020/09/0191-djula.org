@@ -1,0 +1,204 @@
+* djula :web:templates:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This library is a port of Django templates. Its coolest feature are:
+
+- template inheritance;
+- autoreload;
+- internationalization.
+
+Also, there is [[http://mmontone.github.io/djula/doc/build/html/index.html][nice documentation]]. In presense of documentation, I won't
+provide many examples. Instead let's implement a small function for our
+HTML templating engines [[https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html][performance test]].
+
+I didn't find the way to load template from the string. That is why we
+need to setup the library and let it know where to search template files:
+
+#+begin_src lisp
+
+POFTHEDAY> djula:*current-store*
+#<DJULA:FILE-STORE {100248A8C3}>
+
+POFTHEDAY> (djula:find-template djula:*current-store*
+                                "test.html")
+; Debugger entered on #<SIMPLE-ERROR "Template ~A not found" {1003D5F073}>
+[1] POFTHEDAY> 
+; Evaluation aborted on #<SIMPLE-ERROR "Template ~A not found" {1003D5F073}>
+
+POFTHEDAY> (djula:add-template-directory "templates/")
+("templates/")
+
+#+end_src
+
+Now we need to write such template to the ~templates/test.html~:
+
+#+begin_src html
+
+<h1>{{ title }}</h1>
+<ul>
+{% for item in items %}
+  <li>{{ item }}</li>
+{% endfor %}
+</ul>
+
+#+end_src
+
+Now we can test it:
+
+#+begin_src lisp
+
+POFTHEDAY> (djula:find-template djula:*current-store*
+                                "test.html")
+#P"/Users/art/projects/lisp/lisp-project-of-the-day/templates/test.html"
+
+
+(defparameter +welcome.html+ (djula:compile-template* "welcome.html"))
+
+POFTHEDAY> (with-output-to-string (s)
+             (djula:render-template* (djula:compile-template* "test.html")
+                                     s
+                                     :title "Foo Bar"
+                                     :items '("One" "Two" "Three")))
+"<h1>Foo Bar</h1>
+<ul>
+
+  <li>One</li>
+
+  <li>Two</li>
+
+  <li>Three</li>
+
+</ul>
+"
+
+#+end_src
+
+And measure performance:
+
+#+begin_src lisp
+
+;; We need this to turn off autoreloading
+;; and get good performance:
+POFTHEDAY> (pushnew :djula-prod *features*)
+
+POFTHEDAY> (defparameter *template*
+             (djula:compile-template* "test.html"))
+
+POFTHEDAY> (defun render (title items)
+             (with-output-to-string (s)
+               (djula:render-template* *template*
+                                       s
+                                       :title title
+                                       :items items)))
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render "Foo Bar"
+                             '("One" "Two" "Three"))))
+Evaluation took:
+  4.479 seconds of real time
+  4.487983 seconds of total run time (4.453540 user, 0.034443 system)
+  [ Run times consist of 0.183 seconds GC time, and 4.305 seconds non-GC time. ]
+  100.20% CPU
+  9,891,631,814 processor cycles
+  1,392,011,008 bytes consed
+
+#+end_src
+
+With enabled autoreloading rendering is 2 times slower and takes 10.6
+microseconds.
+
+I could recommend ~Djula~ to everybody who works in a team where HTML
+designers are writing templates and don't want to dive into Lisp
+editing.
+
+With ~Djula~ they will be able to easily fix templates and see
+results without changing the backend's code.
+
+* More performance testing
+
+Also, today I've decided to create a base-line function which will
+create HTML using string concatenation as fast as possible. This way
+we'll be able to compare different HTML templating engines with the
+hand-written code:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun render-concat (title items)
+             "This function does not do proper HTML escaping."
+             (flet ((to-string (value)
+                      (format nil "~A" value)))
+               (apply #'concatenate
+                      'string
+                      (append (list
+                               "<title>"
+                               (to-string title)
+                               "</title>"
+                               "<ul>")
+                              (loop for item in items
+                                    collect "<li>"
+                                    collect (to-string item)
+                                    collect "</li>")
+                              (list
+                               "</ul>")))))
+
+POFTHEDAY> (render-concat "Foo Bar"
+                          '("One" "Two" "Three"))
+"<title>Foo Bar</title><ul><li>One</li><li>Two</li><li>Three</li></ul>"
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render-concat "Foo Bar"
+                                    '("One" "Two" "Three"))))
+Evaluation took:
+  0.930 seconds of real time
+  0.938568 seconds of total run time (0.919507 user, 0.019061 system)
+  [ Run times consist of 0.114 seconds GC time, and 0.825 seconds non-GC time. ]
+  100.97% CPU
+  2,053,743,332 processor cycles
+  864,022,384 bytes consed
+
+#+end_src
+
+Writing to stream a little bit slower, so we'll take as a base-line the
+result from ~render-concat~:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun render-stream (title items)
+             "This function does not do proper HTML escaping."
+             (flet ((to-string (value)
+                      (format nil "~A" value)))
+               (with-output-to-string (out)
+                 (write-string "<title>" out)
+                 (write-string (to-string title) out)
+                 (write-string "</title><ul>" out)
+                 
+                 (loop for item in items
+                       do (write-string "<li>" out)
+                          (write-string (to-string item) out)
+                          (write-string "</li>" out))
+                 (write-string "</ul>" out))))
+WARNING: redefining POFTHEDAY::RENDER-STREAM in DEFUN
+RENDER-STREAM
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (render-stream "Foo Bar"
+                                    '("One" "Two" "Three"))))
+Evaluation took:
+  1.208 seconds of real time
+  1.214637 seconds of total run time (1.196847 user, 0.017790 system)
+  [ Run times consist of 0.102 seconds GC time, and 1.113 seconds non-GC time. ]
+  100.58% CPU
+  2,667,477,282 processor cycles
+  863,981,472 bytes consed
+
+#+end_src
+
