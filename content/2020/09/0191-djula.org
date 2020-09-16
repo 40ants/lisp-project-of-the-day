@@ -14,12 +14,12 @@ This library is a port of Django templates. Its coolest feature are:
 - autoreload;
 - internationalization.
 
-Also, there is [[http://mmontone.github.io/djula/doc/build/html/index.html][nice documentation]]. In presense of documentation, I won't
-provide many examples. Instead let's implement a small function for our
+Also, there is [[http://mmontone.github.io/djula/doc/build/html/index.html][nice documentation]]. In presence of documentation, I won't
+provide many examples. Instead, let's implement a small function for our
 HTML templating engines [[https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html][performance test]].
 
-I didn't find the way to load template from the string. That is why we
-need to setup the library and let it know where to search template files:
+I didn't find the way to load a template from the string. That is why we
+need to set up the library and let it know where to search template files:
 
 #+begin_src lisp
 
@@ -50,7 +50,7 @@ Now we need to write such template to the ~templates/test.html~:
 
 #+end_src
 
-Now we can test it:
+And we can test it:
 
 #+begin_src lisp
 
@@ -80,7 +80,7 @@ POFTHEDAY> (with-output-to-string (s)
 
 #+end_src
 
-And measure performance:
+It is time to measure performance:
 
 #+begin_src lisp
 
@@ -112,8 +112,9 @@ Evaluation took:
 
 #+end_src
 
-With enabled autoreloading rendering is 2 times slower and takes 10.6
-microseconds.
+Pay attention to the line adding ~:djula-prod~ to the ~*features*~. It
+disables auto-reloading. Withf enabled auto-reloading rendering is 2 times
+slower and takes 10.6 microseconds.
 
 I could recommend ~Djula~ to everybody who works in a team where HTML
 designers are writing templates and don't want to dive into Lisp
@@ -202,3 +203,10 @@ Evaluation took:
 
 #+end_src
 
+By, the way, I tried to use ~str:replace-all~ for escaping ~<~ and ~>~ symbols
+in the handwritten version of the ~render-concat~ function. But its performance
+degraded dramatically and became 36 microseconds.
+
+~str:replace-all~ uses [[https://edicl.github.io/cl-ppcre/][cl-ppcre]] for text replacement.
+
+What should I use instead?

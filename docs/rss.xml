@@ -6,6 +6,146 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>djula</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html</link>
+            <description>&lt;p&gt;This library is a port of Django templates. Its coolest feature are:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;template inheritance;&lt;/li&gt;&lt;li&gt;autoreload;&lt;/li&gt;&lt;li&gt;internationalization.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Also, there is &lt;a href=&quot;http://mmontone.github.io/djula/doc/build/html/index.html&quot;&gt;nice documentation&lt;/a&gt;. In presence of documentation, I won&apos;t provide many examples. Instead, let&apos;s implement a small function for our HTML templating engines &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;performance test&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I didn&apos;t find the way to load a template from the string. That is why we need to set up the library and let it know where to search template files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; djula:*current-store*
+#&amp;lt;DJULA:FILE-STORE {100248A8C3}&amp;gt;
+
+POFTHEDAY&amp;gt; (djula:find-template djula:*current-store*
+                                &amp;quot;test.html&amp;quot;)
+; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Template ~A not found&amp;quot; {1003D5F073}&amp;gt;
+[1] POFTHEDAY&amp;gt; 
+; Evaluation aborted on #&amp;lt;SIMPLE-ERROR &amp;quot;Template ~A not found&amp;quot; {1003D5F073}&amp;gt;
+
+POFTHEDAY&amp;gt; (djula:add-template-directory &amp;quot;templates/&amp;quot;)
+(&amp;quot;templates/&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to write such template to the &lt;code&gt;templates/test.html&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;html&apos;&gt;&amp;lt;h1&amp;gt;{{ title }}&amp;lt;/h1&amp;gt;
+&amp;lt;ul&amp;gt;
+{% for item in items %}
+  &amp;lt;li&amp;gt;{{ item }}&amp;lt;/li&amp;gt;
+{% endfor %}
+&amp;lt;/ul&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And we can test it:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (djula:find-template djula:*current-store*
+                                &amp;quot;test.html&amp;quot;)
+#P&amp;quot;/Users/art/projects/lisp/lisp-project-of-the-day/templates/test.html&amp;quot;
+
+
+(defparameter +welcome.html+ (djula:compile-template* &amp;quot;welcome.html&amp;quot;))
+
+POFTHEDAY&amp;gt; (with-output-to-string (s)
+             (djula:render-template* (djula:compile-template* &amp;quot;test.html&amp;quot;)
+                                     s
+                                     :title &amp;quot;Foo Bar&amp;quot;
+                                     :items &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;)))
+&amp;quot;&amp;lt;h1&amp;gt;Foo Bar&amp;lt;/h1&amp;gt;
+&amp;lt;ul&amp;gt;
+
+  &amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;
+
+  &amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;
+
+  &amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;
+
+&amp;lt;/ul&amp;gt;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to measure performance:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; We need this to turn off autoreloading
+;; and get good performance:
+POFTHEDAY&amp;gt; (pushnew :djula-prod *features*)
+
+POFTHEDAY&amp;gt; (defparameter *template*
+             (djula:compile-template* &amp;quot;test.html&amp;quot;))
+
+POFTHEDAY&amp;gt; (defun render (title items)
+             (with-output-to-string (s)
+               (djula:render-template* *template*
+                                       s
+                                       :title title
+                                       :items items)))
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (render &amp;quot;Foo Bar&amp;quot;
+                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  4.479 seconds of real time
+  4.487983 seconds of total run time (4.453540 user, 0.034443 system)
+  [ Run times consist of 0.183 seconds GC time, and 4.305 seconds non-GC time. ]
+  100.20% CPU
+  9,891,631,814 processor cycles
+  1,392,011,008 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to the line adding &lt;code&gt;:djula-prod&lt;/code&gt; to the &lt;code&gt;*features*&lt;/code&gt;. It disables auto-reloading. Withf enabled auto-reloading rendering is 2 times slower and takes 10.6 microseconds.&lt;/p&gt;
+&lt;p&gt;I could recommend &lt;code&gt;Djula&lt;/code&gt; to everybody who works in a team where HTML designers are writing templates and don&apos;t want to dive into Lisp editing.&lt;/p&gt;
+&lt;p&gt;With &lt;code&gt;Djula&lt;/code&gt; they will be able to easily fix templates and see results without changing the backend&apos;s code.&lt;/p&gt;
+&lt;p&gt;Also, today I&apos;ve decided to create a base-line function which will create HTML using string concatenation as fast as possible. This way we&apos;ll be able to compare different HTML templating engines with the hand-written code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render-concat (title items)
+             &amp;quot;This function does not do proper HTML escaping.&amp;quot;
+             (flet ((to-string (value)
+                      (format nil &amp;quot;~A&amp;quot; value)))
+               (apply #&amp;#039;concatenate
+                      &amp;#039;string
+                      (append (list
+                               &amp;quot;&amp;lt;title&amp;gt;&amp;quot;
+                               (to-string title)
+                               &amp;quot;&amp;lt;/title&amp;gt;&amp;quot;
+                               &amp;quot;&amp;lt;ul&amp;gt;&amp;quot;)
+                              (loop for item in items
+                                    collect &amp;quot;&amp;lt;li&amp;gt;&amp;quot;
+                                    collect (to-string item)
+                                    collect &amp;quot;&amp;lt;/li&amp;gt;&amp;quot;)
+                              (list
+                               &amp;quot;&amp;lt;/ul&amp;gt;&amp;quot;)))))
+
+POFTHEDAY&amp;gt; (render-concat &amp;quot;Foo Bar&amp;quot;
+                          &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))
+&amp;quot;&amp;lt;title&amp;gt;Foo Bar&amp;lt;/title&amp;gt;&amp;lt;ul&amp;gt;&amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;&amp;lt;/ul&amp;gt;&amp;quot;
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (render-concat &amp;quot;Foo Bar&amp;quot;
+                                    &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  0.930 seconds of real time
+  0.938568 seconds of total run time (0.919507 user, 0.019061 system)
+  [ Run times consist of 0.114 seconds GC time, and 0.825 seconds non-GC time. ]
+  100.97% CPU
+  2,053,743,332 processor cycles
+  864,022,384 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Writing to stream a little bit slower, so we&apos;ll take as a base-line the result from &lt;code&gt;render-concat&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render-stream (title items)
+             &amp;quot;This function does not do proper HTML escaping.&amp;quot;
+             (flet ((to-string (value)
+                      (format nil &amp;quot;~A&amp;quot; value)))
+               (with-output-to-string (out)
+                 (write-string &amp;quot;&amp;lt;title&amp;gt;&amp;quot; out)
+                 (write-string (to-string title) out)
+                 (write-string &amp;quot;&amp;lt;/title&amp;gt;&amp;lt;ul&amp;gt;&amp;quot; out)
+                 
+                 (loop for item in items
+                       do (write-string &amp;quot;&amp;lt;li&amp;gt;&amp;quot; out)
+                          (write-string (to-string item) out)
+                          (write-string &amp;quot;&amp;lt;/li&amp;gt;&amp;quot; out))
+                 (write-string &amp;quot;&amp;lt;/ul&amp;gt;&amp;quot; out))))
+WARNING: redefining POFTHEDAY::RENDER-STREAM in DEFUN
+RENDER-STREAM
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (render-stream &amp;quot;Foo Bar&amp;quot;
+                                    &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  1.208 seconds of real time
+  1.214637 seconds of total run time (1.196847 user, 0.017790 system)
+  [ Run times consist of 0.102 seconds GC time, and 1.113 seconds non-GC time. ]
+  100.58% CPU
+  2,667,477,282 processor cycles
+  863,981,472 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By, the way, I tried to use &lt;code&gt;str:replace-all&lt;/code&gt; for escaping &lt;code&gt;&lt;&lt;/code&gt; and &lt;code&gt;&gt;&lt;/code&gt; symbols in the handwritten version of the &lt;code&gt;render-concat&lt;/code&gt; function. But its performance degraded dramatically and became 36 microseconds.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;str:replace-all&lt;/code&gt; uses &lt;a href=&quot;https://edicl.github.io/cl-ppcre/&quot;&gt;cl-ppcre&lt;/a&gt; for text replacement.&lt;/p&gt;
+&lt;p&gt;What should I use instead?&lt;/p&gt;
+</description>
+            <pubDate>Wed, 16 Sep 2020 22:50:21 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-mustache</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html</link>
             <description>&lt;p&gt;I decided to continue reviewing the template engines. Our today&apos;s library implements Mustache syntax, which also implemented for many other languages.&lt;/p&gt;
@@ -210,13 +350,15 @@ Evaluation took:
 &lt;h2&gt;Performance results&lt;/h2&gt;&lt;p&gt;This code will render us a chart:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Colors are taken from
 ;; https://www.html-color-names.com/
-POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2&amp;quot; 6.18 &amp;quot;Tomato&amp;quot;)
+POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6.18 &amp;quot;Tomato&amp;quot;)
                           (&amp;quot;zenekindarl&amp;quot; 1.54 &amp;quot;MediumSeaGreen&amp;quot;)
                           (&amp;quot;cl-who&amp;quot; 1.64 &amp;quot;RoyalBlue&amp;quot;)
                           (&amp;quot;spinneret&amp;quot; 4.94 &amp;quot;SandyBrown&amp;quot;)
                           (&amp;quot;cl-mustache&amp;quot; 5.21 &amp;quot;DeepPink&amp;quot;)
-                          (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)))
-                  (data (sort data #&amp;#039;&amp;gt; :key #&amp;#039;second)
+                          (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)
+                          (&amp;quot;djula&amp;quot; 4.48 &amp;quot;Gold&amp;quot;)
+                          (&amp;quot;handwritten&amp;quot; 0.93 &amp;quot;DarkOrange&amp;quot;)))
+                  (data (sort data #&amp;#039;&amp;gt; :key #&amp;#039;second))
                   (baseline (second (first data)))
                   (base-width 600))
              (cl-who:with-html-output-to-string (s)
@@ -232,8 +374,10 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2&amp;quot; 6.18 &amp;
                                       (cl-who:esc name))
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Shorter bar is better - it shows the library is faster:&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the djula library.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
@@ -1461,123 +1605,6 @@ Multiplying 8 to 8
 &lt;p&gt;Anyway, &lt;code&gt;lazy&lt;/code&gt; is a small and very nice library. Thank you,  &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Wed, 26 Aug 2020 23:47:24 +0300</pubDate>
-        </item>
-        <item>
-            <title>dynamic-classes</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html</link>
-            <description>&lt;p&gt;This library allows to dynamically create CLOS classes as a mixin composition. Mixins are choosen depending on parameters given to the constructor.&lt;/p&gt;
-&lt;p&gt;For example, if we have in our system users, which can be authenticated and additionally can be admins, then we can to define their classes like:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
-             ())
-
-POFTHEDAY&amp;gt; (defclass authenticated ()
-             ((email :initarg :email)))
-
-POFTHEDAY&amp;gt; (defclass admin ()
-             ())&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to tell the system how to apply our mixins when different parameters are passed. If there is &lt;code&gt;:email&lt;/code&gt;, then the user will be considered authenticated. If there is &lt;code&gt;:is-admin t&lt;/code&gt; - he is the admin.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dynamic-classes:add-parameter-&amp;gt;dynamic-class
-            :user :email &amp;#039;authenticated)
-NIL
-POFTHEDAY&amp;gt; (dynamic-classes:add-parameter-&amp;gt;dynamic-class
-            :user :is-admin &amp;#039;admin)
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We also have to declare these methods to make the framework do its job. Probably this can be avoided if only the default implementation was specialized not on &lt;code&gt;class-type (eql nil)&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmethod dynamic-classes:include-class-dependencies
-               ((class-type (eql :user))
-                dynamic-class class-list &amp;amp;rest parameters)
-             &amp;quot;This method can modify list of classes used to combine into a new class
-              for given parameters. Or some restrictions can be applied.&amp;quot;
-             (declare (ignorable dynamic-class parameters))
-             class-list)
-
-POFTHEDAY&amp;gt; (defmethod dynamic-classes:existing-subclass
-               ((class-type (eql :user)) class-list)
-             &amp;quot;This method allows to return a custom class. If it returns nil,
-              the first class from the class-list will be choosen.&amp;quot;
-             (declare (ignorable class-list))
-             (values nil))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s check how it works. There is a function to create and return the class depending on the parameters:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user)
-USER
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user :email &amp;quot;some@gmail.com&amp;quot;)
-USER-AND-AUTHENTICATED
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user :email nil)
-USER-AND-AUTHENTICATED
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :email &amp;quot;some@gmail.com&amp;quot;
-                                                    :is-admin t)
-USER-AND-AUTHENTICATED-AND-ADMIN
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :is-admin t)
-USER-AND-ADMIN&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Do you see there a strange behavior? We can pass the &lt;code&gt;nil&lt;/code&gt; as an email and user will be considered &lt;code&gt;authenticated&lt;/code&gt; or we can use &lt;code&gt;:is-admin&lt;/code&gt; without email and will get unauthenticated admin class!&lt;/p&gt;
-&lt;p&gt;Fortunately, there is a hook to apply additional restrictions:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defmethod dynamic-classes:include-class-dependencies
-               ((class-type (eql :user))
-                dynamic-class class-list &amp;amp;rest parameters)
-             (declare (ignorable dynamic-class parameters))
-
-             ;; If email is not given we don&amp;#039;t want consider
-             ;; the user authenticated:
-             (when (and (member :email parameters)
-                        (null (getf parameters :email)))
-               (rutils:removef class-list &amp;#039;authenticated))
-
-             ;; And if :is-admin nil then he is not an admin:
-             (when (and (member :is-admin parameters)
-                        (null (getf parameters :is-admin)))
-               (rutils:removef class-list &amp;#039;admin))
-
-             ;; Also, we need admins always be authenticated:
-             (when (and (member &amp;#039;admin class-list)
-                        (not (member &amp;#039;authenticated class-list)))
-               (error &amp;quot;Admin should have an email!&amp;quot;))
-
-             class-list)
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :email &amp;quot;some@gmail.com&amp;quot;
-                                                    :is-admin t)
-USER-AND-AUTHENTICATED-AND-ADMIN
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :email &amp;quot;some@gmail.com&amp;quot;
-                                                    :is-admin nil)
-USER-AND-AUTHENTICATED
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :email nil
-                                                    :is-admin nil)
-USER
-
-POFTHEDAY&amp;gt; (dynamic-classes:determine-dynamic-class :user &amp;#039;user
-                                                    :email nil
-                                                    :is-admin t)
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Admin should have an email!&amp;quot; {100B6CAD73}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to wrap this into a single constructor &lt;code&gt;make-user&lt;/code&gt; which will return objects of different class depending on arguments:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-user (&amp;amp;rest args &amp;amp;key email is-admin)
-             (declare (ignore email is-admin))
-             (let ((class (apply #&amp;#039;dynamic-classes:determine-dynamic-class
-                                 :user &amp;#039;user
-                                 args)))
-               (apply #&amp;#039;make-instance class
-                      ;; We don&amp;#039;t store is-admin as the slot:
-                      (rutils:remove-from-plist args :is-admin))))
-
-POFTHEDAY&amp;gt; (make-user)
-#&amp;lt;USER {1006704893}&amp;gt;
-
-POFTHEDAY&amp;gt; (make-user :email &amp;quot;blah@min.or&amp;quot;)
-#&amp;lt;USER-AND-AUTHENTICATED {1006779083}&amp;gt;
-
-POFTHEDAY&amp;gt; (make-user :email &amp;quot;blah@min.or&amp;quot; :is-admin t)
-#&amp;lt;USER-AND-AUTHENTICATED-AND-ADMIN {10067C26C3}&amp;gt;
-
-POFTHEDAY&amp;gt; (make-user :is-admin t)
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Admin should have an email!&amp;quot; {10067D0193}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make these classes print in a human-readable way, use &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html&quot;&gt;print-items&lt;/a&gt; library, reviewed in the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html&quot;&gt;post #0145&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;The more sophisticated use of the &lt;code&gt;dynamic-classes&lt;/code&gt; can be found in the &lt;a href=&quot;https://github.com/gwkkwg/cl-containers/blob/810927e19d933bcf38ffeb7a23ce521efc432d45/dev/dynamic-class-defs.lisp&quot;&gt;cl-containers&lt;/a&gt; library. It uses dynamic-classes to mix container and iterator classes to give them different traits depending on constructor&apos;s parameters.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 26 Aug 2020 10:53:32 +0300</pubDate>
         </item>
     </channel>
 </rss>

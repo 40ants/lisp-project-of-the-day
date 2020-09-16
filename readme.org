@@ -20,6 +20,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 13 September - [[content/2020/09/0188-zenekindarl.org][zenekindarl]] ([[https://twitter.com/svetlyak40wt/status/1305236308508520448][twitter]])
 - 14 September - [[content/2020/09/0189-spinneret.org][spinneret]] ([[https://twitter.com/svetlyak40wt/status/1305573840379154433][twitter]])
 - 15 September - [[content/2020/09/0190-cl-mustache.org][cl-mustache]] ([[https://twitter.com/svetlyak40wt/status/1305953487528669184][twitter]])
+- 16 September - [[content/2020/09/0191-djula.org][djula]] ([[https://twitter.com/svetlyak40wt/status/1306319406910365699][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
@@ -1226,6 +1227,7 @@ files, and extracting their ":defsystem-depends-on".
 - http://massung.github.io/quickdoc/example.html - interesting markup language
 - https://github.com/naryl/cl-cooperative
 - http://quickdocs.org/screamer/
+- https://github.com/mmontone/ten - fork of the http://quickdocs.org/eco/
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
