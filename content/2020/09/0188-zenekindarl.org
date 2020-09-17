@@ -186,5 +186,9 @@ Performance results for ~cl-mustache~ and ~print-html~ were added to the chart. 
 
 ** Update from 2020-09-16
 
-Added performance results for handwritten HTML generator and the djula
+Added performance results for handwritten HTML generator and the [[https://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html][djula]]
 library. Also added the result of calling ~Spinneret~ without pretty printing.
+
+** Update from 2020-09-17
+
+Added performance results for [[https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html][cl-emb]].
