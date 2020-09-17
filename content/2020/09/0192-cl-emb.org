@@ -1,0 +1,126 @@
+* cl-emb :web:templates:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is an interesting templating library. The most interesting features
+are:
+
+- named template pieces can call each other;
+- debug mode allows to inspect generated code;
+- different escape methods.
+
+Here is how template functions can be reused:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-emb:register-emb "user-list"
+            "
+<ul>
+  <% @loop users %>
+    <li><% @call user %></li>
+  <% @endloop %>
+</ul>
+")
+
+POFTHEDAY> (cl-emb:register-emb "user"
+            "<a href=\"/users/<% @var nickname %>\"><% @var name %></a>")
+
+POFTHEDAY> (cl-emb:execute-emb "user-list"
+             :env '(:users
+                    ((:nickname "bob"
+                      :name "Bob Hopkins")
+                     (:nickname "alice"
+                      :name "Alice Cooker"))))
+"
+<ul>
+  
+    <li><a href=\"/users/bob\">Bob Hopkins</a></li>
+  
+    <li><a href=\"/users/alice\">Alice Cooker</a></li>
+  
+</ul>
+"
+
+#+end_src
+
+Let's see which code was generated for "user-list". To make this work,
+we'll need to set ~*debug*~ variable and recompile the template:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-emb:pprint-emb-function "user-list")
+
+(LAMBDA
+    (
+     &KEY CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER
+     CL-EMB-INTERN::NAME)
+  (DECLARE (IGNORABLE CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER))
+  (LET ((CL-EMB-INTERN::TOPENV CL-EMB-INTERN::ENV)
+        (CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT
+         (IF (TYPEP CL-EMB-INTERN::NAME 'PATHNAME)
+             CL-EMB-INTERN::NAME
+             *DEFAULT-PATHNAME-DEFAULTS*)))
+    (DECLARE
+     (IGNORABLE CL-EMB-INTERN::TOPENV CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT))
+    (WITH-OUTPUT-TO-STRING (*STANDARD-OUTPUT*)
+      (PROGN
+       (WRITE-STRING "
+<ul>
+  ")
+       (DOLIST
+           (CL-EMB-INTERN::ENV
+            (CL-EMB::AUTOFUNCALL (CL-EMB::GETF-EMB "users")))
+         (WRITE-STRING "
+    <li>")
+         (FORMAT T "~A"
+                 (LET ((CL-EMB:*ESCAPE-TYPE* CL-EMB:*ESCAPE-TYPE*))
+                   (CL-EMB:EXECUTE-EMB "user" :ENV CL-EMB-INTERN::ENV
+                                       :GENERATOR-MAKER
+                                       CL-EMB-INTERN::GENERATOR-MAKER)))
+         (WRITE-STRING "</li>
+  "))
+       (WRITE-STRING "
+</ul>
+")))))
+
+#+end_src
+
+As you can see, ~cl-emb~ generates a straight forward Lisp code.
+
+Now lets check how fast ~cl-emb~ is and compare it to HTML template
+engines reviewed in previous days:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-emb:register-emb "render"
+             "
+<title><% @var title %></title>
+<ul>
+<% @loop items %><li><% @var value %></li><% @endloop %>
+</ul>
+")
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (cl-emb:execute-emb "render"
+                       :env '(:title "Foo Bar"
+                              :items ((:value "One")
+                                      (:value "Two")
+                                      (:value "Three"))))))
+Evaluation took:
+  1.436 seconds of real time
+  1.441475 seconds of total run time (1.421158 user, 0.020317 system)
+  [ Run times consist of 0.104 seconds GC time, and 1.338 seconds non-GC time. ]
+  100.35% CPU
+  3,172,183,256 processor cycles
+  767,974,304 bytes consed
+
+#+end_src
+
+That is pretty fast. Slightly slower than ~Spinneret~ but faster than ~Zenekindarl~.
