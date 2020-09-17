@@ -93,7 +93,7 @@ POFTHEDAY> (cl-emb:pprint-emb-function "user-list")
 
 As you can see, ~cl-emb~ generates a straight forward Lisp code.
 
-Now lets check how fast ~cl-emb~ is and compare it to HTML template
+Now let's check how fast ~cl-emb~ is and compare it to HTML template
 engines reviewed in previous days:
 
 #+begin_src lisp
@@ -124,3 +124,5 @@ Evaluation took:
 #+end_src
 
 That is pretty fast. Slightly slower than ~Spinneret~ but faster than ~Zenekindarl~.
+
+To learn more about cl-emb's features, read [[http://quickdocs.org/cl-emb/][it's docs]]!

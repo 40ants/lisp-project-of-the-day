@@ -6,6 +6,100 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-emb</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html</link>
+            <description>&lt;p&gt;This is an interesting templating library. The most interesting features are:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;named template pieces can call each other;&lt;/li&gt;&lt;li&gt;debug mode allows to inspect generated code;&lt;/li&gt;&lt;li&gt;different escape methods.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Here is how template functions can be reused:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user-list&amp;quot;
+            &amp;quot;
+&amp;lt;ul&amp;gt;
+  &amp;lt;% @loop users %&amp;gt;
+    &amp;lt;li&amp;gt;&amp;lt;% @call user %&amp;gt;&amp;lt;/li&amp;gt;
+  &amp;lt;% @endloop %&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user&amp;quot;
+            &amp;quot;&amp;lt;a href=\&amp;quot;/users/&amp;lt;% @var nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;% @var name %&amp;gt;&amp;lt;/a&amp;gt;&amp;quot;)
+
+POFTHEDAY&amp;gt; (cl-emb:execute-emb &amp;quot;user-list&amp;quot;
+             :env &amp;#039;(:users
+                    ((:nickname &amp;quot;bob&amp;quot;
+                      :name &amp;quot;Bob Hopkins&amp;quot;)
+                     (:nickname &amp;quot;alice&amp;quot;
+                      :name &amp;quot;Alice Cooker&amp;quot;))))
+&amp;quot;
+&amp;lt;ul&amp;gt;
+  
+    &amp;lt;li&amp;gt;&amp;lt;a href=\&amp;quot;/users/bob\&amp;quot;&amp;gt;Bob Hopkins&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;
+  
+    &amp;lt;li&amp;gt;&amp;lt;a href=\&amp;quot;/users/alice\&amp;quot;&amp;gt;Alice Cooker&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;
+  
+&amp;lt;/ul&amp;gt;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s see which code was generated for &quot;user-list&quot;. To make this work, we&apos;ll need to set &lt;code&gt;*debug*&lt;/code&gt; variable and recompile the template:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:pprint-emb-function &amp;quot;user-list&amp;quot;)
+
+(LAMBDA
+    (
+     &amp;amp;KEY CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER
+     CL-EMB-INTERN::NAME)
+  (DECLARE (IGNORABLE CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER))
+  (LET ((CL-EMB-INTERN::TOPENV CL-EMB-INTERN::ENV)
+        (CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT
+         (IF (TYPEP CL-EMB-INTERN::NAME &amp;#039;PATHNAME)
+             CL-EMB-INTERN::NAME
+             *DEFAULT-PATHNAME-DEFAULTS*)))
+    (DECLARE
+     (IGNORABLE CL-EMB-INTERN::TOPENV CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT))
+    (WITH-OUTPUT-TO-STRING (*STANDARD-OUTPUT*)
+      (PROGN
+       (WRITE-STRING &amp;quot;
+&amp;lt;ul&amp;gt;
+  &amp;quot;)
+       (DOLIST
+           (CL-EMB-INTERN::ENV
+            (CL-EMB::AUTOFUNCALL (CL-EMB::GETF-EMB &amp;quot;users&amp;quot;)))
+         (WRITE-STRING &amp;quot;
+    &amp;lt;li&amp;gt;&amp;quot;)
+         (FORMAT T &amp;quot;~A&amp;quot;
+                 (LET ((CL-EMB:*ESCAPE-TYPE* CL-EMB:*ESCAPE-TYPE*))
+                   (CL-EMB:EXECUTE-EMB &amp;quot;user&amp;quot; :ENV CL-EMB-INTERN::ENV
+                                       :GENERATOR-MAKER
+                                       CL-EMB-INTERN::GENERATOR-MAKER)))
+         (WRITE-STRING &amp;quot;&amp;lt;/li&amp;gt;
+  &amp;quot;))
+       (WRITE-STRING &amp;quot;
+&amp;lt;/ul&amp;gt;
+&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, &lt;code&gt;cl-emb&lt;/code&gt; generates a straight forward Lisp code.&lt;/p&gt;
+&lt;p&gt;Now let&apos;s check how fast &lt;code&gt;cl-emb&lt;/code&gt; is and compare it to HTML template engines reviewed in previous days:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;render&amp;quot;
+             &amp;quot;
+&amp;lt;title&amp;gt;&amp;lt;% @var title %&amp;gt;&amp;lt;/title&amp;gt;
+&amp;lt;ul&amp;gt;
+&amp;lt;% @loop items %&amp;gt;&amp;lt;li&amp;gt;&amp;lt;% @var value %&amp;gt;&amp;lt;/li&amp;gt;&amp;lt;% @endloop %&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (cl-emb:execute-emb &amp;quot;render&amp;quot;
+                       :env &amp;#039;(:title &amp;quot;Foo Bar&amp;quot;
+                              :items ((:value &amp;quot;One&amp;quot;)
+                                      (:value &amp;quot;Two&amp;quot;)
+                                      (:value &amp;quot;Three&amp;quot;))))))
+Evaluation took:
+  1.436 seconds of real time
+  1.441475 seconds of total run time (1.421158 user, 0.020317 system)
+  [ Run times consist of 0.104 seconds GC time, and 1.338 seconds non-GC time. ]
+  100.35% CPU
+  3,172,183,256 processor cycles
+  767,974,304 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is pretty fast. Slightly slower than &lt;code&gt;Spinneret&lt;/code&gt; but faster than &lt;code&gt;Zenekindarl&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To learn more about cl-emb&apos;s features, read &lt;a href=&quot;http://quickdocs.org/cl-emb/&quot;&gt;it&apos;s docs&lt;/a&gt;!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 17 Sep 2020 22:47:58 +0300</pubDate>
+        </item>
+        <item>
             <title>djula</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html</link>
             <description>&lt;p&gt;This library is a port of Django templates. Its coolest feature are:&lt;/p&gt;
@@ -372,6 +466,7 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
                           (&amp;quot;cl-mustache&amp;quot; 5.21 &amp;quot;DeepPink&amp;quot;)
                           (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)
                           (&amp;quot;djula&amp;quot; 4.48 &amp;quot;Gold&amp;quot;)
+                          (&amp;quot;cl-emb&amp;quot; 1.44 &amp;quot;MediumSlateBlue&amp;quot;)
                           (&amp;quot;handwritten&amp;quot; 0.93 &amp;quot;DarkOrange&amp;quot;)))
                   (data (sort data #&amp;#039;&amp;gt; :key #&amp;#039;second))
                   (baseline (second (first data)))
@@ -390,7 +485,7 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
 &lt;p&gt;Shorter bar is better - it shows the library is faster:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 139.80583px; background-color: MediumSlateBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-emb&lt;/span&gt; – &lt;span&gt;1.44 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the djula library. Also added the result of calling &lt;code&gt;Spinneret&lt;/code&gt; without pretty printing.&lt;/p&gt;
 </description>
@@ -1540,86 +1635,6 @@ POFTHEDAY&amp;gt; (funcall **)
 &amp;quot;Now I&amp;#039;m working!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other constructions like &lt;code&gt;then&lt;/code&gt;, &lt;code&gt;repeat&lt;/code&gt;, &lt;code&gt;each&lt;/code&gt;, &lt;code&gt;until&lt;/code&gt; and &lt;code&gt;once&lt;/code&gt;. But I wasn&apos;t able to figure out the right way to use them. It would be wonderful if  &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; update the documentation!&lt;/p&gt;
 </description>
             <pubDate>Fri, 28 Aug 2020 23:05:12 +0300</pubDate>
-        </item>
-        <item>
-            <title>lazy</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0172-lazy.html</link>
-            <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;. It provides only a macro to wrap and remember any form and a function to force its evaluation.&lt;/p&gt;
-&lt;p&gt;For example, let&apos;s create a few functions which accept and return lazy objects:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun request-name ()
-             (lazy:lazy
-               (format t &amp;quot;What is your name?~%&amp;quot;)
-               (read-line)))
-
-
-POFTHEDAY&amp;gt; (defun greet (name)
-             (lazy:lazy
-               (format nil &amp;quot;Hello ~A!~%&amp;quot;
-                       (lazy:lazy-value name))))
-
-POFTHEDAY&amp;gt; (greet (request-name))
-#&amp;lt;LAZY::THUNK UNREALIZED&amp;gt;
-
-POFTHEDAY&amp;gt; (lazy:lazy-value *)
-What is your name?
-Bob
-&amp;quot;Hello Bob!
-&amp;quot;
-
-;; Second attempt to get the greeting value
-;; is not request for the user&amp;#039;s name:
-POFTHEDAY&amp;gt; (lazy:lazy-value **)
-&amp;quot;Hello Bob!
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Or we can build a simple lazy sequences library.&lt;/p&gt;
-&lt;p&gt;This function will create a sequence of numbers:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun make-lazy-sequence (&amp;amp;optional (start 0) (step 1))
-             (lazy:lazy
-               (values start
-                       (make-lazy-sequence (+ start step)
-                                           step))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This one will skip a number of items:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-skip (n lazy-sequence)
-             (lazy:lazy
-               (loop do
-                 (multiple-value-bind (item rest)
-                     (lazy:lazy-value lazy-sequence)
-                   (when (zerop n)
-                     (return (values item rest)))
-                   (decf n)
-                   (setf lazy-sequence rest)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this one will force lazy evaluation and transform the sequence into the list:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-to-list (n lazy-sequence)
-             (loop with result = nil
-                   do (multiple-value-bind (item rest)
-                          (lazy:lazy-value lazy-sequence)
-                        (when (zerop n)
-                          (return (nreverse result)))
-                        (push item result)
-                        (setf lazy-sequence rest)
-                        (decf n))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And of cause we need a generic map function to apply transformations:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun lazy-mapcar (func sequence)
-             (lazy:lazy
-               (multiple-value-bind (item rest)
-                   (lazy:lazy-value sequence)
-                 (values (funcall func item)
-                         (lazy-mapcar func rest)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how we can apply these functions to process a lazy sequence:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-lazy-sequence)
-
-POFTHEDAY&amp;gt; (lazy-skip 5 *)
-
-POFTHEDAY&amp;gt; (lazy-mapcar (lambda (x)
-                          (format t &amp;quot;Multiplying ~A to ~A~%&amp;quot;
-                                  x x)
-                          (* x x))
-                        *)
-
-POFTHEDAY&amp;gt; (lazy-to-list 3 *)
-Multiplying 5 to 5
-Multiplying 6 to 6
-Multiplying 7 to 7
-Multiplying 8 to 8
-(25 36 49)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But this will work only with my &lt;a href=&quot;https://github.com/massung/lazy/pull/1&quot;&gt;pull request&lt;/a&gt; which makes the &lt;code&gt;lazy-value&lt;/code&gt; return all values, returned by original form.&lt;/p&gt;
-&lt;p&gt;Anyway, &lt;code&gt;lazy&lt;/code&gt; is a small and very nice library. Thank you,  &lt;a href=&quot;https://twitter.com/codeninja_blog&quot;&gt;@codeninja_blog&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 26 Aug 2020 23:47:24 +0300</pubDate>
         </item>
     </channel>
 </rss>

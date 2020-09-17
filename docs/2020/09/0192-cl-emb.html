@@ -115,7 +115,7 @@ POFTHEDAY&gt; (cl-emb:execute-emb &quot;user-list&quot;
        (WRITE-STRING &quot;
 &lt;/ul&gt;
 &quot;)))))</code></pre><p>As you can see, <code>cl-emb</code> generates a straight forward Lisp code.</p>
-<p>Now lets check how fast <code>cl-emb</code> is and compare it to HTML template engines reviewed in previous days:</p>
+<p>Now let's check how fast <code>cl-emb</code> is and compare it to HTML template engines reviewed in previous days:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (cl-emb:register-emb &quot;render&quot;
              &quot;
 &lt;title&gt;&lt;% @var title %&gt;&lt;/title&gt;
@@ -138,6 +138,7 @@ Evaluation took:
   100.35% CPU
   3,172,183,256 processor cycles
   767,974,304 bytes consed</code></pre><p>That is pretty fast. Slightly slower than <code>Spinneret</code> but faster than <code>Zenekindarl</code>.</p>
+<p>To learn more about cl-emb's features, read <a href="http://quickdocs.org/cl-emb/">it's docs</a>!</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
