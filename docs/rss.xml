@@ -6,12 +6,89 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>eco</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html</link>
+            <description>&lt;p&gt;This template engine is interesting because it allows mixing lisp code blocks and HTML in a way simple enough to be used by non-lisp developers and designers.&lt;/p&gt;
+&lt;p&gt;It&apos;s interesting feature is that each template definition includes the arguments list.&lt;/p&gt;
+&lt;p&gt;Here is how we can define templates for user list from the previous post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html&quot;&gt;cl-emb&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (eco:compile-string
+            &amp;quot;
+&amp;lt;% deftemplate user (nickname name) () %&amp;gt;
+&amp;lt;a href=\&amp;quot;/users/&amp;lt;%= nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;%= name %&amp;gt;&amp;lt;/a&amp;gt;
+&amp;lt;% end %&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (eco:compile-string &amp;quot;
+&amp;lt;% deftemplate user-list (users) () %&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;% loop for (nickname name) in users do %&amp;gt;
+    &amp;lt;li&amp;gt;&amp;lt;%- user nickname name %&amp;gt;&amp;lt;% end %&amp;gt;&amp;lt;/li&amp;gt;
+  &amp;lt;% end %&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;lt;% end %&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (eco-template:user-list
+            &amp;#039;((&amp;quot;bob&amp;quot; &amp;quot;Bob Hopkins&amp;quot;)
+              (&amp;quot;alice&amp;quot; &amp;quot;Alice Cooker&amp;quot;)))
+&amp;quot;
+&amp;lt;ul&amp;gt;
+  
+    &amp;lt;li&amp;gt;
+&amp;lt;a href=\&amp;quot;/users/bob\&amp;quot;&amp;gt;Bob Hopkins&amp;lt;/a&amp;gt;
+&amp;lt;/li&amp;gt;
+  
+    &amp;lt;li&amp;gt;
+&amp;lt;a href=\&amp;quot;/users/alice\&amp;quot;&amp;gt;Alice Cooker&amp;lt;/a&amp;gt;
+&amp;lt;/li&amp;gt;
+  
+&amp;lt;/ul&amp;gt;
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, there is a way to load templates from the files with &lt;code&gt;.eco&lt;/code&gt; extensions. There is an ASDF extension which allows defining these templates as components of your ASDF system.&lt;/p&gt;
+&lt;p&gt;Documentation does not cover this, but the template components should be defined like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defsystem mysite
+  :defsystem-depends-on (eco)
+  :components ((:module &amp;quot;src&amp;quot;
+                :depends-on &amp;quot;templates&amp;quot;
+                :components ((:file &amp;quot;backend-code&amp;quot;)
+                             (:file &amp;quot;utils&amp;quot;)))
+               (:module &amp;quot;templates&amp;quot;
+                :components ((:eco-template &amp;quot;index-page&amp;quot;)
+                             (:eco-template &amp;quot;users&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, let&apos;s measure Eco&apos;s performance!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (eco:compile-string &amp;quot;
+&amp;lt;% deftemplate perform (title items) () %&amp;gt;
+&amp;lt;title&amp;gt;&amp;lt;%= title %&amp;gt;&amp;lt;/title&amp;gt;
+&amp;lt;ul&amp;gt;
+  &amp;lt;% loop for item in items do %&amp;gt;
+    &amp;lt;li&amp;gt;&amp;lt;%= item %&amp;gt;&amp;lt;/li&amp;gt;
+  &amp;lt;% end %&amp;gt;
+&amp;lt;/ul&amp;gt;
+&amp;lt;% end %&amp;gt;
+&amp;quot;)
+
+POFTHEDAY&amp;gt; (time
+            (loop repeat 1000000
+                  do (eco-template:perform &amp;quot;Foo Bar&amp;quot;
+                       &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
+Evaluation took:
+  2.135 seconds of real time
+  2.144360 seconds of total run time (2.121050 user, 0.023310 system)
+  [ Run times consist of 0.141 seconds GC time, and 2.004 seconds non-GC time. ]
+  100.42% CPU
+  4,713,480,570 processor cycles
+  1,008,017,904 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is slower than half of the tested template engines. It took place between &lt;code&gt;cl-who&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt;. I&apos;ve expected it will be faster :(&lt;/p&gt;
+</description>
+            <pubDate>Fri, 18 Sep 2020 23:52:26 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-emb</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html</link>
             <description>&lt;p&gt;This is an interesting templating library. The most interesting features are:&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;named template pieces can call each other;&lt;/li&gt;&lt;li&gt;debug mode allows to inspect generated code;&lt;/li&gt;&lt;li&gt;different escape methods.&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Here is how template functions can be reused:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user-list&amp;quot;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user&amp;quot;
+            &amp;quot;&amp;lt;a href=\&amp;quot;/users/&amp;lt;% @var nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;% @var name %&amp;gt;&amp;lt;/a&amp;gt;&amp;quot;)
+
+POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user-list&amp;quot;
             &amp;quot;
 &amp;lt;ul&amp;gt;
   &amp;lt;% @loop users %&amp;gt;
@@ -19,9 +96,6 @@
   &amp;lt;% @endloop %&amp;gt;
 &amp;lt;/ul&amp;gt;
 &amp;quot;)
-
-POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user&amp;quot;
-            &amp;quot;&amp;lt;a href=\&amp;quot;/users/&amp;lt;% @var nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;% @var name %&amp;gt;&amp;lt;/a&amp;gt;&amp;quot;)
 
 POFTHEDAY&amp;gt; (cl-emb:execute-emb &amp;quot;user-list&amp;quot;
              :env &amp;#039;(:users
@@ -467,6 +541,7 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
                           (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)
                           (&amp;quot;djula&amp;quot; 4.48 &amp;quot;Gold&amp;quot;)
                           (&amp;quot;cl-emb&amp;quot; 1.44 &amp;quot;MediumSlateBlue&amp;quot;)
+                          (&amp;quot;eco&amp;quot; 2.14 &amp;quot;Crimson&amp;quot;)
                           (&amp;quot;handwritten&amp;quot; 0.93 &amp;quot;DarkOrange&amp;quot;)))
                   (data (sort data #&amp;#039;&amp;gt; :key #&amp;#039;second))
                   (baseline (second (first data)))
@@ -485,10 +560,11 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
                           &amp;quot; &amp;#x2013; &amp;quot;
                           (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
 &lt;p&gt;Shorter bar is better - it shows the library is faster:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 139.80583px; background-color: MediumSlateBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-emb&lt;/span&gt; – &lt;span&gt;1.44 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
+&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 207.767px; background-color: Crimson; color: white; padding: 0.5em; display: inline-block;&apos;&gt;eco&lt;/span&gt; – &lt;span&gt;2.14 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 139.80583px; background-color: MediumSlateBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-emb&lt;/span&gt; – &lt;span&gt;1.44 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html&quot;&gt;djula&lt;/a&gt; library. Also added the result of calling &lt;code&gt;Spinneret&lt;/code&gt; without pretty printing.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-17&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html&quot;&gt;cl-emb&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Update from 2020-09-18&lt;/h2&gt;&lt;p&gt;Added performance results for eco.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
@@ -1599,43 +1675,6 @@ POFTHEDAY&amp;gt; (render *)
 &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 </description>
             <pubDate>Sat, 29 Aug 2020 23:31:36 +0300</pubDate>
-        </item>
-        <item>
-            <title>temporal-functions</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0173-temporal-functions.html</link>
-            <description>&lt;p&gt;This is a small library by &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; allows you to define functions which work only specified amount of time. You can use it to define a named function or to create a lambda.&lt;/p&gt;
-&lt;p&gt;This will print a greeting only 10 seconds since definition:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (temporal-functions:defun-t foo ()
-             (temporal-functions:before (temporal-functions:seconds 10)
-               (print &amp;quot;Hello Lisp World!&amp;quot;)))
-
-POFTHEDAY&amp;gt; (foo)
-&amp;quot;Hello Lisp World!&amp;quot; 
-&amp;quot;Hello Lisp World!&amp;quot;
-
-POFTHEDAY&amp;gt; (foo)
-&amp;quot;Hello Lisp World!&amp;quot; 
-&amp;quot;Hello Lisp World!&amp;quot;
-
-POFTHEDAY&amp;gt; (foo)
-NIL
-
-POFTHEDAY&amp;gt; (temporal-functions:expiredp (foo))
-T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is possible to create a function which starts doing something after the specified amount of time:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (temporal-functions:tlambda ()
-             (temporal-functions:after (temporal-functions:seconds 10)
-               (print &amp;quot;Now I&amp;#039;m working!&amp;quot;)))
-#&amp;lt;CLOSURE (LAMBDA ()) {1001D5183B}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall *)
-NIL
-
-POFTHEDAY&amp;gt; (funcall **)
-
-&amp;quot;Now I&amp;#039;m working!&amp;quot; 
-&amp;quot;Now I&amp;#039;m working!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other constructions like &lt;code&gt;then&lt;/code&gt;, &lt;code&gt;repeat&lt;/code&gt;, &lt;code&gt;each&lt;/code&gt;, &lt;code&gt;until&lt;/code&gt; and &lt;code&gt;once&lt;/code&gt;. But I wasn&apos;t able to figure out the right way to use them. It would be wonderful if  &lt;a href=&quot;https://twitter.com/thebaggers/&quot;&gt;@thebaggers&lt;/a&gt; update the documentation!&lt;/p&gt;
-</description>
-            <pubDate>Fri, 28 Aug 2020 23:05:12 +0300</pubDate>
         </item>
     </channel>
 </rss>

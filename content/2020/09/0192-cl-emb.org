@@ -19,6 +19,9 @@ Here is how template functions can be reused:
 
 #+begin_src lisp
 
+POFTHEDAY> (cl-emb:register-emb "user"
+            "<a href=\"/users/<% @var nickname %>\"><% @var name %></a>")
+
 POFTHEDAY> (cl-emb:register-emb "user-list"
             "
 <ul>
@@ -27,9 +30,6 @@ POFTHEDAY> (cl-emb:register-emb "user-list"
   <% @endloop %>
 </ul>
 ")
-
-POFTHEDAY> (cl-emb:register-emb "user"
-            "<a href=\"/users/<% @var nickname %>\"><% @var name %></a>")
 
 POFTHEDAY> (cl-emb:execute-emb "user-list"
              :env '(:users

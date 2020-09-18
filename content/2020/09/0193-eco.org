@@ -8,8 +8,8 @@
 :CI:       :(
 :END:
 
-This template engine is interesting because it allows to mix lisp code
-blocks and HTML in a way simple enough to be used by non lisp developers
+This template engine is interesting because it allows mixing lisp code
+blocks and HTML in a way simple enough to be used by non-lisp developers
 and designers.
 
 It's interesting feature is that each template definition includes the
@@ -57,10 +57,10 @@ POFTHEDAY> (eco-template:user-list
 #+end_src
 
 Also, there is a way to load templates from the files with ~.eco~
-extensions. There is an ASDF extension which allows to define these
+extensions. There is an ASDF extension which allows defining these
 templates as components of your ASDF system.
 
-Documentation does not cover this, but the templates components should
+Documentation does not cover this, but the template components should
 be defined like this:
 
 #+begin_src lisp
@@ -106,5 +106,5 @@ Evaluation took:
 
 #+end_src
 
-This is slower than half of the tested template engines. Between ~cl-who~
-and ~print-html~.
+This is slower than half of the tested template engines. It took place
+between ~cl-who~ and ~print-html~. I've expected it will be faster :(

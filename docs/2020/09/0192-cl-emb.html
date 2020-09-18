@@ -54,7 +54,10 @@ h1 .tags {
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-emb</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>cl-emb<span class='tags'><a href='../../tags/web.html'><span class='label label-default'>web</span></a><a href='../../tags/templates.html'><span class='label label-default'>templates</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This is an interesting templating library. The most interesting features are:</p>
 <ul><li>named template pieces can call each other;</li><li>debug mode allows to inspect generated code;</li><li>different escape methods.</li></ul>
 <p>Here is how template functions can be reused:</p>
-<pre><code class='lisp'>POFTHEDAY&gt; (cl-emb:register-emb &quot;user-list&quot;
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-emb:register-emb &quot;user&quot;
+            &quot;&lt;a href=\&quot;/users/&lt;% @var nickname %&gt;\&quot;&gt;&lt;% @var name %&gt;&lt;/a&gt;&quot;)
+
+POFTHEDAY&gt; (cl-emb:register-emb &quot;user-list&quot;
             &quot;
 &lt;ul&gt;
   &lt;% @loop users %&gt;
@@ -62,9 +65,6 @@ h1 .tags {
   &lt;% @endloop %&gt;
 &lt;/ul&gt;
 &quot;)
-
-POFTHEDAY&gt; (cl-emb:register-emb &quot;user&quot;
-            &quot;&lt;a href=\&quot;/users/&lt;% @var nickname %&gt;\&quot;&gt;&lt;% @var name %&gt;&lt;/a&gt;&quot;)
 
 POFTHEDAY&gt; (cl-emb:execute-emb &quot;user-list&quot;
              :env &#039;(:users
