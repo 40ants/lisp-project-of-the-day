@@ -1,0 +1,110 @@
+* eco :web:templates:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This template engine is interesting because it allows to mix lisp code
+blocks and HTML in a way simple enough to be used by non lisp developers
+and designers.
+
+It's interesting feature is that each template definition includes the
+arguments list.
+
+Here is how we can define templates for user list from the previous post
+about [[https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html][cl-emb]]:
+
+#+begin_src lisp
+
+POFTHEDAY> (eco:compile-string
+            "
+<% deftemplate user (nickname name) () %>
+<a href=\"/users/<%= nickname %>\"><%= name %></a>
+<% end %>
+")
+
+POFTHEDAY> (eco:compile-string "
+<% deftemplate user-list (users) () %>
+<ul>
+  <% loop for (nickname name) in users do %>
+    <li><%- user nickname name %><% end %></li>
+  <% end %>
+</ul>
+<% end %>
+")
+
+POFTHEDAY> (eco-template:user-list
+            '(("bob" "Bob Hopkins")
+              ("alice" "Alice Cooker")))
+"
+<ul>
+  
+    <li>
+<a href=\"/users/bob\">Bob Hopkins</a>
+</li>
+  
+    <li>
+<a href=\"/users/alice\">Alice Cooker</a>
+</li>
+  
+</ul>
+"
+
+#+end_src
+
+Also, there is a way to load templates from the files with ~.eco~
+extensions. There is an ASDF extension which allows to define these
+templates as components of your ASDF system.
+
+Documentation does not cover this, but the templates components should
+be defined like this:
+
+#+begin_src lisp
+
+(defsystem mysite
+  :defsystem-depends-on (eco)
+  :components ((:module "src"
+                :depends-on "templates"
+                :components ((:file "backend-code")
+                             (:file "utils")))
+               (:module "templates"
+                :components ((:eco-template "index-page")
+                             (:eco-template "users")))))
+
+#+end_src
+
+Well, let's measure Eco's performance!
+
+#+begin_src lisp
+
+POFTHEDAY> (eco:compile-string "
+<% deftemplate perform (title items) () %>
+<title><%= title %></title>
+<ul>
+  <% loop for item in items do %>
+    <li><%= item %></li>
+  <% end %>
+</ul>
+<% end %>
+")
+
+POFTHEDAY> (time
+            (loop repeat 1000000
+                  do (eco-template:perform "Foo Bar"
+                       '("One" "Two" "Three"))))
+Evaluation took:
+  2.135 seconds of real time
+  2.144360 seconds of total run time (2.121050 user, 0.023310 system)
+  [ Run times consist of 0.141 seconds GC time, and 2.004 seconds non-GC time. ]
+  100.42% CPU
+  4,713,480,570 processor cycles
+  1,008,017,904 bytes consed
+
+#+end_src
+
+This is slower than half of the tested template engines. Between ~cl-who~
+and ~print-html~.
