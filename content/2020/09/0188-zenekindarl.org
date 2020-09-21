@@ -196,4 +196,4 @@ Added performance results for [[https://40ants.com/lisp-project-of-the-day/2020/
 
 ** Update from 2020-09-18
 
-Added performance results for eco.
+Added performance results for [[https://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html][eco]].

@@ -39,15 +39,6 @@ POFTHEDAY> (with-open-file (stream "/tmp/app.config"
 
 #+end_src
 
-#+begin_src lisp
-
-POFTHEDAY> (with-output-to-string (s)
-             (persistent-variables:pv-save s))
-"(\"POFTHEDAY\" \"*PASSWORD*\" \"\\\"Some $ecret\\\"\")
-"
-
-#+end_src
-
 What this system does - it saves all symbols, defined with ~defpvar~ into
 the hash-table. And ~pv-save/pv-load~ serializes and deserializes them as sexps:
 
@@ -68,4 +59,4 @@ POFTHEDAY> (with-output-to-string (s)
 
 This library can be useful for interactive applications where user can
 change the settings and they should be restored on restart. You probably
-also be interested in [[http://quickdocs.org/ubiquitous/][ubiquitous]] library which I didn't reviewed yet.
+also be interested in [[http://quickdocs.org/ubiquitous/][ubiquitous]] library which I didn't review yet.

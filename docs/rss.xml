@@ -6,6 +6,45 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>persistent-variables</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0194-persistent-variables.html</link>
+            <description>&lt;p&gt;This is a simple library which allows to define global variables and save/restore their state to some persistent storage.&lt;/p&gt;
+&lt;p&gt;For example, we can define variables for database host and password:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; In real application you should define these
+;; variables in the lisp file:
+
+POFTHEDAY&amp;gt; (persistent-variables:defpvar *password*)
+POFTHEDAY&amp;gt; (persistent-variables:defpvar *db-host*)
+
+;; Then in the REPL you can setup the app
+POFTHEDAY&amp;gt; (setf *password* &amp;quot;Some $ecret&amp;quot;)
+POFTHEDAY&amp;gt; (setf *db-host* &amp;quot;some-host.internal-to.my-company.com&amp;quot;)
+
+;; And save it&amp;#039;s state:
+POFTHEDAY&amp;gt; (with-open-file (stream &amp;quot;/tmp/app.config&amp;quot;
+                                   :if-does-not-exist :create
+                                   :if-exists :supersede
+                                   :direction :output)
+             (persistent-variables:pv-save stream))
+
+;; At startup your app might restore values for these variables:
+POFTHEDAY&amp;gt; (with-open-file (stream &amp;quot;/tmp/app.config&amp;quot;
+                                   :direction :input)
+             (persistent-variables:pv-load stream))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What this system does - it saves all symbols, defined with &lt;code&gt;defpvar&lt;/code&gt; into the hash-table. And &lt;code&gt;pv-save/pv-load&lt;/code&gt; serializes and deserializes them as sexps:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (rutils:print-ht persistent-variables::*persisted*)
+#{
+  :DEFAULT &amp;#039;(*DB-HOST* *PASSWORD*)
+ } 
+
+POFTHEDAY&amp;gt; (with-output-to-string (s)
+             (persistent-variables:pv-save s))
+&amp;quot;(\&amp;quot;POFTHEDAY\&amp;quot; \&amp;quot;*DB-HOST*\&amp;quot; \&amp;quot;\\\&amp;quot;some-host.internal-to.my-company.com\\\&amp;quot;\&amp;quot;)
+(\&amp;quot;POFTHEDAY\&amp;quot; \&amp;quot;*PASSWORD*\&amp;quot; \&amp;quot;\\\&amp;quot;Some $ecret\\\&amp;quot;\&amp;quot;)
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library can be useful for interactive applications where user can change the settings and they should be restored on restart. You probably also be interested in &lt;a href=&quot;http://quickdocs.org/ubiquitous/&quot;&gt;ubiquitous&lt;/a&gt; library which I didn&apos;t review yet.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 21 Sep 2020 22:23:46 +0300</pubDate>
+        </item>
+        <item>
             <title>eco</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html</link>
             <description>&lt;p&gt;This template engine is interesting because it allows mixing lisp code blocks and HTML in a way simple enough to be used by non-lisp developers and designers.&lt;/p&gt;
@@ -76,6 +115,7 @@ Evaluation took:
   100.42% CPU
   4,713,480,570 processor cycles
   1,008,017,904 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is slower than half of the tested template engines. It took place between &lt;code&gt;cl-who&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt;. I&apos;ve expected it will be faster :(&lt;/p&gt;
+&lt;p&gt;The chart with all html template engines performance can be found &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Fri, 18 Sep 2020 23:52:26 +0300</pubDate>
         </item>
@@ -564,7 +604,7 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
 &lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html&quot;&gt;djula&lt;/a&gt; library. Also added the result of calling &lt;code&gt;Spinneret&lt;/code&gt; without pretty printing.&lt;/p&gt;
 &lt;h2&gt;Update from 2020-09-17&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html&quot;&gt;cl-emb&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-18&lt;/h2&gt;&lt;p&gt;Added performance results for eco.&lt;/p&gt;
+&lt;h2&gt;Update from 2020-09-18&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html&quot;&gt;eco&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
@@ -1650,31 +1690,6 @@ POFTHEDAY&amp;gt; (smug:parse (.duration)
 &lt;p&gt;Thank you, @drewcrampsie!&lt;/p&gt;
 </description>
             <pubDate>Sun, 30 Aug 2020 22:50:00 +0300</pubDate>
-        </item>
-        <item>
-            <title>list-named-class</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0174-list-named-class.html</link>
-            <description>&lt;p&gt;This is &lt;a href=&quot;https://github.com/phoe/list-named-class&quot;&gt;the library&lt;/a&gt; by Michał &quot;phoe&quot; Herda. It extends CLOS allowing to use lists of symbols as class names:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (list-named-class:defclass (:user :model) ()
-             ())
-
-POFTHEDAY&amp;gt; (list-named-class:defclass (:user :view) ()
-             ())
-
-POFTHEDAY&amp;gt; (list-named-class:defgeneric render (obj))
-
-POFTHEDAY&amp;gt; (list-named-class:defmethod render ((obj (:user :view)))
-             (format nil &amp;quot;Rendered User View&amp;quot;))
-
-POFTHEDAY&amp;gt; (list-named-class:make-instance &amp;#039;(:user :view))
-#&amp;lt;(:USER :VIEW) {10076F6CC3}&amp;gt;
-
-POFTHEDAY&amp;gt; (render *)
-&amp;quot;Rendered User View&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This can be useful when classes are defined using some macros. Not sure why somebody should prefer such class-names instead of symbols.&lt;/p&gt;
-&lt;p&gt;Here are some examples of &lt;code&gt;list-named-class&lt;/code&gt; usage I found in the wild:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/5fc2d404cd53854f570b8debbd869053d3a71043/wip/messages/hello.lisp&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&quot;&gt;https://github.com/RaptorLauncher/Gateway/blob/035701b804873265b9eb59e1b97a92645aa4388b/wip/library/base/impl/standard-message.lisp&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
-</description>
-            <pubDate>Sat, 29 Aug 2020 23:31:36 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -5,7 +5,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
-** September
+** TODO September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
 - 03 September - [[content/2020/09/0178-scriba.org][scriba]] ([[https://twitter.com/svetlyak40wt/status/1301583177505538048][twitter]])
 - 04 September - [[content/2020/09/0179-conduit-packages.org][conduit-packages]] ([[https://twitter.com/svetlyak40wt/status/1301939615914512392][twitter]])
@@ -23,6 +23,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 16 September - [[content/2020/09/0191-djula.org][djula]] ([[https://twitter.com/svetlyak40wt/status/1306319406910365699][twitter]])
 - 17 September - [[content/2020/09/0192-cl-emb.org][cl-emb]] ([[https://twitter.com/svetlyak40wt/status/1306681214301077517][twitter]])
 - 18 September - [[content/2020/09/0193-eco.org][eco]] ([[https://twitter.com/svetlyak40wt/status/1307071382958866432][twitter]])
+- 21 September - [[content/2020/09/0194-persistent-variables.org][persistent-variables]] ([[https://twitter.com/svetlyak40wt/status/1308124630499184651][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

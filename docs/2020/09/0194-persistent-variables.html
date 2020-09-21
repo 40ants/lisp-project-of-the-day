@@ -73,10 +73,7 @@ POFTHEDAY&gt; (with-open-file (stream &quot;/tmp/app.config&quot;
 ;; At startup your app might restore values for these variables:
 POFTHEDAY&gt; (with-open-file (stream &quot;/tmp/app.config&quot;
                                    :direction :input)
-             (persistent-variables:pv-load stream))</code></pre><pre><code class='lisp'>POFTHEDAY&gt; (with-output-to-string (s)
-             (persistent-variables:pv-save s))
-&quot;(\&quot;POFTHEDAY\&quot; \&quot;*PASSWORD*\&quot; \&quot;\\\&quot;Some $ecret\\\&quot;\&quot;)
-&quot;</code></pre><p>What this system does - it saves all symbols, defined with <code>defpvar</code> into the hash-table. And <code>pv-save/pv-load</code> serializes and deserializes them as sexps:</p>
+             (persistent-variables:pv-load stream))</code></pre><p>What this system does - it saves all symbols, defined with <code>defpvar</code> into the hash-table. And <code>pv-save/pv-load</code> serializes and deserializes them as sexps:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (rutils:print-ht persistent-variables::*persisted*)
 #{
   :DEFAULT &#039;(*DB-HOST* *PASSWORD*)
@@ -86,7 +83,7 @@ POFTHEDAY&gt; (with-output-to-string (s)
              (persistent-variables:pv-save s))
 &quot;(\&quot;POFTHEDAY\&quot; \&quot;*DB-HOST*\&quot; \&quot;\\\&quot;some-host.internal-to.my-company.com\\\&quot;\&quot;)
 (\&quot;POFTHEDAY\&quot; \&quot;*PASSWORD*\&quot; \&quot;\\\&quot;Some $ecret\\\&quot;\&quot;)
-&quot;</code></pre><p>This library can be useful for interactive applications where user can change the settings and they should be restored on restart. You probably also be interested in <a href="http://quickdocs.org/ubiquitous/">ubiquitous</a> library which I didn't reviewed yet.</p>
+&quot;</code></pre><p>This library can be useful for interactive applications where user can change the settings and they should be restored on restart. You probably also be interested in <a href="http://quickdocs.org/ubiquitous/">ubiquitous</a> library which I didn't review yet.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

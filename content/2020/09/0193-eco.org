@@ -108,3 +108,5 @@ Evaluation took:
 
 This is slower than half of the tested template engines. It took place
 between ~cl-who~ and ~print-html~. I've expected it will be faster :(
+
+The chart with all html template engines performance can be found [[https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html][here]].
