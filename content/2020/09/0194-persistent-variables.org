@@ -1,0 +1,71 @@
+* persistent-variables :utils:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a simple library which allows to define global variables and
+save/restore their state to some persistent storage.
+
+For example, we can define variables for database host and password:
+
+#+begin_src lisp
+
+;; In real application you should define these
+;; variables in the lisp file:
+
+POFTHEDAY> (persistent-variables:defpvar *password*)
+POFTHEDAY> (persistent-variables:defpvar *db-host*)
+
+;; Then in the REPL you can setup the app
+POFTHEDAY> (setf *password* "Some $ecret")
+POFTHEDAY> (setf *db-host* "some-host.internal-to.my-company.com")
+
+;; And save it's state:
+POFTHEDAY> (with-open-file (stream "/tmp/app.config"
+                                   :if-does-not-exist :create
+                                   :if-exists :supersede
+                                   :direction :output)
+             (persistent-variables:pv-save stream))
+
+;; At startup your app might restore values for these variables:
+POFTHEDAY> (with-open-file (stream "/tmp/app.config"
+                                   :direction :input)
+             (persistent-variables:pv-load stream))
+
+#+end_src
+
+#+begin_src lisp
+
+POFTHEDAY> (with-output-to-string (s)
+             (persistent-variables:pv-save s))
+"(\"POFTHEDAY\" \"*PASSWORD*\" \"\\\"Some $ecret\\\"\")
+"
+
+#+end_src
+
+What this system does - it saves all symbols, defined with ~defpvar~ into
+the hash-table. And ~pv-save/pv-load~ serializes and deserializes them as sexps:
+
+#+begin_src lisp
+
+POFTHEDAY> (rutils:print-ht persistent-variables::*persisted*)
+#{
+  :DEFAULT '(*DB-HOST* *PASSWORD*)
+ } 
+
+POFTHEDAY> (with-output-to-string (s)
+             (persistent-variables:pv-save s))
+"(\"POFTHEDAY\" \"*DB-HOST*\" \"\\\"some-host.internal-to.my-company.com\\\"\")
+(\"POFTHEDAY\" \"*PASSWORD*\" \"\\\"Some $ecret\\\"\")
+"
+
+#+end_src
+
+This library can be useful for interactive applications where user can
+change the settings and they should be restored on restart. You probably
+also be interested in [[http://quickdocs.org/ubiquitous/][ubiquitous]] library which I didn't reviewed yet.
