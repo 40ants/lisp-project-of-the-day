@@ -1,0 +1,107 @@
+* trivial-timeout :utils:threads:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+Today I [[https://github.com/fukamachi/dexador/issues/91][found]] that :read-timeout option of the Dexador does not work as
+expected and remember about this small but useful library. It provides
+the only one macro which executes code and limits it's execution to a
+given number of seconds.
+
+For illustration, I'll use https://httpbin.org. This is a service which
+help you to test HTTP libraries. If you didn't hear about it, I
+recommend to look at.
+
+Let's retrieve an URL, which responds in 10 seconds. Even with
+:read-timeout option, dexador waits 10 seconds:
+
+#+begin_src lisp
+
+POFTHEDAY> (time
+            (nth-value 1
+              (dex:get "https://httpbin.org/delay/10"
+                       :read-timeout 2)))
+Evaluation took:
+  10.692 seconds of real time
+  
+200
+
+#+end_src
+
+If site is not responding, request may hang and block your
+application. Here is where ~trivial-timeout~ comes to the rescue!
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-timeout:with-timeout (2)
+             (time
+              (nth-value 1
+                (dex:get "https://httpbin.org/delay/10"))))
+Evaluation took:
+  2.003 seconds of real time
+  before it was aborted by a non-local transfer of control.
+  
+; Debugger entered on #<COM.METABANG.TRIVIAL-TIMEOUT:TIMEOUT-ERROR {10055B5373}>
+
+#+end_src
+
+Internally, this library generates the implementation specific code to
+interrupt the code execution. Here how our example will look like for
+SBCL:
+
+#+begin_src lisp
+
+(let ((seconds 2))
+  (flet ((doti ()
+           (progn
+             (time (nth-value 1
+                     (dexador:get "https://httpbin.org/delay/10"))))))
+    (cond
+      (seconds
+       (handler-case
+           (sb-ext:with-timeout seconds
+             (doti))
+         (sb-ext:timeout (com.metabang.trivial-timeout::c)
+           (declare (ignore com.metabang.trivial-timeout::c))
+           (error 'com.metabang.trivial-timeout:timeout-error))))
+      (t (doti)))))
+
+#+end_src
+
+And this is the same code, expanded on ClozureCL:
+
+#+begin_src lisp
+
+(let ((seconds 2))
+  (flet ((doit nil
+           (progn (time (nth-value 1
+                          (dexador:get "https://httpbin.org/delay/10"))))))
+    (cond (seconds
+           (let* ((semaphore (ccl:make-semaphore))
+                  (result)
+                  (process
+                    (ccl:process-run-function
+                     "Timed Process process"
+                     (lambda nil
+                       (setf result
+                             (multiple-value-list (doit)))
+                       (ccl:signal-semaphore semaphore)))))
+             (cond ((ccl:timed-wait-on-semaphore
+                     semaphore
+                     seconds)
+                    (values-list result))
+                   (t
+                    (ccl:process-kill process)
+                    (error 'com.metabang.trivial-timeout:timeout-error)))))
+          (t (doit)))))
+
+#+end_src
+
+Don't know if such running the code in the separate thread can have some
+side-effects. At least, library's README says that it might be dangerous
+:)))
