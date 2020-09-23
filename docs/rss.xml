@@ -6,6 +6,68 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-timeout</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0195-trivial-timeout.html</link>
+            <description>&lt;p&gt;Today I &lt;a href=&quot;https://github.com/fukamachi/dexador/issues/91&quot;&gt;found&lt;/a&gt; that :read-timeout option of the Dexador does not work as expected and remembered about this small but useful library. It provides the only one macro which executes code and limits it&apos;s execution to a given number of seconds.&lt;/p&gt;
+&lt;p&gt;For illustration, I&apos;ll use &lt;a href=&quot;https://httpbin.org&quot;&gt;https://httpbin.org&lt;/a&gt; This is a service which helps you to test HTTP libraries. If you didn&apos;t hear about it, I recommend to look at.&lt;/p&gt;
+&lt;p&gt;Let&apos;s retrieve an URL, which responds in 10 seconds. Even with :read-timeout option, dexador waits 10 seconds:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
+            (nth-value 1
+              (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;
+                       :read-timeout 2)))
+Evaluation took:
+  10.692 seconds of real time
+  
+200&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If the site is not responding, a request may hang and block your application. Here is where &lt;code&gt;trivial-timeout&lt;/code&gt; comes to the rescue!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-timeout:with-timeout (2)
+             (time
+              (nth-value 1
+                (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
+Evaluation took:
+  2.003 seconds of real time
+  before it was aborted by a non-local transfer of control.
+  
+; Debugger entered on #&amp;lt;COM.METABANG.TRIVIAL-TIMEOUT:TIMEOUT-ERROR {10055B5373}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Internally, this library generates the implementation-specific code to interrupt the code execution. Here how our example will look like for SBCL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(let ((seconds 2))
+  (flet ((doti ()
+           (progn
+             (time (nth-value 1
+                     (dexador:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))))
+    (cond
+      (seconds
+       (handler-case
+           (sb-ext:with-timeout seconds
+             (doti))
+         (sb-ext:timeout (com.metabang.trivial-timeout::c)
+           (declare (ignore com.metabang.trivial-timeout::c))
+           (error &amp;#039;com.metabang.trivial-timeout:timeout-error))))
+      (t (doti)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this is the same code, expanded on ClozureCL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(let ((seconds 2))
+  (flet ((doit nil
+           (progn (time (nth-value 1
+                          (dexador:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))))
+    (cond (seconds
+           (let* ((semaphore (ccl:make-semaphore))
+                  (result)
+                  (process
+                    (ccl:process-run-function
+                     &amp;quot;Timed Process process&amp;quot;
+                     (lambda nil
+                       (setf result
+                             (multiple-value-list (doit)))
+                       (ccl:signal-semaphore semaphore)))))
+             (cond ((ccl:timed-wait-on-semaphore
+                     semaphore
+                     seconds)
+                    (values-list result))
+                   (t
+                    (ccl:process-kill process)
+                    (error &amp;#039;com.metabang.trivial-timeout:timeout-error)))))
+          (t (doit)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Don&apos;t know if such running the code in the separate thread can have some side-effects. At least, library&apos;s README says that it might be dangerous :)))&lt;/p&gt;
+</description>
+            <pubDate>Wed, 23 Sep 2020 21:15:19 +0300</pubDate>
+        </item>
+        <item>
             <title>persistent-variables</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0194-persistent-variables.html</link>
             <description>&lt;p&gt;This is a simple library which allows to define global variables and save/restore their state to some persistent storage.&lt;/p&gt;
@@ -1580,116 +1642,6 @@ POFTHEDAY&amp;gt; (cl-ltsv:parse-line &amp;quot;message:Hello\\n\\tWorld!&amp;qu
 ((&amp;quot;message&amp;quot; . &amp;quot;Hello\\n\\tWorld!&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all I have for today. Probably tomorrow we&apos;ll catch a more interesting library.&lt;/p&gt;
 </description>
             <pubDate>Mon, 31 Aug 2020 22:52:40 +0300</pubDate>
-        </item>
-        <item>
-            <title>smug</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0175-smug.html</link>
-            <description>&lt;p&gt;This system provides a framework for building parsers in a functional way.&lt;/p&gt;
-&lt;p&gt;Smug parsers are lisp functions which can be combined together to process complex grammar. Actually, it can process anything, not only the text - any data source which can be read token by token is suitable.&lt;/p&gt;
-&lt;p&gt;Documentation on &lt;code&gt;smug&lt;/code&gt; is extremely good! I&apos;ll how only the basics. Good job, &lt;a href=&quot;https://twitter.com/drewcrampsie&quot;&gt;@drewcrampsie&lt;/a&gt;. Read &lt;a href=&quot;http://smug.drewc.ca/tutorial.html&quot;&gt;the official tutorial&lt;/a&gt; to learn in deep how this sytem works!&lt;/p&gt;
-&lt;p&gt;Today we&apos;ll create a parser which will be able to transform texts like &quot;3 days ago&quot; into the &lt;code&gt;local-time-duration:duration&lt;/code&gt; objects.&lt;/p&gt;
-&lt;p&gt;To start, let&apos;s create a simple parser which will match a digit character:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .digit ()
-             (smug:.is #&amp;#039;digit-char-p))
-
-POFTHEDAY&amp;gt; (smug:run (.digit)
-                     &amp;quot;17 hours ago&amp;quot;)
-((#\1 . &amp;quot;7 hours ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can use &lt;code&gt;.map&lt;/code&gt; to capture a sequence of digits matched to the parser:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (smug:run (smug:.map &amp;#039;list (.digit))
-                     &amp;quot;17 hours ago&amp;quot;)
-(((#\1 #\7) . &amp;quot; hours ago&amp;quot;)
- ((#\1)     . &amp;quot;7 hours ago&amp;quot;))
-
-;; We also might produce strings:
-POFTHEDAY&amp;gt; (smug:run (smug:.map &amp;#039;string (.digit))
-                     &amp;quot;17 hours ago&amp;quot;)
-((&amp;quot;17&amp;quot; . &amp;quot; hours ago&amp;quot;)
- (&amp;quot;1&amp;quot;  . &amp;quot;7 hours ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to transform it into the number. I&apos;ll wrap all code into the parser function and use &lt;code&gt;smug:.bind&lt;/code&gt; to process the captured values:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .integer ()
-             (smug:.bind (smug:.map &amp;#039;string (.digit))
-                         (lambda (text)
-                           (smug:.identity (read-from-string text)))))
-
-POFTHEDAY&amp;gt; (smug:run (.integer)
-                     &amp;quot;17 hours ago &amp;quot;)
-((17 . &amp;quot; hours ago &amp;quot;)
- (1 . &amp;quot;7 hours ago &amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to parse time units:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (smug:run (smug:.prog1 (smug:.string-equal &amp;quot;hour&amp;quot;)
-                                  ;; This will &amp;quot;eat&amp;quot; the &amp;quot;s&amp;quot; letter
-                                  ;; on the end of the plural form
-                                  ;; if it is used:
-                                  (smug:.string-equal &amp;quot;s&amp;quot;))
-                    &amp;quot;hours ago&amp;quot;)
-((&amp;quot;hour&amp;quot; . &amp;quot; ago&amp;quot;))
-
-;; Again, we&amp;#039;ll want to convert the string into the keyword and to wrap
-;; the parser into a function:
-
-POFTHEDAY&amp;gt; (defun .unit ()
-             (smug:.bind (smug:.prog1 (smug:.or (smug:.string-equal &amp;quot;hour&amp;quot;)
-                                                (smug:.string-equal &amp;quot;minute&amp;quot;)
-                                                (smug:.string-equal &amp;quot;second&amp;quot;))
-                                      ;; This will &amp;quot;eat&amp;quot; the &amp;quot;s&amp;quot; letter
-                                      ;; on the end of the plural form
-                                      ;; if it is used:
-                                      (smug:.or (smug:.string-equal &amp;quot;s&amp;quot;)
-                                                (smug:.identity nil)))
-                         (lambda (text)
-                           (smug:.identity (alexandria:make-keyword
-                                            (string-upcase text))))))
-
-POFTHEDAY&amp;gt; (smug:run (.unit)
-                     &amp;quot;hours ago&amp;quot;)
-((:HOUR . &amp;quot; ago&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And finally, we need a parser to process optional suffix pointing to the time in past:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .in-past-p ()
-             (smug:.or (smug:.string-equal &amp;quot;ago&amp;quot;)
-                       (smug:.identity nil)))
-
-POFTHEDAY&amp;gt; (smug:run (.in-past-p)
-                     &amp;quot;ago&amp;quot;)
-((&amp;quot;ago&amp;quot; . &amp;quot;&amp;quot;))
-
-POFTHEDAY&amp;gt; (smug:run (.in-past-p)
-                     &amp;quot;some&amp;quot;)
-((NIL . &amp;quot;some&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to combine our parsers into a more complex one which will return a &lt;code&gt;local-time-duration&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun .whitespace ()
-             (smug:.is #&amp;#039;member
-                       &amp;#039;(#\Space #\Tab #\Newline)))
-
-POFTHEDAY&amp;gt; (defun .duration ()
-             (smug:.let* ((value (.integer))
-                          (_ (.whitespace))
-                          (unit (.unit))
-                          (_ (.whitespace))
-                          (in-past (.in-past-p)))
-               (let* ((seconds
-                        (* value
-                           (ecase unit
-                             (:hour (* 60 60))
-                             (:minute 60)
-                             (:second 1))
-                           (if in-past
-                               -1
-                               1)))
-                      (duration
-                        (make-instance &amp;#039;local-time-duration:duration
-                                       :sec seconds)))
-                 
-                 (smug:.identity duration))))
-
-;; A few checks if everything is OK:
-
-POFTHEDAY&amp;gt; (smug:parse (.duration)
-                       &amp;quot;17 hours ago&amp;quot;)
-#&amp;lt;LOCAL-TIME-DURATION:DURATION [0/-61200/0]  -17 hours&amp;gt;
-
-POFTHEDAY&amp;gt; (smug:parse (.duration)
-                       &amp;quot;5 minute &amp;quot;)
-#&amp;lt;LOCAL-TIME-DURATION:DURATION [0/300/0]  5 minutes&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it for today. And again, to learn more, read SMUG&apos;s documentation. It is one of the best-documented Lisp systems I&apos;ve ever seen:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://smug.drewc.ca/smug.html&quot;&gt;http://smug.drewc.ca/smug.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Thank you, @drewcrampsie!&lt;/p&gt;
-</description>
-            <pubDate>Sun, 30 Aug 2020 22:50:00 +0300</pubDate>
         </item>
     </channel>
 </rss>

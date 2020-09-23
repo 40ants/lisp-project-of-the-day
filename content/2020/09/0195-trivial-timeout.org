@@ -9,12 +9,12 @@
 :END:
 
 Today I [[https://github.com/fukamachi/dexador/issues/91][found]] that :read-timeout option of the Dexador does not work as
-expected and remember about this small but useful library. It provides
+expected and remembered about this small but useful library. It provides
 the only one macro which executes code and limits it's execution to a
 given number of seconds.
 
 For illustration, I'll use https://httpbin.org. This is a service which
-help you to test HTTP libraries. If you didn't hear about it, I
+helps you to test HTTP libraries. If you didn't hear about it, I
 recommend to look at.
 
 Let's retrieve an URL, which responds in 10 seconds. Even with
@@ -33,7 +33,7 @@ Evaluation took:
 
 #+end_src
 
-If site is not responding, request may hang and block your
+If the site is not responding, a request may hang and block your
 application. Here is where ~trivial-timeout~ comes to the rescue!
 
 #+begin_src lisp
@@ -50,7 +50,7 @@ Evaluation took:
 
 #+end_src
 
-Internally, this library generates the implementation specific code to
+Internally, this library generates the implementation-specific code to
 interrupt the code execution. Here how our example will look like for
 SBCL:
 
