@@ -1,4 +1,4 @@
-* trivial-indent :ide:editor:
+* trivial-indent :ide:editor:trivial:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

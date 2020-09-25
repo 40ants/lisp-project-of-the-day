@@ -1,4 +1,4 @@
-* trivial-left-pad :utils:
+* trivial-left-pad :utils:trivial:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

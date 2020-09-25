@@ -1,4 +1,4 @@
-* trivial-ssh :system:network:
+* trivial-ssh :system:network:trivial:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :|

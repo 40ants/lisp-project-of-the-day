@@ -25,6 +25,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 18 September - [[content/2020/09/0193-eco.org][eco]] ([[https://twitter.com/svetlyak40wt/status/1307071382958866432][twitter]])
 - 21 September - [[content/2020/09/0194-persistent-variables.org][persistent-variables]] ([[https://twitter.com/svetlyak40wt/status/1308124630499184651][twitter]])
 - 23 September - [[content/2020/09/0195-trivial-timeout.org][trivial-timeout]] ([[https://twitter.com/svetlyak40wt/status/1308835652390313986][twitter]])
+- 25 September - [[content/2020/09/0196-which.org][which]] ([[https://twitter.com/svetlyak40wt/status/1309596166162649090][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])

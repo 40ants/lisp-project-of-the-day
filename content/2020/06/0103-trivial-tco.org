@@ -1,4 +1,4 @@
-* trivial-tco :language:
+* trivial-tco :language:trivial:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :(

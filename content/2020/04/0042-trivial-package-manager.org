@@ -1,4 +1,4 @@
-* trivial-package-manager :asdf:asdf_extension:system:
+* trivial-package-manager :asdf:asdf_extension:system:trivial:
 :PROPERTIES:
 :Documentation: :|
 :Docstrings: :)

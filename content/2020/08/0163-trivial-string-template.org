@@ -1,4 +1,4 @@
-* trivial-string-template :text:
+* trivial-string-template :text:trivial:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)

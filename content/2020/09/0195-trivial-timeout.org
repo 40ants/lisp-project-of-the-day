@@ -1,4 +1,4 @@
-* trivial-timeout :utils:threads:
+* trivial-timeout :utils:threads:trivial:
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :)

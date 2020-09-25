@@ -1,4 +1,4 @@
-* trivial-mmap :system:posix:
+* trivial-mmap :system:posix:trivial:
 :PROPERTIES:
 :Documentation: :|
 :Docstrings: :|

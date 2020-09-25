@@ -6,6 +6,25 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>which</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0196-which.html</link>
+            <description>&lt;p&gt;This is a tiny library by Fernando Borretti. It implements analogue of the UNIX utility &lt;code&gt;which&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (which:which &amp;quot;ls&amp;quot;)
+#P&amp;quot;/bin/ls&amp;quot;
+
+POFTHEDAY&amp;gt; (which:which &amp;quot;sbcl&amp;quot;)
+#P&amp;quot;/Users/art/.bin/sbcl&amp;quot;
+
+POFTHEDAY&amp;gt; (which:which &amp;quot;python3&amp;quot;)
+#P&amp;quot;/usr/bin/python3&amp;quot;
+
+POFTHEDAY&amp;gt; (which:which &amp;quot;missing-binary&amp;quot;)
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. No more, no less. What do you think, when this library can be useful?&lt;/p&gt;
+&lt;p&gt;By the way, there are many other trivial (but useful) libraries. All of them are marked with a &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/trivial.html&quot;&gt;trivial tag&lt;/a&gt; on #pofthedday site.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 25 Sep 2020 23:48:31 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-timeout</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0195-trivial-timeout.html</link>
             <description>&lt;p&gt;Today I &lt;a href=&quot;https://github.com/fukamachi/dexador/issues/91&quot;&gt;found&lt;/a&gt; that :read-timeout option of the Dexador does not work as expected and remembered about this small but useful library. It provides the only one macro which executes code and limits it&apos;s execution to a given number of seconds.&lt;/p&gt;
@@ -1609,39 +1628,6 @@ POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&
  1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
  1 2 3 1 2 ...)&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Tue, 01 Sep 2020 23:56:50 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-ltsv</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/08/0176-cl-ltsv.html</link>
-            <description>&lt;p&gt;This system implements an LTSV logs parser and serializer. LTSV is based on TSV format but each field has a name. This lets us easily add new fields and to process logs in a manageable way:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-ltsv:alist-ltsv &amp;#039;((&amp;quot;message&amp;quot; . &amp;quot;Hello world!&amp;quot;)
-                                 (&amp;quot;request_id&amp;quot; . 100500)))
-&amp;quot;message:Hello world!	request_id:100500&amp;quot;
-
-POFTHEDAY&amp;gt; (cl-ltsv:parse-line *)
-((&amp;quot;message&amp;quot; . &amp;quot;Hello world!&amp;quot;)
- (&amp;quot;request_id&amp;quot; . &amp;quot;100500&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;LTSV is based on &lt;a href=&quot;https://en.wikipedia.org/wiki/Tab-separated_values&quot;&gt;TSV format&lt;/a&gt; which has some escaping rules for tabs, newlines and backslashes, but LTSV FAQ says &lt;a href=&quot;http://ltsv.org/faq.html#doesnt-it-have-to-have-escaping-in-its-spec&quot;&gt;forget about escaping&lt;/a&gt;, we don&apos;t need it for our access logs.&lt;/p&gt;
-&lt;p&gt;I think this decision makes LTSV unusable for general-purpose logs.&lt;/p&gt;
-&lt;p&gt;For example, if you have newlines or tabs in the logged value, a log will be broken:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (concatenate &amp;#039;string
-                        &amp;quot;Hello&amp;quot;
-                        &amp;#039;(#\Newline #\Tab)
-                        &amp;quot;World!&amp;quot;)
-&amp;quot;Hello
-	World!&amp;quot;
-
-;; This call should produce a single line,
-;; replacing a newline with \n and tab with \t:
-POFTHEDAY&amp;gt; (cl-ltsv:alist-ltsv (list (cons &amp;quot;message&amp;quot; *)))
-&amp;quot;message:Hello
-	World!&amp;quot;
-
-;; Parsing does not process escaped symbols either:
-
-POFTHEDAY&amp;gt; (cl-ltsv:parse-line &amp;quot;message:Hello\\n\\tWorld!&amp;quot;)
-((&amp;quot;message&amp;quot; . &amp;quot;Hello\\n\\tWorld!&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is all I have for today. Probably tomorrow we&apos;ll catch a more interesting library.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 31 Aug 2020 22:52:40 +0300</pubDate>
         </item>
     </channel>
 </rss>
