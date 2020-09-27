@@ -6,11 +6,65 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>common-lisp-jupyter</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0197-common-lisp-jupyter.html</link>
+            <description>&lt;p&gt;This library provides a Common Lisp kernel for &lt;a href=&quot;https://jupyter.org/&quot;&gt;Jupyter&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Jupyter is a scientific environment for experiments. It is good when you want to play with data, to plot graphics and provides some comments in markdown.&lt;/p&gt;
+&lt;p&gt;Jupyter saves your programming session along with results in one file allowing to share your results with other programmers or analytics.&lt;/p&gt;
+&lt;p&gt;Maybe you didn&apos;t know, but GitHub is able to render such notebooks. &lt;a href=&quot;https://gist.github.com/ocoyawale/54d92fd4bf92508a2a6e482b5fa480fd&quot;&gt;Here&lt;/a&gt; I found a large list of interesting notebooks. Take a look at this one, for example:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/mqlaql/geospatial-data/blob/master/Geospatial-Data-with-Python.ipynb&quot;&gt;https://github.com/mqlaql/geospatial-data/blob/master/Geospatial-Data-with-Python.ipynb&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Now, let&apos;s return to the Common Lisp. Jupyter is using a protocol allowing to write backends in different programming languages. They are called &quot;kernels&quot;.&lt;/p&gt;
+&lt;p&gt;Here is how we can install Common Lisp Jupyter kernel on OSX. I&apos;m using &lt;a href=&quot;https://brew.sh/&quot;&gt;Homebrew&lt;/a&gt; and &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt; because they are making everything so easy!&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] brew install zeromq
+
+[poftheday] brew install jupyterlab
+
+[poftheday] ros install common-lisp-jupyter&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can start a notebook in console mode:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] jupyter console --kernel=common-lisp
+Jupyter console 6.2.0
+
+common-lisp-jupyter: a Common Lisp Jupyter kernel
+(C) 2019 Tarn Burton (MIT)
+In [1]: (lisp-implementation-type)
+Out[1]: &amp;quot;SBCL&amp;quot;
+
+In [2]: (lisp-implementation-version)
+Out[2]: &amp;quot;2.0.8&amp;quot;
+
+In [3]: (values 1 2 3)
+Out[3]: 1
+Out[3]: 2
+Out[3]: 3
+
+In [4]: (jupyter:file &amp;quot;/Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png&amp;quot;)
+Out[4]: /Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And this command will start a webserver with full Jupyter Notebook:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;# To start a web UI, run
+[poftheday] jupyter notebook&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;When the browser will open Jupyter, choose this menu to start Common Lisp Jupyter kernel:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/01-choosing-cl-kernel.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Now if you enter the same code as we did before in console, you&apos;ll see, that web version is able to render our &quot;screenshot&quot; file below the &quot;code cell&quot;:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/02-basic-code.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;It is also very easy to render formulas and to request an input from the user:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/03-latex-formula.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Also, you can render any HTML along with styles:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/04-rendering-any-html.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Or you might define functions which will return HTML or files:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/05-returning-html-from-a-function.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;This way, libraries extending &lt;code&gt;common-lisp-jupyter&lt;/code&gt; may be created. They can do plotting for example, or render graphs, etc.&lt;/p&gt;
+&lt;p&gt;Here how you can make you own classes renderable by Jupyter:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0197/06-custom-renderable.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Though, it would be nice to make it possible to define &lt;code&gt;render&lt;/code&gt; method for object not inherited from the &lt;code&gt;jupyter:result&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The developer of this library did a very good job documenting it and providing examples. You will find all of them &lt;a href=&quot;https://yitzchak.github.io/common-lisp-jupyter/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This project is in active development phase. For example, right now support for Jupyter widgets is added.&lt;/p&gt;
+&lt;p&gt;Please, join this effort and make your pull requests to &lt;a href=&quot;https://github.com/yitzchak/common-lisp-jupyter&quot;&gt;this repository&lt;/a&gt;, if you are interested in building CL environment for data science!&lt;/p&gt;
+</description>
+            <pubDate>Sun, 27 Sep 2020 20:48:13 +0300</pubDate>
+        </item>
+        <item>
             <title>which</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0196-which.html</link>
             <description>&lt;p&gt;This is a tiny library by Fernando Borretti. It implements analogue of the UNIX utility &lt;code&gt;which&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (which:which &amp;quot;ls&amp;quot;)
-#P&amp;quot;/bin/ls&amp;quot;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (which:which &amp;quot;which&amp;quot;)
+#P&amp;quot;/usr/bin/which&amp;quot;
 
 POFTHEDAY&amp;gt; (which:which &amp;quot;sbcl&amp;quot;)
 #P&amp;quot;/Users/art/.bin/sbcl&amp;quot;
@@ -1450,184 +1504,6 @@ POFTHEDAY&amp;gt; (alexandria:read-file-into-string &amp;quot;hello.html&amp;quo
 &lt;p&gt;Anyway, I like Scriba and Common Doc because it was relatively easy to hack and do what I need.&lt;/p&gt;
 </description>
             <pubDate>Thu, 03 Sep 2020 21:05:10 +0300</pubDate>
-        </item>
-        <item>
-            <title>geneva</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html</link>
-            <description>&lt;p&gt;This is yet another project by Max Rottenkolber (&lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;). Geneva is the documentation system. It includes a few subsystems:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;the core;&lt;/li&gt;&lt;li&gt;the markup language;&lt;/li&gt;&lt;li&gt;renderers for HTML, LaTeX and plain text.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Geneva separates a document structure from its representation.&lt;/p&gt;
-&lt;p&gt;Core package provides the way to define a document&apos;s structure using calls to Lisp functions:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva:make-document
-            (list
-             (geneva:make-section (list &amp;quot;First section&amp;quot;)
-                (list
-                 (geneva:make-paragraph (list &amp;quot;Foo bar&amp;quot;))
-                 (geneva:make-paragraph (list &amp;quot;Blah minor&amp;quot;))))
-             (geneva:make-section (list &amp;quot;Second section&amp;quot;)
-                 (list
-                  (geneva:make-paragraph (list (geneva:make-bold &amp;quot;Hello World!&amp;quot;)))))))
-((:SECTION (&amp;quot;First section&amp;quot;)
-  ((:PARAGRAPH (&amp;quot;Foo bar&amp;quot;))
-   (:PARAGRAPH (&amp;quot;Blah minor&amp;quot;))))
- (:SECTION (&amp;quot;Second section&amp;quot;)
-  ((:PARAGRAPH ((:BOLD &amp;quot;Hello World!&amp;quot;))))))
-
-POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, the document is a bunch of Lisp lists. It easily can be rendered into the HTML:&lt;/p&gt;
-&lt;h4&gt;Code&lt;/h4&gt;&lt;pre&gt;&lt;code class=&apos;html :render&apos;&gt;&amp;lt;SECTION&amp;gt;
-  &amp;lt;HEADER&amp;gt;
-    &amp;lt;A NAME=&amp;quot;section-1&amp;quot;&amp;gt;
-      &amp;lt;H1&amp;gt;&amp;lt;SPAN CLASS=&amp;quot;geneva-index&amp;quot;&amp;gt;1&amp;lt;/SPAN&amp;gt; First section&amp;lt;/H1&amp;gt;
-    &amp;lt;/A&amp;gt;
-  &amp;lt;/HEADER&amp;gt;
-  &amp;lt;P&amp;gt;Foo bar&amp;lt;/P&amp;gt;
-  &amp;lt;P&amp;gt;Blah minor&amp;lt;/P&amp;gt;
-&amp;lt;/SECTION&amp;gt;
-
-&amp;lt;SECTION&amp;gt;
-  &amp;lt;HEADER&amp;gt;
-    &amp;lt;A NAME=&amp;quot;section-2&amp;quot;&amp;gt;
-      &amp;lt;H1&amp;gt;&amp;lt;SPAN CLASS=&amp;quot;geneva-index&amp;quot;&amp;gt;2&amp;lt;/SPAN&amp;gt; Second section&amp;lt;/H1&amp;gt;
-    &amp;lt;/A&amp;gt;
-  &amp;lt;/HEADER&amp;gt;
-  &amp;lt;P&amp;gt;&amp;lt;B&amp;gt;Hello World!&amp;lt;/B&amp;gt;&amp;lt;/P&amp;gt;
-&amp;lt;/SECTION&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;h4&gt;Result&lt;/h4&gt;&lt;SECTION&gt;
-  &lt;HEADER&gt;
-    &lt;A NAME=&quot;section-1&quot;&gt;
-      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; First section&lt;/H1&gt;
-    &lt;/A&gt;
-  &lt;/HEADER&gt;
-  &lt;P&gt;Foo bar&lt;/P&gt;
-  &lt;P&gt;Blah minor&lt;/P&gt;
-&lt;/SECTION&gt;
-
-&lt;SECTION&gt;
-  &lt;HEADER&gt;
-    &lt;A NAME=&quot;section-2&quot;&gt;
-      &lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;2&lt;/SPAN&gt; Second section&lt;/H1&gt;
-    &lt;/A&gt;
-  &lt;/HEADER&gt;
-  &lt;P&gt;&lt;B&gt;Hello World!&lt;/B&gt;&lt;/P&gt;
-&lt;/SECTION&gt;&lt;p&gt;Or you might want to render it into the plain text:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva.plain-text:render-plain-text * :index-p nil)
-
-1 First section
-
-   Foo bar
-
-   Blah minor
-
-2 Second section
-
-   Hello World!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Humans usually prefer to use specialized markup languages. Geneva provides MK2 markup language to define a rich text. For example, text from the previous example can be written like that:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((text &amp;quot;
-&amp;lt; First section
-
-  Foo bar
-
-  Blah minor
-
-&amp;gt;
-
-&amp;lt; Second section
-
-  *Hello World!*
-
-&amp;gt;&amp;quot;))
-             (with-input-from-string (s text)
-               (geneva.mk2:read-mk2 s)))
-((:SECTION (&amp;quot;First section&amp;quot;)
-  ((:PARAGRAPH (&amp;quot;Foo bar&amp;quot;))
-   (:PARAGRAPH (&amp;quot;Blah minor&amp;quot;))))
- (:SECTION (&amp;quot;Second section&amp;quot;)
-  ((:PARAGRAPH ((:BOLD &amp;quot;Hello World!&amp;quot;))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a system to process documentation strings into the Geneva document. It can be used to render documentation for your own system. Docstrings can be written in MK2 markup.&lt;/p&gt;
-&lt;p&gt;Now we&apos;ll create a test Lisp package and fill it with a variable, function and macro.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defpackage foo
-             (:use #:cl)
-             (:documentation &amp;quot;This is an example
-                              of the package.
-
-                              Documentation can be written in *MK2 format*.
-
-                              And include _rich_ text with links.&amp;quot;))
-
-POFTHEDAY&amp;gt; (defun foo::bar (minor)
-             &amp;quot;Makes some tranformation.
-
-              *Arguments*:
-
-              {minor} - an object to transform.&amp;quot;
-
-             ;; do the job
-             (values))
-
-POFTHEDAY&amp;gt; (defvar foo::*blah* :blah
-             &amp;quot;Switches between two modes: {:blah} and {:minor}&amp;quot;)
-
-POFTHEDAY&amp;gt; (defmacro foo::with-minor (&amp;amp;body body)
-             &amp;quot;Runs {body} with {:minor} mode applied.&amp;quot;
-             `(let ((foo::*blah* :minor))
-                ,@body))
-
-POFTHEDAY&amp;gt; (export &amp;#039;(foo::*blah* foo::bar foo::with-minor)
-                   :foo)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can build documentation for this package in two simple steps:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (geneva.cl:api-document :foo)
-((:SECTION (&amp;quot;foo (Package)&amp;quot;)
-  ((:PARAGRAPH (&amp;quot;This is an example of the package.&amp;quot;))
-   (:PARAGRAPH (&amp;quot;Documentation can be written in &amp;quot; (:BOLD &amp;quot;MK2 format&amp;quot;) &amp;quot;.&amp;quot;))
-   (:PARAGRAPH (&amp;quot;And include &amp;quot; (:ITALIC &amp;quot;rich&amp;quot;) &amp;quot; text with links.&amp;quot;))
-   (:SECTION (&amp;quot;*blah* (Variable)&amp;quot;)
-    ((:PARAGRAPH ((:BOLD &amp;quot;Initial Value:&amp;quot;)))
-     (:PARAGRAPH ((:FIXED-WIDTH &amp;quot;:BLAH&amp;quot;)))
-     (:PARAGRAPH
-      (&amp;quot;Switches between two modes: &amp;quot; (:FIXED-WIDTH &amp;quot;:blah&amp;quot;) &amp;quot; and &amp;quot;
-       (:FIXED-WIDTH &amp;quot;:minor&amp;quot;)))))
-   (:SECTION (&amp;quot;bar (Function)&amp;quot;)
-    ((:PARAGRAPH ((:BOLD &amp;quot;Syntax:&amp;quot;)))
-     (:PARAGRAPH (&amp;quot;&amp;#x2014; Function: &amp;quot; (:BOLD &amp;quot;bar&amp;quot;) &amp;quot; &amp;quot; (:ITALIC &amp;quot;minor&amp;quot;)))
-     (:PARAGRAPH (&amp;quot;Makes some tranformation.&amp;quot;))
-     (:PARAGRAPH ((:BOLD &amp;quot;Arguments&amp;quot;) &amp;quot;:&amp;quot;))
-     (:PARAGRAPH ((:FIXED-WIDTH &amp;quot;minor&amp;quot;) &amp;quot; - an object to transform.&amp;quot;))))
-   (:SECTION (&amp;quot;with-minor (Macro)&amp;quot;)
-    ((:PARAGRAPH ((:BOLD &amp;quot;Syntax:&amp;quot;)))
-     (:PARAGRAPH
-      (&amp;quot;&amp;#x2014; Macro: &amp;quot; (:BOLD &amp;quot;with-minor&amp;quot;) &amp;quot; &amp;quot; (:FIXED-WIDTH &amp;quot;&amp;amp;body&amp;quot;) &amp;quot; &amp;quot;
-       (:ITALIC &amp;quot;body&amp;quot;)))
-     (:PARAGRAPH
-      (&amp;quot;Runs &amp;quot; (:FIXED-WIDTH &amp;quot;body&amp;quot;) &amp;quot; with &amp;quot; (:FIXED-WIDTH &amp;quot;:minor&amp;quot;)
-       &amp;quot; mode applied.&amp;quot;)))))))
-
-POFTHEDAY&amp;gt; (geneva.html:render-html * :index-p nil)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It will render this HTML:&lt;/p&gt;
-&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1&quot;&gt;&lt;H1&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1&lt;/SPAN&gt; foo (Package)&lt;/H1&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;This is an example of the package.&lt;/P&gt;&lt;P&gt;Documentation can be written in &lt;B&gt;MK2 format&lt;/B&gt;.&lt;/P&gt;&lt;P&gt;And include &lt;I&gt;rich&lt;/I&gt; text with links.&lt;/P&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-1&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.1&lt;/SPAN&gt; *blah* (Variable)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Initial Value:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;&lt;CODE&gt;:BLAH&lt;/CODE&gt;&lt;/P&gt;&lt;P&gt;Switches between two modes: &lt;CODE&gt;:blah&lt;/CODE&gt; and &lt;CODE&gt;:minor&lt;/CODE&gt;&lt;/P&gt;&lt;/SECTION&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-2&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.2&lt;/SPAN&gt; bar (Function)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Syntax:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;— Function: &lt;B&gt;bar&lt;/B&gt; &lt;I&gt;minor&lt;/I&gt;&lt;/P&gt;&lt;P&gt;Makes some tranformation.&lt;/P&gt;&lt;P&gt;&lt;B&gt;Arguments&lt;/B&gt;:&lt;/P&gt;&lt;P&gt;&lt;CODE&gt;minor&lt;/CODE&gt; - an object to transform.&lt;/P&gt;&lt;/SECTION&gt;&lt;SECTION&gt;&lt;HEADER&gt;&lt;A NAME=&quot;section-1-3&quot;&gt;&lt;H2&gt;&lt;SPAN CLASS=&quot;geneva-index&quot;&gt;1.3&lt;/SPAN&gt; with-minor (Macro)&lt;/H2&gt;&lt;/A&gt;&lt;/HEADER&gt;&lt;P&gt;&lt;B&gt;Syntax:&lt;/B&gt;&lt;/P&gt;&lt;P&gt;— Macro: &lt;B&gt;with-minor&lt;/B&gt; &lt;CODE&gt;&amp;amp;body&lt;/CODE&gt; &lt;I&gt;body&lt;/I&gt;&lt;/P&gt;&lt;P&gt;Runs &lt;CODE&gt;body&lt;/CODE&gt; with &lt;CODE&gt;:minor&lt;/CODE&gt; mode applied.&lt;/P&gt;&lt;/SECTION&gt;&lt;/SECTION&gt;&lt;p&gt;Of cause, you can provide your own CSS stylesheets to make the page looks like you want.&lt;/p&gt;
-&lt;p&gt;I think Geneva might become a great replacement to reStructured text for documentation of my own libraries. Thank you, &lt;a href=&quot;https://twitter.com/eugeneia_&quot;&gt;@eugeneia_&lt;/a&gt;!.&lt;/p&gt;
-&lt;p&gt;Though, it would be wonderful to add a little extensibility and ability to cross-referencing between different documentation sections.&lt;/p&gt;
-&lt;p&gt;By the way, in Geneva&apos;s sources I found an interesting way to keep DRY principle. This piece of code reuses &lt;code&gt;(content-values text-token)&lt;/code&gt; 5 times.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun render-text (text)
-  &amp;quot;Render TEXT as HTML.&amp;quot;
-  (dolist (text-token text)
-    (ecase (content-type text-token)
-      (:plain (text #1=(content-values text-token)))
-      (:bold (b #1#))
-      (:italic (i #1#))
-      (:fixed-width (code #1#))
-      (:url (multiple-value-bind (string url) #1#
-              (a [:href (or url string)] (or string url)))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I don&apos;t know the proper name of the Lisp&apos;s feature, but it allows to refer to the piece of data-structure defined earslier. The most common usage I&apos;ve seen before is a circular list&apos;s definition:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; &amp;#039;#1=(1 2 3 . #1#)
-(1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3
- 1 2 3 1 2 ...)&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Tue, 01 Sep 2020 23:56:50 +0300</pubDate>
         </item>
     </channel>
 </rss>

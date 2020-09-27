@@ -11,7 +11,7 @@
 This library provides a Common Lisp kernel for [[https://jupyter.org/][Jupyter]].
 
 Jupyter is a scientific environment for experiments. It is good when you
-want to play with data, to plot graphics and provide some comments in
+want to play with data, to plot graphics and provides some comments in
 markdown.
 
 Jupyter saves your programming session along with results in one file
@@ -28,8 +28,8 @@ Now, let's return to the Common Lisp. Jupyter is using a protocol
 allowing to write backends in different programming languages. They are
 called "kernels".
 
-Here is how we can install Common Lisp Jupyter kernel on OSX. Here I'll
-use [[https://brew.sh/][Homebrew]] and [[https://github.com/roswell/roswell][Roswell]] because they are making everything so easy!
+Here is how we can install Common Lisp Jupyter kernel on OSX. I'm
+using [[https://brew.sh/][Homebrew]] and [[https://github.com/roswell/roswell][Roswell]] because they are making everything so easy!
 
 #+begin_src bash
 
@@ -75,7 +75,7 @@ And this command will start a webserver with full Jupyter Notebook:
 
 #+end_src
 
-When browser will open Jupyter, choose this menu to start Common Lisp
+When the browser will open Jupyter, choose this menu to start Common Lisp
 Jupyter kernel:
 
 [[../../media/0197/01-choosing-cl-kernel.png]]
@@ -94,21 +94,25 @@ Also, you can render any HTML along with styles:
 
 [[../../media/0197/04-rendering-any-html.png]]
 
-Or you might define a functions which will return HTML or files:
+Or you might define functions which will return HTML or files:
 
 [[../../media/0197/05-returning-html-from-a-function.png]]
 
-This way, a libraries extending ~common-lis-jupyter~ maybe created. They
+This way, libraries extending ~common-lisp-jupyter~ may be created. They
 can do plotting for example, or render graphs, etc.
 
-Here how you can made you own classes renderable by Jupyter:
+Here how you can make you own classes renderable by Jupyter:
 
 [[../../media/0197/06-custom-renderable.png]]
 
-Though, it would be nice to make it possible to define ~render~ method.
+Though, it would be nice to make it possible to define ~render~ method for
+object not inherited from the ~jupyter:result~.
 
-This project is in active development phase. For example right now
+The developer of this library did a very good job documenting it and
+providing examples. You will find all of them [[https://yitzchak.github.io/common-lisp-jupyter/][here]].
+
+This project is in active development phase. For example, right now
 support for Jupyter widgets is added.
 
-Please, join this effort and make your pull requests to [[https://github.com/yitzchak/common-lisp-jupyter][this reporitory]],
+Please, join this effort and make your pull requests to [[https://github.com/yitzchak/common-lisp-jupyter][this repository]],
 if you are interested in building CL environment for data science!

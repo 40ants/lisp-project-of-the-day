@@ -26,6 +26,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 21 September - [[content/2020/09/0194-persistent-variables.org][persistent-variables]] ([[https://twitter.com/svetlyak40wt/status/1308124630499184651][twitter]])
 - 23 September - [[content/2020/09/0195-trivial-timeout.org][trivial-timeout]] ([[https://twitter.com/svetlyak40wt/status/1308835652390313986][twitter]])
 - 25 September - [[content/2020/09/0196-which.org][which]] ([[https://twitter.com/svetlyak40wt/status/1309596166162649090][twitter]])
+- 27 September - [[content/2020/09/0197-common-lisp-jupyter.org][common-lisp-jupyter]] ([[https://twitter.com/svetlyak40wt/status/1310274972867342337][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
@@ -1233,7 +1234,10 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/naryl/cl-cooperative
 - http://quickdocs.org/screamer/
 - https://github.com/mmontone/ten - fork of the http://quickdocs.org/eco/
-- https://gist.github.com/markasoftware/ab357f1b967b3f656d026e33fec3bc0e html->string
+- https://gist.github.com/markasoftware/ab357f1b967b3f656d026e33fec3bc0e
+  html->string
+- https://github.com/Shinmera/flow
+- https://github.com/Shinmera/messagebox
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

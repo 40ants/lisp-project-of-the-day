@@ -52,12 +52,12 @@ h1 .tags {
     </style>
   </head>
   <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>common-lisp-jupyter</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>common-lisp-jupyter<span class='tags'><a href='../../tags/data-science.html'><span class='label label-default'>data-science</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This library provides a Common Lisp kernel for <a href="https://jupyter.org/">Jupyter</a>.</p>
-<p>Jupyter is a scientific environment for experiments. It is good when you want to play with data, to plot graphics and provide some comments in markdown.</p>
+<p>Jupyter is a scientific environment for experiments. It is good when you want to play with data, to plot graphics and provides some comments in markdown.</p>
 <p>Jupyter saves your programming session along with results in one file allowing to share your results with other programmers or analytics.</p>
 <p>Maybe you didn't know, but GitHub is able to render such notebooks. <a href="https://gist.github.com/ocoyawale/54d92fd4bf92508a2a6e482b5fa480fd">Here</a> I found a large list of interesting notebooks. Take a look at this one, for example:</p>
 <p><a href="https://github.com/mqlaql/geospatial-data/blob/master/Geospatial-Data-with-Python.ipynb">https://github.com/mqlaql/geospatial-data/blob/master/Geospatial-Data-with-Python.ipynb</a></p>
 <p>Now, let's return to the Common Lisp. Jupyter is using a protocol allowing to write backends in different programming languages. They are called "kernels".</p>
-<p>Here is how we can install Common Lisp Jupyter kernel on OSX. Here I'll use <a href="https://brew.sh/">Homebrew</a> and <a href="https://github.com/roswell/roswell">Roswell</a> because they are making everything so easy!</p>
+<p>Here is how we can install Common Lisp Jupyter kernel on OSX. I'm using <a href="https://brew.sh/">Homebrew</a> and <a href="https://github.com/roswell/roswell">Roswell</a> because they are making everything so easy!</p>
 <pre><code class='bash'>[poftheday] brew install zeromq
 
 [poftheday] brew install jupyterlab
@@ -82,7 +82,7 @@ Out[3]: 3
 In [4]: (jupyter:file &quot;/Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png&quot;)
 Out[4]: /Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png</code></pre><p>And this command will start a webserver with full Jupyter Notebook:</p>
 <pre><code class='bash'># To start a web UI, run
-[poftheday] jupyter notebook</code></pre><p>When browser will open Jupyter, choose this menu to start Common Lisp Jupyter kernel:</p>
+[poftheday] jupyter notebook</code></pre><p>When the browser will open Jupyter, choose this menu to start Common Lisp Jupyter kernel:</p>
 <p><img style="max-width: 100%" src="../../media/0197/01-choosing-cl-kernel.png"/></p>
 <p>Now if you enter the same code as we did before in console, you'll see, that web version is able to render our "screenshot" file below the "code cell":</p>
 <p><img style="max-width: 100%" src="../../media/0197/02-basic-code.png"/></p>
@@ -90,14 +90,15 @@ Out[4]: /Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png</code></pre><p>
 <p><img style="max-width: 100%" src="../../media/0197/03-latex-formula.png"/></p>
 <p>Also, you can render any HTML along with styles:</p>
 <p><img style="max-width: 100%" src="../../media/0197/04-rendering-any-html.png"/></p>
-<p>Or you might define a functions which will return HTML or files:</p>
+<p>Or you might define functions which will return HTML or files:</p>
 <p><img style="max-width: 100%" src="../../media/0197/05-returning-html-from-a-function.png"/></p>
-<p>This way, a libraries extending <code>common-lis-jupyter</code> maybe created. They can do plotting for example, or render graphs, etc.</p>
-<p>Here how you can made you own classes renderable by Jupyter:</p>
+<p>This way, libraries extending <code>common-lisp-jupyter</code> may be created. They can do plotting for example, or render graphs, etc.</p>
+<p>Here how you can make you own classes renderable by Jupyter:</p>
 <p><img style="max-width: 100%" src="../../media/0197/06-custom-renderable.png"/></p>
-<p>Though, it would be nice to make it possible to define <code>render</code> method.</p>
-<p>This project is in active development phase. For example right now support for Jupyter widgets is added.</p>
-<p>Please, join this effort and make your pull requests to <a href="https://github.com/yitzchak/common-lisp-jupyter">this reporitory</a>, if you are interested in building CL environment for data science!</p>
+<p>Though, it would be nice to make it possible to define <code>render</code> method for object not inherited from the <code>jupyter:result</code>.</p>
+<p>The developer of this library did a very good job documenting it and providing examples. You will find all of them <a href="https://yitzchak.github.io/common-lisp-jupyter/">here</a>.</p>
+<p>This project is in active development phase. For example, right now support for Jupyter widgets is added.</p>
+<p>Please, join this effort and make your pull requests to <a href="https://github.com/yitzchak/common-lisp-jupyter">this repository</a>, if you are interested in building CL environment for data science!</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

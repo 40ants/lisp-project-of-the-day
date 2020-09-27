@@ -13,8 +13,8 @@ the UNIX utility ~which~:
 
 #+begin_src lisp
 
-POFTHEDAY> (which:which "ls")
-#P"/bin/ls"
+POFTHEDAY> (which:which "which")
+#P"/usr/bin/which"
 
 POFTHEDAY> (which:which "sbcl")
 #P"/Users/art/.bin/sbcl"
