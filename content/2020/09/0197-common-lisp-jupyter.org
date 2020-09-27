@@ -1,0 +1,114 @@
+* common-lisp-jupyter :data_science:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This library provides a Common Lisp kernel for [[https://jupyter.org/][Jupyter]].
+
+Jupyter is a scientific environment for experiments. It is good when you
+want to play with data, to plot graphics and provide some comments in
+markdown.
+
+Jupyter saves your programming session along with results in one file
+allowing to share your results with other programmers or
+analytics.
+
+Maybe you didn't know, but GitHub is able to render such notebooks. [[https://gist.github.com/ocoyawale/54d92fd4bf92508a2a6e482b5fa480fd][Here]]
+I found a large list of interesting notebooks. Take a look at this one,
+for example:
+
+https://github.com/mqlaql/geospatial-data/blob/master/Geospatial-Data-with-Python.ipynb
+
+Now, let's return to the Common Lisp. Jupyter is using a protocol
+allowing to write backends in different programming languages. They are
+called "kernels".
+
+Here is how we can install Common Lisp Jupyter kernel on OSX. Here I'll
+use [[https://brew.sh/][Homebrew]] and [[https://github.com/roswell/roswell][Roswell]] because they are making everything so easy!
+
+#+begin_src bash
+
+[poftheday] brew install zeromq
+
+[poftheday] brew install jupyterlab
+
+[poftheday] ros install common-lisp-jupyter
+
+#+end_src
+
+Now we can start a notebook in console mode:
+
+#+begin_src bash
+
+[poftheday] jupyter console --kernel=common-lisp
+Jupyter console 6.2.0
+
+common-lisp-jupyter: a Common Lisp Jupyter kernel
+(C) 2019 Tarn Burton (MIT)
+In [1]: (lisp-implementation-type)
+Out[1]: "SBCL"
+
+In [2]: (lisp-implementation-version)
+Out[2]: "2.0.8"
+
+In [3]: (values 1 2 3)
+Out[3]: 1
+Out[3]: 2
+Out[3]: 3
+
+In [4]: (jupyter:file "/Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png")
+Out[4]: /Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png
+
+#+end_src
+
+And this command will start a webserver with full Jupyter Notebook:
+
+#+begin_src bash
+
+# To start a web UI, run
+[poftheday] jupyter notebook
+
+#+end_src
+
+When browser will open Jupyter, choose this menu to start Common Lisp
+Jupyter kernel:
+
+[[../../media/0197/01-choosing-cl-kernel.png]]
+
+Now if you enter the same code as we did before in console, you'll see,
+that web version is able to render our "screenshot" file below the
+"code cell":
+
+[[../../media/0197/02-basic-code.png]]
+
+It is also very easy to render formulas and to request an input from the user:
+
+[[../../media/0197/03-latex-formula.png]]
+
+Also, you can render any HTML along with styles:
+
+[[../../media/0197/04-rendering-any-html.png]]
+
+Or you might define a functions which will return HTML or files:
+
+[[../../media/0197/05-returning-html-from-a-function.png]]
+
+This way, a libraries extending ~common-lis-jupyter~ maybe created. They
+can do plotting for example, or render graphs, etc.
+
+Here how you can made you own classes renderable by Jupyter:
+
+[[../../media/0197/06-custom-renderable.png]]
+
+Though, it would be nice to make it possible to define ~render~ method.
+
+This project is in active development phase. For example right now
+support for Jupyter widgets is added.
+
+Please, join this effort and make your pull requests to [[https://github.com/yitzchak/common-lisp-jupyter][this reporitory]],
+if you are interested in building CL environment for data science!
