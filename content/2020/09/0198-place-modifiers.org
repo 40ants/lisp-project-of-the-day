@@ -1,0 +1,73 @@
+* place-modifiers :macro:data_structures:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is a library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It provides a shorthand macro to modify
+data-structures in place.
+
+The library has [[http://quickdocs.org/place-modifiers/][comprehensive documentation]] so, I'll only show you
+one example to demonstrate how it works.
+
+Let's pretend we have some data received from an API and "age" field
+should be converted into the integer inplace. In plain CL we'll do this
+like that:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((data
+                   '#((:name "Bob" :params (:age "45"))
+                      (:name "Alice" :params (:age "23")))))
+             (loop for item across data
+                   do (setf (getf (getf item :params)
+                                  :age)
+                            (parse-integer
+                             (getf (getf item :params)
+                                   :age))))
+             data)
+#((:NAME "Bob" :PARAMS (:AGE 45)) (:NAME "Alice" :PARAMS (:AGE 23)))
+
+#+end_src
+
+~place-modiifier~ allows you to keep you code DRY:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((data
+                   '#((:name "Bob" :params (:age "45"))
+                      (:name "Alice" :params (:age "23")))))
+             (loop for item across data
+                   do (place-modifier:modify
+                       (parse-integer
+                        (getf (getf item :params)
+                              :age))))
+             data)
+#((:NAME "Bob" :PARAMS (:AGE 45)) (:NAME "Alice" :PARAMS (:AGE 23)))
+
+#+end_src
+
+Here I've extracted forms responsible for modification:
+
+#+begin_src lisp
+
+;; Plain Common Lisp
+(setf (getf (getf item :params)
+            :age)
+      (parse-integer
+       (getf (getf item :params)
+             :age)))
+
+;; Using Place Modifiers macro
+(place-modifier:modify
+ (parse-integer
+  (getf (getf item :params)
+        :age)))
+
+#+end_src
+
+To learn more about ~place-modifiers~, read it's [[http://quickdocs.org/place-modifiers/][docs]]!
