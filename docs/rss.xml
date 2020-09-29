@@ -6,6 +6,49 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>place-modifiers</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0198-place-modifiers.html</link>
+            <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It provides a shorthand macro to modify data-structures in place.&lt;/p&gt;
+&lt;p&gt;The library has &lt;a href=&quot;http://quickdocs.org/place-modifiers/&quot;&gt;comprehensive documentation&lt;/a&gt; so, I&apos;ll only show you one example to demonstrate how it works.&lt;/p&gt;
+&lt;p&gt;Let&apos;s pretend we have some data received from an API and &quot;age&quot; field should be converted into the integer in place.&lt;/p&gt;
+&lt;p&gt;In plain CL we&apos;ll do it like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((data
+                   &amp;#039;#((:name &amp;quot;Bob&amp;quot; :params (:age &amp;quot;45&amp;quot;))
+                      (:name &amp;quot;Alice&amp;quot; :params (:age &amp;quot;23&amp;quot;)))))
+             (loop for item across data
+                   do (setf (getf (getf item :params)
+                                  :age)
+                            (parse-integer
+                             (getf (getf item :params)
+                                   :age))))
+             data)
+#((:NAME &amp;quot;Bob&amp;quot; :PARAMS (:AGE 45)) (:NAME &amp;quot;Alice&amp;quot; :PARAMS (:AGE 23)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But &lt;code&gt;place-modiifiers&lt;/code&gt; allows you to keep your code DRY:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((data
+                   &amp;#039;#((:name &amp;quot;Bob&amp;quot; :params (:age &amp;quot;45&amp;quot;))
+                      (:name &amp;quot;Alice&amp;quot; :params (:age &amp;quot;23&amp;quot;)))))
+             (loop for item across data
+                   do (place-modifier:modify
+                       (parse-integer
+                        (getf (getf item :params)
+                              :age))))
+             data)
+#((:NAME &amp;quot;Bob&amp;quot; :PARAMS (:AGE 45)) (:NAME &amp;quot;Alice&amp;quot; :PARAMS (:AGE 23)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here I&apos;ve extracted forms responsible for the modification:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Plain Common Lisp
+(setf (getf (getf item :params)
+            :age)
+      (parse-integer
+       (getf (getf item :params)
+             :age)))
+
+;; Using Place Modifiers macro
+(place-modifier:modify
+ (parse-integer
+  (getf (getf item :params)
+        :age)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To learn more about &lt;code&gt;place-modifiers&lt;/code&gt;, read it&apos;s &lt;a href=&quot;http://quickdocs.org/place-modifiers/&quot;&gt;docs&lt;/a&gt;! There is a lot of examples.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 29 Sep 2020 22:18:05 +0300</pubDate>
+        </item>
+        <item>
             <title>common-lisp-jupyter</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0197-common-lisp-jupyter.html</link>
             <description>&lt;p&gt;This library provides a Common Lisp kernel for &lt;a href=&quot;https://jupyter.org/&quot;&gt;Jupyter&lt;/a&gt;.&lt;/p&gt;
@@ -1426,84 +1469,6 @@ FOO2&amp;gt; (- &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
 ; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;Hello &amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably I missed some of the &lt;code&gt;conduit-packages&lt;/code&gt; features. Please, read its &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;sources&lt;/a&gt; and tell me if you will find something interesting!&lt;/p&gt;
 </description>
             <pubDate>Fri, 04 Sep 2020 20:52:13 +0300</pubDate>
-        </item>
-        <item>
-            <title>scriba</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0178-scriba.html</link>
-            <description>&lt;p&gt;The previous post was about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0177-geneva.html&quot;&gt;Geneva&lt;/a&gt; - the CL documentation system. &lt;a href=&quot;https://twitter.com/VPostnicov&quot;&gt;Vasily Postnicov&lt;/a&gt; &lt;a href=&quot;https://twitter.com/VPostnicov/status/1301009915092365312&quot;&gt;mentioned on twitter&lt;/a&gt; another Lisp documentation tool called Codex.&lt;/p&gt;
-&lt;p&gt;Codex is based on &lt;code&gt;Scriba&lt;/code&gt; markup and today we&apos;ll look at how to use it.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (scriba.parser:parse-string &amp;quot;Blah minor&amp;quot;)
-(:DOCUMENT &amp;quot;Blah minor&amp;quot;)
-
-
-POFTHEDAY&amp;gt; (scriba.parser:parse-string &amp;quot;@b(Blah) minor&amp;quot;)
-(:DOCUMENT (:NAME &amp;quot;b&amp;quot; :ATTRS NIL :BODY (&amp;quot;Blah&amp;quot;)) &amp;quot; minor&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But this is an internal AST representation. &lt;code&gt;Scriba&lt;/code&gt; is based on other Fernando Boretti&apos;s library - &lt;code&gt;CommonDoc&lt;/code&gt; and they should be used in tandem:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (make-instance &amp;#039;scriba:scriba)
-#&amp;lt;SCRIBA:SCRIBA {10023FD193}&amp;gt;
-
-POFTHEDAY&amp;gt; (defparameter *format* (make-instance &amp;#039;scriba:scriba))
-*FORMAT*
-
-POFTHEDAY&amp;gt; (common-doc.format:parse-document *format* &amp;quot;@b(Hello) @i(World)!&amp;quot;)
-#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (common-doc.format:emit-to-string *format* *)
-&amp;quot;@title()
-
-@b(Hello)@i(World)!
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also another CL library, also made by Fernando - &lt;code&gt;pandocl&lt;/code&gt;. It can be used when you need to convert the document into &lt;code&gt;HTML&lt;/code&gt; or another format.&lt;/p&gt;
-&lt;p&gt;For example, here how we can render our hello world into the HTML:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (pandocl:parse-string
-            &amp;quot;@b(Hello) @i(World)!&amp;quot;
-            :scriba)
-#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (pandocl:emit  * &amp;quot;hello.html&amp;quot;)
-#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (alexandria:read-file-into-string &amp;quot;hello.html&amp;quot;)
-&amp;quot;&amp;lt;!DOCTYPE html&amp;gt;
- &amp;lt;html&amp;gt;
-   &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;
-   &amp;lt;body&amp;gt;
-     &amp;lt;b&amp;gt;Hello&amp;lt;/b&amp;gt;&amp;lt;i&amp;gt;World&amp;lt;/i&amp;gt;!
-   &amp;lt;/body&amp;gt;
- &amp;lt;/html&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But what I&apos;m really interested in is Scriba&apos;s extensibility. The text consists of inline and multiline blocks. Each block has a name and optional attributes.&lt;/p&gt;
-&lt;p&gt;Let&apos;s pretend, everyday we are writing texts, mentioning different twitter users and want a shorthand syntax for them! When rendering into HTML, these tags should be transformed into the link and real user name.&lt;/p&gt;
-&lt;p&gt;Naive approach does not work, because we did nothing to extend the protocol:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (common-doc.format:parse-document *format*
-                                             &amp;quot;Hello @twitter(bob)!&amp;quot;)
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;No node with name twitter&amp;quot; {100324FCC3}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But I found the way to do this. Thanks to the CLOS!&lt;/p&gt;
-&lt;p&gt;What we need, is to define the &lt;code&gt;twitter&lt;/code&gt; node, using this &lt;code&gt;CommonDoc&lt;/code&gt; macro:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (common-doc:define-node twitter (common-doc:markup)
-                                   ()
-                                   (:tag-name &amp;quot;twitter&amp;quot;))
-
-POFTHEDAY&amp;gt; (common-html.emitter::define-emitter (node twitter)
-             (let* ((username (common-doc:text (first (common-doc:children node))))
-                    (url (format nil &amp;quot;https://twitter/~A&amp;quot; username))
-                    (name (format nil &amp;quot;@~A&amp;quot; username)))
-               (common-html.emitter::with-tag (&amp;quot;a&amp;quot; node :attributes `((&amp;quot;href&amp;quot; . ,url)))
-                                              (write-string name
-                                                            common-html.emitter::*output-stream*))))
-
-POFTHEDAY&amp;gt; (common-doc.format:parse-document *format* &amp;quot;Hello @twitter(bob)!&amp;quot;)
-#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (pandocl:emit  * &amp;quot;hello.html&amp;quot;)
-#&amp;lt;COMMON-DOC:DOCUMENT &amp;quot;&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (alexandria:read-file-into-string &amp;quot;hello.html&amp;quot;)
-&amp;quot;&amp;lt;!DOCTYPE html&amp;gt;
- &amp;lt;html&amp;gt;
-    &amp;lt;head&amp;gt;&amp;lt;title&amp;gt;&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;
-    &amp;lt;body&amp;gt;
-       Hello &amp;lt;a href=\&amp;quot;https://twitter/bob\&amp;quot;&amp;gt;@bob&amp;lt;/a&amp;gt;!
-    &amp;lt;/body&amp;gt;
-&amp;lt;/html&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, I&apos;ve used a bunch of internal symbols, to extend &lt;code&gt;Common HTML&lt;/code&gt; and make it work the way I need. Probably it will be a good idea to make this API public.&lt;/p&gt;
-&lt;p&gt;Anyway, I like Scriba and Common Doc because it was relatively easy to hack and do what I need.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 03 Sep 2020 21:05:10 +0300</pubDate>
         </item>
     </channel>
 </rss>

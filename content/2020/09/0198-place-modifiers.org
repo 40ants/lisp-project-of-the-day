@@ -15,8 +15,9 @@ The library has [[http://quickdocs.org/place-modifiers/][comprehensive documenta
 one example to demonstrate how it works.
 
 Let's pretend we have some data received from an API and "age" field
-should be converted into the integer inplace. In plain CL we'll do this
-like that:
+should be converted into the integer in place.
+
+In plain CL we'll do it like this:
 
 #+begin_src lisp
 
@@ -34,7 +35,7 @@ POFTHEDAY> (let ((data
 
 #+end_src
 
-~place-modiifier~ allows you to keep you code DRY:
+But ~place-modiifiers~ allows you to keep your code DRY:
 
 #+begin_src lisp
 
@@ -51,7 +52,7 @@ POFTHEDAY> (let ((data
 
 #+end_src
 
-Here I've extracted forms responsible for modification:
+Here I've extracted forms responsible for the modification:
 
 #+begin_src lisp
 
@@ -70,4 +71,4 @@ Here I've extracted forms responsible for modification:
 
 #+end_src
 
-To learn more about ~place-modifiers~, read it's [[http://quickdocs.org/place-modifiers/][docs]]!
+To learn more about ~place-modifiers~, read it's [[http://quickdocs.org/place-modifiers/][docs]]! There is a lot of examples.

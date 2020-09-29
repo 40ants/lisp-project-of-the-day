@@ -5,7 +5,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
-** TODO September
+** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
 - 03 September - [[content/2020/09/0178-scriba.org][scriba]] ([[https://twitter.com/svetlyak40wt/status/1301583177505538048][twitter]])
 - 04 September - [[content/2020/09/0179-conduit-packages.org][conduit-packages]] ([[https://twitter.com/svetlyak40wt/status/1301939615914512392][twitter]])
@@ -27,6 +27,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 23 September - [[content/2020/09/0195-trivial-timeout.org][trivial-timeout]] ([[https://twitter.com/svetlyak40wt/status/1308835652390313986][twitter]])
 - 25 September - [[content/2020/09/0196-which.org][which]] ([[https://twitter.com/svetlyak40wt/status/1309596166162649090][twitter]])
 - 27 September - [[content/2020/09/0197-common-lisp-jupyter.org][common-lisp-jupyter]] ([[https://twitter.com/svetlyak40wt/status/1310274972867342337][twitter]])
+- 29 September - [[content/2020/09/0198-place-modifiers.org][place-modifiers]] ([[https://twitter.com/svetlyak40wt/status/1311022330320125952][twitter]])
 
 ** August
 - 01 August - [[content/2020/08/0148-modf.org][modf]] ([[https://twitter.com/svetlyak40wt/status/1289615369510875136][twitter]])
@@ -1238,6 +1239,13 @@ files, and extracting their ":defsystem-depends-on".
   html->string
 - https://github.com/Shinmera/flow
 - https://github.com/Shinmera/messagebox
+- some zeromq lib
+  examples are here
+  http://zguide.zeromq.org/page:chapter1
+  http://zguide.zeromq.org/lisp:hwclient
+  http://zguide.zeromq.org/lisp:hwserver
+  and common-lisp-jupter uses it somehow.
+  but there are 3 libs, which one to review???
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
