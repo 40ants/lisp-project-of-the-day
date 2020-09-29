@@ -9,7 +9,7 @@
             <title>place-modifiers</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0198-place-modifiers.html</link>
             <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It provides a shorthand macro to modify data-structures in place.&lt;/p&gt;
-&lt;p&gt;The library has &lt;a href=&quot;http://quickdocs.org/place-modifiers/&quot;&gt;comprehensive documentation&lt;/a&gt; so, I&apos;ll only show you one example to demonstrate how it works.&lt;/p&gt;
+&lt;p&gt;The library has &lt;a href=&quot;https://www.hexstreamsoft.com/libraries/place-modifiers/&quot;&gt;comprehensive documentation&lt;/a&gt; so, I&apos;ll only show you one example to demonstrate how it works.&lt;/p&gt;
 &lt;p&gt;Let&apos;s pretend we have some data received from an API and &quot;age&quot; field should be converted into the integer in place.&lt;/p&gt;
 &lt;p&gt;In plain CL we&apos;ll do it like this:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((data
@@ -44,7 +44,8 @@
 (place-modifier:modify
  (parse-integer
   (getf (getf item :params)
-        :age)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To learn more about &lt;code&gt;place-modifiers&lt;/code&gt;, read it&apos;s &lt;a href=&quot;http://quickdocs.org/place-modifiers/&quot;&gt;docs&lt;/a&gt;! There is a lot of examples.&lt;/p&gt;
+        :age)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To learn more about &lt;code&gt;place-modifiers&lt;/code&gt;, read it&apos;s &lt;a href=&quot;https://www.hexstreamsoft.com/libraries/place-modifiers/&quot;&gt;docs&lt;/a&gt;! There is a lot of examples.&lt;/p&gt;
+&lt;p&gt;You might also be interested in reading the post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html&quot;&gt;access&lt;/a&gt; library.&lt;/p&gt;
 </description>
             <pubDate>Tue, 29 Sep 2020 22:18:05 +0300</pubDate>
         </item>

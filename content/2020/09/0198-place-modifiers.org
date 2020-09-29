@@ -11,7 +11,7 @@
 This is a library by [[https://twitter.com/HexstreamSoft][@HexstreamSoft]]. It provides a shorthand macro to modify
 data-structures in place.
 
-The library has [[http://quickdocs.org/place-modifiers/][comprehensive documentation]] so, I'll only show you
+The library has [[https://www.hexstreamsoft.com/libraries/place-modifiers/][comprehensive documentation]] so, I'll only show you
 one example to demonstrate how it works.
 
 Let's pretend we have some data received from an API and "age" field
@@ -71,4 +71,6 @@ Here I've extracted forms responsible for the modification:
 
 #+end_src
 
-To learn more about ~place-modifiers~, read it's [[http://quickdocs.org/place-modifiers/][docs]]! There is a lot of examples.
+To learn more about ~place-modifiers~, read it's [[https://www.hexstreamsoft.com/libraries/place-modifiers/][docs]]! There is a lot of examples.
+
+You might also be interested in reading the post about [[https://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html][access]] library.
