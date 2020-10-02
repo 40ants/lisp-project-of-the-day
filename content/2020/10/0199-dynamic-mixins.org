@@ -1,0 +1,122 @@
+* dynamic-mixins :clos:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is an interesting library which allows to add and remove mixin
+classes to the CLOS objects on the fly!
+
+Common Lisp allows to change object's class, but this library goes
+further. It keeps track which mixins were already added to the object
+and allows to add new or to remove existing!
+
+To demonstrate, how this works, let's pretend we have a graphics system
+where each figure can be filled with color and/or can have rounded
+corners. And we can have generic methods behave differently depending on
+traits of the figure:
+
+#+begin_src lisp
+
+POFTHEDAY> (defclass figure () ())
+
+POFTHEDAY> (defclass box (figure) ())
+
+POFTHEDAY> (defclass filled ()
+             ((fill-color :initarg :fill-color)))
+
+POFTHEDAY> (defclass rounded ()
+             ((border-radius :initarg :border-radius)))
+
+POFTHEDAY> (defmethod describe-object ((obj box) stream)
+             (format stream "This is the box.~%"))
+
+POFTHEDAY> (defmethod describe-object :after ((obj rounded) stream)
+             (format stream "It has round corners.~%"))
+
+POFTHEDAY> (defmethod describe-object :after ((obj filled) stream)
+             (format stream "It filled with color.~%"))
+
+#+end_src
+
+Now we can construct the box object and simulate how it is evolve over
+time, when user decides to make it's corner smoother and to fill it with
+a color:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *obj* (make-instance 'box))
+
+POFTHEDAY> *obj*
+#<BOX {10016F64A3}>
+
+POFTHEDAY> (describe *obj*)
+This is the box.
+
+;; Now we'll add a trait to our object:
+POFTHEDAY> (dynamic-mixins:ensure-mix *obj* 'rounded)
+
+POFTHEDAY> *obj*
+#<#<DYNAMIC-MIXINS:MIXIN-CLASS (ROUNDED BOX) {100A46CDB3}> {10016F64A3}>
+
+POFTHEDAY> (describe *obj*)
+This is the box.
+It has round corners.
+
+;; And yet another trait!
+POFTHEDAY> (dynamic-mixins:ensure-mix *obj* 'filled)
+
+POFTHEDAY> (describe *obj*)
+This is the box.
+It has round corners.
+It filled with color.
+
+;; We also can remove a mixin:
+POFTHEDAY> (dynamic-mixins:delete-from-mix *obj* 'rounded)
+
+POFTHEDAY> (describe *obj*)
+This is the box.
+It filled with color.
+
+#+end_src
+
+The only problem I found is that it is impossible to pass initargs to
+the ~ensure-mix~ function. Because of that, slots which we added along
+with the mixin, remain unbound.
+
+But I found the solution for this problem:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun add-mixin (object mixin-class &rest initargs)
+             (let ((new-class (dynamic-mixins::ensure-mixin
+                               (funcall #'dynamic-mixins::%mix
+                                        object mixin-class))))
+               (apply #'change-class object new-class initargs)))
+
+POFTHEDAY> (slot-boundp *obj* 'fill-color)
+NIL
+
+;; Now we'll remove and add this mixin again:
+POFTHEDAY> (dynamic-mixins:delete-from-mix *obj* 'filled)
+
+POFTHEDAY> (add-mixin *obj* 'filled
+                      :fill-color "#FF7F00")
+
+POFTHEDAY> (slot-boundp *obj* 'fill-color)
+T
+
+POFTHEDAY> (slot-value *obj* 'fill-color)
+"#FF7F00"
+
+#+end_src
+
+Hope, Ryan Pavlik will incorporate my [[https://github.com/rpav/dynamic-mixins/pull/5][pull request]] with this additional
+function!
+
+If you are found this post interesting, then you also might like a post
+about [[https://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html][dynamic-classes]] system.
