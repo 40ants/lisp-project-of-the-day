@@ -6,6 +6,87 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>dynamic-mixins</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0199-dynamic-mixins.html</link>
+            <description>&lt;p&gt;This is an interesting library which allows to add and remove mixin classes to the CLOS objects on the fly!&lt;/p&gt;
+&lt;p&gt;Common Lisp allows to change object&apos;s class, but this library goes further. It keeps track which mixins were already added to the object and allows to add new or to remove existing!&lt;/p&gt;
+&lt;p&gt;To demonstrate, how this works, let&apos;s pretend we have a graphics system where each figure can be filled with color and/or can have rounded corners. And we can have generic methods behave differently depending on traits of the figure:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass figure () ())
+
+POFTHEDAY&amp;gt; (defclass box (figure) ())
+
+POFTHEDAY&amp;gt; (defclass filled ()
+             ((fill-color :initarg :fill-color)))
+
+POFTHEDAY&amp;gt; (defclass rounded ()
+             ((border-radius :initarg :border-radius)))
+
+POFTHEDAY&amp;gt; (defmethod describe-object ((obj box) stream)
+             (format stream &amp;quot;This is the box.~%&amp;quot;))
+
+POFTHEDAY&amp;gt; (defmethod describe-object :after ((obj rounded) stream)
+             (format stream &amp;quot;It has round corners.~%&amp;quot;))
+
+POFTHEDAY&amp;gt; (defmethod describe-object :after ((obj filled) stream)
+             (format stream &amp;quot;It filled with color.~%&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can construct the box object and simulate how it evolves over time when the user decides to make it&apos;s corner smoother and to fill it with a color:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *obj* (make-instance &amp;#039;box))
+
+POFTHEDAY&amp;gt; *obj*
+#&amp;lt;BOX {10016F64A3}&amp;gt;
+
+POFTHEDAY&amp;gt; (describe *obj*)
+This is the box.
+
+;; Now we&amp;#039;ll add a trait to our object:
+POFTHEDAY&amp;gt; (dynamic-mixins:ensure-mix *obj* &amp;#039;rounded)
+
+POFTHEDAY&amp;gt; *obj*
+#&amp;lt;#&amp;lt;DYNAMIC-MIXINS:MIXIN-CLASS (ROUNDED BOX) {100A46CDB3}&amp;gt; {10016F64A3}&amp;gt;
+
+POFTHEDAY&amp;gt; (describe *obj*)
+This is the box.
+It has round corners.
+
+;; And yet another trait!
+POFTHEDAY&amp;gt; (dynamic-mixins:ensure-mix *obj* &amp;#039;filled)
+
+POFTHEDAY&amp;gt; (describe *obj*)
+This is the box.
+It has round corners.
+It filled with color.
+
+;; We also can remove a mixin:
+POFTHEDAY&amp;gt; (dynamic-mixins:delete-from-mix *obj* &amp;#039;rounded)
+
+POFTHEDAY&amp;gt; (describe *obj*)
+This is the box.
+It filled with color.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The only problem I found is that it is impossible to pass initargs to the &lt;code&gt;ensure-mix&lt;/code&gt; function. Because of that, slots which we added along with the mixin, remain unbound.&lt;/p&gt;
+&lt;p&gt;But I found the solution to this problem:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun add-mixin (object mixin-class &amp;amp;rest initargs)
+             (let ((new-class (dynamic-mixins::ensure-mixin
+                               (funcall #&amp;#039;dynamic-mixins::%mix
+                                        object mixin-class))))
+               (apply #&amp;#039;change-class object new-class initargs)))
+
+POFTHEDAY&amp;gt; (slot-boundp *obj* &amp;#039;fill-color)
+NIL
+
+;; Now we&amp;#039;ll remove and add this mixin again:
+POFTHEDAY&amp;gt; (dynamic-mixins:delete-from-mix *obj* &amp;#039;filled)
+
+POFTHEDAY&amp;gt; (add-mixin *obj* &amp;#039;filled
+                      :fill-color &amp;quot;#FF7F00&amp;quot;)
+
+POFTHEDAY&amp;gt; (slot-boundp *obj* &amp;#039;fill-color)
+T
+
+POFTHEDAY&amp;gt; (slot-value *obj* &amp;#039;fill-color)
+&amp;quot;#FF7F00&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hope, Ryan Pavlik will incorporate my &lt;a href=&quot;https://github.com/rpav/dynamic-mixins/pull/5&quot;&gt;pull request&lt;/a&gt; with this additional function!&lt;/p&gt;
+&lt;p&gt;If you are found this post interesting, then you also might like a post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html&quot;&gt;dynamic-classes&lt;/a&gt; system.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 02 Oct 2020 21:31:01 +0300</pubDate>
+        </item>
+        <item>
             <title>place-modifiers</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/09/0198-place-modifiers.html</link>
             <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It provides a shorthand macro to modify data-structures in place.&lt;/p&gt;
@@ -1396,80 +1477,6 @@ Evaluation took:
 &lt;p&gt;There is also macros &lt;code&gt;define-global-var*&lt;/code&gt; and &lt;code&gt;define-global-parameter*&lt;/code&gt;. They will define variables which will not be available in compile-time. Why does somebody might want this?&lt;/p&gt;
 </description>
             <pubDate>Sat, 05 Sep 2020 22:00:45 +0300</pubDate>
-        </item>
-        <item>
-            <title>conduit-packages</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0179-conduit-packages.html</link>
-            <description>&lt;p&gt;This system is pretty old. It does not have its own revision control and &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;is hosted here&lt;/a&gt;. It provides the replacement for the &lt;code&gt;defpackage&lt;/code&gt; macro. This replacement makes easy to &quot;inherit&quot; your package from another and to replace some symbols with your own.&lt;/p&gt;
-&lt;p&gt;For example, &lt;a href=&quot;https://twitter.com/stylewarning&quot;&gt;@stylewarning&lt;/a&gt;&apos;s &lt;code&gt;cl-generic-arithmetic&lt;/code&gt; uses it to redefine some functions from &lt;code&gt;cl&lt;/code&gt; package. It defines a new package which uses &lt;code&gt;cl&lt;/code&gt; and reexports all symbols except some which are defined in by the &lt;code&gt;cl-generic-arithmetic&lt;/code&gt; as generic functions.&lt;/p&gt;
-&lt;p&gt;Let&apos;s repeat this to make &lt;code&gt;+&lt;/code&gt; a function generic!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (org.tfeb.clc:defpackage cl-generic
-             (:extends/excluding #:cl
-                                 #:+)
-             (:export #:+))
-
-;; For simplicity, I&amp;#039;ll define this operation as
-;; binary. But for real implementation it should
-;; support variadic arguments.
-POFTHEDAY&amp;gt; (defgeneric cl-generic:+ (left right)
-             (:method ((left number) (right number))
-               (cl:+ left right))
-             (:method ((left string) (right string))
-               (concatenate &amp;#039;string left right))
-             (:method ((left string) (right number))
-               (format nil &amp;quot;~A~A&amp;quot; left right)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can define another package which will use this generic function. Note, I&apos;ll just &lt;code&gt;:use&lt;/code&gt; this new package instead of standard &lt;code&gt;:cl&lt;/code&gt; package:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defpackage foo
-             (:use :cl-generic))
-
-POFTHEDAY&amp;gt; (in-package foo)
-
-FOO&amp;gt; (+ 1 2)
-3
-
-FOO&amp;gt; (+ &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
-&amp;quot;Hello World!&amp;quot;
-
-;; Other function are standard, becase they are inherited
-;; from the standard package:
-FOO&amp;gt; (- 5 3)
-2
-
-FOO&amp;gt; (- &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
-; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;Hello &amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By the way, you can get the same effect by using &lt;code&gt;uiop:define-package&lt;/code&gt;. But it will be a little bit wordy:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (uiop:define-package cl-generic2
-             (:use #:cl)
-             (:shadow #:+)
-             (:reexport #:cl))
-#&amp;lt;PACKAGE &amp;quot;CL-GENERIC2&amp;quot;&amp;gt;
-
-POFTHEDAY&amp;gt; (defgeneric cl-generic2:+ (left right)
-             (:method ((left number) (right number))
-               (cl:+ left right))
-             (:method ((left string) (right string))
-               (concatenate &amp;#039;string left right))
-             (:method ((left string) (right number))
-               (format nil &amp;quot;~A~A&amp;quot; left right)))
-
-POFTHEDAY&amp;gt; (defpackage foo2
-             (:use :cl-generic2))
-
-POFTHEDAY&amp;gt; (in-package foo)
-
-POFTHEDAY&amp;gt; (in-package foo2)
-
-FOO2&amp;gt; (+ 1 2)
-3
-
-FOO2&amp;gt; (+ &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
-&amp;quot;Hello World!&amp;quot;
-
-FOO2&amp;gt; (- 5 3)
-2
-
-FOO2&amp;gt; (- &amp;quot;Hello &amp;quot; &amp;quot;World!&amp;quot;)
-; Debugger entered on #&amp;lt;TYPE-ERROR expected-type: NUMBER datum: &amp;quot;Hello &amp;quot;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Probably I missed some of the &lt;code&gt;conduit-packages&lt;/code&gt; features. Please, read its &lt;a href=&quot;http://beta.quicklisp.org/orphans/tfeb/conduit-packages.lisp&quot;&gt;sources&lt;/a&gt; and tell me if you will find something interesting!&lt;/p&gt;
-</description>
-            <pubDate>Fri, 04 Sep 2020 20:52:13 +0300</pubDate>
         </item>
     </channel>
 </rss>

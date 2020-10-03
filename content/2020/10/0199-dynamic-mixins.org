@@ -43,8 +43,8 @@ POFTHEDAY> (defmethod describe-object :after ((obj filled) stream)
 
 #+end_src
 
-Now we can construct the box object and simulate how it is evolve over
-time, when user decides to make it's corner smoother and to fill it with
+Now we can construct the box object and simulate how it evolves over
+time when the user decides to make it's corner smoother and to fill it with
 a color:
 
 #+begin_src lisp
@@ -88,7 +88,7 @@ The only problem I found is that it is impossible to pass initargs to
 the ~ensure-mix~ function. Because of that, slots which we added along
 with the mixin, remain unbound.
 
-But I found the solution for this problem:
+But I found the solution to this problem:
 
 #+begin_src lisp
 

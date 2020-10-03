@@ -5,6 +5,9 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
+** October
+- 02 October - [[content/2020/10/0199-dynamic-mixins.org][dynamic-mixins]] ([[https://twitter.com/svetlyak40wt/status/1312097719616516096][twitter]])
+
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
 - 03 September - [[content/2020/09/0178-scriba.org][scriba]] ([[https://twitter.com/svetlyak40wt/status/1301583177505538048][twitter]])

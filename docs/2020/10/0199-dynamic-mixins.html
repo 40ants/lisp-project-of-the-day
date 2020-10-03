@@ -71,7 +71,7 @@ POFTHEDAY&gt; (defmethod describe-object :after ((obj rounded) stream)
              (format stream &quot;It has round corners.~%&quot;))
 
 POFTHEDAY&gt; (defmethod describe-object :after ((obj filled) stream)
-             (format stream &quot;It filled with color.~%&quot;))</code></pre><p>Now we can construct the box object and simulate how it is evolve over time, when user decides to make it's corner smoother and to fill it with a color:</p>
+             (format stream &quot;It filled with color.~%&quot;))</code></pre><p>Now we can construct the box object and simulate how it evolves over time when the user decides to make it's corner smoother and to fill it with a color:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defparameter *obj* (make-instance &#039;box))
 
 POFTHEDAY&gt; *obj*
@@ -104,7 +104,7 @@ POFTHEDAY&gt; (dynamic-mixins:delete-from-mix *obj* &#039;rounded)
 POFTHEDAY&gt; (describe *obj*)
 This is the box.
 It filled with color.</code></pre><p>The only problem I found is that it is impossible to pass initargs to the <code>ensure-mix</code> function. Because of that, slots which we added along with the mixin, remain unbound.</p>
-<p>But I found the solution for this problem:</p>
+<p>But I found the solution to this problem:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defun add-mixin (object mixin-class &amp;rest initargs)
              (let ((new-class (dynamic-mixins::ensure-mixin
                                (funcall #&#039;dynamic-mixins::%mix
