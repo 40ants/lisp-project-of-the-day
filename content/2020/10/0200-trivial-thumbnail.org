@@ -1,0 +1,51 @@
+* trivial-thumbnail :trivial:graphics:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the [[https://shinmera.github.io/trivial-thumbnail/][library]] by [[https://twitter.com/Shinmera][@Shinmera]]. It does one trivial thing - shrinks
+images, squeezes them into smaller thumbnails. Actually, it is a wrapper
+around [[https://imagemagick.org/][ImageMagick]].
+
+The cool thing about this library is that it is able to preserve GIF
+animations. This way you can create animated avatars for users of your
+next-generation Facebook killer social network, written in Common Lisp!
+
+For example, let's pretend the user loads this cute dog animation which
+has 800×800 pixels size, and weights 44KB:
+
+[[../../media/0200/dog.gif]]
+
+If we want our avatars to be 64x64 pixels, then ~trivial-thumbnail~ will
+help us:
+
+#+begin_src lisp
+
+POFTHEDAY> (trivial-thumbnail:create "docs/media/0200/dog.gif"
+                                     "docs/media/0200/small-dog.gif"
+                                     :width 64)
+#P"docs/media/0200/small-dog.gif"
+
+#+end_src
+
+Here is the result:
+
+[[../../media/0200/small-dog.gif]]
+
+To make it work you have to install ImageMagick. On OSX the easiest way
+to do this is to use Homebrew:
+
+#+begin_src bash
+
+brew install imagemagick
+
+#+end_src
+
+There are also other options. They are covered by [[https://shinmera.github.io/trivial-thumbnail/][documentation]].
+
+Seems this is a cool library to make avatars, preview and thumbnails.
