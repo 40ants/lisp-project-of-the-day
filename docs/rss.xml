@@ -6,6 +6,25 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>trivial-thumbnail</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0200-trivial-thumbnail.html</link>
+            <description>&lt;p&gt;This is the &lt;a href=&quot;https://shinmera.github.io/trivial-thumbnail/&quot;&gt;library&lt;/a&gt; by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It does one trivial thing - shrinks images, squeezes them into smaller thumbnails. Actually, it is a wrapper around &lt;a href=&quot;https://imagemagick.org/&quot;&gt;ImageMagick&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The cool thing about this library is that it is able to preserve GIF animations. This way you can create animated avatars for users of your next-generation Facebook killer social network, written in Common Lisp!&lt;/p&gt;
+&lt;p&gt;For example, let&apos;s pretend the user loads this cute dog animation which has 800&#xD7;800 pixels size, and weights 44KB:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0200/dog.gif&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;If we want our avatars to be 64x64 pixels, then &lt;code&gt;trivial-thumbnail&lt;/code&gt; will help us:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-thumbnail:create &amp;quot;docs/media/0200/dog.gif&amp;quot;
+                                     &amp;quot;docs/media/0200/small-dog.gif&amp;quot;
+                                     :width 64)
+#P&amp;quot;docs/media/0200/small-dog.gif&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0200/small-dog.gif&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;To make it work you have to install ImageMagick. On OSX the easiest way to do this is to use Homebrew:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;brew install imagemagick&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other options. They are covered by &lt;a href=&quot;https://shinmera.github.io/trivial-thumbnail/&quot;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Seems this is a cool library to make avatars, preview and thumbnails.&lt;/p&gt;
+</description>
+            <pubDate>Tue, 06 Oct 2020 01:19:55 +0300</pubDate>
+        </item>
+        <item>
             <title>dynamic-mixins</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0199-dynamic-mixins.html</link>
             <description>&lt;p&gt;This is an interesting library which allows to add and remove mixin classes to the CLOS objects on the fly!&lt;/p&gt;
@@ -1442,41 +1461,6 @@ POFTHEDAY&amp;gt; (format nil &amp;quot;~16,,,&amp;#039;+@A&amp;quot; &amp;quot;
 POFTHEDAY&amp;gt; (format nil &amp;quot;~v,,,v@A&amp;quot; 16 #\+ &amp;quot;Hello world!&amp;quot;)
 &amp;quot;++++Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
             <pubDate>Sun, 06 Sep 2020 18:21:46 +0300</pubDate>
-        </item>
-        <item>
-            <title>global-vars</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0180-global-vars.html</link>
-            <description>&lt;p&gt;This system is a compatibility layer for defining global variables. Global variables cannot be dynamically bound and sometimes is faster than variables defined with &lt;code&gt;defvar&lt;/code&gt; or &lt;code&gt;defparameter&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Also, when you are using &lt;code&gt;globals-vars&lt;/code&gt; to define a variable, you tell the user of the library that this variable is not intended to by dynamically bound.&lt;/p&gt;
-&lt;p&gt;Here is a test for speed, comparing access to standard variable and global variable:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 1) (speed 3)))
-
-POFTHEDAY&amp;gt; (defvar *global* 0)
-*GLOBAL*
-
-POFTHEDAY&amp;gt; (global-vars:define-global-var -global- 0)
--GLOBAL-
-
-POFTHEDAY&amp;gt; (time (loop repeat 1000000000
-                       do (incf *global*)))
-Evaluation took:
-  2.339 seconds of real time
-  2.339325 seconds of total run time (2.336514 user, 0.002811 system)
-  100.00% CPU
-  5,164,301,132 processor cycles
-  0 bytes consed
-
-POFTHEDAY&amp;gt; (time (loop repeat 1000000000
-                       do (incf -global-)))
-Evaluation took:
-  1.560 seconds of real time
-  1.560328 seconds of total run time (1.558862 user, 0.001466 system)
-  100.00% CPU
-  3,444,078,626 processor cycles
-  0 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, accessing of variable, defined as &lt;code&gt;global&lt;/code&gt; is almost twice faster on SBCL.&lt;/p&gt;
-&lt;p&gt;There is also macros &lt;code&gt;define-global-var*&lt;/code&gt; and &lt;code&gt;define-global-parameter*&lt;/code&gt;. They will define variables which will not be available in compile-time. Why does somebody might want this?&lt;/p&gt;
-</description>
-            <pubDate>Sat, 05 Sep 2020 22:00:45 +0300</pubDate>
         </item>
     </channel>
 </rss>
