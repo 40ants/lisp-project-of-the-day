@@ -7,6 +7,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 * 2020
 ** October
 - 02 October - [[content/2020/10/0199-dynamic-mixins.org][dynamic-mixins]] ([[https://twitter.com/svetlyak40wt/status/1312097719616516096][twitter]])
+- 05 October - [[content/2020/10/0200-tesseract-capi.org][tesseract-capi]]
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
