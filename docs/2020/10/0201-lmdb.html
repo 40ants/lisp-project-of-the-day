@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>lmdb
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>lmdb</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>lmdb<span class='tags'><a href='../../tags/databases.html'><span class='label label-default'>databases</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F928;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>This is a binding to the embedded database <a href="http://www.lmdb.tech/doc/index.html">LMDB</a>, mentioned in <a href="https://twitter.com/kssreeram/status/1314080608008564737">this tweet</a>. LMDB is a fast key/value database which can be embedded into your app as a C library.</p>
+<p>Documentation on LMDB says it is really fast. I found this <a href="https://dgraph.io/blog/post/badger-lmdb-boltdb/">performance benchmark</a> which compares it to the BoltDB and Badger. According to it, LMDB is slightly faster than BoldDB, but both lose to Badger.</p>
+<p>It would be interesting to make our own benchmarks, but to compare LMDB with <a href="https://github.com/death/leveldb">LevelDB</a> which also has a binding to Common Lisp. But that is a story for another day.</p>
+<p>Here is a fixed and slightly modified example from the CL wrapper's README. It just writes a string by the key and reads it back:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (let ((env (lmdb:make-environment #p&quot;./the-database/&quot;)))
+             (lmdb:with-environment (env)
+               ;; Create a transaction
+               (let ((txn (lmdb:make-transaction env)))
+                 (lmdb:begin-transaction txn)
+                 ;; Create a database access object
+                 (let ((db (lmdb:make-database txn &quot;db&quot;)))
+                   (lmdb:with-database (db)
+                     ;; Here is how we can write some data to the storage
+                     (lmdb:put db &quot;the key&quot; &quot;The string&quot;)
+                     ;; and read it back:
+                     (let ((vec (lmdb:get db &quot;the key&quot;)))
+                       (print vec)))))))
+
+;; Pay attention, the data is returned as a vector and your
+;; app have to interpret it:
+#(84 104 101 32 115 116 114 105 110 103)
+
+POFTHEDAY&gt; (babel:octets-to-string *)
+&quot;The string&quot;</code></pre><p>What is interesting, I found this library was used in this Wiki software, written in Common Lisp: <a href="https://github.com/antimer/antimer">Antimer</a>.</p>
+<p>But LMDB backend was removed from Antimer at <a href="https://github.com/antimer/antimer/commit/b36a87044a61863cd7af535a91831c5bf4c11648">some moment</a> and replaced with SQLite. Most probably because it needed the full power of SQL instead of simple key-value queries.</p>
+<p>To finalize, this LMDB binding would be a good solution for small apps which makes simple queries and need a high-performance and low latency.</p>
+<p>BTW, the LMDB's <a href="https://github.com/antimer/lmdb">repository</a> needs some love because there are some hanging pull requests and a few unanswered issues. Does somebody know how does Fernando Borretti feels himself? Maybe he needs some help?</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

@@ -2,8 +2,63 @@
 :PROPERTIES:
 :Documentation: :(
 :Docstrings: :)
-:Tests:    :(xs
+:Tests:    :)
 :Examples: :|
 :RepositoryActivity: :(
-:CI:       :(
+:CI:       :)
 :END:
+
+This is a binding to the embedded database [[http://www.lmdb.tech/doc/index.html][LMDB]], mentioned in
+[[https://twitter.com/kssreeram/status/1314080608008564737][this tweet]]. LMDB is a fast key/value database which can be embedded into
+your app as a C library.
+
+Documentation on LMDB says it is really fast. I found this
+[[https://dgraph.io/blog/post/badger-lmdb-boltdb/][performance benchmark]] which compares it to the BoltDB and
+Badger. According to it, LMDB is slightly faster than BoldDB, but both
+lose to Badger.
+
+It would be interesting to make our own benchmarks, but to compare LMDB
+with [[https://github.com/death/leveldb][LevelDB]] which also has a binding to Common Lisp. But that is a
+story for another day.
+
+Here is a fixed and slightly modified example from the CL wrapper's
+README. It just writes a string by the key and reads it back:
+
+#+begin_src lisp
+
+POFTHEDAY> (let ((env (lmdb:make-environment #p"./the-database/")))
+             (lmdb:with-environment (env)
+               ;; Create a transaction
+               (let ((txn (lmdb:make-transaction env)))
+                 (lmdb:begin-transaction txn)
+                 ;; Create a database access object
+                 (let ((db (lmdb:make-database txn "db")))
+                   (lmdb:with-database (db)
+                     ;; Here is how we can write some data to the storage
+                     (lmdb:put db "the key" "The string")
+                     ;; and read it back:
+                     (let ((vec (lmdb:get db "the key")))
+                       (print vec)))))))
+
+;; Pay attention, the data is returned as a vector and your
+;; app have to interpret it:
+#(84 104 101 32 115 116 114 105 110 103)
+
+POFTHEDAY> (babel:octets-to-string *)
+"The string"
+
+#+end_src
+
+What is interesting, I found this library was used in this Wiki
+software, written in Common Lisp: [[https://github.com/antimer/antimer][Antimer]].
+
+But LMDB backend was removed from Antimer at [[https://github.com/antimer/antimer/commit/b36a87044a61863cd7af535a91831c5bf4c11648][some moment]] and replaced
+with SQLite. Most probably because it needed the full power of SQL
+instead of simple key-value queries.
+
+To finalize, this LMDB binding would be a good solution for small apps
+which makes simple queries and need a high-performance and low latency.
+
+BTW, the LMDB's [[https://github.com/antimer/lmdb][repository]] needs some love because there are some hanging
+pull requests and a few unanswered issues. Does somebody know how does
+Fernando Borretti feels himself? Maybe he needs some help?

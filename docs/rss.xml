@@ -6,6 +6,39 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>lmdb</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0201-lmdb.html</link>
+            <description>&lt;p&gt;This is a binding to the embedded database &lt;a href=&quot;http://www.lmdb.tech/doc/index.html&quot;&gt;LMDB&lt;/a&gt;, mentioned in &lt;a href=&quot;https://twitter.com/kssreeram/status/1314080608008564737&quot;&gt;this tweet&lt;/a&gt;. LMDB is a fast key/value database which can be embedded into your app as a C library.&lt;/p&gt;
+&lt;p&gt;Documentation on LMDB says it is really fast. I found this &lt;a href=&quot;https://dgraph.io/blog/post/badger-lmdb-boltdb/&quot;&gt;performance benchmark&lt;/a&gt; which compares it to the BoltDB and Badger. According to it, LMDB is slightly faster than BoldDB, but both lose to Badger.&lt;/p&gt;
+&lt;p&gt;It would be interesting to make our own benchmarks, but to compare LMDB with &lt;a href=&quot;https://github.com/death/leveldb&quot;&gt;LevelDB&lt;/a&gt; which also has a binding to Common Lisp. But that is a story for another day.&lt;/p&gt;
+&lt;p&gt;Here is a fixed and slightly modified example from the CL wrapper&apos;s README. It just writes a string by the key and reads it back:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((env (lmdb:make-environment #p&amp;quot;./the-database/&amp;quot;)))
+             (lmdb:with-environment (env)
+               ;; Create a transaction
+               (let ((txn (lmdb:make-transaction env)))
+                 (lmdb:begin-transaction txn)
+                 ;; Create a database access object
+                 (let ((db (lmdb:make-database txn &amp;quot;db&amp;quot;)))
+                   (lmdb:with-database (db)
+                     ;; Here is how we can write some data to the storage
+                     (lmdb:put db &amp;quot;the key&amp;quot; &amp;quot;The string&amp;quot;)
+                     ;; and read it back:
+                     (let ((vec (lmdb:get db &amp;quot;the key&amp;quot;)))
+                       (print vec)))))))
+
+;; Pay attention, the data is returned as a vector and your
+;; app have to interpret it:
+#(84 104 101 32 115 116 114 105 110 103)
+
+POFTHEDAY&amp;gt; (babel:octets-to-string *)
+&amp;quot;The string&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What is interesting, I found this library was used in this Wiki software, written in Common Lisp: &lt;a href=&quot;https://github.com/antimer/antimer&quot;&gt;Antimer&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;But LMDB backend was removed from Antimer at &lt;a href=&quot;https://github.com/antimer/antimer/commit/b36a87044a61863cd7af535a91831c5bf4c11648&quot;&gt;some moment&lt;/a&gt; and replaced with SQLite. Most probably because it needed the full power of SQL instead of simple key-value queries.&lt;/p&gt;
+&lt;p&gt;To finalize, this LMDB binding would be a good solution for small apps which makes simple queries and need a high-performance and low latency.&lt;/p&gt;
+&lt;p&gt;BTW, the LMDB&apos;s &lt;a href=&quot;https://github.com/antimer/lmdb&quot;&gt;repository&lt;/a&gt; needs some love because there are some hanging pull requests and a few unanswered issues. Does somebody know how does Fernando Borretti feels himself? Maybe he needs some help?&lt;/p&gt;
+</description>
+            <pubDate>Thu, 08 Oct 2020 23:55:01 +0300</pubDate>
+        </item>
+        <item>
             <title>trivial-thumbnail</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0200-trivial-thumbnail.html</link>
             <description>&lt;p&gt;This is the &lt;a href=&quot;https://shinmera.github.io/trivial-thumbnail/&quot;&gt;library&lt;/a&gt; by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It does one trivial thing - shrinks images, squeezes them into smaller thumbnails. Actually, it is a wrapper around &lt;a href=&quot;https://imagemagick.org/&quot;&gt;ImageMagick&lt;/a&gt;.&lt;/p&gt;
@@ -1415,52 +1448,6 @@ Evaluation took:
 &lt;p&gt;What could I say? &lt;code&gt;CL-VCR&lt;/code&gt; is a good example of a really bad implementation of a nice idea :)&lt;/p&gt;
 </description>
             <pubDate>Mon, 07 Sep 2020 23:11:19 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-left-pad</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0181-trivial-left-pad.html</link>
-            <description>&lt;p&gt;Did you hear &lt;a href=&quot;https://www.theregister.com/2016/03/23/npm_left_pad_chaos/&quot;&gt;the story&lt;/a&gt; of how one developer broke thousand JavaScript libraries by removing 11 lines of code from NPM?&lt;/p&gt;
-&lt;p&gt;Now we can to repeat this feat because we have our own &lt;code&gt;left-pad&lt;/code&gt; for Common Lisp! :)&lt;/p&gt;
-&lt;p&gt;This library brings only one function, which adds some spaces, to make a string of given length:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Foo&amp;quot; 16)
-&amp;quot;             Foo&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Bar&amp;quot; 16)
-&amp;quot;             Bar&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Blah&amp;quot; 16)
-&amp;quot;            Blah&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Minor&amp;quot; 16)
-&amp;quot;           Minor&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16)
-&amp;quot;    Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You also can specify a custom padding as a character or a string:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;.&amp;quot;)
-&amp;quot;....Hello world!&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 #\.)
-&amp;quot;....Hello world!&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;.!&amp;quot;)
-&amp;quot;.!.!Hello world!&amp;quot;
-
-POFTHEDAY&amp;gt; (trivial-left-pad:left-pad &amp;quot;Hello world!&amp;quot; 16 &amp;quot;-&amp;gt;&amp;quot;)
-&amp;quot;-&amp;gt;-&amp;gt;Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Of cause, this library is useful only if you need padding from more than one character. In other cases it is much easier to use standard format function:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (format nil &amp;quot;~16@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
-&amp;quot;    Hello world!&amp;quot;
-
-POFTHEDAY&amp;gt; (format nil &amp;quot;~16,,,&amp;#039;_@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
-&amp;quot;____Hello world!&amp;quot;
-
-POFTHEDAY&amp;gt; (format nil &amp;quot;~16,,,&amp;#039;+@A&amp;quot; &amp;quot;Hello world!&amp;quot;)
-&amp;quot;++++Hello world!&amp;quot;
-
-;; If you want to pass padding in runtime:
-
-POFTHEDAY&amp;gt; (format nil &amp;quot;~v,,,v@A&amp;quot; 16 #\+ &amp;quot;Hello world!&amp;quot;)
-&amp;quot;++++Hello world!&amp;quot;&lt;/code&gt;&lt;/pre&gt;</description>
-            <pubDate>Sun, 06 Sep 2020 18:21:46 +0300</pubDate>
         </item>
     </channel>
 </rss>
