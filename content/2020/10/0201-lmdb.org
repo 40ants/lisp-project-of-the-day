@@ -1,0 +1,9 @@
+* lmdb :databases:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(xs
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
