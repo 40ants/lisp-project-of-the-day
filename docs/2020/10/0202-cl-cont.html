@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-cont
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-cont</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>cl-cont<span class='tags'><a href='../../tags/language.html'><span class='label label-default'>language</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>This is a pretty old system which implements Delimited Continuations for Common Lisp. Initially, it was part of the Weblocks web-framework.</p>
+<p>Sadly, but cl-cont has no documentation. I found only one example on <a href="https://common-lisp.net/project/cl-cont/">this page</a>.</p>
+<p>It always was hard to wrap my mind around continuations. Probably that is why I decided to remove their support from the core of the Weblocks when I did the refactoring.</p>
+<p>Now it is time to dive into continuations and probably to return them to Weblocks as an additional library.</p>
+<p>Let's see what continuation is and how they can be used in practice!</p>
+<p>The first thing to note is that each piece of code which uses this magic should be wrapped into <code>with-call/cc</code>. The second thing to remember is that <code>let/cc</code> form allows you to capture the moment and to save the execution point somewhere.</p>
+<p>The code below prints three lines. It prints "Begin", then captures the execution point, prints "Before returning" and returns the captured point:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cont:with-call/cc
+             (format t &quot;Begin~%&quot;)
+             (cont:let/cc k
+               (format t &quot;Before returning k~%&quot;)
+               k)
+             (format t &quot;End~%&quot;)
+             :final-result)
+Begin
+Before returning k
+#&lt;FUNCTION (LAMBDA (&amp;OPTIONAL #:G1455 &amp;REST #:G1456)) {22A10A0B}&gt;</code></pre><p>What has happened to our third print "End"? It didn't have a chance to be executed yet. But we can continue execution, by calling the function we've received as the result on the previous code snippet:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (funcall *)
+End
+:FINAL-RESULT
+
+POFTHEDAY&gt; (funcall **)
+End
+:FINAL-RESULT</code></pre><p>That is why it is called "continuation"! Yeah! As you can see, we can call this captured function any amount of times.</p>
+<p>Now, let's try to create a function which will interrupt its execution and return a continuation.</p>
+<p>Our first attempt might be like this:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun foo ()
+             (cont:with-call/cc
+               (format t &quot;Begin foo~%&quot;)
+               (cont:let/cc k
+                 (format t &quot;Before returning k from foo~%&quot;)
+                 k)
+               (format t &quot;End foo~%&quot;)
+               :final-result))
+
+POFTHEDAY&gt; (cont:with-call/cc
+             (format t &quot;Before foo~%&quot;)
+             (foo)
+             (format t &quot;After foo~%&quot;))
+Before foo
+Begin foo
+Before returning k from foo
+After foo ;; Ups! I&#039;ve expected it will not output this
+NIL       ;; and return a continuation function instead of NIL!</code></pre><p>As you can see, only half of our function was executed and then control flow continued, printed "After foo" and finished without giving us any continuation to play with :(</p>
+<p>To make this code work as expected, we need to move <code>with-call/cc</code> form and make it wrap the function definition:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cont:with-call/cc
+             (defun foo-wrapped ()
+               (format t &quot;Begin foo~%&quot;)
+               (cont:let/cc k
+                 (format t &quot;Before returning k from foo~%&quot;)
+                 k)
+               (format t &quot;End foo~%&quot;)
+               :final-result))
+
+
+POFTHEDAY&gt; (cont:with-call/cc
+             (format t &quot;Before foo~%&quot;)
+             (foo-wrapped)
+             (format t &quot;After foo~%&quot;))
+Before foo
+Begin foo
+Before returning k from foo
+#&lt;CLOSURE (LAMBDA (&amp;OPTIONAL #:G1561 &amp;REST #:G1562)) {10067F637B}&gt;</code></pre><p>This version works exactly as I've expected. It halts execution inside the <code>foo</code>'s call and returns this continuation.</p>
+<p>Now we can call continuation to continue computation of the foo function and the rest of our top-level form:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (funcall *)
+End foo
+After foo
+NIL</code></pre><p>The latter case works because <code>cont:with-call/cc</code> is smart enough and if it wraps the function <code>foo-wrapped</code> into a special funcallable object:</p>
+<pre><code class='lisp'>;; This function is usual:
+POFTHEDAY&gt; (fdefinition &#039;foo)
+#&lt;FUNCTION FOO&gt;
+
+;; But this one is not.
+;; It supports nested continuations:
+POFTHEDAY&gt; (fdefinition &#039;foo-wrapped)
+#&lt;CL-CONT::FUNCALLABLE/CC {10063435FB}&gt;</code></pre><p>Now let's adapt some examples from this Wikipedia <a href="https://en.wikipedia.org/wiki/Continuation">article about continuations</a>. The first example shows how to save continuation into the global variable and what happens when you use the same function to create the second continuation:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defvar *the-continuation*)
+
+POFTHEDAY&gt; (cont:defun/cc test ()
+             (let ((i 0))
+               ;; let/cc binds to k symbol a variable representing
+               ;; this point in the program as the argument to
+               ;; that function.
+               ;;
+               ;; In this case, we assigns that
+               ;; continuation to the variable *the-continuation*
+               ;; and then return the incremented value of &#039;i&#039;.
+               ;;
+               (cont:let/cc k
+                 (setf *the-continuation* k)
+                 (incf i))
+
+               ;; The next time *the-continuation* is called,
+               ;; we start here:
+               (incf i)))
+
+POFTHEDAY&gt; (test)
+1
+
+POFTHEDAY&gt; (funcall *the-continuation*)
+2
+
+POFTHEDAY&gt; (funcall *the-continuation*)
+3
+
+;; Stores the current continuation (which will print 4 next) away
+POFTHEDAY&gt; (defparameter *another-continuation* *the-continuation*)
+
+;; Resets *the-continuation*:
+POFTHEDAY&gt; (test)
+1
+
+POFTHEDAY&gt; (funcall *the-continuation*)
+2
+
+;; Uses the previously stored continuation:
+POFTHEDAY&gt; (funcall *another-continuation*)
+4</code></pre><p>The second example is more interesting because it let us create a simple framework for running <a href="https://en.wikipedia.org/wiki/Green_threads">green threads</a>.</p>
+<p>First, we need to define such two primitives: <code>fork</code> and <code>yield</code>:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defparameter *queue* nil)
+
+POFTHEDAY&gt; (defun empty-queue? ()
+             (null *queue*))
+
+POFTHEDAY&gt; (defun enqueue (func)
+             (setf *queue*
+                   (append *queue*
+                           (list func))))
+
+POFTHEDAY&gt; (defun dequeue ()
+             (pop *queue*))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running a (func).
+POFTHEDAY&gt; (cont:defun/cc fork (func &amp;rest args)
+             (cont:let/cc k
+               (enqueue k)
+               (apply func args)))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running the other thread from the queue if there is any:
+POFTHEDAY&gt; (cont:defun/cc yield ()
+             (cont:let/cc k
+               (enqueue k)
+               (funcall (dequeue))))</code></pre><p>How does <code>fork</code> function work?</p>
+<pre><code class='lisp'>;; This is the function we want to run in &quot;parallel&quot;:
+POFTHEDAY&gt; (defun do-job ()
+             (format t &quot;Inside job~%&quot;))
+
+;; Initially, our queue is empty:
+POFTHEDAY&gt; *queue*
+NIL
+
+;; Now when we&#039;ll call the fork,
+;; it will:
+;;
+;; - capture current continuation;
+;; - put it into the queue;
+;; - execute do-job function.
+POFTHEDAY&gt; (cont:with-call/cc
+             (format t &quot;Before fork~%&quot;)
+             (fork #&#039;do-job)
+             (format t &quot;After fork~%&quot;))
+Before fork
+Inside job
+NIL
+
+;; Now queue has one function which is
+;; the rest of our initial computation.
+POFTHEDAY&gt; *queue*
+(#&lt;FUNCTION (LAMBDA (&amp;OPTIONAL #:G1655 &amp;REST #:G1656)) {22A1719B}&gt;)
+
+;; When the rest of the computation gets called,
+;; it prints &quot;After fork&quot; and exits:
+POFTHEDAY&gt; (funcall (dequeue))
+After fork
+NIL</code></pre><p>Yield works similarly. It captures the current continuation, appends it to the queue, takes the next coroutine from the top of the queue and executes it.</p>
+<p>To test how two coroutines will behave when running in parallel, let's create a function which will print its name in the loop. On each iteration a coroutine will call <code>yield</code> to give other coroutines a chance to get executed:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cont:defun/cc do-stuff-n-print (name)
+             (loop for n from 1 upto 3
+                   do (format t &quot;~A ~A~%&quot; name n)
+                      (yield)
+                      (sleep 1)))
+
+;; We also need to add this primive to our framework
+POFTHEDAY&gt; (defun wait-for-threads ()
+             (loop
+               when (empty-queue?)
+                 return nil
+               do (funcall (dequeue))))
+
+POFTHEDAY&gt; (cont:with-call/cc
+             (fork #&#039;do-stuff-n-print &quot;Foo&quot;)
+             (fork #&#039;do-stuff-n-print &quot;Bar&quot;)
+             (wait-for-threads))
+Foo 1
+Bar 2
+Foo 3
+Bar 1
+Foo 2
+Bar 3</code></pre><p>The result we've got is the same as the result of the Wikipedia article. Messages from both coroutines are interleaving. That is great!</p>
+<p>Now, cl-cont does not look so strange to me. It is time to reimplement continuation widgets for the Weblocks! :)</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

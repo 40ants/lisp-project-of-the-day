@@ -1,7 +1,18 @@
 * cl-cont                                                          :language:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
 
 This is a pretty old system which implements Delimited Continuations for
 Common Lisp. Initially, it was part of the Weblocks web-framework.
+
+Sadly, but cl-cont has no documentation. I found only one example on
+[[https://common-lisp.net/project/cl-cont/][this page]].
 
 It always was hard to wrap my mind around continuations. Probably that
 is why I decided to remove their support from the core of the Weblocks
@@ -12,8 +23,8 @@ Weblocks as an additional library.
 
 Let's see what continuation is and how they can be used in practice!
 
-First thing to note is that each piece of code which uses
-this magic, should be wrapped into ~with-call/cc~. Second thing to
+The first thing to note is that each piece of code which uses
+this magic should be wrapped into ~with-call/cc~. The second thing to
 remember is that ~let/cc~ form allows you to capture the moment and to
 save the execution point somewhere.
 
@@ -35,7 +46,7 @@ Before returning k
 
 #+end_src
 
-What is happened to our third print "End"? It didn't has a chance to be
+What has happened to our third print "End"? It didn't have a chance to be
 executed yet. But we can continue execution, by calling the function
 we've received as the result on the previous code snippet:
 
@@ -52,16 +63,16 @@ End
 #+end_src
 
 That is why it is called "continuation"! Yeah! As you can see, we can
-start this captured function any amount of times.
+call this captured function any amount of times.
 
-Now, let's try to create a function which will interrupt it's execution
+Now, let's try to create a function which will interrupt its execution
 and return a continuation.
 
 Our first attempt might be like this:
 
 #+begin_src lisp
 
-POFTHEDAY> (defun foo-inner ()
+POFTHEDAY> (defun foo ()
              (cont:with-call/cc
                (format t "Begin foo~%")
                (cont:let/cc k
@@ -82,12 +93,12 @@ NIL       ;; and return a continuation function instead of NIL!
 
 #+end_src
 
-What if we call foo-inner from inside another with-call/cc?
+As you can see, only half of our function was executed and then control
+flow continued, printed "After foo" and finished without giving us any
+continuation to play with :(
 
-#+begin_src lisp
-#+end_src
-
-Calling wrapped version of the function does the right thing:
+To make this code work as expected, we need to move ~with-call/cc~ form
+and make it wrap the function definition:
 
 #+begin_src lisp
 
@@ -110,8 +121,16 @@ Begin foo
 Before returning k from foo
 #<CLOSURE (LAMBDA (&OPTIONAL #:G1561 &REST #:G1562)) {10067F637B}>
 
-;; Now we can call continuation to continue
-;; computation of the foo function:
+#+end_src
+
+This version works exactly as I've expected. It halts execution inside
+the ~foo~'s call and returns this continuation.
+
+Now we can call continuation to continue computation of the foo function
+and the rest of our top-level form:
+
+#+begin_src lisp
+
 POFTHEDAY> (funcall *)
 End foo
 After foo
@@ -125,8 +144,8 @@ it wraps the function ~foo-wrapped~ into a special funcallable object:
 #+begin_src lisp
 
 ;; This function is usual:
-POFTHEDAY> (fdefinition 'foo-inner)
-#<FUNCTION FOO-INNER>
+POFTHEDAY> (fdefinition 'foo)
+#<FUNCTION FOO>
 
 ;; But this one is not.
 ;; It supports nested continuations:
@@ -135,8 +154,10 @@ POFTHEDAY> (fdefinition 'foo-wrapped)
 
 #+end_src
 
-
-Examples from Wikipedia:
+Now let's adapt some examples from this Wikipedia
+[[https://en.wikipedia.org/wiki/Continuation][article about continuations]]. The first example shows how to save continuation
+into the global variable and what happens when you use the same function
+to create the second continuation:
 
 #+begin_src lisp
 
@@ -185,7 +206,10 @@ POFTHEDAY> (funcall *another-continuation*)
 
 #+end_src
 
-Green threads example:
+The second example is more interesting because it let us create a
+simple framework for running [[https://en.wikipedia.org/wiki/Green_threads][green threads]].
+
+First, we need to define such two primitives: ~fork~ and ~yield~:
 
 #+begin_src lisp
 
@@ -257,9 +281,15 @@ NIL
 
 #+end_src
 
-Many "threads":
+Yield works similarly. It captures the current continuation,
+appends it to the queue, takes the next coroutine from the top of the
+queue and executes it.
 
 
+To test how two coroutines will behave when running in parallel, let's
+create a function which will print its name in the loop. On each
+iteration a coroutine will call ~yield~ to give other coroutines a chance
+to get executed:
 
 #+begin_src lisp
 
@@ -269,7 +299,7 @@ POFTHEDAY> (cont:defun/cc do-stuff-n-print (name)
                       (yield)
                       (sleep 1)))
 
-
+;; We also need to add this primive to our framework
 POFTHEDAY> (defun wait-for-threads ()
              (loop
                when (empty-queue?)
@@ -288,3 +318,9 @@ Foo 2
 Bar 3
 
 #+end_src
+
+The result we've got is the same as the result of the Wikipedia
+article. Messages from both coroutines are interleaving. That is great!
+
+Now, cl-cont does not look so strange to me. It is time to reimplement
+continuation widgets for the Weblocks! :)

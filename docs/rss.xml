@@ -6,6 +6,214 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-cont</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0202-cl-cont.html</link>
+            <description>&lt;p&gt;This is a pretty old system which implements Delimited Continuations for Common Lisp. Initially, it was part of the Weblocks web-framework.&lt;/p&gt;
+&lt;p&gt;Sadly, but cl-cont has no documentation. I found only one example on &lt;a href=&quot;https://common-lisp.net/project/cl-cont/&quot;&gt;this page&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It always was hard to wrap my mind around continuations. Probably that is why I decided to remove their support from the core of the Weblocks when I did the refactoring.&lt;/p&gt;
+&lt;p&gt;Now it is time to dive into continuations and probably to return them to Weblocks as an additional library.&lt;/p&gt;
+&lt;p&gt;Let&apos;s see what continuation is and how they can be used in practice!&lt;/p&gt;
+&lt;p&gt;The first thing to note is that each piece of code which uses this magic should be wrapped into &lt;code&gt;with-call/cc&lt;/code&gt;. The second thing to remember is that &lt;code&gt;let/cc&lt;/code&gt; form allows you to capture the moment and to save the execution point somewhere.&lt;/p&gt;
+&lt;p&gt;The code below prints three lines. It prints &quot;Begin&quot;, then captures the execution point, prints &quot;Before returning&quot; and returns the captured point:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cont:with-call/cc
+             (format t &amp;quot;Begin~%&amp;quot;)
+             (cont:let/cc k
+               (format t &amp;quot;Before returning k~%&amp;quot;)
+               k)
+             (format t &amp;quot;End~%&amp;quot;)
+             :final-result)
+Begin
+Before returning k
+#&amp;lt;FUNCTION (LAMBDA (&amp;amp;OPTIONAL #:G1455 &amp;amp;REST #:G1456)) {22A10A0B}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What has happened to our third print &quot;End&quot;? It didn&apos;t have a chance to be executed yet. But we can continue execution, by calling the function we&apos;ve received as the result on the previous code snippet:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (funcall *)
+End
+:FINAL-RESULT
+
+POFTHEDAY&amp;gt; (funcall **)
+End
+:FINAL-RESULT&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is why it is called &quot;continuation&quot;! Yeah! As you can see, we can call this captured function any amount of times.&lt;/p&gt;
+&lt;p&gt;Now, let&apos;s try to create a function which will interrupt its execution and return a continuation.&lt;/p&gt;
+&lt;p&gt;Our first attempt might be like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo ()
+             (cont:with-call/cc
+               (format t &amp;quot;Begin foo~%&amp;quot;)
+               (cont:let/cc k
+                 (format t &amp;quot;Before returning k from foo~%&amp;quot;)
+                 k)
+               (format t &amp;quot;End foo~%&amp;quot;)
+               :final-result))
+
+POFTHEDAY&amp;gt; (cont:with-call/cc
+             (format t &amp;quot;Before foo~%&amp;quot;)
+             (foo)
+             (format t &amp;quot;After foo~%&amp;quot;))
+Before foo
+Begin foo
+Before returning k from foo
+After foo ;; Ups! I&amp;#039;ve expected it will not output this
+NIL       ;; and return a continuation function instead of NIL!&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, only half of our function was executed and then control flow continued, printed &quot;After foo&quot; and finished without giving us any continuation to play with :(&lt;/p&gt;
+&lt;p&gt;To make this code work as expected, we need to move &lt;code&gt;with-call/cc&lt;/code&gt; form and make it wrap the function definition:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cont:with-call/cc
+             (defun foo-wrapped ()
+               (format t &amp;quot;Begin foo~%&amp;quot;)
+               (cont:let/cc k
+                 (format t &amp;quot;Before returning k from foo~%&amp;quot;)
+                 k)
+               (format t &amp;quot;End foo~%&amp;quot;)
+               :final-result))
+
+
+POFTHEDAY&amp;gt; (cont:with-call/cc
+             (format t &amp;quot;Before foo~%&amp;quot;)
+             (foo-wrapped)
+             (format t &amp;quot;After foo~%&amp;quot;))
+Before foo
+Begin foo
+Before returning k from foo
+#&amp;lt;CLOSURE (LAMBDA (&amp;amp;OPTIONAL #:G1561 &amp;amp;REST #:G1562)) {10067F637B}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This version works exactly as I&apos;ve expected. It halts execution inside the &lt;code&gt;foo&lt;/code&gt;&apos;s call and returns this continuation.&lt;/p&gt;
+&lt;p&gt;Now we can call continuation to continue computation of the foo function and the rest of our top-level form:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (funcall *)
+End foo
+After foo
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The latter case works because &lt;code&gt;cont:with-call/cc&lt;/code&gt; is smart enough and if it wraps the function &lt;code&gt;foo-wrapped&lt;/code&gt; into a special funcallable object:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This function is usual:
+POFTHEDAY&amp;gt; (fdefinition &amp;#039;foo)
+#&amp;lt;FUNCTION FOO&amp;gt;
+
+;; But this one is not.
+;; It supports nested continuations:
+POFTHEDAY&amp;gt; (fdefinition &amp;#039;foo-wrapped)
+#&amp;lt;CL-CONT::FUNCALLABLE/CC {10063435FB}&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s adapt some examples from this Wikipedia &lt;a href=&quot;https://en.wikipedia.org/wiki/Continuation&quot;&gt;article about continuations&lt;/a&gt;. The first example shows how to save continuation into the global variable and what happens when you use the same function to create the second continuation:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defvar *the-continuation*)
+
+POFTHEDAY&amp;gt; (cont:defun/cc test ()
+             (let ((i 0))
+               ;; let/cc binds to k symbol a variable representing
+               ;; this point in the program as the argument to
+               ;; that function.
+               ;;
+               ;; In this case, we assigns that
+               ;; continuation to the variable *the-continuation*
+               ;; and then return the incremented value of &amp;#039;i&amp;#039;.
+               ;;
+               (cont:let/cc k
+                 (setf *the-continuation* k)
+                 (incf i))
+
+               ;; The next time *the-continuation* is called,
+               ;; we start here:
+               (incf i)))
+
+POFTHEDAY&amp;gt; (test)
+1
+
+POFTHEDAY&amp;gt; (funcall *the-continuation*)
+2
+
+POFTHEDAY&amp;gt; (funcall *the-continuation*)
+3
+
+;; Stores the current continuation (which will print 4 next) away
+POFTHEDAY&amp;gt; (defparameter *another-continuation* *the-continuation*)
+
+;; Resets *the-continuation*:
+POFTHEDAY&amp;gt; (test)
+1
+
+POFTHEDAY&amp;gt; (funcall *the-continuation*)
+2
+
+;; Uses the previously stored continuation:
+POFTHEDAY&amp;gt; (funcall *another-continuation*)
+4&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The second example is more interesting because it let us create a simple framework for running &lt;a href=&quot;https://en.wikipedia.org/wiki/Green_threads&quot;&gt;green threads&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;First, we need to define such two primitives: &lt;code&gt;fork&lt;/code&gt; and &lt;code&gt;yield&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *queue* nil)
+
+POFTHEDAY&amp;gt; (defun empty-queue? ()
+             (null *queue*))
+
+POFTHEDAY&amp;gt; (defun enqueue (func)
+             (setf *queue*
+                   (append *queue*
+                           (list func))))
+
+POFTHEDAY&amp;gt; (defun dequeue ()
+             (pop *queue*))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running a (func).
+POFTHEDAY&amp;gt; (cont:defun/cc fork (func &amp;amp;rest args)
+             (cont:let/cc k
+               (enqueue k)
+               (apply func args)))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running the other thread from the queue if there is any:
+POFTHEDAY&amp;gt; (cont:defun/cc yield ()
+             (cont:let/cc k
+               (enqueue k)
+               (funcall (dequeue))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;How does &lt;code&gt;fork&lt;/code&gt; function work?&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This is the function we want to run in &amp;quot;parallel&amp;quot;:
+POFTHEDAY&amp;gt; (defun do-job ()
+             (format t &amp;quot;Inside job~%&amp;quot;))
+
+;; Initially, our queue is empty:
+POFTHEDAY&amp;gt; *queue*
+NIL
+
+;; Now when we&amp;#039;ll call the fork,
+;; it will:
+;;
+;; - capture current continuation;
+;; - put it into the queue;
+;; - execute do-job function.
+POFTHEDAY&amp;gt; (cont:with-call/cc
+             (format t &amp;quot;Before fork~%&amp;quot;)
+             (fork #&amp;#039;do-job)
+             (format t &amp;quot;After fork~%&amp;quot;))
+Before fork
+Inside job
+NIL
+
+;; Now queue has one function which is
+;; the rest of our initial computation.
+POFTHEDAY&amp;gt; *queue*
+(#&amp;lt;FUNCTION (LAMBDA (&amp;amp;OPTIONAL #:G1655 &amp;amp;REST #:G1656)) {22A1719B}&amp;gt;)
+
+;; When the rest of the computation gets called,
+;; it prints &amp;quot;After fork&amp;quot; and exits:
+POFTHEDAY&amp;gt; (funcall (dequeue))
+After fork
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Yield works similarly. It captures the current continuation, appends it to the queue, takes the next coroutine from the top of the queue and executes it.&lt;/p&gt;
+&lt;p&gt;To test how two coroutines will behave when running in parallel, let&apos;s create a function which will print its name in the loop. On each iteration a coroutine will call &lt;code&gt;yield&lt;/code&gt; to give other coroutines a chance to get executed:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cont:defun/cc do-stuff-n-print (name)
+             (loop for n from 1 upto 3
+                   do (format t &amp;quot;~A ~A~%&amp;quot; name n)
+                      (yield)
+                      (sleep 1)))
+
+;; We also need to add this primive to our framework
+POFTHEDAY&amp;gt; (defun wait-for-threads ()
+             (loop
+               when (empty-queue?)
+                 return nil
+               do (funcall (dequeue))))
+
+POFTHEDAY&amp;gt; (cont:with-call/cc
+             (fork #&amp;#039;do-stuff-n-print &amp;quot;Foo&amp;quot;)
+             (fork #&amp;#039;do-stuff-n-print &amp;quot;Bar&amp;quot;)
+             (wait-for-threads))
+Foo 1
+Bar 2
+Foo 3
+Bar 1
+Foo 2
+Bar 3&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The result we&apos;ve got is the same as the result of the Wikipedia article. Messages from both coroutines are interleaving. That is great!&lt;/p&gt;
+&lt;p&gt;Now, cl-cont does not look so strange to me. It is time to reimplement continuation widgets for the Weblocks! :)&lt;/p&gt;
+</description>
+            <pubDate>Sat, 10 Oct 2020 23:52:05 +0300</pubDate>
+        </item>
+        <item>
             <title>lmdb</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0201-lmdb.html</link>
             <description>&lt;p&gt;This is a binding to the embedded database &lt;a href=&quot;http://www.lmdb.tech/doc/index.html&quot;&gt;LMDB&lt;/a&gt;, mentioned in &lt;a href=&quot;https://twitter.com/kssreeram/status/1314080608008564737&quot;&gt;this tweet&lt;/a&gt;. LMDB is a fast key/value database which can be embedded into your app as a C library.&lt;/p&gt;
@@ -1307,147 +1515,6 @@ Evaluation took:
 &lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/fare-memoization/&quot;&gt;the documentation&lt;/a&gt;, &lt;a href=&quot;https://twitter.com/ngnghm&quot;&gt;@ngnghm&lt;/a&gt; did a very good job!&lt;/p&gt;
 </description>
             <pubDate>Tue, 08 Sep 2020 22:44:20 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-vcr</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html</link>
-            <description>&lt;p&gt;This system provides a simple macro which will remember all HTTP requests. Results are stored to the disk and will be reused. This should be useful if you need to rerun your integration tests frequently.&lt;/p&gt;
-&lt;p&gt;The README is short and only say that &lt;code&gt;cl-vcr&lt;/code&gt; was inspired by &lt;a href=&quot;https://github.com/vcr/vcr&quot;&gt;https://github.com/vcr/vcr&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;By the way, &lt;code&gt;cl-vcr&lt;/code&gt; is not in Quicklisp. Here is the link to the repository:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/kidd/cl-vcr&quot;&gt;https://github.com/kidd/cl-vcr&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Let&apos;s try it!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; CL-VCR stores it&amp;#039;s data in /tmp/vcr/, but does
-;; not create it itself :(
-POFTHEDAY&amp;gt; (ensure-directories-exist &amp;quot;/tmp/vcr/&amp;quot;)
-
-
-POFTHEDAY&amp;gt; (time
-            (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
-              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
-Evaluation took:
-  10.859 seconds of real time
-  0.037955 seconds of total run time (0.025274 user, 0.012681 system)
-  0.35% CPU
-  12 lambdas converted
-  23,975,316,800 processor cycles
-  5 page faults
-  1,176,304 bytes consed
-  
-#(123 10 32 32 34 97 114 103 115 34 58 32 123 125 44 32 10 32 32 34 100 97 116
-  97 34 58 32 34 34 44 32 10 32 32 34 102 105 108 101 115 34 58 32 123 125 44
-  32 10 32 32 34 102 111 114 109 34 58 32 123 125 44 32 10 32 32 34 104 101 97
-  100 101 114 115 34 58 32 123 10 32 32 32 32 34 65 99 99 101 112 116 34 58 32
-  34 42 47 42 34 44 32 10 32 32 32 32 34 72 111 115 116 34 58 32 34 104 116 116
-  112 98 105 110 46 111 114 103 34 44 32 10 32 32 32 32 34 85 115 101 114 45 65
-  103 101 110 116 34 58 32 34 68 114 97 107 109 97 47 50 46 48 46 55 32 40 83
-  66 67 76 32 50 46 48 46 56 59 32 68 97 114 119 105 110 59 32 49 57 46 53 46
-  48 59 32 104 116 116 112 58 47 47 119 101 105 116 122 46 100 101 47 100 114
-  97 107 109 97 47 41 34 44 32 10 32 32 32 32 34 88 45 65 109 122 110 45 84 114
-  97 99 101 45 73 100 34 58 32 34 82 111 111 116 61 49 45 53 102 53 54 56 98 57
-  48 45 98 55 102 53 56 99 98 48 52 57 57 55 51 51 53 48 100 52 48 56 52 55 55
-  48 34 10 32 32 125 44 32 10 32 32 34 111 114 105 103 105 110 34 58 32 34 51
-  49 46 49 55 51 46 56 48 46 55 34 44 32 10 32 32 34 117 114 108 34 58 32 34
-  104 116 116 112 115 58 47 47 104 116 116 112 98 105 110 46 111 114 103 47 100
-  101 108 97 121 47 49 48 34 10 125 10)
-
-POFTHEDAY&amp;gt; (time
-            (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
-              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
-; Debugger entered on #&amp;lt;SIMPLE-TYPE-ERROR expected-type: SB-IMPL::FUNCTION-NAME
-;                     datum: (LAMBDA () :IN DRAKMA::MAKE-SSL-STREAM)&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, here we have two problems:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;cl-vcr does not work;&lt;/li&gt;&lt;li&gt;drakma is not able to decode httpbin.org&apos;s JSON response (honestly, I   tried different arguments to &lt;code&gt;http-request&lt;/code&gt;.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Fortunately, there is cool Dexador, which &quot;just works&quot; and a hack to make &lt;code&gt;cl-vcr&lt;/code&gt; use it. But &quot;ups!&quot; it does not work either, because &lt;code&gt;cl-vcr&lt;/code&gt; tries to remember all returned values, including SSL stream and associated CFFI structure of the networking socket:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
-            (let ((cl-vcr::*http-call* &amp;#039;dex:request))
-              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
-                (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
-; Debugger entered on #&amp;lt;CL-STORE:STORE-ERROR {100C4C3E73}&amp;gt;
-
-;; This is what dex:get returns as it&amp;#039;s values:
-POFTHEDAY&amp;gt; (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;)
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f568fb6-f74ff20069c9dca0a0b0c760\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;
-200 (8 bits, #xC8, #o310, #b11001000)
-#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 7 {100C4BBC93}&amp;gt;
-#&amp;lt;QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/10&amp;gt;
-#&amp;lt;CL+SSL::SSL-STREAM for #&amp;lt;FD-STREAM for &amp;quot;socket 192.168.43.216:64553, peer: 35.170.21.246:443&amp;quot; {100C4AE583}&amp;gt;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can overcome these difficulties by creating a wrapper to make HTTP requests and return only the result.&lt;/p&gt;
-&lt;p&gt;First call returns in 10 seconds:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun http-get (url)
-             (values (dex:get url)))
-
-POFTHEDAY&amp;gt; (time
-            (let ((cl-vcr::*http-call* &amp;#039;http-get))
-              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
-                (http-get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
-Evaluation took:
-  10.175 seconds of real time
-  0.020157 seconds of total run time (0.013977 user, 0.006180 system)
-  0.20% CPU
-  52 lambdas converted
-  22,465,739,006 processor cycles
-  4,203,120 bytes consed
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5692a6-fde6da521dce37dc2983bb9e\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But second call returns immediately:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
-            (let ((cl-vcr::*http-call* &amp;#039;http-get))
-              (cl-vcr:with-vcr &amp;quot;the-tape&amp;quot;
-                (http-get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
-Evaluation took:
-  0.005 seconds of real time
-  0.005484 seconds of total run time (0.004814 user, 0.000670 system)
-  100.00% CPU
-  26 lambdas converted
-  12,198,056 processor cycles
-  1,996,128 bytes consed
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5692a6-fde6da521dce37dc2983bb9e\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;31.173.80.7\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is another problem with &lt;code&gt;cl-vcr&lt;/code&gt; - it does not use &lt;code&gt;unwind-protect&lt;/code&gt; to run &lt;code&gt;unmemoize&lt;/code&gt;. That is why it applied memoization patch to the &lt;code&gt;dex:request&lt;/code&gt; function, but didn&apos;t roll it back on the error.&lt;/p&gt;
-&lt;p&gt;What could I say? &lt;code&gt;CL-VCR&lt;/code&gt; is a good example of a really bad implementation of a nice idea :)&lt;/p&gt;
-</description>
-            <pubDate>Mon, 07 Sep 2020 23:11:19 +0300</pubDate>
         </item>
     </channel>
 </rss>
