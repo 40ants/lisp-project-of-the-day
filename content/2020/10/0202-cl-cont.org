@@ -1,0 +1,290 @@
+* cl-cont                                                          :language:
+
+This is a pretty old system which implements Delimited Continuations for
+Common Lisp. Initially, it was part of the Weblocks web-framework.
+
+It always was hard to wrap my mind around continuations. Probably that
+is why I decided to remove their support from the core of the Weblocks
+when I did the refactoring.
+
+Now it is time to dive into continuations and probably to return them to
+Weblocks as an additional library.
+
+Let's see what continuation is and how they can be used in practice!
+
+First thing to note is that each piece of code which uses
+this magic, should be wrapped into ~with-call/cc~. Second thing to
+remember is that ~let/cc~ form allows you to capture the moment and to
+save the execution point somewhere.
+
+The code below prints three lines. It prints "Begin", then captures the
+execution point, prints "Before returning" and returns the captured point:
+
+#+begin_src lisp
+
+POFTHEDAY> (cont:with-call/cc
+             (format t "Begin~%")
+             (cont:let/cc k
+               (format t "Before returning k~%")
+               k)
+             (format t "End~%")
+             :final-result)
+Begin
+Before returning k
+#<FUNCTION (LAMBDA (&OPTIONAL #:G1455 &REST #:G1456)) {22A10A0B}>
+
+#+end_src
+
+What is happened to our third print "End"? It didn't has a chance to be
+executed yet. But we can continue execution, by calling the function
+we've received as the result on the previous code snippet:
+
+#+begin_src lisp
+
+POFTHEDAY> (funcall *)
+End
+:FINAL-RESULT
+
+POFTHEDAY> (funcall **)
+End
+:FINAL-RESULT
+
+#+end_src
+
+That is why it is called "continuation"! Yeah! As you can see, we can
+start this captured function any amount of times.
+
+Now, let's try to create a function which will interrupt it's execution
+and return a continuation.
+
+Our first attempt might be like this:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun foo-inner ()
+             (cont:with-call/cc
+               (format t "Begin foo~%")
+               (cont:let/cc k
+                 (format t "Before returning k from foo~%")
+                 k)
+               (format t "End foo~%")
+               :final-result))
+
+POFTHEDAY> (cont:with-call/cc
+             (format t "Before foo~%")
+             (foo)
+             (format t "After foo~%"))
+Before foo
+Begin foo
+Before returning k from foo
+After foo ;; Ups! I've expected it will not output this
+NIL       ;; and return a continuation function instead of NIL!
+
+#+end_src
+
+What if we call foo-inner from inside another with-call/cc?
+
+#+begin_src lisp
+#+end_src
+
+Calling wrapped version of the function does the right thing:
+
+#+begin_src lisp
+
+POFTHEDAY> (cont:with-call/cc
+             (defun foo-wrapped ()
+               (format t "Begin foo~%")
+               (cont:let/cc k
+                 (format t "Before returning k from foo~%")
+                 k)
+               (format t "End foo~%")
+               :final-result))
+
+
+POFTHEDAY> (cont:with-call/cc
+             (format t "Before foo~%")
+             (foo-wrapped)
+             (format t "After foo~%"))
+Before foo
+Begin foo
+Before returning k from foo
+#<CLOSURE (LAMBDA (&OPTIONAL #:G1561 &REST #:G1562)) {10067F637B}>
+
+;; Now we can call continuation to continue
+;; computation of the foo function:
+POFTHEDAY> (funcall *)
+End foo
+After foo
+NIL
+
+#+end_src
+
+The latter case works because ~cont:with-call/cc~ is smart enough and if
+it wraps the function ~foo-wrapped~ into a special funcallable object:
+
+#+begin_src lisp
+
+;; This function is usual:
+POFTHEDAY> (fdefinition 'foo-inner)
+#<FUNCTION FOO-INNER>
+
+;; But this one is not.
+;; It supports nested continuations:
+POFTHEDAY> (fdefinition 'foo-wrapped)
+#<CL-CONT::FUNCALLABLE/CC {10063435FB}>
+
+#+end_src
+
+
+Examples from Wikipedia:
+
+#+begin_src lisp
+
+POFTHEDAY> (defvar *the-continuation*)
+
+POFTHEDAY> (cont:defun/cc test ()
+             (let ((i 0))
+               ;; let/cc binds to k symbol a variable representing
+               ;; this point in the program as the argument to
+               ;; that function.
+               ;;
+               ;; In this case, we assigns that
+               ;; continuation to the variable *the-continuation*
+               ;; and then return the incremented value of 'i'.
+               ;;
+               (cont:let/cc k
+                 (setf *the-continuation* k)
+                 (incf i))
+
+               ;; The next time *the-continuation* is called,
+               ;; we start here:
+               (incf i)))
+
+POFTHEDAY> (test)
+1
+
+POFTHEDAY> (funcall *the-continuation*)
+2
+
+POFTHEDAY> (funcall *the-continuation*)
+3
+
+;; Stores the current continuation (which will print 4 next) away
+POFTHEDAY> (defparameter *another-continuation* *the-continuation*)
+
+;; Resets *the-continuation*:
+POFTHEDAY> (test)
+1
+
+POFTHEDAY> (funcall *the-continuation*)
+2
+
+;; Uses the previously stored continuation:
+POFTHEDAY> (funcall *another-continuation*)
+4
+
+#+end_src
+
+Green threads example:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *queue* nil)
+
+POFTHEDAY> (defun empty-queue? ()
+             (null *queue*))
+
+POFTHEDAY> (defun enqueue (func)
+             (setf *queue*
+                   (append *queue*
+                           (list func))))
+
+POFTHEDAY> (defun dequeue ()
+             (pop *queue*))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running a (func).
+POFTHEDAY> (cont:defun/cc fork (func &rest args)
+             (cont:let/cc k
+               (enqueue k)
+               (apply func args)))
+
+;; This stops running the current thread by placing it into the queue
+;; and starts running the other thread from the queue if there is any:
+POFTHEDAY> (cont:defun/cc yield ()
+             (cont:let/cc k
+               (enqueue k)
+               (funcall (dequeue))))
+
+#+end_src
+
+How does ~fork~ function work?
+
+#+begin_src lisp
+
+;; This is the function we want to run in "parallel":
+POFTHEDAY> (defun do-job ()
+             (format t "Inside job~%"))
+
+;; Initially, our queue is empty:
+POFTHEDAY> *queue*
+NIL
+
+;; Now when we'll call the fork,
+;; it will:
+;;
+;; - capture current continuation;
+;; - put it into the queue;
+;; - execute do-job function.
+POFTHEDAY> (cont:with-call/cc
+             (format t "Before fork~%")
+             (fork #'do-job)
+             (format t "After fork~%"))
+Before fork
+Inside job
+NIL
+
+;; Now queue has one function which is
+;; the rest of our initial computation.
+POFTHEDAY> *queue*
+(#<FUNCTION (LAMBDA (&OPTIONAL #:G1655 &REST #:G1656)) {22A1719B}>)
+
+;; When the rest of the computation gets called,
+;; it prints "After fork" and exits:
+POFTHEDAY> (funcall (dequeue))
+After fork
+NIL
+
+#+end_src
+
+Many "threads":
+
+
+
+#+begin_src lisp
+
+POFTHEDAY> (cont:defun/cc do-stuff-n-print (name)
+             (loop for n from 1 upto 3
+                   do (format t "~A ~A~%" name n)
+                      (yield)
+                      (sleep 1)))
+
+
+POFTHEDAY> (defun wait-for-threads ()
+             (loop
+               when (empty-queue?)
+                 return nil
+               do (funcall (dequeue))))
+
+POFTHEDAY> (cont:with-call/cc
+             (fork #'do-stuff-n-print "Foo")
+             (fork #'do-stuff-n-print "Bar")
+             (wait-for-threads))
+Foo 1
+Bar 2
+Foo 3
+Bar 1
+Foo 2
+Bar 3
+
+#+end_src
