@@ -11,7 +11,7 @@
 It has nothing in common with the magic artefact, but anyway is able to
 do pretty cool things!
 
-This library is a wrapper around [[Tesseract OCR]]. It is suitable for image
+This library is a wrapper around [[https://tesseract-ocr.github.io/][Tesseract OCR]] and is suitable for an image
 to text transformations.
 
 To test this system, you need to install the ~Tesseract~ library first. On
@@ -23,18 +23,20 @@ brew install tesseract
 
 #+end_src
 
-The CL library is not in the Quicklisp, but can be installed from the
+The CL library is not in the Quicklisp but can be installed from the
 https://ultralisp.org. Follow the instruction from the repository:
 
 https://github.com/egao1980/tesseract-capi
 
 To make it work, you'll need a trained data for Tesseract
-engine. Happily, Homebrew package includes some files for English
-language. To find out a path, do:
+engine. Happily, the Homebrew package includes some files for the
+English language.
+
+To find out a path, do:
 
 #+begin_src bash
 
-# echo $(brew --prefix tesseract)/share/tessdata/
+[poftheday] echo $(brew --prefix tesseract)/share/tessdata/
 /usr/local/opt/tesseract/share/tessdata/
 
 #+end_src

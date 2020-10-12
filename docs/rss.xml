@@ -6,6 +6,65 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>tesseract-capi</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0203-tesseract-capi.html</link>
+            <description>&lt;p&gt;It has nothing in common with the magic artefact, but anyway is able to do pretty cool things!&lt;/p&gt;
+&lt;p&gt;This library is a wrapper around &lt;a href=&quot;https://tesseract-ocr.github.io/&quot;&gt;Tesseract OCR&lt;/a&gt; and is suitable for an image to text transformations.&lt;/p&gt;
+&lt;p&gt;To test this system, you need to install the &lt;code&gt;Tesseract&lt;/code&gt; library first. On OSX just do:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;brew install tesseract&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The CL library is not in the Quicklisp but can be installed from the &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt; Follow the instruction from the repository:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/egao1980/tesseract-capi&quot;&gt;https://github.com/egao1980/tesseract-capi&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;To make it work, you&apos;ll need a trained data for Tesseract engine. Happily, the Homebrew package includes some files for the English language.&lt;/p&gt;
+&lt;p&gt;To find out a path, do:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday] echo $(brew --prefix tesseract)/share/tessdata/
+/usr/local/opt/tesseract/share/tessdata/&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can test this library on this sample from the repository:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0203/fox.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Here is how to translate this image into the text:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (tesseract-capi::tessversion)
+&amp;quot;4.1.1&amp;quot;
+
+POFTHEDAY&amp;gt; (let ((tesseract-capi:*tessdata-directory*
+                   &amp;quot;/usr/local/opt/tesseract/share/tessdata/&amp;quot;))
+             (tesseract-capi:image-to-text
+              (asdf:system-relative-pathname
+               :tesseract-capi &amp;quot;tests/data/fox.png&amp;quot;)))
+&amp;quot;This is a lot of 12 point text to test the
+ocr code and see if it works on all types
+of fle format
+
+The quick brown dog jumped over the
+lazy fox. The quick brown dog jumped
+over the lazy fox. The quick brown dog
+jumped over the lazy fox. The quick
+brown dog jumped over the lazy fox
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s try it on this &lt;a href=&quot;https://xkcd.com/312/&quot;&gt;XKCD&lt;/a&gt; comic:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0203/xkcd-312.png&quot;/&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((tesseract-capi:*tessdata-directory*
+                   &amp;quot;/usr/local/opt/tesseract/share/tessdata/&amp;quot;))
+             (tesseract-capi:image-to-text
+              &amp;quot;docs/media/0203/xkcd-312.png&amp;quot;))
+&amp;quot;A GODS LAMENT
+SOME SAID THE WORLD SHOULD BE IN PERL;
+SOME. SAID IN LISP
+NOW, HAVING GIVEN BOTH A WHIRL,
+I HELD WITH THOSE WHO FAVORED PERL.
+BUT I FEAR WE PASSED TO MEN
+A DISAPPOINTING FOUNDING MYTH,
+AND SHOULD WE WRITE IT ALL AGAIN,
+TO ENO IT WITH
+A CLOSE -PAREN.
+SY i
+\\ ad an ran
+cS co V
+a, em oo
+2 ee eee
+@ P= : } 0.\&amp;quot; :
+a OO
+&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, it outputs some junk at the end, but main text is recognized almost perfectly!&lt;/p&gt;
+&lt;p&gt;I think, this is a pretty cool library! For example, you can use it plus &lt;a href=&quot;https://github.com/sharplispers/montezuma&quot;&gt;Montezuma&lt;/a&gt; to build a personal search engine for your image and scans collection. It&apos;s a matter of one night.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 12 Oct 2020 23:24:53 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-cont</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0202-cl-cont.html</link>
             <description>&lt;p&gt;This is a pretty old system which implements Delimited Continuations for Common Lisp. Initially, it was part of the Weblocks web-framework.&lt;/p&gt;
@@ -1464,57 +1523,6 @@ Not cached, returning the value: 2020-09-09T22:36:10.767777+03:00
 @2020-09-09T22:36:10.767777+03:00&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sometimes it can be very convenient to cache rarely changed data this way.&lt;/p&gt;
 </description>
             <pubDate>Wed, 09 Sep 2020 22:41:05 +0300</pubDate>
-        </item>
-        <item>
-            <title>fare-memoization</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html</link>
-            <description>&lt;p&gt;This library is used by &lt;code&gt;cl-vcr&lt;/code&gt;, &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;reviewed yesterday&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Previously I&apos;ve used another library for caching function results and &lt;code&gt;fare-memoization&lt;/code&gt; seems interesting because it allows to &quot;memoize&quot; any function unless it is inlined.&lt;/p&gt;
-&lt;p&gt;Also, this &quot;memoization&quot; effect can be undone:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun foo (a b)
-             &amp;quot;Waits 5 seconds and multiplies a and b.&amp;quot;
-             (sleep 5)
-             (* a b))
-
-POFTHEDAY&amp;gt; (time (foo 2 3))
-Evaluation took:
-  5.003 seconds of real time
-
-6
-
-POFTHEDAY&amp;gt; (time (foo 2 3))
-Evaluation took:
-  5.005 seconds of real time
-  
-6
-
-POFTHEDAY&amp;gt; (fare-memoization:memoize &amp;#039;foo)
-
-;; This call will cache it&amp;#039;s result:
-POFTHEDAY&amp;gt; (time (foo 2 3))
-Evaluation took:
-  5.004 seconds of real time
-  
-6
-
-;; And next call will return immediately:
-POFTHEDAY&amp;gt; (time (foo 2 3))
-Evaluation took:
-  0.000 seconds of real time
-  
-6
-
-;; Now we&amp;#039;ll undone the effect:
-POFTHEDAY&amp;gt; (fare-memoization:unmemoize &amp;#039;foo)
-
-POFTHEDAY&amp;gt; (time (foo 2 3))
-Evaluation took:
-  5.005 seconds of real time
-  
-6&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a macro to define memoized functions and apply/funcall and remember results. The only thing I miss is the ability to cache results for a given amount of time.&lt;/p&gt;
-&lt;p&gt;Read &lt;a href=&quot;http://quickdocs.org/fare-memoization/&quot;&gt;the documentation&lt;/a&gt;, &lt;a href=&quot;https://twitter.com/ngnghm&quot;&gt;@ngnghm&lt;/a&gt; did a very good job!&lt;/p&gt;
-</description>
-            <pubDate>Tue, 08 Sep 2020 22:44:20 +0300</pubDate>
         </item>
     </channel>
 </rss>
