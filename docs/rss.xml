@@ -6,6 +6,41 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>font-discovery</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0204-font-discovery.html</link>
+            <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; to find out which fonts are known to OS and where their files are located.&lt;/p&gt;
+&lt;p&gt;Here is how you can list all &quot;Arial&quot; fonts and find where the &quot;bold&quot; version is located:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (org.shirakumo.font-discovery:list-fonts :family &amp;quot;Arial&amp;quot;)
+(#&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;Arial&amp;quot; ROMAN REGULAR NORMAL&amp;gt;
+ #&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;Arial&amp;quot; ITALIC REGULAR NORMAL&amp;gt;
+ #&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;Arial&amp;quot; ROMAN BOLD NORMAL&amp;gt;
+ #&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;Arial&amp;quot; ITALIC BOLD NORMAL&amp;gt;)
+
+POFTHEDAY&amp;gt; (third *)
+#&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;Arial&amp;quot; ROMAN BOLD NORMAL&amp;gt;
+
+POFTHEDAY&amp;gt; (org.shirakumo.font-discovery:file *)
+#P&amp;quot;/System/Library/Fonts/Supplemental/Arial Bold.ttf&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is also possible to find a single font filtering it by family, slant and other parameters:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (org.shirakumo.font-discovery:find-font :family &amp;quot;PragmataPro&amp;quot;)
+#&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;PragmataPro&amp;quot; ROMAN REGULAR NORMAL&amp;gt;
+
+POFTHEDAY&amp;gt; (describe *)
+#&amp;lt;ORG.SHIRAKUMO.FONT-DISCOVERY:FONT &amp;quot;PragmataPro&amp;quot; ROMAN REGULAR NORMAL&amp;gt;
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  FILE                           = #P&amp;quot;/Users/art/Library/Fonts/PragmataProR_0828.ttf&amp;quot;
+  FAMILY                         = &amp;quot;PragmataPro&amp;quot;
+  SLANT                          = :ROMAN
+  WEIGHT                         = :REGULAR
+  SPACING                        = NIL
+  STRETCH                        = :NORMAL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;However, I found this library is still unstable on OSX and sometimes crashes somewhere in the CFFI code. @Shinmera has fixed some of these errors but some of them are still uncaught.&lt;/p&gt;
+&lt;p&gt;Read the full documentation on it here:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://shinmera.github.io/font-discovery/&quot;&gt;https://shinmera.github.io/font-discovery/&lt;/a&gt;&lt;/p&gt;
+</description>
+            <pubDate>Wed, 14 Oct 2020 23:52:55 +0300</pubDate>
+        </item>
+        <item>
             <title>tesseract-capi</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0203-tesseract-capi.html</link>
             <description>&lt;p&gt;It has nothing in common with the magic artefact, but anyway is able to do pretty cool things!&lt;/p&gt;
@@ -1460,69 +1495,6 @@ T
 &lt;p&gt;To finalize, I think it can be used by those who are using Drakma if somebody will fix how the multiple values are handled and original function restoration.&lt;/p&gt;
 </description>
             <pubDate>Thu, 10 Sep 2020 22:38:39 +0300</pubDate>
-        </item>
-        <item>
-            <title>function-cache</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0184-function-cache.html</link>
-            <description>&lt;p&gt;Yesterday I&apos;ve reviewed &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html&quot;&gt;fare-memoization&lt;/a&gt; and decided to tell you about the library I&apos;m using for memoization instead.&lt;/p&gt;
-&lt;p&gt;The main features are ability to set TTL and an extendable caching protocol which allows to use different kinds of caches.&lt;/p&gt;
-&lt;p&gt;For example, here we&apos;ll use LRU cache which will remember only 3 results:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (function-cache:defcached (foo :cache-class &amp;#039;function-cache:lru-cache
-                                          :capacity 3)
-               (param)
-             (format t &amp;quot;Not cached, returning the value: ~A~%&amp;quot; param)
-             param)
-
-POFTHEDAY&amp;gt; (foo 1)
-Not cached, returning the value: 1
-1
-
-;; Now the value returned from the cache:
-POFTHEDAY&amp;gt; (foo 1)
-1
-
-;; Let&amp;#039;s fill the cache:
-POFTHEDAY&amp;gt; (foo 2)
-Not cached, returning the value: 2
-2
-POFTHEDAY&amp;gt; (foo 3)
-Not cached, returning the value: 3
-3
-POFTHEDAY&amp;gt; (foo 4)
-Not cached, returning the value: 4
-4
-POFTHEDAY&amp;gt; (foo 5)
-Not cached, returning the value: 5
-5
-
-;; Value for 1 was evicted from the cache:
-POFTHEDAY&amp;gt; (foo 1)
-Not cached, returning the value: 1
-1&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And here is how we can set TTL and make the function result remembered for 5 seconds:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (function-cache:defcached (foo :timeout 5)
-               ()
-             (let ((ts (local-time:now)))
-               (format t &amp;quot;Not cached, returning the value: ~A~%&amp;quot; ts)
-               ts))
-
-POFTHEDAY&amp;gt; (foo)
-Not cached, returning the value: 2020-09-09T22:36:05.630085+03:00
-@2020-09-09T22:36:05.630085+03:00
-
-POFTHEDAY&amp;gt; (foo)
-@2020-09-09T22:36:05.630085+03:00
-
-POFTHEDAY&amp;gt; (foo)
-@2020-09-09T22:36:05.630085+03:00
-
-POFTHEDAY&amp;gt; (foo)
-@2020-09-09T22:36:05.630085+03:00
-
-POFTHEDAY&amp;gt; (foo)
-Not cached, returning the value: 2020-09-09T22:36:10.767777+03:00
-@2020-09-09T22:36:10.767777+03:00&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sometimes it can be very convenient to cache rarely changed data this way.&lt;/p&gt;
-</description>
-            <pubDate>Wed, 09 Sep 2020 22:41:05 +0300</pubDate>
         </item>
     </channel>
 </rss>

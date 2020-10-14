@@ -8,7 +8,7 @@
 :CI:       :(
 :END:
 
-This is a library by [[https://twitter.com/Shinmera][@Shinmera]] to find out which font are known to OS
+This is a library by [[https://twitter.com/Shinmera][@Shinmera]] to find out which fonts are known to OS
 and where their files are located.
 
 Here is how you can list all "Arial" fonts and find where the "bold"
