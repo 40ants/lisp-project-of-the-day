@@ -1,0 +1,62 @@
+* font-discovery :ui:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This is a library by [[https://twitter.com/Shinmera][@Shinmera]] to find out which font are known to OS
+and where their files are located.
+
+Here is how you can list all "Arial" fonts and find where the "bold"
+version is located:
+
+#+begin_src lisp
+
+POFTHEDAY> (org.shirakumo.font-discovery:list-fonts :family "Arial")
+(#<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "Arial" ROMAN REGULAR NORMAL>
+ #<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "Arial" ITALIC REGULAR NORMAL>
+ #<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "Arial" ROMAN BOLD NORMAL>
+ #<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "Arial" ITALIC BOLD NORMAL>)
+
+POFTHEDAY> (third *)
+#<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "Arial" ROMAN BOLD NORMAL>
+
+POFTHEDAY> (org.shirakumo.font-discovery:file *)
+#P"/System/Library/Fonts/Supplemental/Arial Bold.ttf"
+
+#+end_src
+
+It is also possible to find a single font filtering it by family, slant
+and other parameters:
+
+#+begin_src lisp
+
+POFTHEDAY> (org.shirakumo.font-discovery:find-font :family "PragmataPro")
+#<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "PragmataPro" ROMAN REGULAR NORMAL>
+
+POFTHEDAY> (describe *)
+#<ORG.SHIRAKUMO.FONT-DISCOVERY:FONT "PragmataPro" ROMAN REGULAR NORMAL>
+  [standard-object]
+
+Slots with :INSTANCE allocation:
+  FILE                           = #P"/Users/art/Library/Fonts/PragmataProR_0828.ttf"
+  FAMILY                         = "PragmataPro"
+  SLANT                          = :ROMAN
+  WEIGHT                         = :REGULAR
+  SPACING                        = NIL
+  STRETCH                        = :NORMAL
+
+#+end_src
+
+However, I found this library is still unstable on OSX and sometimes
+crashes somewhere in the CFFI code. @Shinmera has fixed some of these
+errors but some of them are still uncaught.
+
+Read the full documentation on it here:
+
+https://shinmera.github.io/font-discovery/
+

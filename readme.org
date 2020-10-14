@@ -11,6 +11,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 08 October - [[content/2020/10/0201-lmdb.org][lmdb]] ([[https://twitter.com/svetlyak40wt/status/1314331171677904896][twitter]])
 - 10 October - [[content/2020/10/0202-cl-cont.org][cl-cont]] ([[https://twitter.com/svetlyak40wt/status/1315044464512176128][twitter]])
 - 12 October - [[content/2020/10/0203-tesseract-capi.org][tesseract-capi]] ([[https://twitter.com/svetlyak40wt/status/1315750237861019648][twitter]])
+- 14 October - [[content/2020/10/0204-font-discovery.org][font-discovery]]
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
