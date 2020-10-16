@@ -1,0 +1,137 @@
+* quickfork :quicklisp:tooling:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is an interesting system which provides information about other
+systems sources. Also, it is able to show commands, necessary to clone
+libraries into the local-projects dir.
+
+This system is not in Quicklisp yet, but it can be installed from
+Ultralisp or by clone into some directory like
+~~/quicklisp/local-projects~.
+
+Also, to make it work, you have to clone ~quicklisp-projects~ repository
+somewhere. This repository contains metadata about all projects in the
+Quicklisp:
+
+#+begin_src lisp
+
+POFTHEDAY> (uiop:run-program
+            "git clone https://github.com/quicklisp/quicklisp-projects /tmp/projects")
+POFTHEDAY> (setf quickfork::*projects-directory* "/tmp/projects/projects")
+
+#+end_src
+
+An interesting thing happens right after you load ~quickfork~ system. It
+installs a few hooks into Quicklisp and ASDF and begins tracking the
+systems which are installed during the ~ql:quickload~:
+
+#+begin_src lisp
+
+POFTHEDAY> (ql:quickload :dexador)
+To load "dexador":
+  Load 14 ASDF systems:
+    alexandria asdf babel bordeaux-threads cffi cffi-grovel
+    cl-ppcre cl-utilities flexi-streams local-time
+    split-sequence trivial-features trivial-gray-streams
+    uiop
+  Install 17 Quicklisp releases:
+    chipz chunga cl+ssl cl-base64 cl-cookie cl-reexport
+    dexador fast-http fast-io proc-parse quri smart-buffer
+    static-vectors trivial-garbage trivial-mimes usocket
+    xsubseq
+; Fetching #<URL "http://beta.quicklisp.org/archive/usocket/2019-12-27/usocket-0.8.3.tgz">
+; 83.84KB
+...
+
+; Loading "dexador"
+...
+[package cl+ssl]..................................
+[package dexador].
+
+Systems compiled by QL: 
+ ("proc-parse"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/proc-parse-20190813-git/")
+ ("xsubseq"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/xsubseq-20170830-git/")
+  ...
+ ("dexador"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/dexador-20200427-git/")
+Systems loaded by QL: 
+ ("proc-parse"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/proc-parse-20190813-git/")
+ ("xsubseq"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/xsubseq-20170830-git/")
+ ...
+ ("dexador"
+  #P"/Users/art/poftheday/.qlot/dists/quicklisp/software/dexador-20200427-git/")
+Systems installed by QL: 
+ "usocket"
+ "trivial-mimes"
+ ...
+ "chipz"
+ "dexador"
+Inspect ql:*compiled-systems*, ql:*loaded-systems*, and ql:*installed-systems* for more info.
+(:DEXADOR)
+
+#+end_src
+
+Also, there is a function ~quickfork::make-clone-commands~ which prints
+which commands should be executed in command-line to clone given system
+and all its dependencies.
+
+Sadly, ~quickfork::make-clone-commands~ fails on ~dexador~ with some strange
+[[https://github.com/svspire/quickfork/issues/1][error]]s. You will need [[https://github.com/svspire/quickfork/pull/2][my fix]], to make it work like this:
+
+#+begin_src lisp
+
+CL-USER> (quickfork::make-clone-commands :dexador)
+
+git clone  "https://github.com/sharplispers/split-sequence.git"
+git clone  "https://github.com/sionescu/static-vectors.git"
+git clone  "https://github.com/sionescu/bordeaux-threads.git"
+git clone  "https://github.com/fukamachi/dexador.git"
+git clone  "https://github.com/fukamachi/fast-http.git"
+git clone  "https://gitlab.common-lisp.net/alexandria/alexandria.git"
+git clone  "https://github.com/fukamachi/proc-parse.git"
+git clone  "https://github.com/cl-babel/babel.git"
+git clone  "https://github.com/trivial-features/trivial-features.git"
+git clone  "https://github.com/fukamachi/xsubseq.git"
+git clone  "https://github.com/fukamachi/smart-buffer.git"
+git clone  "https://github.com/trivial-gray-streams/trivial-gray-streams.git"
+git clone  "https://github.com/fukamachi/quri.git"
+git clone  "https://github.com/rpav/fast-io.git"
+git clone  "https://github.com/fukamachi/cl-cookie.git"
+git clone  "https://github.com/dlowe-net/local-time.git"
+git clone  "https://github.com/Shinmera/trivial-mimes.git"
+git clone  "https://github.com/sharplispers/chipz.git"
+git clone  "https://github.com/takagi/cl-reexport.git"
+git clone  "https://github.com/cl-plus-ssl/cl-plus-ssl.git"
+git clone  "https://github.com/lmj/global-vars.git"
+git clone  "https://github.com/trivial-garbage/trivial-garbage.git"
+
+Non-git dependencies:
+("cl-utilities" :HTTPS
+ "https://common-lisp.net/project/cl-utilities/cl-utilities-latest.tar.gz")
+NIL
+("flexi-streams" :EDIWARE-HTTP "flexi-streams")
+("uiop" :HTTPS "https://common-lisp.net/project/asdf/archives/uiop.tar.gz")
+("cffi" :HTTPS
+ "https://common-lisp.net/project/cffi/releases/cffi_latest.tar.gz")
+("chunga" :EDIWARE-HTTP "chunga")
+("cl-ppcre" :EDIWARE-HTTP "cl-ppcre")
+("cl-base64" :KMR-GIT "cl-base64")
+("usocket" :HTTPS
+ "https://common-lisp.net/project/usocket/releases/usocket-latest.tar.gz")
+
+#+end_src
+
+Suddenly, I've remembered another similar project: ~ql-checkout~.
+
+Probably, yesterday we'll see how it works!
