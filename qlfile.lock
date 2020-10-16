@@ -1,12 +1,16 @@
 ("quicklisp" .
  (:class qlot/source/dist:source-dist
   :initargs (:distribution "http://beta.quicklisp.org/dist/quicklisp.txt" :%version :latest)
-  :version "2020-09-25"))
+  :version "2020-10-16"))
 ("ultralisp" .
  (:class qlot/source/dist:source-dist
   :initargs (:distribution "http://dist.ultralisp.org/" :%version :latest)
-  :version "20201014201004"))
+  :version "20201016152505"))
 ("cl-json" .
  (:class qlot/source/github:source-github
   :initargs (:repos "hankhero/cl-json" :ref nil :branch nil :tag nil)
   :version "github-b93881029907ef17eb53754c9f0f4e3e"))
+("quickfork" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svspire/quickfork" :ref nil :branch nil :tag nil)
+  :version "github-f9cd02084ae908856f653239889f9b3d"))

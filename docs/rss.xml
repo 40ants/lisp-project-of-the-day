@@ -6,6 +6,103 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>quickfork</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0205-quickfork.html</link>
+            <description>&lt;p&gt;This is an interesting system which provides information about other systems sources. Also, it is able to show commands, necessary to clone libraries into the local-projects dir.&lt;/p&gt;
+&lt;p&gt;This system is not in Quicklisp yet, but it can be installed from Ultralisp or by clone into some directory like &lt;code&gt;&lt;/code&gt;/quicklisp/local-projects~.&lt;/p&gt;
+&lt;p&gt;Also, to make it work, you have to clone &lt;code&gt;quicklisp-projects&lt;/code&gt; repository somewhere. This repository contains metadata about all projects in the Quicklisp:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (uiop:run-program
+            &amp;quot;git clone https://github.com/quicklisp/quicklisp-projects /tmp/projects&amp;quot;)
+POFTHEDAY&amp;gt; (setf quickfork::*projects-directory* &amp;quot;/tmp/projects/projects&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;An interesting thing happens right after you load &lt;code&gt;quickfork&lt;/code&gt; system. It installs a few hooks into Quicklisp and ASDF and begins tracking the systems which are installed during the &lt;code&gt;ql:quickload&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (ql:quickload :dexador)
+To load &amp;quot;dexador&amp;quot;:
+  Load 14 ASDF systems:
+    alexandria asdf babel bordeaux-threads cffi cffi-grovel
+    cl-ppcre cl-utilities flexi-streams local-time
+    split-sequence trivial-features trivial-gray-streams
+    uiop
+  Install 17 Quicklisp releases:
+    chipz chunga cl+ssl cl-base64 cl-cookie cl-reexport
+    dexador fast-http fast-io proc-parse quri smart-buffer
+    static-vectors trivial-garbage trivial-mimes usocket
+    xsubseq
+; Fetching #&amp;lt;URL &amp;quot;http://beta.quicklisp.org/archive/usocket/2019-12-27/usocket-0.8.3.tgz&amp;quot;&amp;gt;
+; 83.84KB
+...
+
+; Loading &amp;quot;dexador&amp;quot;
+...
+[package cl+ssl]..................................
+[package dexador].
+
+Systems compiled by QL: 
+ (&amp;quot;proc-parse&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/proc-parse-20190813-git/&amp;quot;)
+ (&amp;quot;xsubseq&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/xsubseq-20170830-git/&amp;quot;)
+  ...
+ (&amp;quot;dexador&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/dexador-20200427-git/&amp;quot;)
+Systems loaded by QL: 
+ (&amp;quot;proc-parse&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/proc-parse-20190813-git/&amp;quot;)
+ (&amp;quot;xsubseq&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/xsubseq-20170830-git/&amp;quot;)
+ ...
+ (&amp;quot;dexador&amp;quot;
+  #P&amp;quot;/Users/art/poftheday/.qlot/dists/quicklisp/software/dexador-20200427-git/&amp;quot;)
+Systems installed by QL: 
+ &amp;quot;usocket&amp;quot;
+ &amp;quot;trivial-mimes&amp;quot;
+ ...
+ &amp;quot;chipz&amp;quot;
+ &amp;quot;dexador&amp;quot;
+Inspect ql:*compiled-systems*, ql:*loaded-systems*, and ql:*installed-systems* for more info.
+(:DEXADOR)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, there is a function &lt;code&gt;quickfork::make-clone-commands&lt;/code&gt; which prints which commands should be executed in command-line to clone given system and all its dependencies.&lt;/p&gt;
+&lt;p&gt;Sadly, &lt;code&gt;quickfork::make-clone-commands&lt;/code&gt; fails on &lt;code&gt;dexador&lt;/code&gt; with some strange &lt;a href=&quot;https://github.com/svspire/quickfork/issues/1&quot;&gt;error&lt;/a&gt;s. You will need &lt;a href=&quot;https://github.com/svspire/quickfork/pull/2&quot;&gt;my fix&lt;/a&gt;, to make it work like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;CL-USER&amp;gt; (quickfork::make-clone-commands :dexador)
+
+git clone  &amp;quot;https://github.com/sharplispers/split-sequence.git&amp;quot;
+git clone  &amp;quot;https://github.com/sionescu/static-vectors.git&amp;quot;
+git clone  &amp;quot;https://github.com/sionescu/bordeaux-threads.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/dexador.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/fast-http.git&amp;quot;
+git clone  &amp;quot;https://gitlab.common-lisp.net/alexandria/alexandria.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/proc-parse.git&amp;quot;
+git clone  &amp;quot;https://github.com/cl-babel/babel.git&amp;quot;
+git clone  &amp;quot;https://github.com/trivial-features/trivial-features.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/xsubseq.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/smart-buffer.git&amp;quot;
+git clone  &amp;quot;https://github.com/trivial-gray-streams/trivial-gray-streams.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/quri.git&amp;quot;
+git clone  &amp;quot;https://github.com/rpav/fast-io.git&amp;quot;
+git clone  &amp;quot;https://github.com/fukamachi/cl-cookie.git&amp;quot;
+git clone  &amp;quot;https://github.com/dlowe-net/local-time.git&amp;quot;
+git clone  &amp;quot;https://github.com/Shinmera/trivial-mimes.git&amp;quot;
+git clone  &amp;quot;https://github.com/sharplispers/chipz.git&amp;quot;
+git clone  &amp;quot;https://github.com/takagi/cl-reexport.git&amp;quot;
+git clone  &amp;quot;https://github.com/cl-plus-ssl/cl-plus-ssl.git&amp;quot;
+git clone  &amp;quot;https://github.com/lmj/global-vars.git&amp;quot;
+git clone  &amp;quot;https://github.com/trivial-garbage/trivial-garbage.git&amp;quot;
+
+Non-git dependencies:
+(&amp;quot;cl-utilities&amp;quot; :HTTPS
+ &amp;quot;https://common-lisp.net/project/cl-utilities/cl-utilities-latest.tar.gz&amp;quot;)
+NIL
+(&amp;quot;flexi-streams&amp;quot; :EDIWARE-HTTP &amp;quot;flexi-streams&amp;quot;)
+(&amp;quot;uiop&amp;quot; :HTTPS &amp;quot;https://common-lisp.net/project/asdf/archives/uiop.tar.gz&amp;quot;)
+(&amp;quot;cffi&amp;quot; :HTTPS
+ &amp;quot;https://common-lisp.net/project/cffi/releases/cffi_latest.tar.gz&amp;quot;)
+(&amp;quot;chunga&amp;quot; :EDIWARE-HTTP &amp;quot;chunga&amp;quot;)
+(&amp;quot;cl-ppcre&amp;quot; :EDIWARE-HTTP &amp;quot;cl-ppcre&amp;quot;)
+(&amp;quot;cl-base64&amp;quot; :KMR-GIT &amp;quot;cl-base64&amp;quot;)
+(&amp;quot;usocket&amp;quot; :HTTPS
+ &amp;quot;https://common-lisp.net/project/usocket/releases/usocket-latest.tar.gz&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Suddenly, I&apos;ve remembered another similar project: &lt;code&gt;ql-checkout&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Probably, yesterday we&apos;ll see how it works!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 16 Oct 2020 22:32:51 +0300</pubDate>
+        </item>
+        <item>
             <title>font-discovery</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0204-font-discovery.html</link>
             <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt; to find out which fonts are known to OS and where their files are located.&lt;/p&gt;
@@ -1312,189 +1409,6 @@ Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&
 &lt;p&gt;By the way, does somebody know something about the author Thomas Bakketun and his company &lt;a href=&quot;https://github.com/copyleft&quot;&gt;Copyleft&lt;/a&gt;? Seems they are using the Common Lisp in their stack.&lt;/p&gt;
 </description>
             <pubDate>Fri, 11 Sep 2020 19:38:20 +0300</pubDate>
-        </item>
-        <item>
-            <title>vcr</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0185-vcr.html</link>
-            <description>&lt;p&gt;A few days ago, I tried to review a &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0182-cl-vcr.html&quot;&gt;cl-vcr&lt;/a&gt; - a library which should remember and replay HTTP calls in your tests. But unfortunately it didn&apos;t work.&lt;/p&gt;
-&lt;p&gt;But &lt;a href=&quot;https://github.com/vindarel&quot;&gt;Vincent &quot;vindarel&quot;&lt;/a&gt; did a good job, finding the similar project called &lt;code&gt;vcr&lt;/code&gt;. It is not in Quicklisp, but can be downloaded from GitHub or Ultralisp:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/tsikov/vcr&quot;&gt;https://github.com/tsikov/vcr&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Today we&apos;ll check if &lt;code&gt;vcr&lt;/code&gt; will work for remembering our HTTP calls.&lt;/p&gt;
-&lt;p&gt;First, let&apos;s make Drakma understand that &lt;code&gt;application/json&lt;/code&gt; is a text format. Thanks to the &lt;a href=&quot;https://twitter.com/vseloved&quot;&gt;@vseloved&lt;/a&gt; for &lt;a href=&quot;https://twitter.com/vseloved/status/1303167210744147968&quot;&gt;this tip&lt;/a&gt;!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (push &amp;#039;(&amp;quot;application&amp;quot; . &amp;quot;json&amp;quot;)
-                 drakma:*text-content-types*)
-((&amp;quot;application&amp;quot; . &amp;quot;json&amp;quot;) (&amp;quot;text&amp;quot;))
-
-POFTHEDAY&amp;gt; (drakma:http-request &amp;quot;https://httpbin.org/delay/5&amp;quot;)
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7371-a16e828d5dc4cb52867d2d09\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/5\&amp;quot;
-}
-&amp;quot;
-200 (8 bits, #xC8, #o310, #b11001000)
-((:DATE . &amp;quot;Thu, 10 Sep 2020 18:41:58 GMT&amp;quot;) (:CONTENT-TYPE . &amp;quot;application/json&amp;quot;)
- (:CONTENT-LENGTH . &amp;quot;360&amp;quot;) (:CONNECTION . &amp;quot;close&amp;quot;)
- (:SERVER . &amp;quot;gunicorn/19.9.0&amp;quot;) (:ACCESS-CONTROL-ALLOW-ORIGIN . &amp;quot;*&amp;quot;)
- (:ACCESS-CONTROL-ALLOW-CREDENTIALS . &amp;quot;true&amp;quot;))
-#&amp;lt;PURI:URI https://httpbin.org/delay/5&amp;gt;
-#&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {100238A0A3}&amp;gt;
-T
-&amp;quot;OK&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now it is time to see if our requests will be cached:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (time
-            (vcr:with-vcr &amp;quot;foo&amp;quot;
-              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
-Evaluation took:
-  10.849 seconds of real time
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7b55-4ceacc38a3d473a1e8ce9f01\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;
-
-;; Second call returns immediately!
-POFTHEDAY&amp;gt; (time
-            (vcr:with-vcr &amp;quot;foo&amp;quot;
-              (drakma:http-request &amp;quot;https://httpbin.org/delay/10&amp;quot;)))
-Evaluation took:
-  0.001 seconds of real time
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7b55-4ceacc38a3d473a1e8ce9f01\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Seems the library works. But it does not support multiple values and it will break you application if it uses status code or headers, returned as the second and third values.&lt;/p&gt;
-&lt;p&gt;This is strange because I see in it&apos;s code an attempt to handle multiple values :/&lt;/p&gt;
-&lt;p&gt;Now, how about making it work with &lt;code&gt;Dexador&lt;/code&gt;? To do this, we have to rebind the &lt;code&gt;vcr:*original-fn-symbol*&lt;/code&gt; variable:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((vcr:*original-fn-symbol* &amp;#039;dexador:request))
-             (time
-              (vcr:with-vcr &amp;quot;foo&amp;quot;
-                (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
-Evaluation took:
-  10.721 seconds of real time
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7d84-7de184b7a8524404e7ecc234\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;
-POFTHEDAY&amp;gt; (let ((vcr:*original-fn-symbol* &amp;#039;dexador:request))
-             (time
-              (vcr:with-vcr &amp;quot;foo&amp;quot;
-                (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;))))
-Evaluation took:
-  0.001 seconds of real time
-  
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7d84-7de184b7a8524404e7ecc234\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Ups! Why did we send &quot;Drakma&quot; in the User-Agent header??? Let&apos;s recheck without the &lt;code&gt;vcr&lt;/code&gt; wrapper:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;)
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Drakma/2.0.7 (SBCL 2.0.8; Darwin; 19.5.0; http://weitz.de/drakma/)\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7e04-fed39a80da9ac640b6835a00\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;
-200 (8 bits, #xC8, #o310, #b11001000)
-((:DATE . &amp;quot;Thu, 10 Sep 2020 19:27:10 GMT&amp;quot;) (:CONTENT-TYPE . &amp;quot;application/json&amp;quot;)
- (:CONTENT-LENGTH . &amp;quot;361&amp;quot;) (:CONNECTION . &amp;quot;close&amp;quot;)
- (:SERVER . &amp;quot;gunicorn/19.9.0&amp;quot;) (:ACCESS-CONTROL-ALLOW-ORIGIN . &amp;quot;*&amp;quot;)
- (:ACCESS-CONTROL-ALLOW-CREDENTIALS . &amp;quot;true&amp;quot;))
-#&amp;lt;PURI:URI https://httpbin.org/delay/10&amp;gt;
-#&amp;lt;FLEXI-STREAMS:FLEXI-IO-STREAM {1006A2DB43}&amp;gt;
-T
-&amp;quot;OK&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hmm, but if we&apos;ll restart our lisp process and check it on the fresh, the result will be different (and correct):&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (dex:get &amp;quot;https://httpbin.org/delay/10&amp;quot;)
-&amp;quot;{
-  \&amp;quot;args\&amp;quot;: {}, 
-  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
-  \&amp;quot;files\&amp;quot;: {}, 
-  \&amp;quot;form\&amp;quot;: {}, 
-  \&amp;quot;headers\&amp;quot;: {
-    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
-    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
-    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
-    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
-    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f5a7ef4-ede1ef0036cd44c08b326080\&amp;quot;
-  }, 
-  \&amp;quot;origin\&amp;quot;: \&amp;quot;178.176.74.47\&amp;quot;, 
-  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/10\&amp;quot;
-}
-&amp;quot;
-200 (8 bits, #xC8, #o310, #b11001000)
-#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 7 {1004BD1153}&amp;gt;
-#&amp;lt;QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/10&amp;gt;
-#&amp;lt;CL+SSL::SSL-STREAM for #&amp;lt;FD-STREAM for &amp;quot;socket 192.168.43.216:63549, peer: 3.221.81.55:443&amp;quot; {1003F79823}&amp;gt;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Oh, seems, &lt;code&gt;vcr&lt;/code&gt; is always calling &lt;code&gt;dexador:http-request&lt;/code&gt;, because that is what it does on the top level:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defparameter *original-fn-symbol* &amp;#039;drakma:http-request)
-
-;; The symbol original-fn is internal for the package so
-;; no name conflict is possible.
-(setf (symbol-function &amp;#039;original-fn)
-      (symbol-function *original-fn-symbol*))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, I found the same problem as with the original &lt;code&gt;cl-vcr&lt;/code&gt; - this library does not use &lt;code&gt;unwind-protect&lt;/code&gt; and in case if some error will be signalled, it will break the original &lt;code&gt;drakma:http-request&lt;/code&gt; function :(&lt;/p&gt;
-&lt;p&gt;To finalize, I think it can be used by those who are using Drakma if somebody will fix how the multiple values are handled and original function restoration.&lt;/p&gt;
-</description>
-            <pubDate>Thu, 10 Sep 2020 22:38:39 +0300</pubDate>
         </item>
     </channel>
 </rss>
