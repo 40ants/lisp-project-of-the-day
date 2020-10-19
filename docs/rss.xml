@@ -6,6 +6,66 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>pzmq</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0206-pzmq.html</link>
+            <description>&lt;p&gt;ZeroMQ is a networking library. It is not a message broker and it will not run tasks for you. Instead, it provides simple primitives for different network patterns.&lt;/p&gt;
+&lt;p&gt;With ZeroMQ you can easily implement these patterns: Request-Response, Pub-Sub, Push-Pull.&lt;/p&gt;
+&lt;p&gt;I found 3 CL systems implementing bindings to ZeroMQ:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;pzmq - &lt;a href=&quot;https://github.com/orivej/pzmq&quot;&gt;https://github.com/orivej/pzmq&lt;/a&gt; (ZeroMQ 4.0 bindings) active&lt;/li&gt;&lt;li&gt;zeromq &lt;a href=&quot;https://github.com/freiksenet/cl-zmq&quot;&gt;https://github.com/freiksenet/cl-zmq&lt;/a&gt; ZeroMQ 3 (7 years ago)&lt;/li&gt;&lt;li&gt;zmq &lt;a href=&quot;https://github.com/galdor/lisp-zmq&quot;&gt;https://github.com/galdor/lisp-zmq&lt;/a&gt; Up to ZeroMQ 3.2 (7 year ago)&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;I know, names of the repositories, CL systems and packages are all different. That is the HELL :(&lt;/p&gt;
+&lt;p&gt;There is also at least two different versions of the &lt;code&gt;zmq&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;First one is referred by &lt;a href=&quot;https://www.cliki.net/cl-zmq&quot;&gt;https://www.cliki.net/cl-zmq&lt;/a&gt; and included   into Quicklisp. But examples from the ZeroMQ Guide not work with this   &lt;code&gt;zmq&lt;/code&gt; because &lt;code&gt;msg-data-as-is&lt;/code&gt; function is absent.&lt;/li&gt;&lt;li&gt;The second one is &lt;a href=&quot;https://github.com/tsbattman/cl-zmq&quot;&gt;https://github.com/tsbattman/cl-zmq&lt;/a&gt; and seems it is   the version, used in ZeroMQ Guide. But it is not in the Quicklisp (yet   or anymore).&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Anyway, both of them are stale and didn&apos;t get updates 7-8 years. They are using the old 3.2 version of ZeroMQ. Today we&apos;ll talk about &lt;code&gt;pzmq&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;PZMQ has some activity in the repository and uses ZeroMQ 4. It does not have docs but it has &lt;a href=&quot;https://github.com/orivej/pzmq/blob/master/examples.lisp&quot;&gt;some examples&lt;/a&gt;, ported from the &lt;a href=&quot;https://zguide.zeromq.org/docs/chapter1/&quot;&gt;ZeroMQ Guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I slightly modified the examples code, to make the output more readable when client and server are running from one REPL.&lt;/p&gt;
+&lt;p&gt;This snippet shows the server&apos;s code. It listens on the 5555 port and blocks until a message received, then responds and waits for another message:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun hwserver (&amp;amp;optional (listen-address &amp;quot;tcp://*:5555&amp;quot;))
+             (pzmq:with-context nil ; use *default-context*
+               (pzmq:with-socket responder :rep
+                 (pzmq:bind responder listen-address)
+                 (loop
+                   (write-line &amp;quot;SERVER: Waiting for a request... &amp;quot;)
+                   (format t &amp;quot;SERVER: Received ~A~%&amp;quot;
+                           (pzmq:recv-string responder))
+                   (sleep 1)
+                   (pzmq:send responder &amp;quot;World&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The client does the opposite - it sends some data and waits for the response. Depending on the pattern you use, you have to set socket types. For the server, we used :rep (reply) and for client we are using :req (request).&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun hwclient (&amp;amp;optional (server-address &amp;quot;tcp://localhost:5555&amp;quot;))
+             (pzmq:with-context (ctx :max-sockets 10)
+               (pzmq:with-socket (requester ctx) (:req :affinity 3 :linger 100)
+                 ;; linger is important in case of (keyboard) interrupt;
+                 ;; see http://api.zeromq.org/3-3:zmq-ctx-destroy
+                 (write-line &amp;quot;CLIENT: Connecting to hello world server...&amp;quot;)
+                 (pzmq:connect requester server-address)
+                 (dotimes (i 3)
+                   (format t &amp;quot;CLIENT: Sending Hello ~d...~%&amp;quot; i)
+                   (pzmq:send requester &amp;quot;Hello&amp;quot;)
+                   (write-string &amp;quot;CLIENT: Receiving... &amp;quot;)
+                   (write-line (pzmq:recv-string requester))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is what we&apos;ll see when running the server in the background and starting the client in the REPL:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *server-thread*
+             (bt:make-thread #&amp;#039;hwserver))
+
+SERVER: Waiting for a request... 
+
+POFTHEDAY&amp;gt; (hwclient)
+CLIENT: Connecting to hello world server...
+CLIENT: Sending Hello 0...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+CLIENT: Sending Hello 1...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+CLIENT: Sending Hello 2...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;What is next?&lt;/p&gt;
+&lt;p&gt;Read about Pub-Sub and Push-Pull patterns at &lt;a href=&quot;https://zguide.zeromq.org/docs/chapter1/&quot;&gt;the ZeroMQ Guide&lt;/a&gt; and try to port them on &lt;code&gt;pzmq&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Also, it would be cool to port &lt;a href=&quot;https://github.com/booksbyus/zguide/tree/master/examples/CL&quot;&gt;all Common Lisp examples&lt;/a&gt; from the unsupported library to the &lt;code&gt;pzmq&lt;/code&gt; and to send a pull-request.&lt;/p&gt;
+&lt;p&gt;By the way, there is at least one cool project, which already uses &lt;code&gt;pzmq&lt;/code&gt; to connect parts written in Common Lisp and Python. It is recently reviewed &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0197-common-lisp-jupyter.html&quot;&gt;common-lisp-jupyter&lt;/a&gt; library.&lt;/p&gt;
+&lt;p&gt;To conclude, this library definitely should be tried if you are going to implement a distributed application! Especially if it will interop with parts written in other languages than Common Lisp.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 19 Oct 2020 21:47:16 +0300</pubDate>
+        </item>
+        <item>
             <title>quickfork</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0205-quickfork.html</link>
             <description>&lt;p&gt;This is an interesting system which provides information about other systems sources. Also, it is able to show commands, necessary to clone libraries into the local-projects dir.&lt;/p&gt;
@@ -1365,50 +1425,6 @@ System: cl-json 0.5.0
 &lt;p&gt;&lt;a href=&quot;https://github.com/40ants/cl-info&quot;&gt;https://github.com/40ants/cl-info&lt;/a&gt;&lt;/p&gt;
 </description>
             <pubDate>Sat, 12 Sep 2020 22:25:09 +0300</pubDate>
-        </item>
-        <item>
-            <title>secret-values</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0186-secret-values.html</link>
-            <description>&lt;p&gt;This library can be useful for anybody who is writing services which logs their errors with backtraces. It will protect you from leaking sensitive data like passwords and tokens.&lt;/p&gt;
-&lt;p&gt;For example, let&apos;s pretend we have some code which authenticates to a database with a password. At some moment and error can happen and when you log the backtrace, the password will be logged as well:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun authenticate (password)
-             (format t &amp;quot;Authenticating with ~A&amp;quot;
-                     password)
-             (sb-debug:print-backtrace :count 3))
-
-POFTHEDAY&amp;gt; (defun bar (password)
-             (authenticate password))
-
-POFTHEDAY&amp;gt; (bar &amp;quot;The Secret Password&amp;quot;)
-
-Authenticating with The Secret Password
-
-Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003692013}&amp;gt;
-0: (AUTHENTICATE &amp;quot;The Secret Password&amp;quot;)
-1: (BAR &amp;quot;The Secret Password&amp;quot;)
-2: (SB-INT:SIMPLE-EVAL-IN-LEXENV (BAR &amp;quot;The Secret Password&amp;quot;) #&amp;lt;NULL-LEXENV&amp;gt;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The &lt;code&gt;secret-values&lt;/code&gt; allows to wrap the secret value into the object and retrieve the real value as needed.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (secret-values:conceal-value &amp;quot;The Secret Password&amp;quot; :name &amp;quot;password&amp;quot;)
-#&amp;lt;SECRET-VALUES:SECRET-VALUE password {100450B623}&amp;gt;
-
-POFTHEDAY&amp;gt; (secret-values:reveal-value *)
-&amp;quot;The Secret Password&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here how we can use it in our example. Pay attention to the backtrace. Now it does not contain the password and such backtrace can be written into the file or sent for diagnostic to the developer:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun authenticate (password)
-             (format t &amp;quot;Authenticating with ~A&amp;quot;
-                     (secret-values:reveal-value password))
-             (sb-debug:print-backtrace :count 3))
-
-POFTHEDAY&amp;gt; (let ((pass (secret-values:conceal-value &amp;quot;The Secret Password&amp;quot;)))
-             (bar pass))
-
-Authenticating with The Secret Password
-
-Backtrace for: #&amp;lt;SB-THREAD:THREAD &amp;quot;sly-channel-1-mrepl-remote-1&amp;quot; RUNNING {1003692013}&amp;gt;
-0: (AUTHENTICATE #&amp;lt;SECRET-VALUES:SECRET-VALUE  {10043ABB23}&amp;gt;)
-1: (BAR #&amp;lt;SECRET-VALUES:SECRET-VALUE  {10043ABB23}&amp;gt;)
-2: ((LAMBDA ()))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I definitely will use it! And you should too!&lt;/p&gt;
-&lt;p&gt;By the way, does somebody know something about the author Thomas Bakketun and his company &lt;a href=&quot;https://github.com/copyleft&quot;&gt;Copyleft&lt;/a&gt;? Seems they are using the Common Lisp in their stack.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 11 Sep 2020 19:38:20 +0300</pubDate>
         </item>
     </channel>
 </rss>

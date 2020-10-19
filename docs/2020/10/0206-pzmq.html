@@ -57,11 +57,11 @@ h1 .tags {
 <ul><li>pzmq - <a href="https://github.com/orivej/pzmq">https://github.com/orivej/pzmq</a> (ZeroMQ 4.0 bindings) active</li><li>zeromq <a href="https://github.com/freiksenet/cl-zmq">https://github.com/freiksenet/cl-zmq</a> ZeroMQ 3 (7 years ago)</li><li>zmq <a href="https://github.com/galdor/lisp-zmq">https://github.com/galdor/lisp-zmq</a> Up to ZeroMQ 3.2 (7 year ago)</li></ul>
 <p>I know, names of the repositories, CL systems and packages are all different. That is the HELL :(</p>
 <p>There is also at least two different versions of the <code>zmq</code>:</p>
-<ul><li>First one is referred by <a href="https://www.cliki.net/cl-zmq">https://www.cliki.net/cl-zmq</a> and included   into Quicklisp. But examples from the ZeroMQ Guide not work with this   <code>zmq</code> because <code>msg-data-as-is</code> function is absent.</li><li>The second one is <a href="https://github.com/tsbattman/cl-zmq">https://github.com/tsbattman/cl-zmq</a> and seems it is   the version, used in ZeroMQ Guide.</li></ul>
-<p>Anyway, both of them are stale and didn't get updates 7-8 years. They are using old 3.2 version of ZeroMQ.s</p>
-<p>PZMQ has some activity in the repository and uses ZeroMQ 4. It does not have docs but it has <a href="https://github.com/orivej/pzmq/blob/master/examples.lisp">some examples</a>, ported from the <a href="https://github.com/orivej/pzmq/blob/master/examples.lisp">ZeroMQ Guide</a>.</p>
-<p>I slightly modified the examples code, to make output more readable when client and server are running from one REPL.</p>
-<p>This snippet shows the server's code. It listens on the 5555 port and blocks until a message received, then responds and waits another message:</p>
+<ul><li>First one is referred by <a href="https://www.cliki.net/cl-zmq">https://www.cliki.net/cl-zmq</a> and included   into Quicklisp. But examples from the ZeroMQ Guide not work with this   <code>zmq</code> because <code>msg-data-as-is</code> function is absent.</li><li>The second one is <a href="https://github.com/tsbattman/cl-zmq">https://github.com/tsbattman/cl-zmq</a> and seems it is   the version, used in ZeroMQ Guide. But it is not in the Quicklisp (yet   or anymore).</li></ul>
+<p>Anyway, both of them are stale and didn't get updates 7-8 years. They are using the old 3.2 version of ZeroMQ. Today we'll talk about <code>pzmq</code>.</p>
+<p>PZMQ has some activity in the repository and uses ZeroMQ 4. It does not have docs but it has <a href="https://github.com/orivej/pzmq/blob/master/examples.lisp">some examples</a>, ported from the <a href="https://zguide.zeromq.org/docs/chapter1/">ZeroMQ Guide</a>.</p>
+<p>I slightly modified the examples code, to make the output more readable when client and server are running from one REPL.</p>
+<p>This snippet shows the server's code. It listens on the 5555 port and blocks until a message received, then responds and waits for another message:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defun hwserver (&amp;optional (listen-address &quot;tcp://*:5555&quot;))
              (pzmq:with-context nil ; use *default-context*
                (pzmq:with-socket responder :rep
@@ -71,7 +71,7 @@ h1 .tags {
                    (format t &quot;SERVER: Received ~A~%&quot;
                            (pzmq:recv-string responder))
                    (sleep 1)
-                   (pzmq:send responder &quot;World&quot;)))))</code></pre><p>The client does the opposite - it sends some data and waits for the response. Depending on the pattern you use, you have to set socket types. For the server we used :rep (reply) and for clinet we are using :req (request).</p>
+                   (pzmq:send responder &quot;World&quot;)))))</code></pre><p>The client does the opposite - it sends some data and waits for the response. Depending on the pattern you use, you have to set socket types. For the server, we used :rep (reply) and for client we are using :req (request).</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (defun hwclient (&amp;optional (server-address &quot;tcp://localhost:5555&quot;))
              (pzmq:with-context (ctx :max-sockets 10)
                (pzmq:with-socket (requester ctx) (:req :affinity 3 :linger 100)
@@ -103,6 +103,8 @@ SERVER: Waiting for a request... World
 NIL</code></pre><p>What is next?</p>
 <p>Read about Pub-Sub and Push-Pull patterns at <a href="https://zguide.zeromq.org/docs/chapter1/">the ZeroMQ Guide</a> and try to port them on <code>pzmq</code>.</p>
 <p>Also, it would be cool to port <a href="https://github.com/booksbyus/zguide/tree/master/examples/CL">all Common Lisp examples</a> from the unsupported library to the <code>pzmq</code> and to send a pull-request.</p>
+<p>By the way, there is at least one cool project, which already uses <code>pzmq</code> to connect parts written in Common Lisp and Python. It is recently reviewed <a href="https://40ants.com/lisp-project-of-the-day/2020/09/0197-common-lisp-jupyter.html">common-lisp-jupyter</a> library.</p>
+<p>To conclude, this library definitely should be tried if you are going to implement a distributed application! Especially if it will interop with parts written in other languages than Common Lisp.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

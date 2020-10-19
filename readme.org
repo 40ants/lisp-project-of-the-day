@@ -13,6 +13,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 12 October - [[content/2020/10/0203-tesseract-capi.org][tesseract-capi]] ([[https://twitter.com/svetlyak40wt/status/1315750237861019648][twitter]])
 - 14 October - [[content/2020/10/0204-font-discovery.org][font-discovery]] ([[https://twitter.com/svetlyak40wt/status/1316482615688474636][twitter]])
 - 16 October - [[content/2020/10/0205-quickfork.org][quickfork]] ([[https://twitter.com/svetlyak40wt/status/1317155593279385601][twitter]])
+- 19 October - [[content/2020/10/0206-pzmq.org][pzmq]] ([[https://twitter.com/svetlyak40wt/status/1318262415868497929][twitter]])
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
@@ -1258,6 +1259,7 @@ files, and extracting their ":defsystem-depends-on".
 - tesseract-capi - OCR lowlevel binding
 - https://github.com/antimer/antimer - wiki on CL
 - http://git.kpe.io/?p=lml.git;a=summary - Yet another HTML generator
+- https://github.com/GordianNaught/cl-durian Another HTML generator
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

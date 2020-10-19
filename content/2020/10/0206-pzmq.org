@@ -30,20 +30,22 @@ There is also at least two different versions of the ~zmq~:
   into Quicklisp. But examples from the ZeroMQ Guide not work with this
   ~zmq~ because ~msg-data-as-is~ function is absent.
 - The second one is https://github.com/tsbattman/cl-zmq and seems it is
-  the version, used in ZeroMQ Guide.
+  the version, used in ZeroMQ Guide. But it is not in the Quicklisp (yet
+  or anymore).
 
 Anyway, both of them are stale and didn't get updates 7-8 years. They
-are using old 3.2 version of ZeroMQ.s
+are using the old 3.2 version of ZeroMQ. Today we'll talk about ~pzmq~.
 
 PZMQ has some activity in the repository and uses ZeroMQ 4.
 It does not have docs but it has [[https://github.com/orivej/pzmq/blob/master/examples.lisp][some examples]], ported
-from the [[https://github.com/orivej/pzmq/blob/master/examples.lisp][ZeroMQ Guide]].
+from the [[https://zguide.zeromq.org/docs/chapter1/][ZeroMQ Guide]].
 
-I slightly modified the examples code, to make output
+I slightly modified the examples code, to make the output
 more readable when client and server are running from one REPL.
 
 This snippet shows the server's code. It listens on the 5555 port and
-blocks until a message received, then responds and waits another message:
+blocks until a message received, then responds and waits for another
+message:
 
 #+begin_src lisp
 
@@ -61,7 +63,7 @@ POFTHEDAY> (defun hwserver (&optional (listen-address "tcp://*:5555"))
 
 The client does the opposite - it sends some data and waits for the
 response. Depending on the pattern you use, you have to set socket
-types. For the server we used :rep (reply) and for clinet we are using
+types. For the server, we used :rep (reply) and for client we are using
 :req (request).
 
 #+begin_src lisp
@@ -113,3 +115,12 @@ port them on ~pzmq~.
 
 Also, it would be cool to port [[https://github.com/booksbyus/zguide/tree/master/examples/CL][all Common Lisp examples]] from the
 unsupported library to the ~pzmq~ and to send a pull-request.
+
+By the way, there is at least one cool project, which already uses ~pzmq~
+to connect parts written in Common Lisp and Python. It is recently
+reviewed [[https://40ants.com/lisp-project-of-the-day/2020/09/0197-common-lisp-jupyter.html][common-lisp-jupyter]] library.
+
+To conclude, this library definitely should be tried if you are
+going to implement a distributed application! Especially if it will
+interop with parts written in other languages than Common Lisp.
+
