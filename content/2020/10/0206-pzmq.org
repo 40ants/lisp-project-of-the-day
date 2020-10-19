@@ -1,0 +1,115 @@
+* pzmq :network:rpc:protocols:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+ZeroMQ is a networking library. It is not a message broker and it will
+not run tasks for you. Instead, it provides simple primitives for
+different network patterns.
+
+With ZeroMQ you can easily implement these patterns:
+Request-Response, Pub-Sub, Push-Pull.
+
+I found 3 CL systems implementing bindings to ZeroMQ:
+
+- pzmq - https://github.com/orivej/pzmq (ZeroMQ 4.0 bindings) active
+- zeromq https://github.com/freiksenet/cl-zmq ZeroMQ 3 (7 years ago)
+- zmq https://github.com/galdor/lisp-zmq Up to ZeroMQ 3.2 (7 year ago)
+
+I know, names of the repositories, CL systems and packages are all
+different. That is the HELL :(
+
+There is also at least two different versions of the ~zmq~:
+
+- First one is referred by https://www.cliki.net/cl-zmq and included
+  into Quicklisp. But examples from the ZeroMQ Guide not work with this
+  ~zmq~ because ~msg-data-as-is~ function is absent.
+- The second one is https://github.com/tsbattman/cl-zmq and seems it is
+  the version, used in ZeroMQ Guide.
+
+Anyway, both of them are stale and didn't get updates 7-8 years. They
+are using old 3.2 version of ZeroMQ.s
+
+PZMQ has some activity in the repository and uses ZeroMQ 4.
+It does not have docs but it has [[https://github.com/orivej/pzmq/blob/master/examples.lisp][some examples]], ported
+from the [[https://github.com/orivej/pzmq/blob/master/examples.lisp][ZeroMQ Guide]].
+
+I slightly modified the examples code, to make output
+more readable when client and server are running from one REPL.
+
+This snippet shows the server's code. It listens on the 5555 port and
+blocks until a message received, then responds and waits another message:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun hwserver (&optional (listen-address "tcp://*:5555"))
+             (pzmq:with-context nil ; use *default-context*
+               (pzmq:with-socket responder :rep
+                 (pzmq:bind responder listen-address)
+                 (loop
+                   (write-line "SERVER: Waiting for a request... ")
+                   (format t "SERVER: Received ~A~%"
+                           (pzmq:recv-string responder))
+                   (sleep 1)
+                   (pzmq:send responder "World")))))
+#+end_src
+
+The client does the opposite - it sends some data and waits for the
+response. Depending on the pattern you use, you have to set socket
+types. For the server we used :rep (reply) and for clinet we are using
+:req (request).
+
+#+begin_src lisp
+
+POFTHEDAY> (defun hwclient (&optional (server-address "tcp://localhost:5555"))
+             (pzmq:with-context (ctx :max-sockets 10)
+               (pzmq:with-socket (requester ctx) (:req :affinity 3 :linger 100)
+                 ;; linger is important in case of (keyboard) interrupt;
+                 ;; see http://api.zeromq.org/3-3:zmq-ctx-destroy
+                 (write-line "CLIENT: Connecting to hello world server...")
+                 (pzmq:connect requester server-address)
+                 (dotimes (i 3)
+                   (format t "CLIENT: Sending Hello ~d...~%" i)
+                   (pzmq:send requester "Hello")
+                   (write-string "CLIENT: Receiving... ")
+                   (write-line (pzmq:recv-string requester))))))
+
+#+end_src
+
+Here is what we'll see when running the server in the background and
+starting the client in the REPL:
+
+#+begin_src lisp
+
+POFTHEDAY> (defparameter *server-thread*
+             (bt:make-thread #'hwserver))
+
+SERVER: Waiting for a request... 
+
+POFTHEDAY> (hwclient)
+CLIENT: Connecting to hello world server...
+CLIENT: Sending Hello 0...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+CLIENT: Sending Hello 1...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+CLIENT: Sending Hello 2...
+CLIENT: Receiving... Hello
+SERVER: Waiting for a request... World
+NIL
+
+#+end_src
+
+What is next?
+
+Read about Pub-Sub and Push-Pull patterns at [[https://zguide.zeromq.org/docs/chapter1/][the ZeroMQ Guide]] and try to
+port them on ~pzmq~.
+
+Also, it would be cool to port [[https://github.com/booksbyus/zguide/tree/master/examples/CL][all Common Lisp examples]] from the
+unsupported library to the ~pzmq~ and to send a pull-request.
