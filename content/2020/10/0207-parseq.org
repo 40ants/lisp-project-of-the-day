@@ -1,0 +1,468 @@
+* parseq                                            :parsing:text_processing:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+With this library you can write parsers to process strings, lists and
+binary data!
+
+Let's take a look at one of examples. It is a parser for the dates from
+[[https://tools.ietf.org/html/rfc5322#section-3.3][RFC 5322]]. This format is used in email messages:
+
+~Thu, 13 Jul 2017 13:28:03 +0200~
+
+Parser consist of rules, combined in different ways.
+We'll go through the parser's parts one by one.
+
+This simple rule matches one space character:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule FWS ()
+               #\space)
+
+;; It matches if string contains one space
+POFTHEDAY> (parseq:parseq 'FWS
+                          " ")
+#\ 
+T
+
+;; But not on string from many spaces:
+POFTHEDAY> (parseq:parseq 'FWS
+                          "   ")
+NIL
+NIL
+
+;; And of cause not on some other string
+POFTHEDAY> (parseq:parseq 'FWS
+                          "foo")
+NIL
+NIL
+
+#+end_src
+
+The next rule we need is the rule to parse hours, minutes and
+seconds. These parts has two digits and we'll use ~rep~ expression to
+specify how many digits matches the rule:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule hour ()
+               (rep 2 digit))
+
+POFTHEDAY> (parseq:parseq 'hour
+                          "15")
+(#\1 #\5)
+T
+
+#+end_src
+
+See, this rule returns digits as the list! But to make it useful, we
+need the integer. Parseq rules supports different kinds of
+transformations. They can are optional and can be specified like this:
+
+#+begin_src lisp
+
+;; This transformation will return as the string instead of list:
+POFTHEDAY> (parseq:defrule hour ()
+               (rep 2 digit)
+             (:string))
+
+POFTHEDAY> (parseq:parseq 'hour
+                          "15")
+"15"
+T
+
+;; Now we'll add a transformation from string to integer:
+POFTHEDAY> (parseq:defrule hour ()
+               (rep 2 digit)
+             (:string)
+             (:function #'parse-integer))
+
+POFTHEDAY> (parseq:parseq 'hour
+                          "15")
+15 (4 bits, #xF, #o17, #b1111)
+T
+
+#+end_src
+
+We'll define ~minute~ and ~second~ rules the same way.
+
+The next rule matches the abbreviated day of week. It combines other
+rules or terms using ~or~ expression:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule day-of-week ()
+               (or "Mon" "Tue" "Wed"
+                   "Thu" "Fri" "Sat"
+                   "Sun"))
+
+POFTHEDAY> (parseq:parseq 'day-of-week
+                          "Friday")
+NIL
+NIL
+
+POFTHEDAY> (parseq:parseq 'day-of-week
+                          "Fri")
+"Fri"
+T
+
+;; The same way we define a rule for month abbrefiation
+POFTHEDAY> (parseq:defrule month ()
+               (or "Jan" "Feb" "Mar" "Apr"
+                   "May" "Jun" "Jul" "Aug"
+                   "Sep" "Oct" "Nov" "Dec"))
+
+#+end_src
+
+A little bit complex rule is used for matching timezone. Timezone is a
+string from 4 digits prefixed by plus or minus sign. We'll combine this
+knowledge using ~or/and~ expressions and will use option ~:string~ to get
+results as a single string:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule zone ()
+               (and (or "+" "-")
+                    (rep 4 digit))
+             (:string))
+
+POFTHEDAY> (parseq:parseq 'zone
+                          "0300")
+NIL
+NIL
+
+POFTHEDAY> (parseq:parseq 'zone
+                          "+0300")
+"+0300"
+T
+
+POFTHEDAY> (parseq:parseq 'zone
+                          "-0300")
+"-0300"
+T
+
+#+end_src
+
+Now let's return to the time of day parsing. According to the RFC,
+seconds part is optional. Parseq has an expression ~?~ to match optional rules.
+
+Here is how a rule matching time of day will look like:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule time-of-day ()
+               (and hour
+                    ":"
+                    minute
+                    (? (and ":" second))))
+
+POFTHEDAY> (parseq:parseq 'time-of-day
+                          "10:31:05")
+(10 ":" 31 (":" 5))
+T
+
+#+end_src
+
+To make the rule return only digits we have to use ~:choose~
+transform. Choose extracts from results by index. You can specify index
+as an integer or as a list if you need to extract the value from the
+nested list:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule time-of-day ()
+               (and hour
+                    ":"
+                    minute
+                    (? (and ":" second)))
+             (:choose 0 2 '(3 1)))
+
+POFTHEDAY> (parseq:parseq 'time-of-day
+                          "10:31:05")
+(10 31 5)
+
+;; Seconds are optional because of ? expression:
+POFTHEDAY> (parseq:parseq 'time-of-day
+                          "10:31")
+(10 31 NIL)
+T
+
+;; This (:choose 0 2 '(3 1)) is equivalent to:
+POFTHEDAY> (let ((r '(10 ":" 31 (":" 5))))
+             (list (elt r 0)
+                   (elt r 2)
+                   (elt (elt r 3)
+                        1)))
+(10 31 5)
+
+#+end_src
+
+Another interesting transformation rule is ~:flatten~. It is used to
+"streamline" result having nested structure and used in this rule which
+matches both time of day and timezone:
+
+#+begin_src lisp
+
+;; Without flatten we'll get nested lists:
+POFTHEDAY> (parseq:defrule time ()
+               (and time-of-day FWS zone)
+             (:choose 0 2))
+
+POFTHEDAY> (parseq:parseq 'time
+                          "10:31 +0300")
+((10 31 NIL) "+0300")
+
+POFTHEDAY> (parseq:defrule time ()
+               (and time-of-day FWS zone)
+             (:choose 0 2)
+             (:flatten))
+
+;; Pay attention, :flatten removes nils:
+POFTHEDAY> (parseq:parseq 'time
+                          "10:31 +0300")
+(10 31 "+0300")
+T
+
+#+end_src
+
+Now, knowing how rules are combined and data is transformed, you will be
+able to read rest rules yourself:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule day ()
+               (and (? FWS)
+                    (rep (1 2) digit)
+                    FWS)
+             (:choose 1)
+             (:string)
+             (:function #'parse-integer))
+
+POFTHEDAY> (parseq:defrule year ()
+               (and FWS
+                    (rep 4 digit)
+                    FWS)
+             (:choose 1)
+             (:string)
+             (:function #'parse-integer))
+
+POFTHEDAY> (parseq:defrule date ()
+               (and day month year))
+
+(parseq:defrule date-time ()
+    (and (? (and day-of-week ","))
+         date
+         time)
+  (:choose '(0 0) 1 2)
+  (:flatten))
+
+#+end_src
+
+The another cool Parseq's feature is an ability to debug parser
+execution. Now I'll turn on this debug mode and parse a string:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:trace-rule 'date-time :recursive t)
+
+POFTHEDAY> (parseq:parseq 'date-time
+                          "Thu, 13 Jul 2017 13:28:03 +0200")
+1: DATE-TIME 0?
+ 2: DAY-OF-WEEK 0?
+ 2: DAY-OF-WEEK 0-3 -> "Thu"
+ 2: DATE 4?
+  3: DAY 4?
+   4: FWS 4?
+   4: FWS 4-5 -> #\ 
+   4: FWS 7?
+   4: FWS 7-8 -> #\ 
+  3: DAY 4-8 -> 13
+  3: MONTH 8?
+  3: MONTH 8-11 -> "Jul"
+  3: YEAR 11?
+   4: FWS 11?
+   4: FWS 11-12 -> #\ 
+   4: FWS 16?
+   4: FWS 16-17 -> #\ 
+  3: YEAR 11-17 -> 2017
+ 2: DATE 4-17 -> (13 "Jul" 2017)
+ 2: TIME 17?
+  3: TIME-OF-DAY 17?
+   4: HOUR 17?
+   4: HOUR 17-19 -> 13
+   4: MINUTE 20?
+   4: MINUTE 20-22 -> 28
+   4: SECOND 23?
+   4: SECOND 23-25 -> 3
+  3: TIME-OF-DAY 17-25 -> (13 28 3)
+  3: FWS 25?
+  3: FWS 25-26 -> #\ 
+  3: ZONE 26?
+  3: ZONE 26-31 -> "+0200"
+ 2: TIME 17-31 -> (13 28 3 "+0200")
+1: DATE-TIME 0-31 -> ("Thu" 13 "Jul" 2017 13 28 3 "+0200")
+
+("Thu" 13 "Jul" 2017 13 28 3 "+0200")
+T
+
+#+end_src
+
+We can improve this parser by using ~:function~ transformation to return a
+~local-time~ timestring:
+
+#+begin_src lisp
+
+
+POFTHEDAY> (parseq:defrule january  () "Jan" (:constant 1))
+POFTHEDAY> (parseq:defrule february () "Feb" (:constant 2))
+POFTHEDAY> (parseq:defrule march    () "Mar" (:constant 3))
+POFTHEDAY> (parseq:defrule april    () "Apr" (:constant 4))
+POFTHEDAY> (parseq:defrule may      () "May" (:constant 5))
+POFTHEDAY> (parseq:defrule june     () "Jun" (:constant 6))
+POFTHEDAY> (parseq:defrule july     () "Jul" (:constant 7))
+POFTHEDAY> (parseq:defrule august   () "Aug" (:constant 8))
+POFTHEDAY> (parseq:defrule september () "Sep" (:constant 9))
+POFTHEDAY> (parseq:defrule october  () "Oct" (:constant 10))
+POFTHEDAY> (parseq:defrule november () "Nov" (:constant 11))
+POFTHEDAY> (parseq:defrule december () "Dec" (:constant 12))
+
+POFTHEDAY> (parseq:defrule month ()
+               (or january february march april
+                   may june july august
+                   september october november december))
+
+POFTHEDAY> (parseq:parseq 'month "Sep")
+9 (4 bits, #x9, #o11, #b1001)
+T
+
+#+end_src
+
+Next, we need to reimplement the rule matching a timezone to make it
+return ~local-time:timezone~.
+
+We'll be using an advanced technique of binding variables to pass
+value from one rule to another, because I want to store the timezone as
+a string and to parse it's hour and minute parts simultaneously.
+
+To accomplish this task, we have to divide or timezone matching rule
+into two. First rule will match it as a string of sign and four digits.
+Then it will save the result into external variable and exit with a nil
+result to give a chance to execute the second rule:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule zone-as-str ()
+               (and (or #\+ #\-)
+                    (rep 4 digit))
+             (:string)
+             (:external zone-as-str)
+             ;; Save the value into a variable:
+             (:lambda (z)
+               (setf zone-as-str z))
+             ;; and just exit:
+             (:test (z)
+               (declare (ignore z))
+               nil))
+
+#+end_src
+
+Now we'll redefine our ~zone~ rule to call ~zone-as-str~ first and then to
+parse the same text again, this time as hours and minutes. As the final
+step, it creates a ~local-time:timezone~ object:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:defrule zone ()
+               (or zone-as-str
+                   (and (or #\+ #\-)
+                        hour
+                        minute))
+             (:let zone-as-str)
+             (:lambda (sign hour minute)
+               (local-time::%make-simple-timezone
+                zone-as-str
+                zone-as-str
+                ;; This is an offset in seconds:
+                (+ (* (ecase sign
+                        (#\+ 1)
+                        (#\- -1))
+                      hour
+                      3600)
+                   (* minute 60)))))
+
+;; Here is the execution trace:
+POFTHEDAY> (parseq:parseq 'zone
+                          "+0300")
+1: ZONE 0?
+ 2: ZONE-AS-STR 0?
+ 2: ZONE-AS-STR -|
+ 2: HOUR 1?
+ 2: HOUR 1-3 -> 3
+ 2: MINUTE 3?
+ 2: MINUTE 3-5 -> 0
+1: ZONE 0-5 -> #<LOCAL-TIME::TIMEZONE +0300>
+#<LOCAL-TIME::TIMEZONE +0300>
+T
+
+#+end_src
+
+Now we need to redefine the original ~date-time~ rule, to create
+~local-time:timestamp~ as the result:
+
+#+begin_src lisp
+
+POFTHEDAY> (parseq:parseq 'date-time
+                          "Thu, 13 Jul 2017 13:28:03 +0200")
+("Thu" 13 7 2017 13 28 3 #<LOCAL-TIME::TIMEZONE +0200>)
+T
+
+POFTHEDAY> (parseq:defrule date-time ()
+               (and (? (and day-of-week ","))
+                    date
+                    time)
+             (:choose '(1 2)                       ; year
+                      '(1 1)                       ; month
+                      '(1 0)                       ; day
+                      '(2 0)                       ; hour
+                      '(2 1)                       ; minute
+                      '(2 2)                       ; second
+                      '(2 3))                      ; timezone
+             
+             (:lambda (year month day hour minute second timezone)
+               (local-time:encode-timestamp
+                0             ; nanoseconds
+                (or second 0) ; secs are optional
+                minute
+                hour
+                day
+                month
+                year
+                :timezone (or timezone
+                              local-time:*default-timezone*))))
+
+POFTHEDAY> (parseq:parseq 'date-time
+                          "Thu, 13 Jul 2017 13:28:03 +0200")
+@2017-07-13T14:28:03.000000+03:00
+T
+
+#+end_src
+
+I've got a different value for the time because ~local-time~ prints
+timestamp in my timezone which is ~UTC+3~.
+
+The cool feature of the Parseq is it's ability to work with any data,
+including binary. This way it can be used to parse binary formats.
+
+As an example of parsing binary data, Parseq includes this parser rules
+for working with PNG image format:
+
+https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp
+
+There are other cool features. Please, read the docs to learn more.

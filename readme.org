@@ -14,6 +14,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 14 October - [[content/2020/10/0204-font-discovery.org][font-discovery]] ([[https://twitter.com/svetlyak40wt/status/1316482615688474636][twitter]])
 - 16 October - [[content/2020/10/0205-quickfork.org][quickfork]] ([[https://twitter.com/svetlyak40wt/status/1317155593279385601][twitter]])
 - 19 October - [[content/2020/10/0206-pzmq.org][pzmq]] ([[https://twitter.com/svetlyak40wt/status/1318262415868497929][twitter]])
+- 23 October - [[content/2020/10/0207-parseq.org][parseq]]
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
