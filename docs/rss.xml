@@ -6,6 +6,328 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>parseq</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0207-parseq.html</link>
+            <description>&lt;p&gt;With this library, you can write parsers to process strings, lists and binary data!&lt;/p&gt;
+&lt;p&gt;Let&apos;s take a look at one of the examples. It is a parser for the dates from &lt;a href=&quot;https://tools.ietf.org/html/rfc5322#section-3.3&quot;&gt;RFC 5322&lt;/a&gt;. This format is used in email messages:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Thu, 13 Jul 2017 13:28:03 +0200&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Parser consist of rules, combined in different ways. We&apos;ll go through the parser&apos;s parts one by one.&lt;/p&gt;
+&lt;p&gt;This simple rule matches one space character:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule FWS ()
+               #\space)
+
+;; It matches if string contains one space
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;FWS
+                          &amp;quot; &amp;quot;)
+#\ 
+T
+
+;; But not on string from many spaces:
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;FWS
+                          &amp;quot;   &amp;quot;)
+NIL
+NIL
+
+;; And of cause not on some other string
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;FWS
+                          &amp;quot;foo&amp;quot;)
+NIL
+NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The next rule we need is the rule to parse hours, minutes and seconds. These parts have two digits and we&apos;ll use &lt;code&gt;rep&lt;/code&gt; expression to specify how many digits matches the rule:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule hour ()
+               (rep 2 digit))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;hour
+                          &amp;quot;15&amp;quot;)
+(#\1 #\5)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;See, this rule returns digits as the list! But to make it useful, we need the integer. Parseq rules support different kinds of transformations. They can are optional and can be specified like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; This transformation will return as the string instead of list:
+POFTHEDAY&amp;gt; (parseq:defrule hour ()
+               (rep 2 digit)
+             (:string))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;hour
+                          &amp;quot;15&amp;quot;)
+&amp;quot;15&amp;quot;
+T
+
+;; Now we&amp;#039;ll add a transformation from string to integer:
+POFTHEDAY&amp;gt; (parseq:defrule hour ()
+               (rep 2 digit)
+             (:string)
+             (:function #&amp;#039;parse-integer))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;hour
+                          &amp;quot;15&amp;quot;)
+15 (4 bits, #xF, #o17, #b1111)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We&apos;ll define the &lt;code&gt;minute&lt;/code&gt; and &lt;code&gt;second&lt;/code&gt; rules the same way.&lt;/p&gt;
+&lt;p&gt;The next rule matches the abbreviated day of the week. It combines other rules or terms using &lt;code&gt;or&lt;/code&gt; expression:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule day-of-week ()
+               (or &amp;quot;Mon&amp;quot; &amp;quot;Tue&amp;quot; &amp;quot;Wed&amp;quot;
+                   &amp;quot;Thu&amp;quot; &amp;quot;Fri&amp;quot; &amp;quot;Sat&amp;quot;
+                   &amp;quot;Sun&amp;quot;))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;day-of-week
+                          &amp;quot;Friday&amp;quot;)
+NIL
+NIL
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;day-of-week
+                          &amp;quot;Fri&amp;quot;)
+&amp;quot;Fri&amp;quot;
+T
+
+;; The same way we define a rule for month abbrefiation
+POFTHEDAY&amp;gt; (parseq:defrule month ()
+               (or &amp;quot;Jan&amp;quot; &amp;quot;Feb&amp;quot; &amp;quot;Mar&amp;quot; &amp;quot;Apr&amp;quot;
+                   &amp;quot;May&amp;quot; &amp;quot;Jun&amp;quot; &amp;quot;Jul&amp;quot; &amp;quot;Aug&amp;quot;
+                   &amp;quot;Sep&amp;quot; &amp;quot;Oct&amp;quot; &amp;quot;Nov&amp;quot; &amp;quot;Dec&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A little bit complex rule is used for matching timezone. Timezone is a string from 4 digits prefixed by plus or minus sign. We&apos;ll combine this knowledge using &lt;code&gt;or/and&lt;/code&gt; expressions and will use option &lt;code&gt;:string&lt;/code&gt; to get results as a single string:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule zone ()
+               (and (or &amp;quot;+&amp;quot; &amp;quot;-&amp;quot;)
+                    (rep 4 digit))
+             (:string))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;zone
+                          &amp;quot;0300&amp;quot;)
+NIL
+NIL
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;zone
+                          &amp;quot;+0300&amp;quot;)
+&amp;quot;+0300&amp;quot;
+T
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;zone
+                          &amp;quot;-0300&amp;quot;)
+&amp;quot;-0300&amp;quot;
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s return to the time of day parsing. According to the RFC, seconds part is optional. Parseq has an expression &lt;code&gt;?&lt;/code&gt; to match optional rules.&lt;/p&gt;
+&lt;p&gt;Here is how a rule matching the time of day will look like:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule time-of-day ()
+               (and hour
+                    &amp;quot;:&amp;quot;
+                    minute
+                    (? (and &amp;quot;:&amp;quot; second))))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;time-of-day
+                          &amp;quot;10:31:05&amp;quot;)
+(10 &amp;quot;:&amp;quot; 31 (&amp;quot;:&amp;quot; 5))
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To make the rule return only digits we have to use &lt;code&gt;:choose&lt;/code&gt; transform. Choose extracts from results by index. You can specify index as an integer or as a list if you need to extract the value from the nested list:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule time-of-day ()
+               (and hour
+                    &amp;quot;:&amp;quot;
+                    minute
+                    (? (and &amp;quot;:&amp;quot; second)))
+             (:choose 0 2 &amp;#039;(3 1)))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;time-of-day
+                          &amp;quot;10:31:05&amp;quot;)
+(10 31 5)
+
+;; Seconds are optional because of ? expression:
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;time-of-day
+                          &amp;quot;10:31&amp;quot;)
+(10 31 NIL)
+T
+
+;; This (:choose 0 2 &amp;#039;(3 1)) is equivalent to:
+POFTHEDAY&amp;gt; (let ((r &amp;#039;(10 &amp;quot;:&amp;quot; 31 (&amp;quot;:&amp;quot; 5))))
+             (list (elt r 0)
+                   (elt r 2)
+                   (elt (elt r 3)
+                        1)))
+(10 31 5)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another interesting transformation rule is &lt;code&gt;:flatten&lt;/code&gt;. It is used to &quot;streamline&quot; result having nested structure and used in this rule which matches both time of day and timezone:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Without flatten we&amp;#039;ll get nested lists:
+POFTHEDAY&amp;gt; (parseq:defrule time ()
+               (and time-of-day FWS zone)
+             (:choose 0 2))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;time
+                          &amp;quot;10:31 +0300&amp;quot;)
+((10 31 NIL) &amp;quot;+0300&amp;quot;)
+
+POFTHEDAY&amp;gt; (parseq:defrule time ()
+               (and time-of-day FWS zone)
+             (:choose 0 2)
+             (:flatten))
+
+;; Pay attention, :flatten removes nils:
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;time
+                          &amp;quot;10:31 +0300&amp;quot;)
+(10 31 &amp;quot;+0300&amp;quot;)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now, knowing how rules are combined and data is transformed, you will be able to read rest rules yourself:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule day ()
+               (and (? FWS)
+                    (rep (1 2) digit)
+                    FWS)
+             (:choose 1)
+             (:string)
+             (:function #&amp;#039;parse-integer))
+
+POFTHEDAY&amp;gt; (parseq:defrule year ()
+               (and FWS
+                    (rep 4 digit)
+                    FWS)
+             (:choose 1)
+             (:string)
+             (:function #&amp;#039;parse-integer))
+
+POFTHEDAY&amp;gt; (parseq:defrule date ()
+               (and day month year))
+
+(parseq:defrule date-time ()
+    (and (? (and day-of-week &amp;quot;,&amp;quot;))
+         date
+         time)
+  (:choose &amp;#039;(0 0) 1 2)
+  (:flatten))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another cool Parseq&apos;s feature is an ability to debug parser execution. Now I&apos;ll turn on this debug mode and parse a string:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:trace-rule &amp;#039;date-time :recursive t)
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;date-time
+                          &amp;quot;Thu, 13 Jul 2017 13:28:03 +0200&amp;quot;)
+1: DATE-TIME 0?
+ 2: DAY-OF-WEEK 0?
+ 2: DAY-OF-WEEK 0-3 -&amp;gt; &amp;quot;Thu&amp;quot;
+ 2: DATE 4?
+  3: DAY 4?
+   4: FWS 4?
+   4: FWS 4-5 -&amp;gt; #\ 
+   4: FWS 7?
+   4: FWS 7-8 -&amp;gt; #\ 
+  3: DAY 4-8 -&amp;gt; 13
+  3: MONTH 8?
+  3: MONTH 8-11 -&amp;gt; &amp;quot;Jul&amp;quot;
+  3: YEAR 11?
+   4: FWS 11?
+   4: FWS 11-12 -&amp;gt; #\ 
+   4: FWS 16?
+   4: FWS 16-17 -&amp;gt; #\ 
+  3: YEAR 11-17 -&amp;gt; 2017
+ 2: DATE 4-17 -&amp;gt; (13 &amp;quot;Jul&amp;quot; 2017)
+ 2: TIME 17?
+  3: TIME-OF-DAY 17?
+   4: HOUR 17?
+   4: HOUR 17-19 -&amp;gt; 13
+   4: MINUTE 20?
+   4: MINUTE 20-22 -&amp;gt; 28
+   4: SECOND 23?
+   4: SECOND 23-25 -&amp;gt; 3
+  3: TIME-OF-DAY 17-25 -&amp;gt; (13 28 3)
+  3: FWS 25?
+  3: FWS 25-26 -&amp;gt; #\ 
+  3: ZONE 26?
+  3: ZONE 26-31 -&amp;gt; &amp;quot;+0200&amp;quot;
+ 2: TIME 17-31 -&amp;gt; (13 28 3 &amp;quot;+0200&amp;quot;)
+1: DATE-TIME 0-31 -&amp;gt; (&amp;quot;Thu&amp;quot; 13 &amp;quot;Jul&amp;quot; 2017 13 28 3 &amp;quot;+0200&amp;quot;)
+
+(&amp;quot;Thu&amp;quot; 13 &amp;quot;Jul&amp;quot; 2017 13 28 3 &amp;quot;+0200&amp;quot;)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We can improve this parser by using &lt;code&gt;:function&lt;/code&gt; transformation to return a &lt;code&gt;local-time:timestamp&lt;/code&gt;. First, let&apos;s redefine rule for matching the month and make it return the month number:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule january  () &amp;quot;Jan&amp;quot; (:constant 1))
+POFTHEDAY&amp;gt; (parseq:defrule february () &amp;quot;Feb&amp;quot; (:constant 2))
+POFTHEDAY&amp;gt; (parseq:defrule march    () &amp;quot;Mar&amp;quot; (:constant 3))
+POFTHEDAY&amp;gt; (parseq:defrule april    () &amp;quot;Apr&amp;quot; (:constant 4))
+POFTHEDAY&amp;gt; (parseq:defrule may      () &amp;quot;May&amp;quot; (:constant 5))
+POFTHEDAY&amp;gt; (parseq:defrule june     () &amp;quot;Jun&amp;quot; (:constant 6))
+POFTHEDAY&amp;gt; (parseq:defrule july     () &amp;quot;Jul&amp;quot; (:constant 7))
+POFTHEDAY&amp;gt; (parseq:defrule august   () &amp;quot;Aug&amp;quot; (:constant 8))
+POFTHEDAY&amp;gt; (parseq:defrule september () &amp;quot;Sep&amp;quot; (:constant 9))
+POFTHEDAY&amp;gt; (parseq:defrule october  () &amp;quot;Oct&amp;quot; (:constant 10))
+POFTHEDAY&amp;gt; (parseq:defrule november () &amp;quot;Nov&amp;quot; (:constant 11))
+POFTHEDAY&amp;gt; (parseq:defrule december () &amp;quot;Dec&amp;quot; (:constant 12))
+
+POFTHEDAY&amp;gt; (parseq:defrule month ()
+               (or january february march april
+                   may june july august
+                   september october november december))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;month &amp;quot;Sep&amp;quot;)
+9 (4 bits, #x9, #o11, #b1001)
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next, we need to reimplement the rule matching a timezone to make it return &lt;code&gt;local-time:timezone&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We&apos;ll be using an advanced technique of binding variables to pass value from one rule to another, because I want to store the timezone as a string and to parse it&apos;s hour and minute parts simultaneously.&lt;/p&gt;
+&lt;p&gt;To accomplish this task, we have to divide or timezone matching rule into two. The first rule will match it as a string of sign and four digits. Then it will save the result into an external variable and exit with a nil result to give a chance to execute the second rule:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule zone-as-str ()
+               (and (or #\+ #\-)
+                    (rep 4 digit))
+             (:string)
+             (:external zone-as-str)
+             ;; Save the value into a variable:
+             (:lambda (z)
+               (setf zone-as-str z))
+             ;; and just exit:
+             (:test (z)
+               (declare (ignore z))
+               nil))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we&apos;ll redefine our &lt;code&gt;zone&lt;/code&gt; rule to call &lt;code&gt;zone-as-str&lt;/code&gt; first and then to parse the same text again, this time as hours and minutes. As the final step, it creates a &lt;code&gt;local-time:timezone&lt;/code&gt; object:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:defrule zone ()
+               (or zone-as-str
+                   (and (or #\+ #\-)
+                        hour
+                        minute))
+             (:let zone-as-str)
+             (:lambda (sign hour minute)
+               (local-time::%make-simple-timezone
+                zone-as-str
+                zone-as-str
+                ;; This is an offset in seconds:
+                (+ (* (ecase sign
+                        (#\+ 1)
+                        (#\- -1))
+                      hour
+                      3600)
+                   (* minute 60)))))
+
+;; Here is the execution trace:
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;zone
+                          &amp;quot;+0300&amp;quot;)
+1: ZONE 0?
+ 2: ZONE-AS-STR 0?
+ 2: ZONE-AS-STR -|
+ 2: HOUR 1?
+ 2: HOUR 1-3 -&amp;gt; 3
+ 2: MINUTE 3?
+ 2: MINUTE 3-5 -&amp;gt; 0
+1: ZONE 0-5 -&amp;gt; #&amp;lt;LOCAL-TIME::TIMEZONE +0300&amp;gt;
+#&amp;lt;LOCAL-TIME::TIMEZONE +0300&amp;gt;
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to redefine the original &lt;code&gt;date-time&lt;/code&gt; rule, to create &lt;code&gt;local-time:timestamp&lt;/code&gt; as the result:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;date-time
+                          &amp;quot;Thu, 13 Jul 2017 13:28:03 +0200&amp;quot;)
+(&amp;quot;Thu&amp;quot; 13 7 2017 13 28 3 #&amp;lt;LOCAL-TIME::TIMEZONE +0200&amp;gt;)
+T
+
+POFTHEDAY&amp;gt; (parseq:defrule date-time ()
+               (and (? (and day-of-week &amp;quot;,&amp;quot;))
+                    date
+                    time)
+             (:choose &amp;#039;(1 2)                       ; year
+                      &amp;#039;(1 1)                       ; month
+                      &amp;#039;(1 0)                       ; day
+                      &amp;#039;(2 0)                       ; hour
+                      &amp;#039;(2 1)                       ; minute
+                      &amp;#039;(2 2)                       ; second
+                      &amp;#039;(2 3))                      ; timezone
+             
+             (:lambda (year month day hour minute second timezone)
+               (local-time:encode-timestamp
+                0             ; nanoseconds
+                (or second 0) ; secs are optional
+                minute
+                hour
+                day
+                month
+                year
+                :timezone (or timezone
+                              local-time:*default-timezone*))))
+
+POFTHEDAY&amp;gt; (parseq:parseq &amp;#039;date-time
+                          &amp;quot;Thu, 13 Jul 2017 13:28:03 +0200&amp;quot;)
+@2017-07-13T14:28:03.000000+03:00
+T&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I&apos;ve got a different value for the time because &lt;code&gt;local-time&lt;/code&gt; prints timestamp in my timezone which is &lt;code&gt;UTC+3&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The cool feature of the Parseq is its ability to work with any data, including binary. This way it can be used to parse binary formats.&lt;/p&gt;
+&lt;p&gt;As an example of parsing binary data, Parseq includes this parser rules for working with PNG image format:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp&quot;&gt;https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;There are other interesting features. Please, read the docs to learn more.&lt;/p&gt;
+&lt;p&gt;If you are aware of other parsing libraries which worth to be written about, let me know in the comments.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 23 Oct 2020 23:47:49 +0300</pubDate>
+        </item>
+        <item>
             <title>pzmq</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0206-pzmq.html</link>
             <description>&lt;p&gt;ZeroMQ is a networking library. It is not a message broker and it will not run tasks for you. Instead, it provides simple primitives for different network patterns.&lt;/p&gt;
@@ -1378,53 +1700,6 @@ POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6
 &lt;h2&gt;Update from 2020-09-18&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html&quot;&gt;eco&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-info</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0187-cl-info.html</link>
-            <description>&lt;p&gt;This utility was made by me to help to collect reports from my software. It is especially useful in CI pipeline, to log OS, Lisp and systems versions.&lt;/p&gt;
-&lt;p&gt;Here is how it works:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-info:get-cl-info)
-OS:   Darwin 19.5.0
-Lisp: SBCL 2.0.8
-ASDF: 3.3.4
-QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
-      quicklisp 2020-07-15
-      ultralisp 20200910134005
-
-POFTHEDAY&amp;gt; (cl-info:get-system-info :cl-who)
-System: CL-WHO 1.1.4
-        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
-
-POFTHEDAY&amp;gt; (cl-info:get-system-info :cl-json)
-System: CL-JSON 0.5.0
-        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There is also a command-line utility with similar functionality. It can be installed using &lt;a href=&quot;https://github.com/roswell/roswell&quot;&gt;Roswell&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday]% ros install 40ants/cl-info
-Installing from github 40ants/cl-info
-...
-[1/3] System &amp;#039;cl-info&amp;#039; found. Loading the system..
-[2/3] Processing build-hook..
-[3/3] Attempting to install the scripts in roswell/ subdirectory of the system...
-Found 1 scripts: cl-info
-/Users/art/.roswell/bin/cl-info&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now you can call this utility from the command line. By default, it outputs information about OS, Lisp, ASDF versions and installed Quicklisp distributions.&lt;/p&gt;
-&lt;p&gt;But you can also specify system names to get additional information:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;[poftheday]% cl-info cl-who cl-json
-OS:   Darwin 19.5.0
-Lisp: SBCL 1.5.6
-ASDF: 3.3.4
-QL:   cl-json github-b93881029907ef17eb53754c9f0f4e3e
-      quicklisp 2020-07-15
-      ultralisp 20200910134005
-
-System: cl-who 1.1.4
-        /Users/art/poftheday/.qlot/dists/ultralisp/software/edicl-cl-who-20190618200624/
-
-System: cl-json 0.5.0
-        /Users/art/poftheday/.qlot/dists/cl-json/software/cl-json-master/&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Again. This can be useful in CI pipelines or to output information when your program is called with --version --verbose options.&lt;/p&gt;
-&lt;p&gt;This system is available from &lt;a href=&quot;https://ultralisp.org&quot;&gt;https://ultralisp.org&lt;/a&gt; and GitHub:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/40ants/cl-info&quot;&gt;https://github.com/40ants/cl-info&lt;/a&gt;&lt;/p&gt;
-</description>
-            <pubDate>Sat, 12 Sep 2020 22:25:09 +0300</pubDate>
         </item>
     </channel>
 </rss>

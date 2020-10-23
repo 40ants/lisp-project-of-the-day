@@ -51,8 +51,8 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>parseq</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>parseq<span class='tags'><a href='../../tags/parsing.html'><span class='label label-default'>parsing</span></a><a href='../../tags/text-processing.html'><span class='label label-default'>text-processing</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>With this library you can write parsers to process strings, lists and binary data!</p>
-<p>Let's take a look at one of examples. It is a parser for the dates from <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC 5322</a>. This format is used in email messages:</p>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>parseq</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>parseq<span class='tags'><a href='../../tags/parsing.html'><span class='label label-default'>parsing</span></a><a href='../../tags/text-processing.html'><span class='label label-default'>text-processing</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p>With this library, you can write parsers to process strings, lists and binary data!</p>
+<p>Let's take a look at one of the examples. It is a parser for the dates from <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC 5322</a>. This format is used in email messages:</p>
 <p><code>Thu, 13 Jul 2017 13:28:03 +0200</code></p>
 <p>Parser consist of rules, combined in different ways. We'll go through the parser's parts one by one.</p>
 <p>This simple rule matches one space character:</p>
@@ -75,14 +75,14 @@ NIL
 POFTHEDAY&gt; (parseq:parseq &#039;FWS
                           &quot;foo&quot;)
 NIL
-NIL</code></pre><p>The next rule we need is the rule to parse hours, minutes and seconds. These parts has two digits and we'll use <code>rep</code> expression to specify how many digits matches the rule:</p>
+NIL</code></pre><p>The next rule we need is the rule to parse hours, minutes and seconds. These parts have two digits and we'll use <code>rep</code> expression to specify how many digits matches the rule:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:defrule hour ()
                (rep 2 digit))
 
 POFTHEDAY&gt; (parseq:parseq &#039;hour
                           &quot;15&quot;)
 (#\1 #\5)
-T</code></pre><p>See, this rule returns digits as the list! But to make it useful, we need the integer. Parseq rules supports different kinds of transformations. They can are optional and can be specified like this:</p>
+T</code></pre><p>See, this rule returns digits as the list! But to make it useful, we need the integer. Parseq rules support different kinds of transformations. They can are optional and can be specified like this:</p>
 <pre><code class='lisp'>;; This transformation will return as the string instead of list:
 POFTHEDAY&gt; (parseq:defrule hour ()
                (rep 2 digit)
@@ -102,8 +102,8 @@ POFTHEDAY&gt; (parseq:defrule hour ()
 POFTHEDAY&gt; (parseq:parseq &#039;hour
                           &quot;15&quot;)
 15 (4 bits, #xF, #o17, #b1111)
-T</code></pre><p>We'll define <code>minute</code> and <code>second</code> rules the same way.</p>
-<p>The next rule matches the abbreviated day of week. It combines other rules or terms using <code>or</code> expression:</p>
+T</code></pre><p>We'll define the <code>minute</code> and <code>second</code> rules the same way.</p>
+<p>The next rule matches the abbreviated day of the week. It combines other rules or terms using <code>or</code> expression:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:defrule day-of-week ()
                (or &quot;Mon&quot; &quot;Tue&quot; &quot;Wed&quot;
                    &quot;Thu&quot; &quot;Fri&quot; &quot;Sat&quot;
@@ -143,7 +143,7 @@ POFTHEDAY&gt; (parseq:parseq &#039;zone
                           &quot;-0300&quot;)
 &quot;-0300&quot;
 T</code></pre><p>Now let's return to the time of day parsing. According to the RFC, seconds part is optional. Parseq has an expression <code>?</code> to match optional rules.</p>
-<p>Here is how a rule matching time of day will look like:</p>
+<p>Here is how a rule matching the time of day will look like:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:defrule time-of-day ()
                (and hour
                     &quot;:&quot;
@@ -221,7 +221,7 @@ POFTHEDAY&gt; (parseq:defrule date ()
          date
          time)
   (:choose &#039;(0 0) 1 2)
-  (:flatten))</code></pre><p>The another cool Parseq's feature is an ability to debug parser execution. Now I'll turn on this debug mode and parse a string:</p>
+  (:flatten))</code></pre><p>Another cool Parseq's feature is an ability to debug parser execution. Now I'll turn on this debug mode and parse a string:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:trace-rule &#039;date-time :recursive t)
 
 POFTHEDAY&gt; (parseq:parseq &#039;date-time
@@ -262,7 +262,7 @@ POFTHEDAY&gt; (parseq:parseq &#039;date-time
 1: DATE-TIME 0-31 -&gt; (&quot;Thu&quot; 13 &quot;Jul&quot; 2017 13 28 3 &quot;+0200&quot;)
 
 (&quot;Thu&quot; 13 &quot;Jul&quot; 2017 13 28 3 &quot;+0200&quot;)
-T</code></pre><p>We can improve this parser by using <code>:function</code> transformation to return a <code>local-time</code> timestring:</p>
+T</code></pre><p>We can improve this parser by using <code>:function</code> transformation to return a <code>local-time:timestamp</code>. First, let's redefine rule for matching the month and make it return the month number:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:defrule january  () &quot;Jan&quot; (:constant 1))
 POFTHEDAY&gt; (parseq:defrule february () &quot;Feb&quot; (:constant 2))
 POFTHEDAY&gt; (parseq:defrule march    () &quot;Mar&quot; (:constant 3))
@@ -285,7 +285,7 @@ POFTHEDAY&gt; (parseq:parseq &#039;month &quot;Sep&quot;)
 9 (4 bits, #x9, #o11, #b1001)
 T</code></pre><p>Next, we need to reimplement the rule matching a timezone to make it return <code>local-time:timezone</code>.</p>
 <p>We'll be using an advanced technique of binding variables to pass value from one rule to another, because I want to store the timezone as a string and to parse it's hour and minute parts simultaneously.</p>
-<p>To accomplish this task, we have to divide or timezone matching rule into two. First rule will match it as a string of sign and four digits. Then it will save the result into external variable and exit with a nil result to give a chance to execute the second rule:</p>
+<p>To accomplish this task, we have to divide or timezone matching rule into two. The first rule will match it as a string of sign and four digits. Then it will save the result into an external variable and exit with a nil result to give a chance to execute the second rule:</p>
 <pre><code class='lisp'>POFTHEDAY&gt; (parseq:defrule zone-as-str ()
                (and (or #\+ #\-)
                     (rep 4 digit))
@@ -362,10 +362,11 @@ POFTHEDAY&gt; (parseq:parseq &#039;date-time
                           &quot;Thu, 13 Jul 2017 13:28:03 +0200&quot;)
 @2017-07-13T14:28:03.000000+03:00
 T</code></pre><p>I've got a different value for the time because <code>local-time</code> prints timestamp in my timezone which is <code>UTC+3</code>.</p>
-<p>The cool feature of the Parseq is it's ability to work with any data, including binary. This way it can be used to parse binary formats.</p>
+<p>The cool feature of the Parseq is its ability to work with any data, including binary. This way it can be used to parse binary formats.</p>
 <p>As an example of parsing binary data, Parseq includes this parser rules for working with PNG image format:</p>
 <p><a href="https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp">https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp</a></p>
-<p>There are other cool features. Please, read the docs to learn more.</p>
+<p>There are other interesting features. Please, read the docs to learn more.</p>
+<p>If you are aware of other parsing libraries which worth to be written about, let me know in the comments.</p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

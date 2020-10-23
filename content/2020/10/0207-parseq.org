@@ -2,16 +2,16 @@
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
-:Tests:    :(
+:Tests:    :)
 :Examples: :)
-:RepositoryActivity: :)
+:RepositoryActivity: :(
 :CI:       :(
 :END:
 
-With this library you can write parsers to process strings, lists and
+With this library, you can write parsers to process strings, lists and
 binary data!
 
-Let's take a look at one of examples. It is a parser for the dates from
+Let's take a look at one of the examples. It is a parser for the dates from
 [[https://tools.ietf.org/html/rfc5322#section-3.3][RFC 5322]]. This format is used in email messages:
 
 ~Thu, 13 Jul 2017 13:28:03 +0200~
@@ -47,7 +47,7 @@ NIL
 #+end_src
 
 The next rule we need is the rule to parse hours, minutes and
-seconds. These parts has two digits and we'll use ~rep~ expression to
+seconds. These parts have two digits and we'll use ~rep~ expression to
 specify how many digits matches the rule:
 
 #+begin_src lisp
@@ -63,7 +63,7 @@ T
 #+end_src
 
 See, this rule returns digits as the list! But to make it useful, we
-need the integer. Parseq rules supports different kinds of
+need the integer. Parseq rules support different kinds of
 transformations. They can are optional and can be specified like this:
 
 #+begin_src lisp
@@ -91,9 +91,9 @@ T
 
 #+end_src
 
-We'll define ~minute~ and ~second~ rules the same way.
+We'll define the ~minute~ and ~second~ rules the same way.
 
-The next rule matches the abbreviated day of week. It combines other
+The next rule matches the abbreviated day of the week. It combines other
 rules or terms using ~or~ expression:
 
 #+begin_src lisp
@@ -153,7 +153,7 @@ T
 Now let's return to the time of day parsing. According to the RFC,
 seconds part is optional. Parseq has an expression ~?~ to match optional rules.
 
-Here is how a rule matching time of day will look like:
+Here is how a rule matching the time of day will look like:
 
 #+begin_src lisp
 
@@ -265,7 +265,7 @@ POFTHEDAY> (parseq:defrule date ()
 
 #+end_src
 
-The another cool Parseq's feature is an ability to debug parser
+Another cool Parseq's feature is an ability to debug parser
 execution. Now I'll turn on this debug mode and parse a string:
 
 #+begin_src lisp
@@ -315,7 +315,8 @@ T
 #+end_src
 
 We can improve this parser by using ~:function~ transformation to return a
-~local-time~ timestring:
+~local-time:timestamp~. First, let's redefine rule for matching the month
+and make it return the month number:
 
 #+begin_src lisp
 
@@ -352,8 +353,8 @@ value from one rule to another, because I want to store the timezone as
 a string and to parse it's hour and minute parts simultaneously.
 
 To accomplish this task, we have to divide or timezone matching rule
-into two. First rule will match it as a string of sign and four digits.
-Then it will save the result into external variable and exit with a nil
+into two. The first rule will match it as a string of sign and four digits.
+Then it will save the result into an external variable and exit with a nil
 result to give a chance to execute the second rule:
 
 #+begin_src lisp
@@ -457,7 +458,7 @@ T
 I've got a different value for the time because ~local-time~ prints
 timestamp in my timezone which is ~UTC+3~.
 
-The cool feature of the Parseq is it's ability to work with any data,
+The cool feature of the Parseq is its ability to work with any data,
 including binary. This way it can be used to parse binary formats.
 
 As an example of parsing binary data, Parseq includes this parser rules
@@ -465,4 +466,9 @@ for working with PNG image format:
 
 https://github.com/mrossini-ethz/parseq/blob/master/examples/png.lisp
 
-There are other cool features. Please, read the docs to learn more.
+There are other interesting features. Please, read the docs to learn
+more.
+
+If you are aware of other parsing libraries which worth to be written
+about, let me know in the comments.
+
