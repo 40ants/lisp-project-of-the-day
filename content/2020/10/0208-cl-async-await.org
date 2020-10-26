@@ -1,0 +1,108 @@
+* cl-async-await :async:threading:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This library implements the async/await abstraction to make it easier
+write parallel programs.
+
+Now we'll turn "dexador" http library calls into async and will see if
+we can parallel 10 requests to the site which responds in 5 seconds.
+
+To create a function which can return a delayed result, a "promise", we
+have to use ~cl-async-await:defun-async~:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-async-await:defun-async http-get (url &rest args)
+             (apply #'dexador:get url args))
+
+#+end_src
+
+Now let's call this function. When called it returns a "promise" object
+not the real response from the site:
+
+#+begin_src lisp
+
+POFTHEDAY> (http-get "https://httpbin.org/delay/5")
+#<CL-ASYNC-AWAIT:PROMISE Not awaited>
+
+#+end_src
+
+No we can retrieve the real result, using ~cl-async-await:await~ function:
+
+#+begin_src lisp
+
+POFTHEDAY> (cl-async-await:await *)
+"{
+  \"args\": {}, 
+  \"data\": \"\", 
+  \"files\": {}, 
+  \"form\": {}, 
+  \"headers\": {
+    \"Accept\": \"*/*\", 
+    \"Content-Length\": \"0\", 
+    \"Host\": \"httpbin.org\", 
+    \"User-Agent\": \"Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\", 
+    \"X-Amzn-Trace-Id\": \"Root=1-5f9732d6-148ee9a305fab66c26a2dbfd\"
+  }, 
+  \"origin\": \"188.170.77.131\", 
+  \"url\": \"https://httpbin.org/delay/5\"
+}
+"
+200 (8 bits, #xC8, #o310, #b11001000)
+#<HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}>
+#<QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/5>
+#<CL+SSL::SSL-STREAM for #<FD-STREAM for "socket 192.168.43.216:49762, peer: 35.170.225.136:443" {10085B0BF3}>>
+
+#+end_src
+
+If we look a the promise object again, we'll see it has a state now:
+
+#+begin_src lisp
+
+POFTHEDAY> **
+#<CL-ASYNC-AWAIT:PROMISE (VALUES {
+  "args": {}, 
+  "data": "", 
+  "files": {}, 
+  "form": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Content-Length": "0", 
+    "Host": "httpbin.org", 
+    "User-Agent": "Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0", 
+    "X-Amzn-Trace-Id": "Root=1-5f9732d6-148ee9a305fab66c26a2dbfd"
+  }, 
+  "origin": "188.170.77.131", 
+  "url": "https://httpbin.org/delay/5"
+}
+
+  200 #<HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}>
+  https://httpbin.org/delay/5
+  #<SSL-STREAM for #<FD-STREAM for "socket 192.168.43.216:49762, peer: 35.170.225.136:443" {10085B0BF3}>>) >
+
+#+end_src
+
+Ok, it is time to see if we can retrieve results from this site in
+parallel. To make it easier to test speed, I'll wrap all code into the
+separate function:
+
+#+begin_src lisp
+
+POFTHEDAY> (defun do-the-test ()
+             (let ((promises
+                     (loop repeat 10
+                           collect (http-get "https://httpbin.org/delay/5"))))
+               ;; Now we have to fetch results from our promises.
+               (loop for promise in promises
+                     for response = (cl-async-await:await
+                                     promise)
+                     summing (length response))))
+
+#+end_src
