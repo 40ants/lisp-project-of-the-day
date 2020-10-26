@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>cl-async-await
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-async-await</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>cl-async-await<span class='tags'><a href='../../tags/async.html'><span class='label label-default'>async</span></a><a href='../../tags/threads.html'><span class='label label-default'>threads</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F97A;</td></tr></table><p><a href="https://github.com/j3pic/cl-async-await">This library</a> implements the <a href="https://en.wikipedia.org/wiki/Futures_and_promises">async/await abstraction</a> to make it easier to write parallel programs.</p>
+<p>Now we'll turn "dexador" http library calls into async and will see if we can parallel 50 requests to the site which response in 5 seconds.</p>
+<p>To create a function which can return a delayed result, a "promise", we have to use <code>cl-async-await:defun-async</code>:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-async-await:defun-async http-get (url &amp;rest args)
+             (apply #&#039;dexador:get url args))</code></pre><p>Now let's call this function. When called it returns a "promise" object not the real response from the site:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (http-get &quot;https://httpbin.org/delay/5&quot;)
+#&lt;CL-ASYNC-AWAIT:PROMISE Not awaited&gt;</code></pre><p>Now we can retrieve the real result, using <code>cl-async-await:await</code> function:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (cl-async-await:await *)
+&quot;{
+  \&quot;args\&quot;: {}, 
+  \&quot;data\&quot;: \&quot;\&quot;, 
+  \&quot;files\&quot;: {}, 
+  \&quot;form\&quot;: {}, 
+  \&quot;headers\&quot;: {
+    \&quot;Accept\&quot;: \&quot;*/*\&quot;, 
+    \&quot;Content-Length\&quot;: \&quot;0\&quot;, 
+    \&quot;Host\&quot;: \&quot;httpbin.org\&quot;, 
+    \&quot;User-Agent\&quot;: \&quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&quot;, 
+    \&quot;X-Amzn-Trace-Id\&quot;: \&quot;Root=1-5f9732d6-148ee9a305fab66c26a2dbfd\&quot;
+  }, 
+  \&quot;origin\&quot;: \&quot;188.170.77.131\&quot;, 
+  \&quot;url\&quot;: \&quot;https://httpbin.org/delay/5\&quot;
+}
+&quot;
+200 (8 bits, #xC8, #o310, #b11001000)
+#&lt;HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}&gt;
+#&lt;QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/5&gt;
+#&lt;CL+SSL::SSL-STREAM for #&lt;FD-STREAM for &quot;socket 192.168.43.216:49762, peer: 35.170.225.136:443&quot; {10085B0BF3}&gt;&gt;</code></pre><p>If we look a the promise object again, we'll see it has a state now:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; **
+#&lt;CL-ASYNC-AWAIT:PROMISE (VALUES {
+  &quot;args&quot;: {}, 
+  &quot;data&quot;: &quot;&quot;, 
+  &quot;files&quot;: {}, 
+  &quot;form&quot;: {}, 
+  &quot;headers&quot;: {
+    &quot;Accept&quot;: &quot;*/*&quot;, 
+    &quot;Content-Length&quot;: &quot;0&quot;, 
+    &quot;Host&quot;: &quot;httpbin.org&quot;, 
+    &quot;User-Agent&quot;: &quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0&quot;, 
+    &quot;X-Amzn-Trace-Id&quot;: &quot;Root=1-5f9732d6-148ee9a305fab66c26a2dbfd&quot;
+  }, 
+  &quot;origin&quot;: &quot;188.170.77.131&quot;, 
+  &quot;url&quot;: &quot;https://httpbin.org/delay/5&quot;
+}
+
+  200 #&lt;HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}&gt;
+  https://httpbin.org/delay/5
+  #&lt;SSL-STREAM for #&lt;FD-STREAM for &quot;socket 192.168.43.216:49762, peer: 35.170.225.136:443&quot; {10085B0BF3}&gt;&gt;) &gt;</code></pre><p>Ok, it is time to see if we can retrieve results from this site in parallel. To make it easier to test speed, I'll wrap all code into the separate function.</p>
+<p>The function returns the total number of bytes in all 50 responses:</p>
+<pre><code class='lisp'>POFTHEDAY&gt; (defun do-the-test ()
+             (let ((promises
+                     (loop repeat 50
+                           collect (http-get &quot;https://httpbin.org/delay/5&quot;
+                                             :use-connection-pool nil
+                                             :keep-alive nil))))
+               ;; Now we have to fetch results from our promises.
+               (loop for promise in promises
+                     for response = (cl-async-await:await
+                                     promise)
+                     summing (length response))))
+
+POFTHEDAY&gt; (time (do-the-test))
+Evaluation took:
+  6.509 seconds of real time
+  2.496912 seconds of total run time (1.672766 user, 0.824146 system)
+  38.36% CPU
+  14,372,854,434 processor cycles
+  1,519,664 bytes consed
+  
+18300</code></pre><p>As you can see, the function returns in 6.5 seconds instead of 250 seconds! This means cl-async-await works!</p>
+<p>The only problem I found was this concurrency issue:</p>
+<p><a href="https://github.com/j3pic/cl-async-await/issues/3">https://github.com/j3pic/cl-async-await/issues/3</a></p>
+<p>But probably it is only related to Dexador.</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

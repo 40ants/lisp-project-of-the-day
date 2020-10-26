@@ -1,4 +1,4 @@
-* cl-async-await :async:threading:
+* cl-async-await :async:threads:
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
@@ -8,11 +8,11 @@
 :CI:       :(
 :END:
 
-This library implements the async/await abstraction to make it easier
-write parallel programs.
+[[https://github.com/j3pic/cl-async-await][This library]] implements the [[https://en.wikipedia.org/wiki/Futures_and_promises][async/await abstraction]] to make it easier
+to write parallel programs.
 
 Now we'll turn "dexador" http library calls into async and will see if
-we can parallel 10 requests to the site which responds in 5 seconds.
+we can parallel 50 requests to the site which response in 5 seconds.
 
 To create a function which can return a delayed result, a "promise", we
 have to use ~cl-async-await:defun-async~:
@@ -34,7 +34,7 @@ POFTHEDAY> (http-get "https://httpbin.org/delay/5")
 
 #+end_src
 
-No we can retrieve the real result, using ~cl-async-await:await~ function:
+Now we can retrieve the real result, using ~cl-async-await:await~ function:
 
 #+begin_src lisp
 
@@ -91,18 +91,41 @@ POFTHEDAY> **
 
 Ok, it is time to see if we can retrieve results from this site in
 parallel. To make it easier to test speed, I'll wrap all code into the
-separate function:
+separate function.
+
+The function returns the total number of bytes in all 50 responses:
 
 #+begin_src lisp
 
 POFTHEDAY> (defun do-the-test ()
              (let ((promises
-                     (loop repeat 10
-                           collect (http-get "https://httpbin.org/delay/5"))))
+                     (loop repeat 50
+                           collect (http-get "https://httpbin.org/delay/5"
+                                             :use-connection-pool nil
+                                             :keep-alive nil))))
                ;; Now we have to fetch results from our promises.
                (loop for promise in promises
                      for response = (cl-async-await:await
                                      promise)
                      summing (length response))))
 
+POFTHEDAY> (time (do-the-test))
+Evaluation took:
+  6.509 seconds of real time
+  2.496912 seconds of total run time (1.672766 user, 0.824146 system)
+  38.36% CPU
+  14,372,854,434 processor cycles
+  1,519,664 bytes consed
+  
+18300
+
 #+end_src
+
+As you can see, the function returns in 6.5 seconds instead of 250
+seconds! This means cl-async-await works!
+
+The only problem I found was this concurrency issue:
+
+https://github.com/j3pic/cl-async-await/issues/3
+
+But probably it is only related to Dexador.
