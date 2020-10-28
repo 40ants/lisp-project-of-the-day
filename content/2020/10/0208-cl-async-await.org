@@ -2,8 +2,8 @@
 :PROPERTIES:
 :Documentation: :)
 :Docstrings: :)
-:Tests:    :)
-:Examples: :)
+:Tests:    :(
+:Examples: :|
 :RepositoryActivity: :(
 :CI:       :(
 :END:

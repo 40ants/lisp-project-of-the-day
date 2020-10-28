@@ -15,8 +15,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 16 October - [[content/2020/10/0205-quickfork.org][quickfork]] ([[https://twitter.com/svetlyak40wt/status/1317155593279385601][twitter]])
 - 19 October - [[content/2020/10/0206-pzmq.org][pzmq]] ([[https://twitter.com/svetlyak40wt/status/1318262415868497929][twitter]])
 - 23 October - [[content/2020/10/0207-parseq.org][parseq]] ([[https://twitter.com/svetlyak40wt/status/1319742554078851072][twitter]])
-- 26 October - [[content/2020/10/0208-cl-async-await.org][async-await]] ([[https://twitter.com/svetlyak40wt/status/1320838429895249920][twitter]])
-- 28 October - [[content/2020/10/0209-cl-pdf.org][cl-pdf]]
+- 26 October - [[content/2020/10/0208-cl-async-await.orga][cl-async-await]] ([[https://twitter.com/svetlyak40wt/status/1320838429895249920][twitter]])
+- 28 October - [[content/2020/10/0209-cl-pdf.org][cl-pdf]] ([[https://twitter.com/svetlyak40wt/status/1321563662679744516][twitter]])
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])

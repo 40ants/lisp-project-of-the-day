@@ -1,0 +1,21 @@
+* cl-protobufs :serialization:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :|
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+It is better to install from [[https://github.com/qitab/cl-protobufs][GitHub]] or from the https://ultralisp.org,
+because ~quicklisp 2020-10-16~ includes old ~cl-protobufs~ version without
+~protoc~ plugin.
+
+#+begin_src bash
+
+brew install protobuf
+
+brew --prefix protobuf
+
+#+end_src
