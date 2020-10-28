@@ -5,3 +5,4 @@ dist ultralisp http://dist.ultralisp.org/
 github cl-json hankhero/cl-json
 
 github quickfork svspire/quickfork
+# github cl-protobufs bkuehnert/cl-protobufs :branch simplify-compilation

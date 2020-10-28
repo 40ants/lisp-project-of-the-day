@@ -5,7 +5,7 @@
 ("ultralisp" .
  (:class qlot/source/dist:source-dist
   :initargs (:distribution "http://dist.ultralisp.org/" :%version :latest)
-  :version "20201016152505"))
+  :version "20201027070506"))
 ("cl-json" .
  (:class qlot/source/github:source-github
   :initargs (:repos "hankhero/cl-json" :ref nil :branch nil :tag nil)

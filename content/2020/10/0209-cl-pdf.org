@@ -1,0 +1,32 @@
+* cl-pdf :graphics:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:END:
+
+This is the library for PDF generation and parsing.
+
+Today I'm too lazy to provided step by step examples, but I have a real
+task to do with this library.
+
+Some time ago I've read the [[https://waitbutwhy.com/2014/05/life-weeks.html][article about productivity]] which recommened to print a
+"life calendar". This calendar should remind you: "The life is limited
+and the time's price is high."
+
+The calendar is a grid where every box is one week of you life. The
+article suggested to buy a poster with the calendar, but I don't want to
+wait a parcel with a poster I want to print it now!
+
+And now cl-pdf comes on the scene!
+
+I wrote this simple function to generate the poster of A1 format:
+
+#+begin_src lisp
+
+
+
+#+end_src

@@ -16,6 +16,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 19 October - [[content/2020/10/0206-pzmq.org][pzmq]] ([[https://twitter.com/svetlyak40wt/status/1318262415868497929][twitter]])
 - 23 October - [[content/2020/10/0207-parseq.org][parseq]] ([[https://twitter.com/svetlyak40wt/status/1319742554078851072][twitter]])
 - 26 October - [[content/2020/10/0208-cl-async-await.org][async-await]] ([[https://twitter.com/svetlyak40wt/status/1320838429895249920][twitter]])
+- 28 October - [[content/2020/10/0209-cl-pdf.org][cl-pdf]]
 
 ** September
 - 01 September - [[content/2020/09/0177-geneva.org][geneva]] ([[https://twitter.com/svetlyak40wt/status/1300900818649055232][twitter]])
@@ -1265,6 +1266,8 @@ files, and extracting their ":defsystem-depends-on".
 - esrap - parser used by 3bmd (suggested by Vsevolod)
 - https://github.com/oyvinht/cl-earley-parser natural language parser
   (suggested by Mark David)
+- lsx - embeddable HTML templating by Fukamachi
+
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
