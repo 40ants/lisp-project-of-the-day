@@ -144,9 +144,11 @@ I wrote this simple function to generate the poster of A1 format:
 
 #+end_src
 
-The result can be downloaded here. It looks like this:
+Here is how result will look like:
 
 [[../../media/0209/life.png]]
+
+The PDF can be [[https://40ants.com/lisp-project-of-the-day/media/0209/life.pdf][downloaded here]].
 
 This program demonstrates a few features of cl-pdf:
 
@@ -154,8 +156,8 @@ This program demonstrates a few features of cl-pdf:
 - text drawing and rotation;
 - font manipulation.
 
-There are a lot more features but all of the aren't documented, only
-[[https://github.com/mbattyani/cl-pdf/tree/master/examples][a several examples]] :(
+There are a lot more features but all of them aren't documented, only
+[[https://github.com/mbattyani/cl-pdf/tree/master/examples][several examples]] :(
 
 GitHub [[https://github.com/mbattyani/cl-pdf/network][shows 4 forks]] with some patches. And some of them are turned into
 a pull-request, but maintainer is inactive on the GitHub since 2019 :(

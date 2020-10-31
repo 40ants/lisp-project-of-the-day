@@ -6,6 +6,217 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>cl-pdf</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0209-cl-pdf.html</link>
+            <description>&lt;p&gt;This is the library for PDF generation and parsing.&lt;/p&gt;
+&lt;p&gt;Today I&apos;m too lazy to provided step by step examples, but I have a real task to do with this library.&lt;/p&gt;
+&lt;p&gt;Some time ago I&apos;ve read the &lt;a href=&quot;https://waitbutwhy.com/2014/05/life-weeks.html&quot;&gt;article about productivity&lt;/a&gt; which recommended to print a &quot;life calendar&quot;. This calendar should remind you: &quot;The life is limited and the time&apos;s price is high.&quot;&lt;/p&gt;
+&lt;p&gt;The calendar is a grid where every box is one week of you life. The article suggested to buy a poster with the calendar, but I don&apos;t want to wait for a parcel with the poster! I want to print it now!&lt;/p&gt;
+&lt;p&gt;And here is where cl-pdf comes on the scene!&lt;/p&gt;
+&lt;p&gt;I wrote this simple function to generate the poster of A1 format:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defun render (&amp;amp;optional (filename &amp;quot;life.pdf&amp;quot;))
+  (flet ((to-ppt (size-in-mm)
+           (/ size-in-mm 1/72 25.4)))
+    (let* ((width (to-ppt 594))       ;; This is A1 page size in mm
+           (height (to-ppt 841))
+           (margin-top (to-ppt 70))
+           (margin-bottom (to-ppt 30))
+           (span  (to-ppt 2))
+           (year-weeks 52)
+           (years 90)
+           (box-size (/ (- (- height (+ margin-top margin-bottom))
+                            (* span (1- years)))
+                        years))
+           (boxes-width (+ (* box-size year-weeks)
+                            (* span (1- year-weeks))))
+           (boxes-height (+ (* box-size years)
+                             (* span (1- years))))
+           ;; horizontal margin depends on box size,
+           ;; because we need to center them
+           (margin-h (/ (- width boxes-width)
+                        2))
+           (box-radius (/ box-size 3))
+           (helvetica (pdf:get-font &amp;quot;Helvetica&amp;quot;)))
+      (pdf:with-document ()
+        (pdf:with-page (:bounds (rutils:vec 0 0 width height))
+          ;; For debug
+          ;; (pdf:rectangle margin-h margin-bottom
+          ;;                boxes-width
+          ;;                boxes-height
+          ;;                :radius box-radius)
+          (loop for year from 0 below years
+                do (loop for week from 0 below year-weeks
+                         for x = (+ margin-h (* week (+ box-size span)))
+                         for y = (+ margin-bottom (* year (+ box-size span)))
+                         do (pdf:rectangle x y box-size box-size :radius box-radius)))
+          
+          ;; The title
+          (pdf:draw-centered-text
+           (/ width 2)
+           (+ margin-bottom
+               boxes-height
+               ;; space between text and boxes in mm
+               (to-ppt 15))
+           &amp;quot;LIFE CALENDAR&amp;quot;
+           helvetica
+           ;; font-size in mm
+           (to-ppt 30))
+
+          ;; Labels for weeks
+          (let ((font-size
+                  ;; We want labels to be slightly smaller than boxes
+                  (* box-size 2/3)))
+            (pdf:draw-right-text
+             (+ margin-h
+                 (/ box-size 4))
+             (+ margin-bottom
+                 boxes-height
+                 ;; space between text and boxes in mm
+                 (to-ppt 10))
+             &amp;quot;Weeks of the year&amp;quot;
+             helvetica
+             font-size)
+            
+            (loop for week below year-weeks
+                  do (pdf:draw-centered-text
+                      (+ margin-h
+                          (/ box-size 2)
+                          (* week (+ box-size span)))
+                      (+ margin-bottom
+                          boxes-height
+                          ;; space between text and boxes in mm
+                          (to-ppt 3))
+                      (rutils:fmt &amp;quot;~A&amp;quot; (1+ week))
+                      helvetica
+                      font-size))
+
+            ;; Labels for years
+            (pdf:with-saved-state
+              (pdf:translate
+               (- margin-h
+                   (to-ppt 10))
+               (- (+ margin-bottom
+                      boxes-height)
+                   (/ box-size 4)))
+              (pdf:rotate 90)
+              (pdf:draw-left-text
+               0 0
+               &amp;quot;Years of your life&amp;quot;
+               helvetica
+               font-size))
+            
+            (loop for year below years
+                  do (pdf:draw-left-text
+                      (- margin-h
+                          ;; space between text and boxes in mm
+                          (to-ppt 3))
+                      (+ margin-bottom
+                          (/ box-size 4)
+                          (* year (+ box-size span)))
+                      (rutils:fmt &amp;quot;~A&amp;quot; (- years year))
+                      helvetica
+                      font-size))
+
+            ;; The Question.
+            (pdf:draw-left-text
+             (- width margin-h)
+             (- margin-bottom
+                 (to-ppt 10))
+             &amp;quot;Is this the End?&amp;quot;
+             helvetica
+             (* font-size 2))
+            
+            (pdf:close-and-stroke)))
+        (pdf:write-document filename)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is how result will look like:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0209/life.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;The PDF can be &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/media/0209/life.pdf&quot;&gt;downloaded here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This program demonstrates a few features of cl-pdf:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;ability to set page size;&lt;/li&gt;&lt;li&gt;text drawing and rotation;&lt;/li&gt;&lt;li&gt;font manipulation.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;There are a lot more features but all of them aren&apos;t documented, only &lt;a href=&quot;https://github.com/mbattyani/cl-pdf/tree/master/examples&quot;&gt;several examples&lt;/a&gt; :(&lt;/p&gt;
+&lt;p&gt;GitHub &lt;a href=&quot;https://github.com/mbattyani/cl-pdf/network&quot;&gt;shows 4 forks&lt;/a&gt; with some patches. And some of them are turned into a pull-request, but maintainer is inactive on the GitHub since 2019 :(&lt;/p&gt;
+</description>
+            <pubDate>Wed, 28 Oct 2020 23:49:29 +0300</pubDate>
+        </item>
+        <item>
+            <title>cl-async-await</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0208-cl-async-await.html</link>
+            <description>&lt;p&gt;&lt;a href=&quot;https://github.com/j3pic/cl-async-await&quot;&gt;This library&lt;/a&gt; implements the &lt;a href=&quot;https://en.wikipedia.org/wiki/Futures_and_promises&quot;&gt;async/await abstraction&lt;/a&gt; to make it easier to write parallel programs.&lt;/p&gt;
+&lt;p&gt;Now we&apos;ll turn &quot;dexador&quot; http library calls into async and will see if we can parallel 50 requests to the site which response in 5 seconds.&lt;/p&gt;
+&lt;p&gt;To create a function which can return a delayed result, a &quot;promise&quot;, we have to use &lt;code&gt;cl-async-await:defun-async&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-async-await:defun-async http-get (url &amp;amp;rest args)
+             (apply #&amp;#039;dexador:get url args))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now let&apos;s call this function. When called it returns a &quot;promise&quot; object not the real response from the site:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (http-get &amp;quot;https://httpbin.org/delay/5&amp;quot;)
+#&amp;lt;CL-ASYNC-AWAIT:PROMISE Not awaited&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can retrieve the real result, using &lt;code&gt;cl-async-await:await&lt;/code&gt; function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-async-await:await *)
+&amp;quot;{
+  \&amp;quot;args\&amp;quot;: {}, 
+  \&amp;quot;data\&amp;quot;: \&amp;quot;\&amp;quot;, 
+  \&amp;quot;files\&amp;quot;: {}, 
+  \&amp;quot;form\&amp;quot;: {}, 
+  \&amp;quot;headers\&amp;quot;: {
+    \&amp;quot;Accept\&amp;quot;: \&amp;quot;*/*\&amp;quot;, 
+    \&amp;quot;Content-Length\&amp;quot;: \&amp;quot;0\&amp;quot;, 
+    \&amp;quot;Host\&amp;quot;: \&amp;quot;httpbin.org\&amp;quot;, 
+    \&amp;quot;User-Agent\&amp;quot;: \&amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0\&amp;quot;, 
+    \&amp;quot;X-Amzn-Trace-Id\&amp;quot;: \&amp;quot;Root=1-5f9732d6-148ee9a305fab66c26a2dbfd\&amp;quot;
+  }, 
+  \&amp;quot;origin\&amp;quot;: \&amp;quot;188.170.77.131\&amp;quot;, 
+  \&amp;quot;url\&amp;quot;: \&amp;quot;https://httpbin.org/delay/5\&amp;quot;
+}
+&amp;quot;
+200 (8 bits, #xC8, #o310, #b11001000)
+#&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}&amp;gt;
+#&amp;lt;QURI.URI.HTTP:URI-HTTPS https://httpbin.org/delay/5&amp;gt;
+#&amp;lt;CL+SSL::SSL-STREAM for #&amp;lt;FD-STREAM for &amp;quot;socket 192.168.43.216:49762, peer: 35.170.225.136:443&amp;quot; {10085B0BF3}&amp;gt;&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If we look a the promise object again, we&apos;ll see it has a state now:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; **
+#&amp;lt;CL-ASYNC-AWAIT:PROMISE (VALUES {
+  &amp;quot;args&amp;quot;: {}, 
+  &amp;quot;data&amp;quot;: &amp;quot;&amp;quot;, 
+  &amp;quot;files&amp;quot;: {}, 
+  &amp;quot;form&amp;quot;: {}, 
+  &amp;quot;headers&amp;quot;: {
+    &amp;quot;Accept&amp;quot;: &amp;quot;*/*&amp;quot;, 
+    &amp;quot;Content-Length&amp;quot;: &amp;quot;0&amp;quot;, 
+    &amp;quot;Host&amp;quot;: &amp;quot;httpbin.org&amp;quot;, 
+    &amp;quot;User-Agent&amp;quot;: &amp;quot;Dexador/0.9.14 (SBCL 2.0.8); Darwin; 19.5.0&amp;quot;, 
+    &amp;quot;X-Amzn-Trace-Id&amp;quot;: &amp;quot;Root=1-5f9732d6-148ee9a305fab66c26a2dbfd&amp;quot;
+  }, 
+  &amp;quot;origin&amp;quot;: &amp;quot;188.170.77.131&amp;quot;, 
+  &amp;quot;url&amp;quot;: &amp;quot;https://httpbin.org/delay/5&amp;quot;
+}
+
+  200 #&amp;lt;HASH-TABLE :TEST EQUAL :COUNT 7 {1002987DE3}&amp;gt;
+  https://httpbin.org/delay/5
+  #&amp;lt;SSL-STREAM for #&amp;lt;FD-STREAM for &amp;quot;socket 192.168.43.216:49762, peer: 35.170.225.136:443&amp;quot; {10085B0BF3}&amp;gt;&amp;gt;) &amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Ok, it is time to see if we can retrieve results from this site in parallel. To make it easier to test speed, I&apos;ll wrap all code into the separate function.&lt;/p&gt;
+&lt;p&gt;The function returns the total number of bytes in all 50 responses:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun do-the-test ()
+             (let ((promises
+                     (loop repeat 50
+                           collect (http-get &amp;quot;https://httpbin.org/delay/5&amp;quot;
+                                             :use-connection-pool nil
+                                             :keep-alive nil))))
+               ;; Now we have to fetch results from our promises.
+               (loop for promise in promises
+                     for response = (cl-async-await:await
+                                     promise)
+                     summing (length response))))
+
+POFTHEDAY&amp;gt; (time (do-the-test))
+Evaluation took:
+  6.509 seconds of real time
+  2.496912 seconds of total run time (1.672766 user, 0.824146 system)
+  38.36% CPU
+  14,372,854,434 processor cycles
+  1,519,664 bytes consed
+  
+18300&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, the function returns in 6.5 seconds instead of 250 seconds! This means cl-async-await works!&lt;/p&gt;
+&lt;p&gt;The only problem I found was this concurrency issue:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/j3pic/cl-async-await/issues/3&quot;&gt;https://github.com/j3pic/cl-async-await/issues/3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;But probably it is only related to Dexador.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 26 Oct 2020 23:48:09 +0300</pubDate>
+        </item>
+        <item>
             <title>parseq</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0207-parseq.html</link>
             <description>&lt;p&gt;With this library, you can write parsers to process strings, lists and binary data!&lt;/p&gt;
@@ -1497,209 +1708,6 @@ Evaluation took:
 &lt;p&gt;If you have some other template engines in mind, please, leave comments and I&apos;ll make a review.&lt;/p&gt;
 </description>
             <pubDate>Tue, 15 Sep 2020 22:36:01 +0300</pubDate>
-        </item>
-        <item>
-            <title>spinneret</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html</link>
-            <description>&lt;p&gt;Spinneret is a sexp based templating engine similar to cl-who, reviewed in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/05/0075-cl-who.html&quot;&gt;post number #0075&lt;/a&gt;. Today we&apos;ll reimplement the snippets from the &lt;code&gt;cl-who&lt;/code&gt; post and I&apos;ll show you a few features I&apos;m especially like in Spinneret.&lt;/p&gt;
-&lt;p&gt;The first example is very simple. It is almost identical to &lt;code&gt;cl-who&lt;/code&gt;, but more concise:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (spinneret:with-html-string
-             (:body
-              (:p &amp;quot;Hello world!&amp;quot;)))
-&amp;quot;&amp;lt;body&amp;gt;
- &amp;lt;p&amp;gt;Hello world!
-&amp;lt;/body&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Next example in the &lt;code&gt;cl-who&lt;/code&gt; post showed, how to escape values properly to protect your site from JavaScript Injection attacks. With &lt;code&gt;Spinneret&lt;/code&gt;, you don&apos;t need this, because it always escapes the values.&lt;/p&gt;
-&lt;p&gt;But if you really need to inject the HTML or JS into the page, then you have to use &lt;code&gt;raw&lt;/code&gt; mode:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass user ()
-             ((name :initarg :name
-                    :reader get-name)))
-
-POFTHEDAY&amp;gt; (let ((user (make-instance
-                        &amp;#039;user
-                        :name &amp;quot;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;&amp;quot;)))
-             (spinneret:with-html-string
-               (:div :class &amp;quot;comment&amp;quot;
-                     ;; Here Spinneret protects you:
-                     (:div :class &amp;quot;username&amp;quot;
-                           (get-name user))
-                     ;; This way you can force RAW mode.
-                     ;; DON&amp;#039;T do this unless the value is from the
-                     ;; trusted source!
-                     (:div :class &amp;quot;raw-user&amp;quot;
-                           (:raw (get-name user))))))
-&amp;quot;&amp;lt;div class=comment&amp;gt;
- &amp;lt;div class=username&amp;gt;
-  Bob &amp;amp;lt;script&amp;amp;gtalert(&amp;#039;You are hacked&amp;#039;)&amp;amp;lt;/script&amp;amp;gt
- &amp;lt;/div&amp;gt;
- &amp;lt;div class=raw-user&amp;gt;Bob &amp;lt;script&amp;gt;alert(&amp;#039;You are hacked&amp;#039;)&amp;lt;/script&amp;gt;
- &amp;lt;/div&amp;gt;
-&amp;lt;/div&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;With &lt;code&gt;cl-who&lt;/code&gt; you might misuse &lt;code&gt;str&lt;/code&gt; and &lt;code&gt;esc&lt;/code&gt; functions. But with &lt;code&gt;Spinneret&lt;/code&gt; there is less probability for such a mistake.&lt;/p&gt;
-&lt;p&gt;Another cool Spinneret&apos;s feature is its code walker. It allows mixing usual Common Lisp forms with HTML sexps. Compare this code snippet with the corresponding part from &lt;code&gt;cl-who&lt;/code&gt; post:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((list (list 1 2 3 4 5)))
-             (spinneret:with-html-string
-               (:ul
-                (loop for item in list
-                      do (:li (format nil &amp;quot;Item number ~A&amp;quot;
-                                      item))))))
-&amp;quot;&amp;lt;ul&amp;gt;
- &amp;lt;li&amp;gt;Item number 1
- &amp;lt;li&amp;gt;Item number 2
- &amp;lt;li&amp;gt;Item number 3
- &amp;lt;li&amp;gt;Item number 4
- &amp;lt;li&amp;gt;Item number 5
-&amp;lt;/ul&amp;gt;&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We don&apos;t have to use wrappers like &lt;code&gt;cl-who:htm&lt;/code&gt; and &lt;code&gt;cl-who:esc&lt;/code&gt; here.&lt;/p&gt;
-&lt;p&gt;Finally, let&apos;s compare Spinneret&apos;s performance with &lt;code&gt;Zenekindarl&lt;/code&gt;, reviewed yesterday:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (declaim (optimize (debug 1) (speed 3)))
-
-POFTHEDAY&amp;gt; (defun render (title items)
-             (spinneret:with-html-string
-               (:h1 title
-                    (:ul
-                     (loop for item in items
-                           do (:li item))))))
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (render &amp;quot;Foo Bar&amp;quot;
-                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  4.939 seconds of real time
-  4.950155 seconds of total run time (4.891959 user, 0.058196 system)
-  [ Run times consist of 0.078 seconds GC time, and 4.873 seconds non-GC time. ]
-  100.22% CPU
-  10,905,720,340 processor cycles
-  991,997,936 bytes consed
-
-POFTHEDAY&amp;gt; (time
-            (loop with *print-pretty* = nil
-                  repeat 1000000
-                  do (render &amp;quot;Foo Bar&amp;quot;
-                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  1.079 seconds of real time
-  1.081015 seconds of total run time (1.072325 user, 0.008690 system)
-  [ Run times consist of 0.043 seconds GC time, and 1.039 seconds non-GC time. ]
-  100.19% CPU
-  2,381,893,880 processor cycles
-  368,001,648 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Sadly, but in this test &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;Zenekindarl&lt;/code&gt; and &lt;code&gt;CL-WHO&lt;/code&gt;. Probably that is because it conses more memory?&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://twitter.com/ruricolist&quot;&gt;@ruricolist&lt;/a&gt;, do you have an idea why does &lt;code&gt;Spinneret&lt;/code&gt; 3 times slower than &lt;code&gt;CL-WHO&lt;/code&gt;?&lt;/p&gt;
-&lt;p&gt;Paul &lt;a href=&quot;https://twitter.com/ruricolist/status/1306304089685458950&quot;&gt;suggested&lt;/a&gt; to turn off pretty printing for &lt;code&gt;Spinneret&lt;/code&gt;. And with this setting it outperforms &lt;code&gt;CL-WHO&lt;/code&gt;. Added both results to the chart.&lt;/p&gt;
-</description>
-            <pubDate>Mon, 14 Sep 2020 21:24:57 +0300</pubDate>
-        </item>
-        <item>
-            <title>zenekindarl</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html</link>
-            <description>&lt;p&gt;This is a template engine which is able to compile templates into the fast code.&lt;/p&gt;
-&lt;p&gt;Here is a quick example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (zenekindarl:compile-template-string
-            :string &amp;quot;Hello {{var name}}!&amp;quot;)
-#&amp;lt;FUNCTION (LAMBDA (&amp;amp;KEY :NAME)) {231D16FB}&amp;gt;
-
-POFTHEDAY&amp;gt; (funcall * :name &amp;quot;Bob&amp;quot;)
-&amp;quot;Hello Bob!&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Interesting fact – it is named after a &lt;a href=&quot;https://ultra.fandom.com/wiki/Zenekindarl_people&quot;&gt;race of ancient people&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;When searching this information, I&apos;ve also found &lt;a href=&quot;https://kaylingkaiju.blogspot.com/2016/09/dexador.html?m=0&quot;&gt;this page&lt;/a&gt; about the Dexador which is a dragon of Zenekindarl people and also a CL HTTP library :)&lt;/p&gt;
-&lt;p&gt;Documentation says, this library is faster than Python&apos;s &lt;a href=&quot;https://jinja.palletsprojects.com/en/2.11.x/&quot;&gt;Jinja2&lt;/a&gt; which known for it&apos;s ability to compile templates into the bytecode.&lt;/p&gt;
-&lt;p&gt;Let&apos;s make our own comparison! We&apos;ll do the test more complex and extend it to the &lt;code&gt;cl-who&lt;/code&gt;. Later I&apos;ll add to this comparison other template engines during the writing their review.&lt;/p&gt;
-&lt;p&gt;Let&apos;s start with the baseline test for Jinja2:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;python&apos;&gt;Python 3.7.7 (default, Mar 10 2020, 15:43:33)
-Type &amp;#039;copyright&amp;#039;, &amp;#039;credits&amp;#039; or &amp;#039;license&amp;#039; for more information
-IPython 7.8.0 -- An enhanced Interactive Python. Type &amp;#039;?&amp;#039; for help.
-
-In [1]: from jinja2 import Template
-
-In [2]: template = Template(&amp;quot;&amp;quot;&amp;quot;
-   ...: &amp;lt;h1&amp;gt;{{ title }}&amp;lt;/h1&amp;gt;
-   ...: &amp;lt;ul&amp;gt;
-   ...: {% for item in items %}
-   ...:   &amp;lt;li&amp;gt;{{ item }}&amp;lt;/li&amp;gt;
-   ...: {% endfor %}
-   ...: &amp;lt;/ul&amp;gt;
-   ...: &amp;quot;&amp;quot;&amp;quot;)
-
-In [3]: %timeit template.render(title=&amp;#039;Foo Bar&amp;#039;, items=[&amp;#039;One&amp;#039;, &amp;#039;Two&amp;#039;, &amp;#039;Tree&amp;#039;])
-6.18 &amp;#xB5;s &amp;#xB1; 37 ns per loop (mean &amp;#xB1; std. dev. of 7 runs, 100000 loops each)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you see, each call to the &lt;code&gt;render&lt;/code&gt; takes 6.18 microseconds.&lt;/p&gt;
-&lt;p&gt;Now we&apos;ll implement it in &lt;code&gt;zenekindarl&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((tmpl (zenekindarl:compile-template-string
-                        :string &amp;quot;
-&amp;lt;h1&amp;gt;{{ var title }}&amp;lt;/h1&amp;gt;
-&amp;lt;ul&amp;gt;
-{{ loop items as item }}
-  &amp;lt;li&amp;gt;{{ var item }}&amp;lt;/li&amp;gt;
-{{ endloop }}
-&amp;lt;/ul&amp;gt;
-&amp;quot;)))
-             (time
-              (loop repeat 1000000
-                    do (funcall tmpl
-                                :title &amp;quot;Foo Bar&amp;quot;
-                                :items &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;)))))
-Evaluation took:
-  1.538 seconds of real time
-  1.546164 seconds of total run time (1.525024 user, 0.021140 system)
-  [ Run times consist of 0.173 seconds GC time, and 1.374 seconds non-GC time. ]
-  100.52% CPU
-  3,395,746,202 processor cycles
-  911,998,848 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hmm, with &lt;code&gt;zenekindarl&lt;/code&gt; it takes 1.54 microseconds. This is only 4 times faster, not 25 times like promised by the documentation.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s compare it with the hand-written &lt;code&gt;cl-who&lt;/code&gt; code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render (title items)
-             (cl-who:with-html-output-to-string (s)
-               (:h1 (cl-who:esc title)
-                    (:ul
-                     (loop for item in items
-                           do (cl-who:htm
-                               (:li (cl-who:esc item))))))))
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (render &amp;quot;Foo Bar&amp;quot;
-                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  1.644 seconds of real time
-  1.646934 seconds of total run time (1.619237 user, 0.027697 system)
-  [ Run times consist of 0.130 seconds GC time, and 1.517 seconds non-GC time. ]
-  100.18% CPU
-  3,630,166,196 processor cycles
-  687,990,384 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, we&apos;ve received almost the same performance - 1.64 microseconds!&lt;/p&gt;
-&lt;p&gt;This library seems interesting to me. But lack of documentation does not allow to understand its limits. Probably it is very extensible. Hope, &lt;a href=&quot;https://twitter.com/blackenedgold&quot;&gt;@blackenedgold&lt;/a&gt; will write more documentation or a tutorial someday.&lt;/p&gt;
-&lt;h2&gt;Performance results&lt;/h2&gt;&lt;p&gt;This code will render us a chart:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Colors are taken from
-;; https://www.html-color-names.com/
-POFTHEDAY&amp;gt; (let* ((data &amp;#039;((&amp;quot;Jinja2 (Python)&amp;quot; 6.18 &amp;quot;Tomato&amp;quot;)
-                          (&amp;quot;zenekindarl&amp;quot; 1.54 &amp;quot;MediumSeaGreen&amp;quot;)
-                          (&amp;quot;cl-who&amp;quot; 1.64 &amp;quot;RoyalBlue&amp;quot;)
-                          (&amp;quot;spinneret (pretty)&amp;quot; 4.94 &amp;quot;SandyBrown&amp;quot;)
-                          (&amp;quot;spinneret&amp;quot; 1.08 &amp;quot;SandyBrown&amp;quot;)
-                          (&amp;quot;cl-mustache&amp;quot; 5.21 &amp;quot;DeepPink&amp;quot;)
-                          (&amp;quot;print-html&amp;quot; 3.26 &amp;quot;GreenYellow&amp;quot;)
-                          (&amp;quot;djula&amp;quot; 4.48 &amp;quot;Gold&amp;quot;)
-                          (&amp;quot;cl-emb&amp;quot; 1.44 &amp;quot;MediumSlateBlue&amp;quot;)
-                          (&amp;quot;eco&amp;quot; 2.14 &amp;quot;Crimson&amp;quot;)
-                          (&amp;quot;handwritten&amp;quot; 0.93 &amp;quot;DarkOrange&amp;quot;)))
-                  (data (sort data #&amp;#039;&amp;gt; :key #&amp;#039;second))
-                  (baseline (second (first data)))
-                  (base-width 600))
-             (cl-who:with-html-output-to-string (s)
-               (loop for (name value color) in data
-                     for width = (* (/ base-width baseline)
-                                    value)
-                     for style = (format nil &amp;quot;width: ~Apx; background-color: ~A; color: white; padding: 0.5em; display: inline-block;&amp;quot;
-                                         width
-                                         color)
-                     do (cl-who:htm
-                         (:div :style &amp;quot;margin-top: 1em;&amp;quot;
-                          (:span :style style
-                                      (cl-who:esc name))
-                          &amp;quot; &amp;#x2013; &amp;quot;
-                          (:span (cl-who:esc (format nil &amp;quot;~A &amp;#xB5;s&amp;quot; value))))))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This test was conducted on Macbook 2,2 GHz 6-Core Intel Core i7, with Python 3.7.7 and SBCL 2.0.8:&lt;/p&gt;
-&lt;p&gt;Shorter bar is better - it shows the library is faster:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: Tomato; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2 (Python)&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: DeepPink; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret (pretty)&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 434.95148px; background-color: Gold; color: white; padding: 0.5em; display: inline-block;&apos;&gt;djula&lt;/span&gt; – &lt;span&gt;4.48 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 316.50485px; background-color: GreenYellow; color: white; padding: 0.5em; display: inline-block;&apos;&gt;print-html&lt;/span&gt; – &lt;span&gt;3.26 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 207.767px; background-color: Crimson; color: white; padding: 0.5em; display: inline-block;&apos;&gt;eco&lt;/span&gt; – &lt;span&gt;2.14 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: RoyalBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: MediumSeaGreen; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 139.80583px; background-color: MediumSlateBlue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-emb&lt;/span&gt; – &lt;span&gt;1.44 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 104.85438px; background-color: SandyBrown; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;1.08 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 90.29127px; background-color: DarkOrange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;handwritten&lt;/span&gt; – &lt;span&gt;0.93 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;h2&gt;Update from 2020-09-14&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;Spinneret&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0189-spinneret.html&quot;&gt;the post #0189&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-15&lt;/h2&gt;&lt;p&gt;Performance results for &lt;code&gt;cl-mustache&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt; were added to the chart. Code is in &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html&quot;&gt;the post #0190&lt;/a&gt; and &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/04/0049-print-html.html&quot;&gt;post #0049&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-16&lt;/h2&gt;&lt;p&gt;Added performance results for handwritten HTML generator and the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html&quot;&gt;djula&lt;/a&gt; library. Also added the result of calling &lt;code&gt;Spinneret&lt;/code&gt; without pretty printing.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-17&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html&quot;&gt;cl-emb&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;Update from 2020-09-18&lt;/h2&gt;&lt;p&gt;Added performance results for &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html&quot;&gt;eco&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Sun, 13 Sep 2020 23:06:17 +0300</pubDate>
         </item>
     </channel>
 </rss>

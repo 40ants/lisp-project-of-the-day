@@ -1267,6 +1267,7 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/oyvinht/cl-earley-parser natural language parser
   (suggested by Mark David)
 - lsx - embeddable HTML templating by Fukamachi
+- [[https://github.com/GrammaTech/trace-db][trace-db]] by GrammaTech
 
 
 * Thanks
