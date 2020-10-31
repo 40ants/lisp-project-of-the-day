@@ -1,8 +1,8 @@
 * arrows :utility:data_structures:
 :PROPERTIES:
-:Documentation: :|
+:Documentation: :)
 :Docstrings: :)
-:Tests:    :(
+:Tests:    :)
 :Examples: :)
 :RepositoryActivity: :|
 :CI:       :(
