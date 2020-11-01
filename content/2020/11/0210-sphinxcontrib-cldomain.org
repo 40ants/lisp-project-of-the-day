@@ -1,0 +1,49 @@
+* sphinxcontrib-cldomain :documentation:
+:PROPERTIES:
+:Documentation: :|
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :|
+:END:
+
+This is an addon to the [[https://www.sphinx-doc.org/en/master/][Sphinx]] documentation system which allows to use
+information about Common Lisp packages in the documentation.
+
+Initially, Sphinx was created for Python's documentation and now it is
+widely used not only for python libraries but also for many other
+languages.
+
+Sphinx uses reStructured text markup language which is extensible. You
+can write you own extensions in Python to introduce new building blocks,
+called "roles".
+
+sphinxcontrib-cldomain contains of two parts. The first part is a python
+extension to the Sphinx which adds an ability to render documentation
+for CL functions, methods and classes. The second - a command line
+docstring extractor, written in CL.
+
+Initially cldomain was created by Russell Sim, but at some moment I've
+[[https://github.com/40ants/sphinxcontrib-cldomain][forked]] the repository to port it to the newer Sphinx, Python3 and
+Roswell.
+
+The most cool feature of the ~cldomain~ is its ability to mix handwritten
+documentation with docstring. The second - cross-referencing. You can
+link between different docstrings and chapters of the documentation.
+
+Today I will not show you any code snippets. Instead, I've created an
+example respository with a simple Common Lisp system and documentation:
+
+https://cl-doc-systems.github.io/sphinxcontrib-cldomain/
+
+It also includes a GitHub workflow to update the documentation on push
+to the main branch.
+
+The main thing I dislike in Sphinx and cldomain is the Python :(
+Other pros and cons are listed here:
+
+https://cl-doc-systems.github.io/sphinxcontrib-cldomain/
+
+In the next few posts, I'll review a few other documentation tools for
+Common Lisp and try to figure out if they can replace Sphinx for me.

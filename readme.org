@@ -5,6 +5,9 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
+** November
+- 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]]
+
 ** October
 - 02 October - [[content/2020/10/0199-dynamic-mixins.org][dynamic-mixins]] ([[https://twitter.com/svetlyak40wt/status/1312097719616516096][twitter]])
 - 05 October - [[content/2020/10/0200-trivial-thumbnail.org][trivial-thumbnail]] ([[https://twitter.com/svetlyak40wt/status/1313240553904115714][twitter]])
