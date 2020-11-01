@@ -6,6 +6,24 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>sphinxcontrib-cldomain</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/11/0210-sphinxcontrib-cldomain.html</link>
+            <description>&lt;p&gt;This is an add-on to the &lt;a href=&quot;https://www.sphinx-doc.org/en/master/&quot;&gt;Sphinx&lt;/a&gt; documentation system which allows using of information about Common Lisp packages in the documentation.&lt;/p&gt;
+&lt;p&gt;Initially, Sphinx was created for Python&apos;s documentation and now it is widely used not only for python libraries but also for many other languages.&lt;/p&gt;
+&lt;p&gt;Sphinx uses reStructured text markup language which is extensible. You can write your own extensions in Python to introduce new building blocks, called &quot;roles&quot;.&lt;/p&gt;
+&lt;p&gt;sphinxcontrib-cldomain consists of two parts. The first part is a python extension to the Sphinx which adds an ability to render documentation for CL functions, methods and classes. The second - a command-line docstring extractor, written in CL.&lt;/p&gt;
+&lt;p&gt;Initially, cldomain was created by Russell Sim, but at some moment I&apos;ve &lt;a href=&quot;https://github.com/40ants/sphinxcontrib-cldomain&quot;&gt;forked&lt;/a&gt; the repository to port it to the newer Sphinx, Python3 and Roswell.&lt;/p&gt;
+&lt;p&gt;The coolest feature of the &lt;code&gt;cldomain&lt;/code&gt; is its ability to mix handwritten documentation with docstring. The second - cross-referencing. You can link between different docstrings and chapters of the documentation.&lt;/p&gt;
+&lt;p&gt;Today I will not show you any code snippets. Instead, I&apos;ve created an example repository with a simple Common Lisp system and documentation:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/sphinxcontrib-cldomain/&quot;&gt;https://cl-doc-systems.github.io/sphinxcontrib-cldomain/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This example includes a GitHub workflow to update the documentation on a push to the main branch and can be used as a skeleton for you own libraries.&lt;/p&gt;
+&lt;p&gt;The main thing I dislike in Sphinx and cldomain is the Python :( Other cons are the complexity of the markup and toolchain setup.&lt;/p&gt;
+&lt;p&gt;In the next few posts, I&apos;ll review a few other documentation tools for Common Lisp and try to figure out if they can replace Sphinx for me.&lt;/p&gt;
+&lt;p&gt;I think we as CL community must concentrate our efforts to improve the documentation level of our software and choosing the best setup which can be recommended for everybody is the key.&lt;/p&gt;
+</description>
+            <pubDate>Sun, 01 Nov 2020 03:43:43 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-pdf</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/10/0209-cl-pdf.html</link>
             <description>&lt;p&gt;This is the library for PDF generation and parsing.&lt;/p&gt;
@@ -1656,58 +1674,6 @@ Evaluation took:
 &lt;p&gt;What should I use instead?&lt;/p&gt;
 </description>
             <pubDate>Wed, 16 Sep 2020 22:50:21 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-mustache</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0190-cl-mustache.html</link>
-            <description>&lt;p&gt;I decided to continue reviewing the template engines. Our today&apos;s library implements Mustache syntax, which also implemented for many other languages.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;Mustache&apos;s&lt;/code&gt; syntax is very simple and does not allow to write complex application logic. You will find some examples in this documentation:&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://mustache.github.io/mustache.5.html&quot;&gt;http://mustache.github.io/mustache.5.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Let&apos;s try to rewrite our performance test from the &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;zenekindarl post&lt;/a&gt; to &lt;code&gt;Mustache&lt;/code&gt;!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (mustache:define render
-             &amp;quot;
-&amp;lt;title&amp;gt;{{title}}&amp;lt;/title&amp;gt;
-&amp;lt;ul&amp;gt;
-{{#items}}&amp;lt;li&amp;gt;{{value}}&amp;lt;/li&amp;gt;{{/items}}
-&amp;lt;/ul&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (with-output-to-string (out)
-             (render &amp;#039;((:title . &amp;quot;Foo Bar&amp;quot;)
-                       (:items .
-                        (((:value . &amp;quot;One&amp;quot;))
-                         ((:value . &amp;quot;Two&amp;quot;))
-                         ((:value . &amp;quot;Three&amp;quot;)))))
-                     out))
-&amp;quot;
-&amp;lt;title&amp;gt;Foo Bar&amp;lt;/title&amp;gt;
-&amp;lt;ul&amp;gt;
-&amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;
-
-POFTHEDAY&amp;gt; (time
-            (loop with context = &amp;#039;((:title . &amp;quot;Foo Bar&amp;quot;)
-                                   (:items .
-                                    (((:value . &amp;quot;One&amp;quot;))
-                                     ((:value . &amp;quot;Two&amp;quot;))
-                                     ((:value . &amp;quot;Three&amp;quot;)))))
-                  repeat 1000000
-                  do (with-output-to-string (out)
-                       (render context out))))
-Evaluation took:
-  5.213 seconds of real time
-  5.252826 seconds of total run time (5.155530 user, 0.097296 system)
-  [ Run times consist of 0.445 seconds GC time, and 4.808 seconds non-GC time. ]
-  100.77% CPU
-  11,510,317,038 processor cycles
-  4,319,993,136 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So, the results are slightly slower than &lt;code&gt;Spinneret&lt;/code&gt; is almost as slow as Python&apos;s &lt;code&gt;Jinja2&lt;/code&gt;:&lt;/p&gt;
-&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 600.0px; background-color: red; color: white; padding: 0.5em; display: inline-block;&apos;&gt;Jinja2&lt;/span&gt; – &lt;span&gt;6.18 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 149.51456px; background-color: green; color: white; padding: 0.5em; display: inline-block;&apos;&gt;zenekindarl&lt;/span&gt; – &lt;span&gt;1.54 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 159.2233px; background-color: blue; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-who&lt;/span&gt; – &lt;span&gt;1.64 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 479.61166px; background-color: orange; color: white; padding: 0.5em; display: inline-block;&apos;&gt;spinneret&lt;/span&gt; – &lt;span&gt;4.94 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;div style=&apos;margin-top: 1em;&apos;&gt;&lt;span style=&apos;width: 505.82526px; background-color: cyan; color: white; padding: 0.5em; display: inline-block;&apos;&gt;cl-mustache&lt;/span&gt; – &lt;span&gt;5.21 &amp;#xB5;s&lt;/span&gt;&lt;/div&gt;&lt;p&gt;That is because cl-mustache&apos;s &lt;code&gt;compile-template&lt;/code&gt; function does not do the real compilation.&lt;/p&gt;
-&lt;p&gt;It only parses the template and returns a lambda which iterates and calls generic functions in runtime during rendering step.&lt;/p&gt;
-&lt;p&gt;To conclude, use &lt;code&gt;cl-mustache&lt;/code&gt; if you really want to limit the amount of logic on the frontend.&lt;/p&gt;
-&lt;p&gt;If you have some other template engines in mind, please, leave comments and I&apos;ll make a review.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 15 Sep 2020 22:36:01 +0300</pubDate>
         </item>
     </channel>
 </rss>
