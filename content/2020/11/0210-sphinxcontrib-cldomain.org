@@ -47,3 +47,7 @@ https://cl-doc-systems.github.io/sphinxcontrib-cldomain/
 
 In the next few posts, I'll review a few other documentation tools for
 Common Lisp and try to figure out if they can replace Sphinx for me.
+
+I think we as CL community must concentrate our efforts to improve the
+documentation level of our software. And choosing the best setup which
+can be recommended for everybody is the key.
