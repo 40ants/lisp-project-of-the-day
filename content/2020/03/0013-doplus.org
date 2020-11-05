@@ -104,8 +104,13 @@ NIL
 
 #+END_SRC
 
-Manual lives on the wiki:
+Repository lives on the GitHub:
+https://github.com/alessiostalla/doplus
+
+Previosly it was hosted on the BitBucked and has some docs on the Wiki:
+
 https://bitbucket.org/alessiostalla/doplus/wiki/Home
 
+But now it is not available anymore.
 
 See also :iterate, :for and :series.
