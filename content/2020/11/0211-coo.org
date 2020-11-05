@@ -1,0 +1,39 @@
+* coo :documentation:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :(
+:RepositoryActivity: :)
+:CI:       :)
+:END:
+
+This system is not in the Quicklisp yet. You can install it from the
+[[https://github.com/fisxoj/coo][GitHub]] or [[https://ultralisp.org][Ultralisp.org]].
+
+I continue to create a ready to use project skeletons and here is one
+which uses Coo:
+
+https://github.com/cl-doc-systems/coo/
+
+Here is how it's rendered documentation looks like. Read this docs to
+learn more about pros and cons of this documentation system:
+
+https://cl-doc-systems.github.io/coo/
+
+Here I want to highlight only a few moments.
+
+The system has a huge potential for improvement. There are some GitHub
+issues to work on. I've already sent my pull-request to add support of
+ASDF package inferred systems:
+
+https://github.com/fisxoj/coo/pull/24
+
+The most cool two cool features are:
+
+- Coo uses well known markup format - reStructured text.
+- It can be extended in Common Lisp.
+
+Right now Coo is good for documenting small libraries which don't need
+for abstract chapters of documentation, but I see how it can be extended
+to render a handwritten docs along with generated from docstrings!
