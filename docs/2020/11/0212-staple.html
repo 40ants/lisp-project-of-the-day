@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>staple
+    </title>
+    <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-162105820-1');
+  </script>
+  
+    <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
+    <script src='../../highlight/highlight.pack.js'></script>
+    <script>hljs.initHighlightingOnLoad();
+    </script>
+    <style>
+
+.tags .label {
+    margin-right: 1em;
+}
+.posts tr {
+    line-height: 1.7em;
+}
+.posts tr td.number {
+    font-weight: bold;
+    padding-right: 0.7em;
+}
+.posts tr td.tags {
+    padding-left: 0.7em;
+}
+h1 .tags {
+    font-size: 1.2rem;
+    position: relative;
+    left: 1.5rem;
+    top: -1.5rem;
+}
+.tags a {
+    text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>staple</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>staple<span class='tags'><a href='../../tags/documentation.html'><span class='label label-default'>documentation</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   &#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F97A;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>&#x1F600;</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      &#x1F600;</td></tr></table><p>Today we'll look at <a href="https://twitter.com/Shinmera">@Shinmera</a>'s documentation system called <a href="https://shinmera.github.io/staple/">Staple</a>.</p>
+<p>As always, I've created <a href="https://github.com/cl-doc-systems/staple">the skeleton project</a> for you.</p>
+<p>But I must warn you. This skeleton is almost unusable, because of a few problems.</p>
+<p>The first problem is that I wasn't able to make markdown work for the docstrings. When I do setup like suggests Staple documentation, it does not see all package of my system.</p>
+<p>The second problem is that for some reason it works badly with my simple example system. It shows on the index page multiple equal links to the Example system.</p>
+<p>Probably both problems are related to the ASDF system type. I'm using package inferred systems.</p>
+<p>Also, the Staple's error messages a complete mess. It is not possible to figure out the origin of a warning. The output looks like that:</p>
+<pre><code class='text'>Scan was called 76 times.
+Warning: could not find hyperspec map file. Adjust the path at the top of clhs-lookup.lisp to get links to the HyperSpec.
+Scan was called 384 times.
+Scan was called 116 times.
+Scan was called 287 times.
+Scan was called 94 times.
+Scan was called 2005 times.
+Scan was called 162 times.
+Scan was called 162 times.
+Scan was called 186 times.
+Scan was called 397 times.
+Scan was called 221 times.
+Scan was called 502 times.
+Scan was called 134 times.
+Scan was called 130 times.
+Scan was called 395 times.
+Scan was called 1453 times.
+WARN: Error during code markup: Invalid function name: STR:DOWNCASE
+WARN: Error during code markup: Symbol name must not end with a package marker (the : character).
+Scan was called 2782 times.
+WARN: Error during code markup: Unquote not inside backquote.
+Scan was called 95 times.
+Scan was called 2019 times.
+Scan was called 4518 times.
+Scan was called 2670 times.
+Scan was called 2209 times.
+WARN: Error during code markup: A token consisting solely of multiple dots is illegal.
+WARN: Error during code markup: Invalid function name: DOCPARSER:PARSE
+WARN: Error during code markup: The character &lt; is not a valid sub-character for the # dispatch macro.
+WARN: Error during code markup: The character &lt; is not a valid sub-character for the # dispatch macro.
+WARN: Error during code markup: Symbol name must not end with a package marker (the : character).
+WARN: Error during code markup: Invalid function name: 4
+WARN: Error during code markup: Invalid function name: STAPLE-SERVER:START
+WARN: Error during code markup: Invalid function name: STAPLE-SERVER:STOP
+WARN: Error during code markup: Invalid function name: LQUERY-TEST:RUN
+WARN: Error during code markup: Invalid function name: 1
+WARN: Error during code markup: Symbol name without any escapes must not consist solely of package markers (: characters).
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: While reading backquote, expected an object when input ended.
+WARN: Error during code markup: While reading backquote, expected an object when input ended.
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: Symbol name without any escapes must not consist solely of package markers (: characters).
+WARN: Error during code markup: If a symbol token contains two package markers, they must be adjacent as in package::symbol.
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: While reading symbol, expected the character | when input ended.</code></pre><p>Another hard thing is customization. Seems Staple was built for maximum flexibility and sometimes it is not obvious how to do such simple thing like adding yet another markdown page to the output.</p>
+<p>Now to the good news :)</p>
+<p>As I said Staple is very flexible. It uses CLOS and generic functions almost everywhere and you can extend it in a number ways. For example, you can add support for your own markup language.</p>
+<p>There is also a unique feature: Staple automatically links every function documentation to its source on the GitHub:</p>
+<p><img style="max-width: 100%" src="../../media/0212/gh-link.png"/></p>
+<p>Documentation for <a href="https://twitter.com/Shinmera">@Shinmera</a>'s libraries looks really good. Take look to the Radiance, for example:</p>
+<p><a href="https://shirakumo.github.io/radiance/">https://shirakumo.github.io/radiance/</a></p>
+<p>Probably Staple just needs more polishing to become a great documentation system for Common Lisp libraries?</p>
+<p>For now <a href="https://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html">Coo</a> is my favourite. But in the next week or two, we'll look at a few other Common Lisp documentation systems.</p>
+<h1>Update<span class='tags'></span></h1><p>Seems documentation building works quite unstable and sometimes does not build some pages where is running on the CI :(</p>
+
+<script src="https://utteranc.es/client.js"
+        repo="40ants/lisp-project-of-the-day"
+        issue-term="title"
+        label="comments"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+</div></div><div><hr /><center><p>Brought to you by 40Ants under&nbsp;<a rel='license' href='http://creativecommons.org/licenses/by-sa/4.0/'><img alt='Creative Commons License' style='border-width:0' src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png' /></a></p></center></div></div>
+  </body>
+</html>

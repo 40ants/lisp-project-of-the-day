@@ -10,9 +10,9 @@
 
 Today we'll look at [[https://twitter.com/Shinmera][@Shinmera]]'s documentation system called [[https://shinmera.github.io/staple/][Staple]].
 
-Is always, I've created a skeleton project for you:
+As always, I've created [[https://github.com/cl-doc-systems/staple][the skeleton project]] for you.
 
-But must to warn you. This skeleton is almost unusable, because of a
+But I must warn you. This skeleton is almost unusable, because of a
 few problems.
 
 The first problem is that I wasn't able to make markdown work for the
@@ -20,14 +20,14 @@ docstrings. When I do setup like suggests Staple documentation, it does
 not see all package of my system.
 
 The second problem is that for some reason it works badly with my simple
-example system. It shows on the index page a multiple equal links to the
+example system. It shows on the index page multiple equal links to the
 Example system.
 
 Probably both problems are related to the ASDF system type. I'm using
 package inferred systems.
 
-Also, the Staple's error messages are complete mess. It is not possible
-to figure out the origin of a warning. The output is looks like that:
+Also, the Staple's error messages a complete mess. It is not possible
+to figure out the origin of a warning. The output looks like that:
 
 #+begin_src text
 
@@ -102,9 +102,23 @@ As I said Staple is very flexible. It uses CLOS and generic functions
 almost everywhere and you can extend it in a number ways. For example,
 you can add support for your own markup language.
 
-Documentation for [[https://twitter.com/Shinmera][@Shinmera]]'s libraries looks really good. Probably
-Staple just needs more polishing to became a gread documentation system
-for Common Lisp libraries?
+There is also a unique feature: Staple automatically links every
+function documentation to its source on the GitHub:
 
-For now [[https://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html][Coo]] is my favorite. But in the next week or two we'll look at a
+[[../../media/0212/gh-link.png]]
+
+Documentation for [[https://twitter.com/Shinmera][@Shinmera]]'s libraries looks really good. Take look to
+the Radiance, for example:
+
+https://shirakumo.github.io/radiance/
+
+Probably Staple just needs more polishing to become a great
+documentation system for Common Lisp libraries?
+
+For now [[https://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html][Coo]] is my favourite. But in the next week or two, we'll look at a
 few other Common Lisp documentation systems.
+
+* Update
+
+Seems documentation building works quite unstable and sometimes does not
+build some pages where is running on the CI :(

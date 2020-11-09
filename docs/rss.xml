@@ -6,6 +6,86 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>staple</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/11/0212-staple.html</link>
+            <description>&lt;p&gt;Today we&apos;ll look at &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s documentation system called &lt;a href=&quot;https://shinmera.github.io/staple/&quot;&gt;Staple&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;As always, I&apos;ve created &lt;a href=&quot;https://github.com/cl-doc-systems/staple&quot;&gt;the skeleton project&lt;/a&gt; for you.&lt;/p&gt;
+&lt;p&gt;But I must warn you. This skeleton is almost unusable, because of a few problems.&lt;/p&gt;
+&lt;p&gt;The first problem is that I wasn&apos;t able to make markdown work for the docstrings. When I do setup like suggests Staple documentation, it does not see all package of my system.&lt;/p&gt;
+&lt;p&gt;The second problem is that for some reason it works badly with my simple example system. It shows on the index page multiple equal links to the Example system.&lt;/p&gt;
+&lt;p&gt;Probably both problems are related to the ASDF system type. I&apos;m using package inferred systems.&lt;/p&gt;
+&lt;p&gt;Also, the Staple&apos;s error messages a complete mess. It is not possible to figure out the origin of a warning. The output looks like that:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&apos;text&apos;&gt;Scan was called 76 times.
+Warning: could not find hyperspec map file. Adjust the path at the top of clhs-lookup.lisp to get links to the HyperSpec.
+Scan was called 384 times.
+Scan was called 116 times.
+Scan was called 287 times.
+Scan was called 94 times.
+Scan was called 2005 times.
+Scan was called 162 times.
+Scan was called 162 times.
+Scan was called 186 times.
+Scan was called 397 times.
+Scan was called 221 times.
+Scan was called 502 times.
+Scan was called 134 times.
+Scan was called 130 times.
+Scan was called 395 times.
+Scan was called 1453 times.
+WARN: Error during code markup: Invalid function name: STR:DOWNCASE
+WARN: Error during code markup: Symbol name must not end with a package marker (the : character).
+Scan was called 2782 times.
+WARN: Error during code markup: Unquote not inside backquote.
+Scan was called 95 times.
+Scan was called 2019 times.
+Scan was called 4518 times.
+Scan was called 2670 times.
+Scan was called 2209 times.
+WARN: Error during code markup: A token consisting solely of multiple dots is illegal.
+WARN: Error during code markup: Invalid function name: DOCPARSER:PARSE
+WARN: Error during code markup: The character &amp;lt; is not a valid sub-character for the # dispatch macro.
+WARN: Error during code markup: The character &amp;lt; is not a valid sub-character for the # dispatch macro.
+WARN: Error during code markup: Symbol name must not end with a package marker (the : character).
+WARN: Error during code markup: Invalid function name: 4
+WARN: Error during code markup: Invalid function name: STAPLE-SERVER:START
+WARN: Error during code markup: Invalid function name: STAPLE-SERVER:STOP
+WARN: Error during code markup: Invalid function name: LQUERY-TEST:RUN
+WARN: Error during code markup: Invalid function name: 1
+WARN: Error during code markup: Symbol name without any escapes must not consist solely of package markers (: characters).
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: While reading backquote, expected an object when input ended.
+WARN: Error during code markup: While reading backquote, expected an object when input ended.
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: Symbol name without any escapes must not consist solely of package markers (: characters).
+WARN: Error during code markup: If a symbol token contains two package markers, they must be adjacent as in package::symbol.
+WARN: Error during code markup: The value
+                                  NIL
+                                is not of type
+                                  CHARACTER
+WARN: Error during code markup: While reading symbol, expected the character | when input ended.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Another hard thing is customization. Seems Staple was built for maximum flexibility and sometimes it is not obvious how to do such simple thing like adding yet another markdown page to the output.&lt;/p&gt;
+&lt;p&gt;Now to the good news :)&lt;/p&gt;
+&lt;p&gt;As I said Staple is very flexible. It uses CLOS and generic functions almost everywhere and you can extend it in a number ways. For example, you can add support for your own markup language.&lt;/p&gt;
+&lt;p&gt;There is also a unique feature: Staple automatically links every function documentation to its source on the GitHub:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0212/gh-link.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Documentation for &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s libraries looks really good. Take look to the Radiance, for example:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://shirakumo.github.io/radiance/&quot;&gt;https://shirakumo.github.io/radiance/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Probably Staple just needs more polishing to become a great documentation system for Common Lisp libraries?&lt;/p&gt;
+&lt;p&gt;For now &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html&quot;&gt;Coo&lt;/a&gt; is my favourite. But in the next week or two, we&apos;ll look at a few other Common Lisp documentation systems.&lt;/p&gt;
+&lt;p&gt;Seems documentation building works quite unstable and sometimes does not build some pages where is running on the CI :(&lt;/p&gt;
+</description>
+            <pubDate>Tue, 10 Nov 2020 01:10:25 +0300</pubDate>
+        </item>
+        <item>
             <title>coo</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html</link>
             <description>&lt;p&gt;This system is not in the Quicklisp yet. You can install it from the &lt;a href=&quot;https://github.com/fisxoj/coo&quot;&gt;GitHub&lt;/a&gt; or &lt;a href=&quot;https://ultralisp.org&quot;&gt;Ultralisp.org&lt;/a&gt;.&lt;/p&gt;
@@ -1459,100 +1539,6 @@ Evaluation took:
 &lt;p&gt;The chart with all html template engines performance can be found &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 </description>
             <pubDate>Fri, 18 Sep 2020 23:52:26 +0300</pubDate>
-        </item>
-        <item>
-            <title>cl-emb</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html</link>
-            <description>&lt;p&gt;This is an interesting templating library. The most interesting features are:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;named template pieces can call each other;&lt;/li&gt;&lt;li&gt;debug mode allows to inspect generated code;&lt;/li&gt;&lt;li&gt;different escape methods.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Here is how template functions can be reused:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user&amp;quot;
-            &amp;quot;&amp;lt;a href=\&amp;quot;/users/&amp;lt;% @var nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;% @var name %&amp;gt;&amp;lt;/a&amp;gt;&amp;quot;)
-
-POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;user-list&amp;quot;
-            &amp;quot;
-&amp;lt;ul&amp;gt;
-  &amp;lt;% @loop users %&amp;gt;
-    &amp;lt;li&amp;gt;&amp;lt;% @call user %&amp;gt;&amp;lt;/li&amp;gt;
-  &amp;lt;% @endloop %&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (cl-emb:execute-emb &amp;quot;user-list&amp;quot;
-             :env &amp;#039;(:users
-                    ((:nickname &amp;quot;bob&amp;quot;
-                      :name &amp;quot;Bob Hopkins&amp;quot;)
-                     (:nickname &amp;quot;alice&amp;quot;
-                      :name &amp;quot;Alice Cooker&amp;quot;))))
-&amp;quot;
-&amp;lt;ul&amp;gt;
-  
-    &amp;lt;li&amp;gt;&amp;lt;a href=\&amp;quot;/users/bob\&amp;quot;&amp;gt;Bob Hopkins&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;
-  
-    &amp;lt;li&amp;gt;&amp;lt;a href=\&amp;quot;/users/alice\&amp;quot;&amp;gt;Alice Cooker&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;
-  
-&amp;lt;/ul&amp;gt;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&apos;s see which code was generated for &quot;user-list&quot;. To make this work, we&apos;ll need to set &lt;code&gt;*debug*&lt;/code&gt; variable and recompile the template:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:pprint-emb-function &amp;quot;user-list&amp;quot;)
-
-(LAMBDA
-    (
-     &amp;amp;KEY CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER
-     CL-EMB-INTERN::NAME)
-  (DECLARE (IGNORABLE CL-EMB-INTERN::ENV CL-EMB-INTERN::GENERATOR-MAKER))
-  (LET ((CL-EMB-INTERN::TOPENV CL-EMB-INTERN::ENV)
-        (CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT
-         (IF (TYPEP CL-EMB-INTERN::NAME &amp;#039;PATHNAME)
-             CL-EMB-INTERN::NAME
-             *DEFAULT-PATHNAME-DEFAULTS*)))
-    (DECLARE
-     (IGNORABLE CL-EMB-INTERN::TOPENV CL-EMB-INTERN::TEMPLATE-PATH-DEFAULT))
-    (WITH-OUTPUT-TO-STRING (*STANDARD-OUTPUT*)
-      (PROGN
-       (WRITE-STRING &amp;quot;
-&amp;lt;ul&amp;gt;
-  &amp;quot;)
-       (DOLIST
-           (CL-EMB-INTERN::ENV
-            (CL-EMB::AUTOFUNCALL (CL-EMB::GETF-EMB &amp;quot;users&amp;quot;)))
-         (WRITE-STRING &amp;quot;
-    &amp;lt;li&amp;gt;&amp;quot;)
-         (FORMAT T &amp;quot;~A&amp;quot;
-                 (LET ((CL-EMB:*ESCAPE-TYPE* CL-EMB:*ESCAPE-TYPE*))
-                   (CL-EMB:EXECUTE-EMB &amp;quot;user&amp;quot; :ENV CL-EMB-INTERN::ENV
-                                       :GENERATOR-MAKER
-                                       CL-EMB-INTERN::GENERATOR-MAKER)))
-         (WRITE-STRING &amp;quot;&amp;lt;/li&amp;gt;
-  &amp;quot;))
-       (WRITE-STRING &amp;quot;
-&amp;lt;/ul&amp;gt;
-&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;As you can see, &lt;code&gt;cl-emb&lt;/code&gt; generates a straight forward Lisp code.&lt;/p&gt;
-&lt;p&gt;Now let&apos;s check how fast &lt;code&gt;cl-emb&lt;/code&gt; is and compare it to HTML template engines reviewed in previous days:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (cl-emb:register-emb &amp;quot;render&amp;quot;
-             &amp;quot;
-&amp;lt;title&amp;gt;&amp;lt;% @var title %&amp;gt;&amp;lt;/title&amp;gt;
-&amp;lt;ul&amp;gt;
-&amp;lt;% @loop items %&amp;gt;&amp;lt;li&amp;gt;&amp;lt;% @var value %&amp;gt;&amp;lt;/li&amp;gt;&amp;lt;% @endloop %&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (cl-emb:execute-emb &amp;quot;render&amp;quot;
-                       :env &amp;#039;(:title &amp;quot;Foo Bar&amp;quot;
-                              :items ((:value &amp;quot;One&amp;quot;)
-                                      (:value &amp;quot;Two&amp;quot;)
-                                      (:value &amp;quot;Three&amp;quot;))))))
-Evaluation took:
-  1.436 seconds of real time
-  1.441475 seconds of total run time (1.421158 user, 0.020317 system)
-  [ Run times consist of 0.104 seconds GC time, and 1.338 seconds non-GC time. ]
-  100.35% CPU
-  3,172,183,256 processor cycles
-  767,974,304 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is pretty fast. Slightly slower than &lt;code&gt;Spinneret&lt;/code&gt; but faster than &lt;code&gt;Zenekindarl&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;To learn more about cl-emb&apos;s features, read &lt;a href=&quot;http://quickdocs.org/cl-emb/&quot;&gt;it&apos;s docs&lt;/a&gt;!&lt;/p&gt;
-</description>
-            <pubDate>Thu, 17 Sep 2020 22:47:58 +0300</pubDate>
         </item>
     </channel>
 </rss>

@@ -8,7 +8,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
 - 05 November - [[content/2020/11/0211-coo.org][coo]] ([[https://twitter.com/svetlyak40wt/status/1324475241217884161][twitter]])
-- 09 November - [[content/2020/11/0211-staple.org][staple]]
+- 09 November - [[content/2020/11/0211-staple.org][staple]] ([[https://twitter.com/svetlyak40wt/status/1325926946656628736][twitter]])
 
 ** October
 - 02 October - [[content/2020/10/0199-dynamic-mixins.org][dynamic-mixins]] ([[https://twitter.com/svetlyak40wt/status/1312097719616516096][twitter]])
