@@ -6,6 +6,25 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>coo</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/11/0211-coo.html</link>
+            <description>&lt;p&gt;This system is not in the Quicklisp yet. You can install it from the &lt;a href=&quot;https://github.com/fisxoj/coo&quot;&gt;GitHub&lt;/a&gt; or &lt;a href=&quot;https://ultralisp.org&quot;&gt;Ultralisp.org&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I think to make it a tradition – creating a ready to use project skeletons.&lt;/p&gt;
+&lt;p&gt;Here is one which uses Coo:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cl-doc-systems/coo/&quot;&gt;https://github.com/cl-doc-systems/coo/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here is how it&apos;s rendered documentation looks like.&lt;/p&gt;
+&lt;p&gt;Read this doc to learn more about the pros and cons of this documentation system:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/coo/&quot;&gt;https://cl-doc-systems.github.io/coo/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here I want to highlight only a few moments.&lt;/p&gt;
+&lt;p&gt;The system has a huge potential for improvement. There are some GitHub issues to work on. I&apos;ve already sent my pull-request to add support of ASDF package inferred systems:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/fisxoj/coo/pull/24&quot;&gt;https://github.com/fisxoj/coo/pull/24&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The two coolest features are:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Well-known markup format – Coo uses reStructured text.&lt;/li&gt;&lt;li&gt;It can be extended in Common Lisp.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Right now Coo is good for documenting small libraries which don&apos;t need for abstract chapters of documentation, but I see how it can be extended to render handwritten docs along with generated from docstrings!&lt;/p&gt;
+</description>
+            <pubDate>Fri, 06 Nov 2020 01:14:56 +0300</pubDate>
+        </item>
+        <item>
             <title>sphinxcontrib-cldomain</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/11/0210-sphinxcontrib-cldomain.html</link>
             <description>&lt;p&gt;This is an add-on to the &lt;a href=&quot;https://www.sphinx-doc.org/en/master/&quot;&gt;Sphinx&lt;/a&gt; documentation system which allows using of information about Common Lisp packages in the documentation.&lt;/p&gt;
@@ -1534,146 +1553,6 @@ Evaluation took:
 &lt;p&gt;To learn more about cl-emb&apos;s features, read &lt;a href=&quot;http://quickdocs.org/cl-emb/&quot;&gt;it&apos;s docs&lt;/a&gt;!&lt;/p&gt;
 </description>
             <pubDate>Thu, 17 Sep 2020 22:47:58 +0300</pubDate>
-        </item>
-        <item>
-            <title>djula</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0191-djula.html</link>
-            <description>&lt;p&gt;This library is a port of Django templates. Its coolest feature are:&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;template inheritance;&lt;/li&gt;&lt;li&gt;autoreload;&lt;/li&gt;&lt;li&gt;internationalization.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Also, there is &lt;a href=&quot;http://mmontone.github.io/djula/doc/build/html/index.html&quot;&gt;nice documentation&lt;/a&gt;. In presence of documentation, I won&apos;t provide many examples. Instead, let&apos;s implement a small function for our HTML templating engines &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;performance test&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;I didn&apos;t find the way to load a template from the string. That is why we need to set up the library and let it know where to search template files:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; djula:*current-store*
-#&amp;lt;DJULA:FILE-STORE {100248A8C3}&amp;gt;
-
-POFTHEDAY&amp;gt; (djula:find-template djula:*current-store*
-                                &amp;quot;test.html&amp;quot;)
-; Debugger entered on #&amp;lt;SIMPLE-ERROR &amp;quot;Template ~A not found&amp;quot; {1003D5F073}&amp;gt;
-[1] POFTHEDAY&amp;gt; 
-; Evaluation aborted on #&amp;lt;SIMPLE-ERROR &amp;quot;Template ~A not found&amp;quot; {1003D5F073}&amp;gt;
-
-POFTHEDAY&amp;gt; (djula:add-template-directory &amp;quot;templates/&amp;quot;)
-(&amp;quot;templates/&amp;quot;)&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we need to write such template to the &lt;code&gt;templates/test.html&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;html&apos;&gt;&amp;lt;h1&amp;gt;{{ title }}&amp;lt;/h1&amp;gt;
-&amp;lt;ul&amp;gt;
-{% for item in items %}
-  &amp;lt;li&amp;gt;{{ item }}&amp;lt;/li&amp;gt;
-{% endfor %}
-&amp;lt;/ul&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And we can test it:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (djula:find-template djula:*current-store*
-                                &amp;quot;test.html&amp;quot;)
-#P&amp;quot;/Users/art/projects/lisp/lisp-project-of-the-day/templates/test.html&amp;quot;
-
-
-(defparameter +welcome.html+ (djula:compile-template* &amp;quot;welcome.html&amp;quot;))
-
-POFTHEDAY&amp;gt; (with-output-to-string (s)
-             (djula:render-template* (djula:compile-template* &amp;quot;test.html&amp;quot;)
-                                     s
-                                     :title &amp;quot;Foo Bar&amp;quot;
-                                     :items &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;)))
-&amp;quot;&amp;lt;h1&amp;gt;Foo Bar&amp;lt;/h1&amp;gt;
-&amp;lt;ul&amp;gt;
-
-  &amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;
-
-  &amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;
-
-  &amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;
-
-&amp;lt;/ul&amp;gt;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;It is time to measure performance:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; We need this to turn off autoreloading
-;; and get good performance:
-POFTHEDAY&amp;gt; (pushnew :djula-prod *features*)
-
-POFTHEDAY&amp;gt; (defparameter *template*
-             (djula:compile-template* &amp;quot;test.html&amp;quot;))
-
-POFTHEDAY&amp;gt; (defun render (title items)
-             (with-output-to-string (s)
-               (djula:render-template* *template*
-                                       s
-                                       :title title
-                                       :items items)))
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (render &amp;quot;Foo Bar&amp;quot;
-                             &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  4.479 seconds of real time
-  4.487983 seconds of total run time (4.453540 user, 0.034443 system)
-  [ Run times consist of 0.183 seconds GC time, and 4.305 seconds non-GC time. ]
-  100.20% CPU
-  9,891,631,814 processor cycles
-  1,392,011,008 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Pay attention to the line adding &lt;code&gt;:djula-prod&lt;/code&gt; to the &lt;code&gt;*features*&lt;/code&gt;. It disables auto-reloading. Withf enabled auto-reloading rendering is 2 times slower and takes 10.6 microseconds.&lt;/p&gt;
-&lt;p&gt;I could recommend &lt;code&gt;Djula&lt;/code&gt; to everybody who works in a team where HTML designers are writing templates and don&apos;t want to dive into Lisp editing.&lt;/p&gt;
-&lt;p&gt;With &lt;code&gt;Djula&lt;/code&gt; they will be able to easily fix templates and see results without changing the backend&apos;s code.&lt;/p&gt;
-&lt;p&gt;Also, today I&apos;ve decided to create a base-line function which will create HTML using string concatenation as fast as possible. This way we&apos;ll be able to compare different HTML templating engines with the hand-written code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render-concat (title items)
-             &amp;quot;This function does not do proper HTML escaping.&amp;quot;
-             (flet ((to-string (value)
-                      (format nil &amp;quot;~A&amp;quot; value)))
-               (apply #&amp;#039;concatenate
-                      &amp;#039;string
-                      (append (list
-                               &amp;quot;&amp;lt;title&amp;gt;&amp;quot;
-                               (to-string title)
-                               &amp;quot;&amp;lt;/title&amp;gt;&amp;quot;
-                               &amp;quot;&amp;lt;ul&amp;gt;&amp;quot;)
-                              (loop for item in items
-                                    collect &amp;quot;&amp;lt;li&amp;gt;&amp;quot;
-                                    collect (to-string item)
-                                    collect &amp;quot;&amp;lt;/li&amp;gt;&amp;quot;)
-                              (list
-                               &amp;quot;&amp;lt;/ul&amp;gt;&amp;quot;)))))
-
-POFTHEDAY&amp;gt; (render-concat &amp;quot;Foo Bar&amp;quot;
-                          &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))
-&amp;quot;&amp;lt;title&amp;gt;Foo Bar&amp;lt;/title&amp;gt;&amp;lt;ul&amp;gt;&amp;lt;li&amp;gt;One&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Two&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Three&amp;lt;/li&amp;gt;&amp;lt;/ul&amp;gt;&amp;quot;
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (render-concat &amp;quot;Foo Bar&amp;quot;
-                                    &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  0.930 seconds of real time
-  0.938568 seconds of total run time (0.919507 user, 0.019061 system)
-  [ Run times consist of 0.114 seconds GC time, and 0.825 seconds non-GC time. ]
-  100.97% CPU
-  2,053,743,332 processor cycles
-  864,022,384 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Writing to stream a little bit slower, so we&apos;ll take as a base-line the result from &lt;code&gt;render-concat&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun render-stream (title items)
-             &amp;quot;This function does not do proper HTML escaping.&amp;quot;
-             (flet ((to-string (value)
-                      (format nil &amp;quot;~A&amp;quot; value)))
-               (with-output-to-string (out)
-                 (write-string &amp;quot;&amp;lt;title&amp;gt;&amp;quot; out)
-                 (write-string (to-string title) out)
-                 (write-string &amp;quot;&amp;lt;/title&amp;gt;&amp;lt;ul&amp;gt;&amp;quot; out)
-                 
-                 (loop for item in items
-                       do (write-string &amp;quot;&amp;lt;li&amp;gt;&amp;quot; out)
-                          (write-string (to-string item) out)
-                          (write-string &amp;quot;&amp;lt;/li&amp;gt;&amp;quot; out))
-                 (write-string &amp;quot;&amp;lt;/ul&amp;gt;&amp;quot; out))))
-WARNING: redefining POFTHEDAY::RENDER-STREAM in DEFUN
-RENDER-STREAM
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (render-stream &amp;quot;Foo Bar&amp;quot;
-                                    &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  1.208 seconds of real time
-  1.214637 seconds of total run time (1.196847 user, 0.017790 system)
-  [ Run times consist of 0.102 seconds GC time, and 1.113 seconds non-GC time. ]
-  100.58% CPU
-  2,667,477,282 processor cycles
-  863,981,472 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;By, the way, I tried to use &lt;code&gt;str:replace-all&lt;/code&gt; for escaping &lt;code&gt;&lt;&lt;/code&gt; and &lt;code&gt;&gt;&lt;/code&gt; symbols in the handwritten version of the &lt;code&gt;render-concat&lt;/code&gt; function. But its performance degraded dramatically and became 36 microseconds.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;str:replace-all&lt;/code&gt; uses &lt;a href=&quot;https://edicl.github.io/cl-ppcre/&quot;&gt;cl-ppcre&lt;/a&gt; for text replacement.&lt;/p&gt;
-&lt;p&gt;What should I use instead?&lt;/p&gt;
-</description>
-            <pubDate>Wed, 16 Sep 2020 22:50:21 +0300</pubDate>
         </item>
     </channel>
 </rss>
