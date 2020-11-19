@@ -249,3 +249,11 @@ POFTHEDAY> '#1=(1 2 3 . #1#)
  1 2 3 1 2 ...)
 
 #+end_src
+
+
+** Update from [2020-11-19 Thu]
+
+I've created an [[https://cl-doc-systems.github.io/geneva/][example project]] which uses Geneva and MK2 markup to
+build a documentation.
+
+It also shows how to render docs using GitHub Actions.

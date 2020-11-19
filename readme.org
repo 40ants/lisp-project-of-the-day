@@ -1276,6 +1276,8 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/cbeo/gtwiwtg - a new iterators library
 - https://github.com/rpav/cl-gendoc modular documentation builder by Ryan Pavlik
 
+Simple
+- cl-sentiment - sentiment text analyze
 
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].
