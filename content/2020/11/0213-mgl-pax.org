@@ -18,8 +18,8 @@ The most interesting features are:
 - API to add new entity types.
 - Linking to the sources on the GitHub.
 - Docstrings deindentation.
-- Generation docs for a multiple ASDF systems with cross-referencing.
-- Autoexport of documented symbols.
+- Generation docs for multiple ASDF systems with cross-referencing.
+- Auto-export of documented symbols.
 
 Some cons:
 
@@ -30,5 +30,12 @@ Some cons:
   to teach Emacs to use markdown minor mode for documentation strings?
 
 There are more pros and cons. All of them are listed in the
-[[https://cl-doc-systems.github.io/mgl-pax/#x-28EXAMPLE-DOCS-2FDOCS-3A-40PROS-N-CONS-20MGL-PAX-3ASECTION-29][example project]]. It is up and ready to be cloned and used as a templated
-for you own Common Lisp library with great documentation!
+[[https://cl-doc-systems.github.io/mgl-pax/#x-28EXAMPLE-DOCS-2FDOCS-3A-40PROS-N-CONS-20MGL-PAX-3ASECTION-29][example project]]. It is up and ready to be cloned. Use it as a template
+for your own Common Lisp library with great documentation!
+
+You'll find all such templates in this GitHub organization:
+
+https://github.com/cl-doc-systems
+
+I have plans to review a few other documentation builders, but MGL-PAX
+is my favourite so far.

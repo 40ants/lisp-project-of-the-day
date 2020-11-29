@@ -6,6 +6,21 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>mgl-pax</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/11/0213-mgl-pax.html</link>
+            <description>&lt;p&gt;This is a very cool documentation generator for Common Lisp projects.&lt;/p&gt;
+&lt;p&gt;The most interesting features are:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Emacs/SLIME integration.&lt;/li&gt;&lt;li&gt;Ability to generate Markdown.&lt;/li&gt;&lt;li&gt;API to add new entity types.&lt;/li&gt;&lt;li&gt;Linking to the sources on the GitHub.&lt;/li&gt;&lt;li&gt;Docstrings deindentation.&lt;/li&gt;&lt;li&gt;Generation docs for multiple ASDF systems with cross-referencing.&lt;/li&gt;&lt;li&gt;Auto-export of documented symbols.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;Some cons:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;The recommended way to mix documentation section with code leads to   the runtime dependency from PAX and all it&apos;s dependencies. But you   might define documentation as a separate ASDF system.&lt;/li&gt;&lt;li&gt;It is inconvenient to write Markdown in docstrings. Is there any way   to teach Emacs to use markdown minor mode for documentation strings?&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;There are more pros and cons. All of them are listed in the &lt;a href=&quot;https://cl-doc-systems.github.io/mgl-pax/#x-28EXAMPLE-DOCS-2FDOCS-3A-40PROS-N-CONS-20MGL-PAX-3ASECTION-29&quot;&gt;example project&lt;/a&gt;. It is up and ready to be cloned. Use it as a template for your own Common Lisp library with great documentation!&lt;/p&gt;
+&lt;p&gt;You&apos;ll find all such templates in this GitHub organization:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cl-doc-systems&quot;&gt;https://github.com/cl-doc-systems&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I have plans to review a few other documentation builders, but MGL-PAX is my favourite so far.&lt;/p&gt;
+</description>
+            <pubDate>Mon, 30 Nov 2020 00:43:06 +0300</pubDate>
+        </item>
+        <item>
             <title>staple</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/11/0212-staple.html</link>
             <description>&lt;p&gt;Today we&apos;ll look at &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;&apos;s documentation system called &lt;a href=&quot;https://shinmera.github.io/staple/&quot;&gt;Staple&lt;/a&gt;.&lt;/p&gt;
@@ -1464,81 +1479,6 @@ POFTHEDAY&amp;gt; (with-output-to-string (s)
 &amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This library can be useful for interactive applications where user can change the settings and they should be restored on restart. You probably also be interested in &lt;a href=&quot;http://quickdocs.org/ubiquitous/&quot;&gt;ubiquitous&lt;/a&gt; library which I didn&apos;t review yet.&lt;/p&gt;
 </description>
             <pubDate>Mon, 21 Sep 2020 22:23:46 +0300</pubDate>
-        </item>
-        <item>
-            <title>eco</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0193-eco.html</link>
-            <description>&lt;p&gt;This template engine is interesting because it allows mixing lisp code blocks and HTML in a way simple enough to be used by non-lisp developers and designers.&lt;/p&gt;
-&lt;p&gt;It&apos;s interesting feature is that each template definition includes the arguments list.&lt;/p&gt;
-&lt;p&gt;Here is how we can define templates for user list from the previous post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0192-cl-emb.html&quot;&gt;cl-emb&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (eco:compile-string
-            &amp;quot;
-&amp;lt;% deftemplate user (nickname name) () %&amp;gt;
-&amp;lt;a href=\&amp;quot;/users/&amp;lt;%= nickname %&amp;gt;\&amp;quot;&amp;gt;&amp;lt;%= name %&amp;gt;&amp;lt;/a&amp;gt;
-&amp;lt;% end %&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (eco:compile-string &amp;quot;
-&amp;lt;% deftemplate user-list (users) () %&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;% loop for (nickname name) in users do %&amp;gt;
-    &amp;lt;li&amp;gt;&amp;lt;%- user nickname name %&amp;gt;&amp;lt;% end %&amp;gt;&amp;lt;/li&amp;gt;
-  &amp;lt;% end %&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;lt;% end %&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (eco-template:user-list
-            &amp;#039;((&amp;quot;bob&amp;quot; &amp;quot;Bob Hopkins&amp;quot;)
-              (&amp;quot;alice&amp;quot; &amp;quot;Alice Cooker&amp;quot;)))
-&amp;quot;
-&amp;lt;ul&amp;gt;
-  
-    &amp;lt;li&amp;gt;
-&amp;lt;a href=\&amp;quot;/users/bob\&amp;quot;&amp;gt;Bob Hopkins&amp;lt;/a&amp;gt;
-&amp;lt;/li&amp;gt;
-  
-    &amp;lt;li&amp;gt;
-&amp;lt;a href=\&amp;quot;/users/alice\&amp;quot;&amp;gt;Alice Cooker&amp;lt;/a&amp;gt;
-&amp;lt;/li&amp;gt;
-  
-&amp;lt;/ul&amp;gt;
-&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Also, there is a way to load templates from the files with &lt;code&gt;.eco&lt;/code&gt; extensions. There is an ASDF extension which allows defining these templates as components of your ASDF system.&lt;/p&gt;
-&lt;p&gt;Documentation does not cover this, but the template components should be defined like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;(defsystem mysite
-  :defsystem-depends-on (eco)
-  :components ((:module &amp;quot;src&amp;quot;
-                :depends-on &amp;quot;templates&amp;quot;
-                :components ((:file &amp;quot;backend-code&amp;quot;)
-                             (:file &amp;quot;utils&amp;quot;)))
-               (:module &amp;quot;templates&amp;quot;
-                :components ((:eco-template &amp;quot;index-page&amp;quot;)
-                             (:eco-template &amp;quot;users&amp;quot;)))))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Well, let&apos;s measure Eco&apos;s performance!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (eco:compile-string &amp;quot;
-&amp;lt;% deftemplate perform (title items) () %&amp;gt;
-&amp;lt;title&amp;gt;&amp;lt;%= title %&amp;gt;&amp;lt;/title&amp;gt;
-&amp;lt;ul&amp;gt;
-  &amp;lt;% loop for item in items do %&amp;gt;
-    &amp;lt;li&amp;gt;&amp;lt;%= item %&amp;gt;&amp;lt;/li&amp;gt;
-  &amp;lt;% end %&amp;gt;
-&amp;lt;/ul&amp;gt;
-&amp;lt;% end %&amp;gt;
-&amp;quot;)
-
-POFTHEDAY&amp;gt; (time
-            (loop repeat 1000000
-                  do (eco-template:perform &amp;quot;Foo Bar&amp;quot;
-                       &amp;#039;(&amp;quot;One&amp;quot; &amp;quot;Two&amp;quot; &amp;quot;Three&amp;quot;))))
-Evaluation took:
-  2.135 seconds of real time
-  2.144360 seconds of total run time (2.121050 user, 0.023310 system)
-  [ Run times consist of 0.141 seconds GC time, and 2.004 seconds non-GC time. ]
-  100.42% CPU
-  4,713,480,570 processor cycles
-  1,008,017,904 bytes consed&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This is slower than half of the tested template engines. It took place between &lt;code&gt;cl-who&lt;/code&gt; and &lt;code&gt;print-html&lt;/code&gt;. I&apos;ve expected it will be faster :(&lt;/p&gt;
-&lt;p&gt;The chart with all html template engines performance can be found &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/09/0188-zenekindarl.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 18 Sep 2020 23:52:26 +0300</pubDate>
         </item>
     </channel>
 </rss>
