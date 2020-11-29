@@ -8,7 +8,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
 - 05 November - [[content/2020/11/0211-coo.org][coo]] ([[https://twitter.com/svetlyak40wt/status/1324475241217884161][twitter]])
-- 09 November - [[content/2020/11/0211-staple.org][staple]] ([[https://twitter.com/svetlyak40wt/status/1325926946656628736][twitter]])
+- 09 November - [[content/2020/11/0212-staple.org][staple]] ([[https://twitter.com/svetlyak40wt/status/1325926946656628736][twitter]])
+- 29 November - [[content/2020/11/0213-mgl-pax.org][mgl-pax]]
 
 ** October
 - 02 October - [[content/2020/10/0199-dynamic-mixins.org][dynamic-mixins]] ([[https://twitter.com/svetlyak40wt/status/1312097719616516096][twitter]])
@@ -1274,7 +1275,15 @@ files, and extracting their ":defsystem-depends-on".
 - lsx - embeddable HTML templating by Fukamachi
 - [[https://github.com/GrammaTech/trace-db][trace-db]] by GrammaTech
 - https://github.com/cbeo/gtwiwtg - a new iterators library
-- https://github.com/rpav/cl-gendoc modular documentation builder by Ryan Pavlik
+- https://github.com/rpav/cl-gendoc modular documentation builder by
+  Ryan Pavlik
+- https://github.com/windchime/cl-spasm html generator built, a Common
+  Lisp port of Hiccup, Clojure's HTML-building, vector- and map-based
+  library.
+- http://melisgl.github.io/mgl-pax/ - documentation system for CL,
+  examples looks very cool. All docs are written in docstrings, but
+  you can define custom sections. And cross referencing works too
+  Found from this tweet: https://twitter.com/chrsnjk/status/1330199895295352834
 
 Simple
 - cl-sentiment - sentiment text analyze

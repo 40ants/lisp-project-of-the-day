@@ -1,0 +1,34 @@
+* mgl-pax                                                     :documentation:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :)
+:CI:       :(
+:END:
+
+This is a very cool documentation generator for Common Lisp projects.
+
+
+The most interesting features are:
+
+- Emacs/SLIME integration.
+- Ability to generate Markdown.
+- API to add new entity types.
+- Linking to the sources on the GitHub.
+- Docstrings deindentation.
+- Generation docs for a multiple ASDF systems with cross-referencing.
+- Autoexport of documented symbols.
+
+Some cons:
+
+- The recommended way to mix documentation section with code leads to
+  the runtime dependency from PAX and all it's dependencies. But you
+  might define documentation as a separate ASDF system.
+- It is inconvenient to write Markdown in docstrings. Is there any way
+  to teach Emacs to use markdown minor mode for documentation strings?
+
+There are more pros and cons. All of them are listed in the
+[[https://cl-doc-systems.github.io/mgl-pax/#x-28EXAMPLE-DOCS-2FDOCS-3A-40PROS-N-CONS-20MGL-PAX-3ASECTION-29][example project]]. It is up and ready to be cloned and used as a templated
+for you own Common Lisp library with great documentation!
