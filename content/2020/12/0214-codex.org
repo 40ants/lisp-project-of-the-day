@@ -1,0 +1,33 @@
+* codex :documentation:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :)
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :)
+:END:
+
+This is a documentation generator by Fernando Boretti.
+
+It is built for extensibility and uses CommonDoc as an internal format
+for document representation and manipulation.
+
+Another interesting feature is a custom markup language. Actually, it
+supports any number of markup languages, you just need to write a parser
+from this markup into CommonDoc.
+
+The sad part is that there is no support for cross-referencing and there are
+a number of bugs :(
+
+As always, I've created a template project for you, demonstrating how to
+use Codex to document a simple Common Lisp library:
+
+https://github.com/cl-doc-systems/codex
+
+Read about other pros and cons on this page:
+
+https://cl-doc-systems.github.io/codex/pros-&-cons-of-codex.html
+
+
+

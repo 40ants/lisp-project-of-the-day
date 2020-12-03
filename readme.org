@@ -5,6 +5,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2020
+** December
+- 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
 - 05 November - [[content/2020/11/0211-coo.org][coo]] ([[https://twitter.com/svetlyak40wt/status/1324475241217884161][twitter]])
