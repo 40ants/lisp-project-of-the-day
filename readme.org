@@ -7,6 +7,8 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 * 2020
 ** December
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
+- 12 December - [[content/2020/12/0215-cl-gendoc.org][cl-gendoc]] ([[https://twitter.com/svetlyak40wt/status/1337860706411175939][twitter]])
+
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
 - 05 November - [[content/2020/11/0211-coo.org][coo]] ([[https://twitter.com/svetlyak40wt/status/1324475241217884161][twitter]])
@@ -1282,10 +1284,22 @@ files, and extracting their ":defsystem-depends-on".
 - https://github.com/windchime/cl-spasm html generator built, a Common
   Lisp port of Hiccup, Clojure's HTML-building, vector- and map-based
   library.
-- http://melisgl.github.io/mgl-pax/ - documentation system for CL,
-  examples looks very cool. All docs are written in docstrings, but
-  you can define custom sections. And cross referencing works too
-  Found from this tweet: https://twitter.com/chrsnjk/status/1330199895295352834
+- atdoc - doc builder used in
+  https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
+- 3bmd - Markdown parser. Interesting feature is integration with
+  clhs-lookup library, when rendering lisp code blocks. If clhs-lookup
+  exists 3bmd will try to make a links. Found it when working on
+  cl-gendoc post. Actually, it uses gh:redline6561/colorize which in
+  turn
+- cl-api - documentation generator used by
+  gh:redline6561/colorize. Example:
+  http://redlinernotes.com/docs/colorize.html
+
+  curl
+  http://ftp.lispworks.com/pub/software_tools/reference/HyperSpec-7-0.tar.gz |
+  tar zxv
+- https://guicho271828.github.io/eazy-documentation/
+
 
 Simple
 - cl-sentiment - sentiment text analyze

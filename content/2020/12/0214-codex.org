@@ -13,9 +13,10 @@ This is a documentation generator by Fernando Boretti.
 It is built for extensibility and uses CommonDoc as an internal format
 for document representation and manipulation.
 
-Another interesting feature is a custom markup language. Actually, it
-supports any number of markup languages, you just need to write a parser
-from this markup into CommonDoc.
+Another interesting feature is a custom markup language Scriba
+(reviewed in [[https://40ants.com/lisp-project-of-the-day/2020/09/0178-scriba.html][post #0178]]).
+Actually, Codex supports any number of markup languages, you just need
+to write a parser from this markup into CommonDoc.
 
 The sad part is that there is no support for cross-referencing and there are
 a number of bugs :(
@@ -28,6 +29,5 @@ https://github.com/cl-doc-systems/codex
 Read about other pros and cons on this page:
 
 https://cl-doc-systems.github.io/codex/pros-&-cons-of-codex.html
-
 
 
