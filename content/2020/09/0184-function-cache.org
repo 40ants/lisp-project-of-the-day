@@ -9,9 +9,9 @@
 :END:
 
 Yesterday I've reviewed [[https://40ants.com/lisp-project-of-the-day/2020/09/0183-fare-memoization.html][fare-memoization]] and decided to tell you about
-the library I'm using for memoization instead.
+[[https://github.com/AccelerationNet/function-cache][function-cache]], the library I'm using for memoization instead.
 
-The main features are ability to set TTL and an extendable caching
+The main features are its ability to set TTL and an extendable caching
 protocol which allows to use different kinds of caches.
 
 For example, here we'll use LRU cache which will remember only 3
