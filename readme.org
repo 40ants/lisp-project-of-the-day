@@ -8,6 +8,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 ** December
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
 - 12 December - [[content/2020/12/0215-cl-gendoc.org][cl-gendoc]] ([[https://twitter.com/svetlyak40wt/status/1337860706411175939][twitter]])
+- 20 December - [[content/2020/12/0216-eazy-documentation.org][eazy-documentation]]
 
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
@@ -1279,13 +1280,9 @@ files, and extracting their ":defsystem-depends-on".
 - lsx - embeddable HTML templating by Fukamachi
 - [[https://github.com/GrammaTech/trace-db][trace-db]] by GrammaTech
 - https://github.com/cbeo/gtwiwtg - a new iterators library
-- https://github.com/rpav/cl-gendoc modular documentation builder by
-  Ryan Pavlik
 - https://github.com/windchime/cl-spasm html generator built, a Common
   Lisp port of Hiccup, Clojure's HTML-building, vector- and map-based
   library.
-- atdoc - doc builder used in
-  https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
 - 3bmd - Markdown parser. Interesting feature is integration with
   clhs-lookup library, when rendering lisp code blocks. If clhs-lookup
   exists 3bmd will try to make a links. Found it when working on
@@ -1298,7 +1295,8 @@ files, and extracting their ":defsystem-depends-on".
   curl
   http://ftp.lispworks.com/pub/software_tools/reference/HyperSpec-7-0.tar.gz |
   tar zxv
-- https://guicho271828.github.io/eazy-documentation/
+- atdoc - doc builder used in
+  https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
 
 
 Simple
