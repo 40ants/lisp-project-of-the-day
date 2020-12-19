@@ -6,6 +6,20 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>eazy-documentation</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/12/0216-eazy-documentation.html</link>
+            <description>&lt;p&gt;This is yet another documentation generator for Common Lisp, built by &lt;a href=&quot;https://twitter.com/guicho271828&quot;&gt;Masataro Asai&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Its unique feature is the documentation processor which is able to extract docstring from nonstandard Lisp forms. Also, it supports all markups, supported by &lt;a href=&quot;https://pandoc.org/&quot;&gt;Pandoc&lt;/a&gt; and can be used to generate documentation from any folder.&lt;/p&gt;
+&lt;p&gt;You&apos;ll find more &lt;a href=&quot;https://cl-doc-systems.github.io/eazy-documentation/#doc/source/1%20pros-n-cons.rst&quot;&gt;pros and cons&lt;/a&gt; in the &lt;a href=&quot;https://github.com/cl-doc-systems/eazy-documentation&quot;&gt;template repository&lt;/a&gt; I&apos;ve prepared for you.&lt;/p&gt;
+&lt;p&gt;Despite many cool features, I have these stoppers for using Eazy Documentation for my own projects:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;it is hard to control sections ordering;&lt;/li&gt;&lt;li&gt;there is no helper for cross-referencing symbols.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/mgl-pax/&quot;&gt;MGL-PAX&lt;/a&gt;, reviewed recently is still my favourite.&lt;/p&gt;
+&lt;p&gt;But Eazy Documentation still can be useful when:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;the system is small;&lt;/li&gt;&lt;li&gt;you just have a number of RST/Markdown/other files and want to make a   site;&lt;/li&gt;&lt;li&gt;you want to build a doc for a third-party library. It can build a doc   for any ASDF system.&lt;/li&gt;&lt;/ul&gt;
+</description>
+            <pubDate>Sun, 20 Dec 2020 00:59:54 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-gendoc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/12/0215-cl-gendoc.html</link>
             <description>&lt;p&gt;This is yet another CL documentation generator by Ryan Pavlik. It&apos;s interesting features are:&lt;/p&gt;
@@ -1419,25 +1433,6 @@ Out[4]: /Users/art/Desktop/Screenshot 2020-09-25 at 23.50.02.png&lt;/code&gt;&lt
 &lt;p&gt;Please, join this effort and make your pull requests to &lt;a href=&quot;https://github.com/yitzchak/common-lisp-jupyter&quot;&gt;this repository&lt;/a&gt;, if you are interested in building CL environment for data science!&lt;/p&gt;
 </description>
             <pubDate>Sun, 27 Sep 2020 20:48:13 +0300</pubDate>
-        </item>
-        <item>
-            <title>which</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0196-which.html</link>
-            <description>&lt;p&gt;This is a tiny library by Fernando Borretti. It implements analogue of the UNIX utility &lt;code&gt;which&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (which:which &amp;quot;which&amp;quot;)
-#P&amp;quot;/usr/bin/which&amp;quot;
-
-POFTHEDAY&amp;gt; (which:which &amp;quot;sbcl&amp;quot;)
-#P&amp;quot;/Users/art/.bin/sbcl&amp;quot;
-
-POFTHEDAY&amp;gt; (which:which &amp;quot;python3&amp;quot;)
-#P&amp;quot;/usr/bin/python3&amp;quot;
-
-POFTHEDAY&amp;gt; (which:which &amp;quot;missing-binary&amp;quot;)
-NIL&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;That is it. No more, no less. What do you think, when this library can be useful?&lt;/p&gt;
-&lt;p&gt;By the way, there are many other trivial (but useful) libraries. All of them are marked with a &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/tags/trivial.html&quot;&gt;trivial tag&lt;/a&gt; on #pofthedday site.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 25 Sep 2020 23:48:31 +0300</pubDate>
         </item>
     </channel>
 </rss>

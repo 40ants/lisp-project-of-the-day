@@ -8,7 +8,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 ** December
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
 - 12 December - [[content/2020/12/0215-cl-gendoc.org][cl-gendoc]] ([[https://twitter.com/svetlyak40wt/status/1337860706411175939][twitter]])
-- 20 December - [[content/2020/12/0216-eazy-documentation.org][eazy-documentation]]
+- 20 December - [[content/2020/12/0216-eazy-documentation.org][eazy-documentation]] ([[https://twitter.com/svetlyak40wt/status/1340417549092196352][twitter]])
 
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])

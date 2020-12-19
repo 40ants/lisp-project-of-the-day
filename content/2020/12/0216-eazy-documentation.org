@@ -9,9 +9,9 @@
 :END:
 
 This is yet another documentation generator for Common Lisp, built by
-"Masataro Asai".
+[[https://twitter.com/guicho271828][Masataro Asai]].
 
-It's unique feature is the documentation processor which is able to
+Its unique feature is the documentation processor which is able to
 extract docstring from nonstandard Lisp forms. Also, it supports
 all markups, supported by [[https://pandoc.org/][Pandoc]] and can be used to generate
 documentation from any folder.
@@ -23,6 +23,16 @@ Despite many cool features, I have these stoppers for using Eazy
 Documentation for my own projects:
 
 - it is hard to control sections ordering;
-- there is no a helper for cross-referencing symbols.
+- there is no helper for cross-referencing symbols.
 
 [[https://cl-doc-systems.github.io/mgl-pax/][MGL-PAX]], reviewed recently is still my favourite.
+
+
+But Eazy Documentation still can be useful when:
+
+- the system is small;
+- you just have a number of RST/Markdown/other files and want to make a
+  site;
+- you want to build a doc for a third-party library. It can build a doc
+  for any ASDF system.
+
