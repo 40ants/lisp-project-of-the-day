@@ -9,6 +9,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
 - 12 December - [[content/2020/12/0215-cl-gendoc.org][cl-gendoc]] ([[https://twitter.com/svetlyak40wt/status/1337860706411175939][twitter]])
 - 20 December - [[content/2020/12/0216-eazy-documentation.org][eazy-documentation]] ([[https://twitter.com/svetlyak40wt/status/1340417549092196352][twitter]])
+- 26 December - [[content/2020/12/0217-cl-api.org][cl-api]]
 
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
@@ -559,14 +560,23 @@ it is, etc. These properties have grades:
   dont cover all functionality
 - :( the project lack of this category at all.
 
+Also, we'll transform links into proper HTML nodes.
+
 #+BEGIN_SRC lisp
+
+
+(defun autolink (text)
+  (cond
+    ((str:starts-with-p "http" text)
+     (format nil "<a href=\"~A\">~A</a>" text text))
+    (t text)))
 
 (defun smile->unicode (text)
   (arrows:->>
-      text
-    (str:replace-all ":)" "😀")
-    (str:replace-all ":|" "🤨")
-    (str:replace-all ":(" "🥺")))
+   text
+   (str:replace-all ":)" "😀")
+   (str:replace-all ":|" "🤨")
+   (str:replace-all ":(" "🥺")))
 
 (defmethod render-node ((node cl-org-mode::properties-node) stream)
   (unless *rss-mode*
@@ -584,9 +594,10 @@ it is, etc. These properties have grades:
           (cl-who:esc
            (cl-org-mode::property-node.property node)))
      (:td :style "padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD"
-          (cl-who:esc
-           (smile->unicode
-            (cl-org-mode::property-node.value node)))))))
+          (cl-who:str
+           (autolink
+            (smile->unicode
+             (cl-org-mode::property-node.value node))))))))
 
 #+END_SRC
 
@@ -1288,15 +1299,9 @@ files, and extracting their ":defsystem-depends-on".
   exists 3bmd will try to make a links. Found it when working on
   cl-gendoc post. Actually, it uses gh:redline6561/colorize which in
   turn
-- cl-api - documentation generator used by
-  gh:redline6561/colorize. Example:
-  http://redlinernotes.com/docs/colorize.html
-
-  curl
-  http://ftp.lispworks.com/pub/software_tools/reference/HyperSpec-7-0.tar.gz |
-  tar zxv
 - atdoc - doc builder used in
   https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
+- https://github.com/JunSuzukiJapan/cl-reex
 
 
 Simple
