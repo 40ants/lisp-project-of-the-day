@@ -1,0 +1,35 @@
+* atdoc :documentation:
+:PROPERTIES:
+:Documentation: :)
+:Docstrings: :)
+:Tests:    :(
+:Examples: :)
+:RepositoryActivity: :(
+:CI:       :(
+:License:  X11
+:HomePage: http://www.lichteblau.com/atdoc/doc/
+:END:
+
+This is yet another documentation builder for CL.
+
+Its unique features are a special markup and ability to render
+not only HTML, but also PDF and Info files.
+
+As always, I've created an example project which can be used as a
+template for your own library. Here how it is rendered in HTML:
+
+https://cl-doc-systems.github.io/atdoc/
+
+This is how it is rendered into PDF:
+
+https://cl-doc-systems.github.io/atdoc/latex/documentation.pdf
+
+Beautiful. Isn't it?
+
+More pros and cons of ~ATDOC~ are listed in the repository's README:
+
+https://github.com/cl-doc-systems/atdoc
+
+Remember, all example projects from https://github.com/cl-doc-systems
+include a build script and GitHub Action to update documentation on
+every commit!
