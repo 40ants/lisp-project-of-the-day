@@ -10,6 +10,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 - 12 December - [[content/2020/12/0215-cl-gendoc.org][cl-gendoc]] ([[https://twitter.com/svetlyak40wt/status/1337860706411175939][twitter]])
 - 20 December - [[content/2020/12/0216-eazy-documentation.org][eazy-documentation]] ([[https://twitter.com/svetlyak40wt/status/1340417549092196352][twitter]])
 - 26 December - [[content/2020/12/0217-cl-api.org][cl-api]] ([[https://twitter.com/svetlyak40wt/status/1342909990940663809][twitter]])
+- 31 December - [[content/2020/12/0218-atdoc.org][atdoc]] ([[https://twitter.com/svetlyak40wt/status/1344731371575635968][twitter]])
 
 ** November
 - 01 November - [[content/2020/11/0210-sphinxcontrib-cldomain.org][sphinxcontrib-cldomain]] ([[https://twitter.com/svetlyak40wt/status/1322702482750001152][twitter]])
@@ -1301,7 +1302,9 @@ files, and extracting their ":defsystem-depends-on".
   turn
 - atdoc - doc builder used in
   https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
-- https://github.com/JunSuzukiJapan/cl-reex
+- https://github.com/JunSuzukiJapan/cl-reex - Reactive extensions for common lisp
+- https://gitlab.common-lisp.net/quickref/quickref - documentation
+  generator behind https://quickref.common-lisp.net/
 
 
 Simple

@@ -6,6 +6,22 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>atdoc</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2020/12/0218-atdoc.html</link>
+            <description>&lt;p&gt;This is yet another documentation builder for CL.&lt;/p&gt;
+&lt;p&gt;Its unique features are a special markup and ability to render not only HTML, but also PDF and Info files.&lt;/p&gt;
+&lt;p&gt;As always, I&apos;ve created an example project which can be used as a template for your own library. Here how it is rendered in HTML:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/atdoc/&quot;&gt;https://cl-doc-systems.github.io/atdoc/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This is how it is &lt;a href=&quot;https://cl-doc-systems.github.io/atdoc/latex/documentation.pdf&quot;&gt;rendered into PDF&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0218/atdoc.png&quot;/&gt;&lt;/p&gt;
+&lt;p&gt;Beautiful. Isn&apos;t it?&lt;/p&gt;
+&lt;p&gt;More pros and cons of &lt;code&gt;ATDOC&lt;/code&gt; are listed in the repository&apos;s README:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cl-doc-systems/atdoc&quot;&gt;https://github.com/cl-doc-systems/atdoc&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Remember, all example projects from &lt;a href=&quot;https://github.com/cl-doc-systems&quot;&gt;https://github.com/cl-doc-systems&lt;/a&gt; include a build script and GitHub Action to update documentation on every commit!&lt;/p&gt;
+</description>
+            <pubDate>Thu, 31 Dec 2020 22:45:28 +0300</pubDate>
+        </item>
+        <item>
             <title>cl-api</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/12/0217-cl-api.html</link>
             <description>&lt;p&gt;This is a small and simple documentation builder. It was &lt;a href=&quot;https://github.com/quicklisp/quicklisp-projects/commit/e8c65442bbbfdfc0019f73513c8b15a04d134a4c&quot;&gt;removed from Quicklisp&lt;/a&gt; in 2014 because this project is SBCL only, but I&apos;ve added it to the &lt;a href=&quot;https://ultralisp.org/&quot;&gt;Ultralisp&lt;/a&gt; and you can test it after upgrade to the latest version.&lt;/p&gt;
@@ -1352,50 +1368,6 @@ POFTHEDAY&amp;gt; (slot-value *obj* &amp;#039;fill-color)
 &lt;p&gt;If you are found this post interesting, then you also might like a post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html&quot;&gt;dynamic-classes&lt;/a&gt; system.&lt;/p&gt;
 </description>
             <pubDate>Fri, 02 Oct 2020 21:31:01 +0300</pubDate>
-        </item>
-        <item>
-            <title>place-modifiers</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/09/0198-place-modifiers.html</link>
-            <description>&lt;p&gt;This is a library by &lt;a href=&quot;https://twitter.com/HexstreamSoft&quot;&gt;@HexstreamSoft&lt;/a&gt;. It provides a shorthand macro to modify data-structures in place.&lt;/p&gt;
-&lt;p&gt;The library has &lt;a href=&quot;https://www.hexstreamsoft.com/libraries/place-modifiers/&quot;&gt;comprehensive documentation&lt;/a&gt; so, I&apos;ll only show you one example to demonstrate how it works.&lt;/p&gt;
-&lt;p&gt;Let&apos;s pretend we have some data received from an API and &quot;age&quot; field should be converted into the integer in place.&lt;/p&gt;
-&lt;p&gt;In plain CL we&apos;ll do it like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((data
-                   &amp;#039;#((:name &amp;quot;Bob&amp;quot; :params (:age &amp;quot;45&amp;quot;))
-                      (:name &amp;quot;Alice&amp;quot; :params (:age &amp;quot;23&amp;quot;)))))
-             (loop for item across data
-                   do (setf (getf (getf item :params)
-                                  :age)
-                            (parse-integer
-                             (getf (getf item :params)
-                                   :age))))
-             data)
-#((:NAME &amp;quot;Bob&amp;quot; :PARAMS (:AGE 45)) (:NAME &amp;quot;Alice&amp;quot; :PARAMS (:AGE 23)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But &lt;code&gt;place-modiifiers&lt;/code&gt; allows you to keep your code DRY:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (let ((data
-                   &amp;#039;#((:name &amp;quot;Bob&amp;quot; :params (:age &amp;quot;45&amp;quot;))
-                      (:name &amp;quot;Alice&amp;quot; :params (:age &amp;quot;23&amp;quot;)))))
-             (loop for item across data
-                   do (place-modifier:modify
-                       (parse-integer
-                        (getf (getf item :params)
-                              :age))))
-             data)
-#((:NAME &amp;quot;Bob&amp;quot; :PARAMS (:AGE 45)) (:NAME &amp;quot;Alice&amp;quot; :PARAMS (:AGE 23)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here I&apos;ve extracted forms responsible for the modification:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;;; Plain Common Lisp
-(setf (getf (getf item :params)
-            :age)
-      (parse-integer
-       (getf (getf item :params)
-             :age)))
-
-;; Using Place Modifiers macro
-(place-modifier:modify
- (parse-integer
-  (getf (getf item :params)
-        :age)))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To learn more about &lt;code&gt;place-modifiers&lt;/code&gt;, read it&apos;s &lt;a href=&quot;https://www.hexstreamsoft.com/libraries/place-modifiers/&quot;&gt;docs&lt;/a&gt;! There is a lot of examples.&lt;/p&gt;
-&lt;p&gt;You might also be interested in reading the post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/03/0007-access.html&quot;&gt;access&lt;/a&gt; library.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 29 Sep 2020 22:18:05 +0300</pubDate>
         </item>
     </channel>
 </rss>

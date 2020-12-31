@@ -20,9 +20,9 @@ template for your own library. Here how it is rendered in HTML:
 
 https://cl-doc-systems.github.io/atdoc/
 
-This is how it is rendered into PDF:
+This is how it is [[https://cl-doc-systems.github.io/atdoc/latex/documentation.pdf][rendered into PDF]]:
 
-https://cl-doc-systems.github.io/atdoc/latex/documentation.pdf
+[[../../media/0218/atdoc.png]]
 
 Beautiful. Isn't it?
 
