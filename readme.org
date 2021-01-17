@@ -6,7 +6,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 
 * 2021
 ** Junuary
-- 17 January - [[content/2021/01/0219-declt.org][delct]]
+- 17 January - [[content/2021/01/0219-declt.org][delct]] ([[https://twitter.com/svetlyak40wt/status/1350807503349678081][twitter]])
 * 2020
 ** December
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])

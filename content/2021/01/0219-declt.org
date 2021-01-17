@@ -13,13 +13,14 @@
 This is the documentation builder behind [[https://quickref.common-lisp.net/][Quickref]] site. It is good for
 generating API references for third party libraries.
 
-Most interesting features of Quickref are:
+Most interesting features of ~Declt~ are:
 
 - ~Declt~ uses [[https://www.gnu.org/software/texinfo/manual/texinfo/texinfo.html][Texinfo file format]] for intermediate document store.
-  This makes posssible to generate not only HTML, but also PDF and other
+  This makes it possible to generate not only HTML but also PDF and other
   output formats.
 - It can automatically include license text into the documentation. But
-  this works only for a number of popular licenses like MIT
+  this works only for a number of popular licenses like ~MIT~, ~BSD~, ~GPL~,
+  ~LGPL~ and ~BOOST~.
 
 As always, I've created a template project, ready to be used:
 
