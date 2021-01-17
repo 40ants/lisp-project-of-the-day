@@ -6,6 +6,24 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>declt</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2021/01/0219-declt.html</link>
+            <description>&lt;p&gt;This is the documentation builder behind &lt;a href=&quot;https://quickref.common-lisp.net/&quot;&gt;Quickref&lt;/a&gt; site. It is good for generating API references for third party libraries.&lt;/p&gt;
+&lt;p&gt;Most interesting features of &lt;code&gt;Declt&lt;/code&gt; are:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;&lt;code&gt;Declt&lt;/code&gt; uses &lt;a href=&quot;https://www.gnu.org/software/texinfo/manual/texinfo/texinfo.html&quot;&gt;Texinfo file format&lt;/a&gt; for intermediate document store.   This makes it possible to generate not only HTML but also PDF and other   output formats.&lt;/li&gt;&lt;li&gt;It can automatically include license text into the documentation. But   this works only for a number of popular licenses like &lt;code&gt;MIT&lt;/code&gt;, &lt;code&gt;BSD&lt;/code&gt;, &lt;code&gt;GPL&lt;/code&gt;,   &lt;code&gt;LGPL&lt;/code&gt; and &lt;code&gt;BOOST&lt;/code&gt;.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;As always, I&apos;ve created a template project, ready to be used:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cl-doc-systems/declt&quot;&gt;https://github.com/cl-doc-systems/declt&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here is how it is rendered in HTML:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/declt/&quot;&gt;https://cl-doc-systems.github.io/declt/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;And in PDF:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://cl-doc-systems.github.io/declt/index.pdf&quot;&gt;https://cl-doc-systems.github.io/declt/index.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Sadly, &lt;code&gt;Declt&lt;/code&gt; does not support markup in docstrings and cross-referencing does not work there.&lt;/p&gt;
+&lt;p&gt;Some other pros and cons are listed on &lt;a href=&quot;https://cl-doc-systems.github.io/declt/#Pros-_0026-Cons&quot;&gt;example site&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Remember, all example projects from &lt;a href=&quot;https://github.com/cl-doc-systems&quot;&gt;https://github.com/cl-doc-systems&lt;/a&gt; include a build script and GitHub Action to update documentation on every commit!&lt;/p&gt;
+</description>
+            <pubDate>Sun, 17 Jan 2021 16:58:46 +0300</pubDate>
+        </item>
+        <item>
             <title>atdoc</title>
             <link>http://40ants.com/lisp-project-of-the-day/2020/12/0218-atdoc.html</link>
             <description>&lt;p&gt;This is yet another documentation builder for CL.&lt;/p&gt;
@@ -1287,87 +1305,6 @@ POFTHEDAY&amp;gt; (babel:octets-to-string *)
 &lt;p&gt;Seems this is a cool library to make avatars, preview and thumbnails.&lt;/p&gt;
 </description>
             <pubDate>Tue, 06 Oct 2020 01:19:55 +0300</pubDate>
-        </item>
-        <item>
-            <title>dynamic-mixins</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0199-dynamic-mixins.html</link>
-            <description>&lt;p&gt;This is an interesting library which allows to add and remove mixin classes to the CLOS objects on the fly!&lt;/p&gt;
-&lt;p&gt;Common Lisp allows to change object&apos;s class, but this library goes further. It keeps track which mixins were already added to the object and allows to add new or to remove existing!&lt;/p&gt;
-&lt;p&gt;To demonstrate, how this works, let&apos;s pretend we have a graphics system where each figure can be filled with color and/or can have rounded corners. And we can have generic methods behave differently depending on traits of the figure:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defclass figure () ())
-
-POFTHEDAY&amp;gt; (defclass box (figure) ())
-
-POFTHEDAY&amp;gt; (defclass filled ()
-             ((fill-color :initarg :fill-color)))
-
-POFTHEDAY&amp;gt; (defclass rounded ()
-             ((border-radius :initarg :border-radius)))
-
-POFTHEDAY&amp;gt; (defmethod describe-object ((obj box) stream)
-             (format stream &amp;quot;This is the box.~%&amp;quot;))
-
-POFTHEDAY&amp;gt; (defmethod describe-object :after ((obj rounded) stream)
-             (format stream &amp;quot;It has round corners.~%&amp;quot;))
-
-POFTHEDAY&amp;gt; (defmethod describe-object :after ((obj filled) stream)
-             (format stream &amp;quot;It filled with color.~%&amp;quot;))&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Now we can construct the box object and simulate how it evolves over time when the user decides to make it&apos;s corner smoother and to fill it with a color:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defparameter *obj* (make-instance &amp;#039;box))
-
-POFTHEDAY&amp;gt; *obj*
-#&amp;lt;BOX {10016F64A3}&amp;gt;
-
-POFTHEDAY&amp;gt; (describe *obj*)
-This is the box.
-
-;; Now we&amp;#039;ll add a trait to our object:
-POFTHEDAY&amp;gt; (dynamic-mixins:ensure-mix *obj* &amp;#039;rounded)
-
-POFTHEDAY&amp;gt; *obj*
-#&amp;lt;#&amp;lt;DYNAMIC-MIXINS:MIXIN-CLASS (ROUNDED BOX) {100A46CDB3}&amp;gt; {10016F64A3}&amp;gt;
-
-POFTHEDAY&amp;gt; (describe *obj*)
-This is the box.
-It has round corners.
-
-;; And yet another trait!
-POFTHEDAY&amp;gt; (dynamic-mixins:ensure-mix *obj* &amp;#039;filled)
-
-POFTHEDAY&amp;gt; (describe *obj*)
-This is the box.
-It has round corners.
-It filled with color.
-
-;; We also can remove a mixin:
-POFTHEDAY&amp;gt; (dynamic-mixins:delete-from-mix *obj* &amp;#039;rounded)
-
-POFTHEDAY&amp;gt; (describe *obj*)
-This is the box.
-It filled with color.&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The only problem I found is that it is impossible to pass initargs to the &lt;code&gt;ensure-mix&lt;/code&gt; function. Because of that, slots which we added along with the mixin, remain unbound.&lt;/p&gt;
-&lt;p&gt;But I found the solution to this problem:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (defun add-mixin (object mixin-class &amp;amp;rest initargs)
-             (let ((new-class (dynamic-mixins::ensure-mixin
-                               (funcall #&amp;#039;dynamic-mixins::%mix
-                                        object mixin-class))))
-               (apply #&amp;#039;change-class object new-class initargs)))
-
-POFTHEDAY&amp;gt; (slot-boundp *obj* &amp;#039;fill-color)
-NIL
-
-;; Now we&amp;#039;ll remove and add this mixin again:
-POFTHEDAY&amp;gt; (dynamic-mixins:delete-from-mix *obj* &amp;#039;filled)
-
-POFTHEDAY&amp;gt; (add-mixin *obj* &amp;#039;filled
-                      :fill-color &amp;quot;#FF7F00&amp;quot;)
-
-POFTHEDAY&amp;gt; (slot-boundp *obj* &amp;#039;fill-color)
-T
-
-POFTHEDAY&amp;gt; (slot-value *obj* &amp;#039;fill-color)
-&amp;quot;#FF7F00&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hope, Ryan Pavlik will incorporate my &lt;a href=&quot;https://github.com/rpav/dynamic-mixins/pull/5&quot;&gt;pull request&lt;/a&gt; with this additional function!&lt;/p&gt;
-&lt;p&gt;If you are found this post interesting, then you also might like a post about &lt;a href=&quot;https://40ants.com/lisp-project-of-the-day/2020/08/0171-dynamic-classes.html&quot;&gt;dynamic-classes&lt;/a&gt; system.&lt;/p&gt;
-</description>
-            <pubDate>Fri, 02 Oct 2020 21:31:01 +0300</pubDate>
         </item>
     </channel>
 </rss>
