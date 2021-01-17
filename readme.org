@@ -4,6 +4,9 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
+* 2021
+** Junuary
+- 17 January - [[content/2021/01/0219-declt.org][delct]]
 * 2020
 ** December
 - 03 December - [[content/2020/12/0214-codex.org][codex]] ([[https://twitter.com/svetlyak40wt/status/1334571769479442433][twitter]])
@@ -1300,11 +1303,10 @@ files, and extracting their ":defsystem-depends-on".
   exists 3bmd will try to make a links. Found it when working on
   cl-gendoc post. Actually, it uses gh:redline6561/colorize which in
   turn
-- atdoc - doc builder used in
-  https://github.com/trivial-garbage/trivial-garbage/blob/master/gendocs.lisp
 - https://github.com/JunSuzukiJapan/cl-reex - Reactive extensions for common lisp
-- https://gitlab.common-lisp.net/quickref/quickref - documentation
-  generator behind https://quickref.common-lisp.net/
+- litterae - doc generator
+  Used in 40ants/teddy
+- [[https://common-lisp.net/project/bese/docs/qbook/The_qbook_lisp_documentation_system.html][qbook]] (active fork https://github.com/mmontone/qbook)
 
 
 Simple
