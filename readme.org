@@ -5,6 +5,9 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
 * 2021
+
+** March
+- 25 March - [[content/2021/03/0220-litterae.org][litterae]]
 ** Junuary
 - 17 January - [[content/2021/01/0219-declt.org][declt]] ([[https://twitter.com/svetlyak40wt/status/1350807503349678081][twitter]])
 
@@ -582,6 +585,10 @@ Also, we'll transform links into proper HTML nodes.
    (str:replace-all ":)" "😀")
    (str:replace-all ":|" "🤨")
    (str:replace-all ":(" "🥺")))
+
+;; This method was removed from cl-org-mode at some moment :(
+(defmethod cl-org-mode::node.children ((node CL-ORG-MODE::TEXT-NODE))
+  nil)
 
 (defmethod render-node ((node cl-org-mode::properties-node) stream)
   (unless *rss-mode*
@@ -1305,10 +1312,11 @@ files, and extracting their ":defsystem-depends-on".
   cl-gendoc post. Actually, it uses gh:redline6561/colorize which in
   turn
 - https://github.com/JunSuzukiJapan/cl-reex - Reactive extensions for common lisp
-- litterae - doc generator
-  Used in 40ants/teddy
 - [[https://common-lisp.net/project/bese/docs/qbook/The_qbook_lisp_documentation_system.html][qbook]] (active fork https://github.com/mmontone/qbook)
-
+- https://github.com/Shinmera/trivial-arguments
+- projects from https://tfeb.github.io/
+- [[https://github.com/cosmos72/stmx][stmx]] - transactional memory for CLOS.
+- https://github.com/digikar99/trivial-coerce
 
 Simple
 - cl-sentiment - sentiment text analyze

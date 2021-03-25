@@ -1,0 +1,32 @@
+* litterae                                                    :documentation:
+:PROPERTIES:
+:Documentation: :(
+:Docstrings: :)
+:Tests:    :(
+:Examples: :(
+:RepositoryActivity: :|
+:CI:       :(
+:License:  MIT
+:HomePage: https://github.com/stefandevai/litterae
+:END:
+
+This is yet another Common Lisp documentation builder.
+
+It renders beautiful one page docs. Sadly, Litterae
+itself has no documentation. I've used it to document Teddy
+and also created a template project for you:
+
+https://github.com/cl-doc-systems/litterae
+
+Why Litterae can be interesting for you:
+
+- It uses README.md as documentation source.
+- Litterae builds API reference from docstrings.
+- It provides four color themes.
+- It uses [LSX](https://github.com/fukamachi/lsx)
+  for templating and probably there is a way
+  to create a custom HTML.
+
+There are many problems with Litterae as well. It seems
+not mature enough to use in my projects. To name a single
+feature I miss is cross referencing.
