@@ -12,7 +12,7 @@
 
 This is yet another Common Lisp documentation builder.
 
-It renders beautiful one page docs. Sadly, Litterae
+It renders beautiful one-page docs. Sadly, Litterae
 itself has no documentation. I've used it to document Teddy
 and also created a template project for you:
 
@@ -23,10 +23,10 @@ Why Litterae can be interesting for you:
 - It uses README.md as documentation source.
 - Litterae builds API reference from docstrings.
 - It provides four color themes.
-- It uses [LSX](https://github.com/fukamachi/lsx)
-  for templating and probably there is a way
+- It uses [[https://github.com/fukamachi/lsx][LSX]] for templating and probably there is a way
   to create a custom HTML.
 
-There are many problems with Litterae as well. It seems
+However, there are many problems with Litterae. It seems
 not mature enough to use in my projects. To name a single
-feature I miss is cross referencing.
+feature I miss is cross-referencing. That is the main reason,
+why I'll not use it for my libraries.

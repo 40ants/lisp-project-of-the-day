@@ -7,7 +7,7 @@ Here I'll post notes about Quicklisp projects. Also I publish them
 * 2021
 
 ** March
-- 25 March - [[content/2021/03/0220-litterae.org][litterae]]
+- 25 March - [[content/2021/03/0220-litterae.org][litterae]] ([[https://twitter.com/svetlyak40wt/status/1375205829557768193][twitter]])
 ** Junuary
 - 17 January - [[content/2021/01/0219-declt.org][declt]] ([[https://twitter.com/svetlyak40wt/status/1350807503349678081][twitter]])
 

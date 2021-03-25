@@ -6,6 +6,18 @@
         <generator>xml-emitter</generator>
         <language>en-us</language>
         <item>
+            <title>litterae</title>
+            <link>http://40ants.com/lisp-project-of-the-day/2021/03/0220-litterae.html</link>
+            <description>&lt;p&gt;This is yet another Common Lisp documentation builder.&lt;/p&gt;
+&lt;p&gt;It renders beautiful one-page docs. Sadly, Litterae itself has no documentation. I&apos;ve used it to document Teddy and also created a template project for you:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/cl-doc-systems/litterae&quot;&gt;https://github.com/cl-doc-systems/litterae&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Why Litterae can be interesting for you:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;It uses README.md as documentation source.&lt;/li&gt;&lt;li&gt;Litterae builds API reference from docstrings.&lt;/li&gt;&lt;li&gt;It provides four color themes.&lt;/li&gt;&lt;li&gt;It uses &lt;a href=&quot;https://github.com/fukamachi/lsx&quot;&gt;LSX&lt;/a&gt; for templating and probably there is a way   to create a custom HTML.&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;However, there are many problems with Litterae. It seems not mature enough to use in my projects. To name a single feature I miss is cross-referencing. That is the main reason, why I&apos;ll not use it for my libraries.&lt;/p&gt;
+</description>
+            <pubDate>Fri, 26 Mar 2021 00:55:49 +0300</pubDate>
+        </item>
+        <item>
             <title>declt</title>
             <link>http://40ants.com/lisp-project-of-the-day/2021/01/0219-declt.html</link>
             <description>&lt;p&gt;This is the documentation builder behind &lt;a href=&quot;https://quickref.common-lisp.net/&quot;&gt;Quickref&lt;/a&gt; site. It is good for generating API references for third party libraries.&lt;/p&gt;
@@ -1286,25 +1298,6 @@ POFTHEDAY&amp;gt; (babel:octets-to-string *)
 &lt;p&gt;BTW, the LMDB&apos;s &lt;a href=&quot;https://github.com/antimer/lmdb&quot;&gt;repository&lt;/a&gt; needs some love because there are some hanging pull requests and a few unanswered issues. Does somebody know how does Fernando Borretti feels himself? Maybe he needs some help?&lt;/p&gt;
 </description>
             <pubDate>Thu, 08 Oct 2020 23:55:01 +0300</pubDate>
-        </item>
-        <item>
-            <title>trivial-thumbnail</title>
-            <link>http://40ants.com/lisp-project-of-the-day/2020/10/0200-trivial-thumbnail.html</link>
-            <description>&lt;p&gt;This is the &lt;a href=&quot;https://shinmera.github.io/trivial-thumbnail/&quot;&gt;library&lt;/a&gt; by &lt;a href=&quot;https://twitter.com/Shinmera&quot;&gt;@Shinmera&lt;/a&gt;. It does one trivial thing - shrinks images, squeezes them into smaller thumbnails. Actually, it is a wrapper around &lt;a href=&quot;https://imagemagick.org/&quot;&gt;ImageMagick&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;The cool thing about this library is that it is able to preserve GIF animations. This way you can create animated avatars for users of your next-generation Facebook killer social network, written in Common Lisp!&lt;/p&gt;
-&lt;p&gt;For example, let&apos;s pretend the user loads this cute dog animation which has 800&#xD7;800 pixels size, and weights 44KB:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0200/dog.gif&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;If we want our avatars to be 64x64 pixels, then &lt;code&gt;trivial-thumbnail&lt;/code&gt; will help us:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;lisp&apos;&gt;POFTHEDAY&amp;gt; (trivial-thumbnail:create &amp;quot;docs/media/0200/dog.gif&amp;quot;
-                                     &amp;quot;docs/media/0200/small-dog.gif&amp;quot;
-                                     :width 64)
-#P&amp;quot;docs/media/0200/small-dog.gif&amp;quot;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here is the result:&lt;/p&gt;
-&lt;p&gt;&lt;img style=&quot;max-width: 100%&quot; src=&quot;../../media/0200/small-dog.gif&quot;/&gt;&lt;/p&gt;
-&lt;p&gt;To make it work you have to install ImageMagick. On OSX the easiest way to do this is to use Homebrew:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&apos;bash&apos;&gt;brew install imagemagick&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There are also other options. They are covered by &lt;a href=&quot;https://shinmera.github.io/trivial-thumbnail/&quot;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Seems this is a cool library to make avatars, preview and thumbnails.&lt;/p&gt;
-</description>
-            <pubDate>Tue, 06 Oct 2020 01:19:55 +0300</pubDate>
         </item>
     </channel>
 </rss>
