@@ -13,15 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Install Roswell
-        env:
-          LISP: ${{ matrix.lisp }}
-        run: |
-          curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
-      - name: Install Ultralisp
-        run: ros -e '(ql-dist:install-dist "http://dist.ultralisp.org/" :prompt nil)'
-      - name: Install Qlot
-        run: ros install fukamachi/qlot
+      - uses: 40ants/setup-lisp@v1
       - name: Make Qlot environment
         run: ~/.roswell/bin/qlot install
       - name: Build site
