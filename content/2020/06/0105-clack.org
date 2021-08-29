@@ -79,17 +79,29 @@ application function:
 
 #+begin_src lisp
 
+;; Store the env argument
+POFTHEDAY> (defparameter *env* nil)
+
+POFTHEDAY> (defparameter *server*
+               (clack:clackup
+                (lambda (env)
+                  (setf *env* env)
+                  '(200 (:content-type "text/plain")
+                    ("Hello, Lisp World!")))
+                :port 8003))
+
 ;; For this request:
-POFTHEDAY> (dex:get "http://localhost:8000/some/path"
+POFTHEDAY> (dex:get "http://localhost:8003/some/path"
                     :headers '(("Custom-Header" . "Hello")))
 
 ;; This plist will be passed as env argument
 ;; to the function:
+POFTHEDAY> *env*
 (:REQUEST-METHOD :GET
  :SCRIPT-NAME ""
  :PATH-INFO "/some/path"
  :SERVER-NAME "localhost"
- :SERVER-PORT 8000
+ :SERVER-PORT 8003
  :SERVER-PROTOCOL :HTTP/1.1
  :REQUEST-URI "/some/path"
  :URL-SCHEME "http"
@@ -108,7 +120,7 @@ POFTHEDAY> (rutils:print-hash-table
             (getf * :headers))
 #{EQUAL
   "user-agent" "Dexador/0.9.14 (SBCL 2.0.2); Darwin; 19.5.0"
-  "host" "localhost:8000"
+  "host" "localhost:8003"
   "accept" "*/*"
   "custom-header" "Hello"
  } 
