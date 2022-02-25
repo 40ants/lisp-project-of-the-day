@@ -58,8 +58,3 @@ WARNING: Compilation failed in a system "log4cl-extras".
 
 As you can see, all errors are caught. However, ~SBLint~ itself exited
 with 0 exit code. Because of this, we can't add it into our CI pipeline.
-
-I consider this is a bug and will made a pull-request to fix it. Hopefully,
-the current maintainer will merge it soon:
-
-https://github.com/cxxxr/sblint/pull/19
