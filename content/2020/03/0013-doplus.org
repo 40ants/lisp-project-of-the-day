@@ -3,8 +3,8 @@
 Do+ is a macro, similar to 'loop' or 'iterate', but built with
 simplicity in mind.
 
-Documentation is good and contains some examples showing how does
-iteration works and how to extend the behaviour and add new iteration
+Documentation is good and contains some examples showing how
+iteration works as well as how to extend do+ with new iteration
 methods.
 
 Here is a simple iteration on the list:
@@ -20,7 +20,7 @@ POFTHEDAY> (do+
 
 #+END_SRC
 
-Now let's try to extend do+ to iterate on week days:
+Let's try to extend do+ to iterate on week days by using the defclause macro:
 
 #+BEGIN_SRC lisp
 
@@ -104,13 +104,7 @@ NIL
 
 #+END_SRC
 
-Repository lives on the GitHub:
+The project repository can be found on GitHub:
 https://github.com/alessiostalla/doplus
-
-Previosly it was hosted on the BitBucked and has some docs on the Wiki:
-
-https://bitbucket.org/alessiostalla/doplus/wiki/Home
-
-But now it is not available anymore.
 
 See also :iterate, :for and :series.
