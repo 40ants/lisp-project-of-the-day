@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 Mode: POLY-ORG;  -*- ---
-Here I'll post notes about Quicklisp projects. Also I publish them
-[[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]].
+Here I'll post notes about Quicklisp projects. +Also I published them
+[[https://twitter.com/search?q=%40svetlyak40wt%20%23poftheday&src=typed_query&f=live][on Twitter account svetlyak40wt]]+. Project on twitter is closed, and moved to YouTube https://www.youtube.com/@40Ants and PeerTube: https://diode.zone/c/40ants!
 
 [[https://github.com/40ants/lisp-project-of-the-day/workflows/CI/badge.svg?branch=master]]
 
