@@ -7,22 +7,39 @@
     </title>
     <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162105820-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FL71WXK73K"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-FL71WXK73K');
+      </script>
   
-    gtag('config', 'UA-162105820-1');
-  </script>
-  
+      <!-- Yandex.Metrika counter -->
+      <script type="text/javascript" >
+         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+         m[i].l=1*new Date();
+         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+         ym(42462884, "init", {
+              clickmap:true,
+              trackLinks:true,
+              accurateTrackBounce:true
+         });
+      </script>
+      <noscript><div><img src="https://mc.yandex.ru/watch/42462884" style="position:absolute ; left:-9999px;" alt="" /></div></noscript>
+      <!-- /Yandex.Metrika counter -->
+
     <link type='text/css' rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' />
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
     <link rel='stylesheet' href='../../highlight/styles/tomorrow-night.css' />
     <script src='../../highlight/highlight.pack.js'></script>
-    <script>hljs.initHighlightingOnLoad();
+    <script>hljs.initHighlightingOnLoad() ;
     </script>
     <style>
 
@@ -80,8 +97,6 @@ WARNING: Compilation failed in a system &quot;log4cl-extras&quot;.
 # But return code is still SUCCESS:
 [art@poftheday] echo $?
 0</code></pre><p>As you can see, all errors are caught. However, <code>SBLint</code> itself exited with 0 exit code. Because of this, we can't add it into our CI pipeline.</p>
-<p>I consider this is a bug and will made a pull-request to fix it. Hopefully, the current maintainer will merge it soon:</p>
-<p><a href="https://github.com/cxxxr/sblint/pull/19">https://github.com/cxxxr/sblint/pull/19</a></p>
 
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"

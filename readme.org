@@ -1347,5 +1347,23 @@ files, and extracting their ":defsystem-depends-on".
 Simple
 - cl-sentiment - sentiment text analyze
 
+* How to update and deploy the site
+
+The site is hosted at GitHub pages right from the =docs= folder. Thus you need
+to build the site on your machine and to push results to the master branch.
+
+To build site do this in the REPL:
+
+
+#+BEGIN_SRC text
+
+(ql:quickload :poftheday)
+(poftheday::render-site)
+
+#+END_SRC
+
+
+
+
 * Thanks
   In this project I've used RSS Icon by [[https://www.iconfinder.com/AlexAPR][Alex Prunici]].

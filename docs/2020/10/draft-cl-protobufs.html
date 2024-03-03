@@ -3,7 +3,7 @@
 <html lang='en'>
   <head>
     <meta charset='utf-8' />
-    <title>pango-markup
+    <title>cl-protobufs
     </title>
     <link rel='alternate' href='https://40ants.com/lisp-project-of-the-day/rss.xml' type='application/rss+xml' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
@@ -68,30 +68,10 @@ h1 .tags {
 
     </style>
   </head>
-  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>pango-markup</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>pango-markup<span class='tags'><a href='../../tags/text.html'><span class='label label-default'>text</span></a></span></h1><p>This library allows processing a text with Pango Markup.</p>
-<p>Pango Markup used by GTK to render attributed text. It is a simple SGML-like language. It looks like a subset of HTML but uses custom attributes.</p>
-<p>Gnome's Pango library contains a parser for this format:</p>
-<p><a href="https://developer.gnome.org/pango/stable/pango-Markup.html">https://developer.gnome.org/pango/stable/pango-Markup.html</a></p>
-<p>But :pango-markup is not a parser, it's purpose is to render text and attributes into this format.</p>
-<p>You should provide it a plain text and a separate list of regions with attributes.</p>
-<p>For example, is we would like to make the word "Bob" in "Hello Bob!", then we need to do:</p>
-<pre><code class='lisp'>POFTHEDAY&gt; (pango-markup:markup-regions
-            &quot;Hello Bob!&quot;
-            &#039;((6 9 :font (:weight :bold))))
-&quot;Hello &lt;span font_weight=&#039;bold&#039;&gt;Bob&lt;/span&gt;!&quot;
+  <body><div class='container'><div class='row'><a href='https://40ants.com/lisp-project-of-the-day/rss.xml' style='display: block; float: right;'><img alt='RSS Feed' src='https://40ants.com/lisp-project-of-the-day/media/images/rss.png' /></a><header><h1 style='text-align: center'><a href='../../index.html'>Lisp Project of the Day</a></h1><h2 style='text-align: center'>cl-protobufs</h2></header><div class='col-md-12 col-md-offset-0'><center><h3>You can support this project by donating at:</h3><a href='https://www.patreon.com/bePatron?u=33868637'><img alt='Donate using Patreon' src='https://40ants.com/lisp-project-of-the-day/media/images/patreon-btn.png' width='160' /></a><a href='https://liberapay.com/poftheday/donate'><img alt='Donate using Liberapay' src='https://liberapay.com/assets/widgets/donate.svg' /></a><p>Or see <a href='https://40ants.com/lisp-project-of-the-day/patrons/index.html'>the list of project sponsors</a>.</p></center><h1>cl-protobufs<span class='tags'><a href='../../tags/serialization.html'><span class='label label-default'>serialization</span></a></span></h1><table style='position: relative; float: right; background-color: #F1F1F1; padding: 1em; margin-left: 1em; margin-bottom: 1em; border: 1px solid #D1D1D1;'><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Documentation</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>😀</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Docstrings</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>😀</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Tests</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>   🥺</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>Examples</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>🤨</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>RepositoryActivity</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>🥺</td></tr><tr><td style='padding-left: 0.5rem; padding-right: 0.5rem'>CI</td><td style='padding-left: 0.5rem; padding-right: 0.5rem; border-left: 1px solid #DDD'>      🥺</td></tr></table><p>It is better to install from <a href="https://github.com/qitab/cl-protobufs">GitHub</a> or from the <a href="https://ultralisp.org">https://ultralisp.org</a> because <code>quicklisp 2020-10-16</code> includes old <code>cl-protobufs</code> version without <code>protoc</code> plugin.</p>
+<pre><code class='bash'>brew install protobuf
 
-;; Attributed ranges can be nested. Here we want
-;; to underline the whole sentence and make &quot;Bob&quot; bold:
-
-POFTHEDAY&gt; (pango-markup:markup-regions
-            &quot;Hello Bob!&quot;
-            &#039;((6 9 :font (:weight :bold))
-              (0 10 :underline t)))
-&quot;&lt;span underline=&#039;single&#039;&gt;Hello &lt;span font_weight=&#039;bold&#039;&gt;Bob&lt;/span&gt;!&lt;/span&gt;&quot;</code></pre><p>If you want to use GTK from Common Lisp and output attributed text, :pango-markup will help you.</p>
-<p>Here is full documentation to this library:</p>
-<p><a href="https://shinmera.github.io/pango-markup/">https://shinmera.github.io/pango-markup/</a></p>
-<p>@shinmera's libraries have very nicely rendered documentation. Go, read it!</p>
-
+brew --prefix protobuf</code></pre>
 <script src="https://utteranc.es/client.js"
         repo="40ants/lisp-project-of-the-day"
         issue-term="title"
