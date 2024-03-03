@@ -362,16 +362,35 @@ that:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *google-code* "
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-162105820-1\"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'UA-162105820-1');
-  </script>
-  "))
+      <!-- Google tag (gtag.js) -->
+      <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-FL71WXK73K\"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-FL71WXK73K');
+      </script>
+  ")
+
+  (defparameter *yandex-metrika-code* "
+      <!-- Yandex.Metrika counter -->
+      <script type=\"text/javascript\" >
+         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+         m[i].l=1*new Date();
+         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+         (window, document, \"script\", \"https://mc.yandex.ru/metrika/tag.js\", \"ym\");
+
+         ym(42462884, \"init\", {
+              clickmap:true,
+              trackLinks:true,
+              accurateTrackBounce:true
+         });
+      </script>
+      <noscript><div><img src=\"https://mc.yandex.ru/watch/42462884\" style=\"position:absolute ; left:-9999px;\" alt=\"\" /></div></noscript>
+      <!-- /Yandex.Metrika counter -->
+"))
 
 
 (defvar *index-uri* nil
@@ -400,6 +419,7 @@ that:
           (:meta :name "viewport"
                  :content "width=device-width, initial-scale=1")
           ,*google-code*
+          ,*yandex-metrika-code*
           (:link
            :type "text/css"
            :rel "stylesheet"
@@ -409,7 +429,7 @@ that:
           (:link :rel "stylesheet"
                  :href "../../highlight/styles/tomorrow-night.css")
           (:script :src "../../highlight/highlight.pack.js")
-          (:script "hljs.initHighlightingOnLoad();")
+          (:script "hljs.initHighlightingOnLoad() ;")
           (:style "
 
 .tags .label {
@@ -1312,11 +1332,17 @@ files, and extracting their ":defsystem-depends-on".
   cl-gendoc post. Actually, it uses gh:redline6561/colorize which in
   turn
 - https://github.com/JunSuzukiJapan/cl-reex - Reactive extensions for common lisp
-- [[https://common-lisp.net/project/bese/docs/qbook/The_qbook_lisp_documentation_system.html][qbook]] (active fork https://github.com/mmontone/qbook)
+- [[https://common-lisp.net/project/bese/docs/qbook/The_qbook_lisp_documentation_system.html][qbook]] (active fork https://github.com/mmontone/qbook) documentation system
 - https://github.com/Shinmera/trivial-arguments
 - projects from https://tfeb.github.io/
 - [[https://github.com/cosmos72/stmx][stmx]] - transactional memory for CLOS.
 - https://github.com/digikar99/trivial-coerce
+- https://github.com/fisxoj/sanity-clause - form/structure validation
+- https://gitlab.com/ralt/pvars - persistent variables
+- https://github.com/digikar99/reader - interesting syntax extensions
+  for hash tables, sets, arrays, etc.
+- https://github.com/tdrhq/slite
+  можно записать демку и показать, как добавить в него поддержку Rove.
 
 Simple
 - cl-sentiment - sentiment text analyze
